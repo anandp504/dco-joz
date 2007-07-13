@@ -11,7 +11,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 import com.tumri.utils.strings.RFC1738Decoder;
 import com.tumri.utils.sexp.Sexp;
@@ -19,19 +18,6 @@ import com.tumri.utils.sexp.SexpIFASLWriter;
 
 public class JozServlet extends HttpServlet
 {
-    private static Logger log = null;
-
-    static
-    {
-	String filename = System.getProperty ("LOG4J_PROPS");
-	if (filename != null)
-	{
-	    System.out.println ("Loading log4j properties from " + filename);
-	    PropertyConfigurator.configure (filename);
-	}
-	log = Logger.getLogger (JozServlet.class);
-    }
-
     public void
     doGet (HttpServletRequest request, HttpServletResponse response)
 	throws IOException, ServletException
@@ -83,4 +69,8 @@ public class JozServlet extends HttpServlet
 	    // ??? Protocol apparently says to return nothing.  True?
 	}
     }
+
+    // implementation details -------------------------------------------------
+
+    private static Logger log = Logger.getLogger (JozServlet.class);
 }

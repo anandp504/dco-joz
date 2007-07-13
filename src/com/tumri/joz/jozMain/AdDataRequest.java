@@ -49,25 +49,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 import com.tumri.utils.sexp.*;
 
 public class AdDataRequest
 {
-    private static Logger log = null;
-
-    static
-    {
-	String filename = System.getProperty ("LOG4J_PROPS");
-	if (filename != null)
-	{
-	    System.out.println ("Loading log4j properties from " + filename);
-	    PropertyConfigurator.configure (filename);
-	}
-	log = Logger.getLogger (AdDataRequest.class);
-    }
-
     public AdDataRequest (Sexp expr)
 	throws BadCommandException
     {
@@ -201,6 +187,8 @@ public class AdDataRequest
     }
 
     // implementation details -------------------------------------------------
+
+    private static Logger log = Logger.getLogger (AdDataRequest.class);
 
     private enum RqstParam
     {

@@ -34,25 +34,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 import com.tumri.utils.sexp.Sexp;
 
 public class CmdGetAdData extends Command
 {
-    private static Logger log = null;
-
-    static
-    {
-	String filename = System.getProperty ("LOG4J_PROPS");
-	if (filename != null)
-	{
-	    System.out.println ("Loading log4j properties from " + filename);
-	    PropertyConfigurator.configure (filename);
-	}
-	log = Logger.getLogger (CmdGetAdData.class);
-    }
-
     public CmdGetAdData (Sexp e)
     {
 	super (e);
@@ -78,6 +64,8 @@ public class CmdGetAdData extends Command
     }
 
     // implementation details -------------------------------------------------
+
+    private static Logger log = Logger.getLogger (CmdGetAdData.class);
 
     private Sexp
     choose_products (AdDataRequest rqst)
