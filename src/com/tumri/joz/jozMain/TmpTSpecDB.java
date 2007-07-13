@@ -1,0 +1,133 @@
+// The TSpec database.
+// FIXME: This is just scaffolding until the design is worked out.
+
+package com.tumri.joz.jozMain;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.LineNumberReader;
+
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
+
+import com.tumri.zini.transport.FASLType;
+import com.tumri.zini.transport.FASLReader;
+
+import com.tumri.utils.strings.EString;
+import com.tumri.utils.strings.ProductName;
+import com.tumri.utils.sexp.*;
+import com.tumri.utils.ifasl.IFASLUtils;
+
+public class TmpTSpecDB implements TSpecDB
+{
+    TmpTSpecDB (String tspecs_path)
+	throws FileNotFoundException, IOException, BadTSpecException
+    {
+	init (tspecs_path);
+    }
+
+    public String
+    get_default_realm_url ()
+    {
+	return null; // FIXME: wip
+    }
+
+    public TSpec
+    get (String name)
+    {
+	return null; // FIXME: wip
+    }
+
+    // implementation details -------------------------------------------------
+
+    HashMap<String, TSpec> _tspec_db;
+
+    private static Logger log = Logger.getLogger (TmpTSpecDB.class);
+
+    private void
+    init (String tspecs_path)
+	throws FileNotFoundException, IOException, BadTSpecException
+    {
+	log.info ("Loading T-Specs from " + tspecs_path);
+	load_tspecs_from_lisp_file (tspecs_path);
+    }
+
+    private void
+    load_tspecs_from_lisp_file (String path)
+	throws FileNotFoundException, IOException, BadTSpecException
+    {
+	_tspec_db = new HashMap<String, TSpec> ();
+
+	FileReader fr = new FileReader (path);
+
+	try
+	{
+	    SexpReader sr = new SexpReader (fr);
+	    Sexp s;
+	    int count = 0;
+
+	    while ((s = sr.read ()) != null)
+	    {
+		if (! s.isSexpList ())
+		{
+		    log.error ("Bad sexp in tspecs file: " + s.toString ());
+		    continue;
+		}
+		SexpList l = s.toSexpList ();
+		Iterator<Sexp> iter = l.iterator ();
+		if (! iter.hasNext ())
+		{
+		    log.error ("Bad t-spec entry: " + s.toString ());
+		    continue;
+		}
+		Sexp t = iter.next ();
+		if (! t.isSexpSymbol ())
+		{
+		    log.error ("Bad t-spec entry: " + s.toString ());
+		    continue;
+		}
+		SexpSymbol cmd = t.toSexpSymbol ();
+		if (cmd.equalsStringIgnoreCase ("in-package"))
+		    continue; // ignore
+		if (cmd.equalsStringIgnoreCase ("setf"))
+		{
+		    continue; // FIXME: wip, ignore for now
+		}
+		if (cmd.equalsStringIgnoreCase ("t-spec-add"))
+		{
+		    TSpec tspec = new TSpec (iter);
+		    String name = tspec.get_name ();
+		    _tspec_db.put (name, tspec); // FIXME: collisions
+		    ++count;
+		    if (count % 10000 == 0)
+			log.info ("Loaded " + count + " entries ...");
+		    continue;
+		}
+		log.error ("Bad t-spec entry, unknown request: " + s.toString ());
+		// FIXME: throw exception?
+	    }
+
+	    if (count > 0)
+	    {
+		log.info ("Loaded " + count + " t-specs.");
+	    }
+	}
+	catch (IOException e)
+	{
+	    throw (e);
+	}
+	catch (Exception e)
+	{
+	    throw new BadTSpecException (e.getMessage ());
+	}
+	finally
+	{
+	    fr.close ();
+	}
+    }
+}

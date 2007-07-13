@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<project name="joz-testsuite" default="no-default" basedir="..">
+
+    <!-- NOTE WELL: This file is imported into the main build.xml file.
+         It is not intended to work standalone.  -->
+
+    <property name="root.dir" value="."/>
+
+    <!-- ****************************************************************** -->
+
+    <target name="build-tests">
+
+        <javac destdir="${classes.dir}"
+               debug="on"
+               optimize="on"
+               srcdir="${src.dir}"
+               includes="com/tumri/joz/testsuite/*.java">
+            <classpath refid="project.class.path"/>
+            <!--compilerarg value="-Xlint:unchecked"/>
+              <compilerarg value="-Xlint:deprecation"/-->
+        </javac>
+
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <target name="run-tests" depends="build-tests">
+
+	<java classpath="${dist.dir}/Joz.jar;${ext.lib.dir}/log4j-1.2.6.jar;${classes.dir}"
+	      classname="com/tumri/joz/testsuite/TestIFASL1"
+	      fork="true"/>
+
+    </target>
+
+</project>

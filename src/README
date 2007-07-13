@@ -1,0 +1,12 @@
+README for depot/Tumri/tas/joz/src.
+
+deboost-categories.txt:
+
+This file is installed ??? and is used when building
+the lucene index.  Products with the "parent" field listed
+in this file have their scores reduced by setting the
+document boost level to < 1.0.
+
+log4j.properties:
+
+Standard log4j properties file.

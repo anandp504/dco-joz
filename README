@@ -1,0 +1,26 @@
+README for Tumri/tas/joz
+
+This is the Java implementation of SoZ.
+
+Contents
+--------
+
+Developer Notes
+What's different from SoZ 2.3.x?
+
+Developer Notes
+---------------
+
+See README-HACKING in this directory.
+
+What's different from SoZ 2.3.x?
+--------------------------------
+
+This section enumerates the notable differences from SoZ 2.3.x.
+
+- Written in Java
+
+- Lucene server is not a separate process.
+
+  Since the implementation language is Java there is no need
+  to run the Lucene server in a separate process.

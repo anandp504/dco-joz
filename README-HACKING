@@ -1,0 +1,146 @@
+README-HACKING for Tumri/tas/joz
+
+This document contains guidelines, rules, and help for those
+hacking on joz.
+
+Contents
+--------
+
+Coding Standards
+
+Coding Standards
+----------------
+
+1) Joz has a fairly constrained coding standard.
+   Some rules are just style issues, others find their genesis in
+   standard software engineering practice.
+   No one is required to follow this standard.
+   HOWEVER, anyone shall feel free to fix violations of the
+   standard.  The easiest way to follow the standard is to simply
+   look at various existing source files and precisely follow them
+   in all new files.
+
+2) Use /* ... */ to comment out code.
+   /* and */ live on lines by themselves and begin in column 1.
+   But also see #4.
+
+3) Due to #2, try to restrict commenting inside code to just //.
+
+4) Don't comment out code that will no longer be used, delete it.
+   Let the source code control system do its job, and keep the code readable.
+
+5) Column width is 79.
+   In general long lines should be wrapped at 79 columns.
+   [Insert discussion of this being an outdated standard.
+   It's not outdated.  It's actually quite useful.  Excessive
+   indentation is often a sign of poorly written code.  Plus, what would
+   one pick that would work 100% of the time?  79 is what joz uses.  It's
+   a convenient width when one has two side-by-side windows of code.]
+
+6) The tab character is 8 spaces.
+   Many Java editors seem to think it's reasonable to allow this to be
+   changed.  It is not.  Set your editor to make tab characters be 8 spaces
+   (or more pedantically correct, every 8 columns starting with column 1).
+
+7) Indentation level is 4.
+   Whether your editor uses only spaces or a combination of spaces and
+   tabs is up to you (but see #6).
+
+8) Tell your editor to not make whitespace changes on its own.
+   Several editors seem to think it's reasonable to make changes to your code
+   on their own.  It is not.  Such changes decrease the signal/noise ratio
+   of your checkins, and that's A Bad Thing.
+
+9) When making whitespace only changes, try to restrict the checkin to
+   ONLY whitespace changes.  Especially as the quantity of whitespace
+   change grows.
+
+10) Write
+
+   if (test)
+   {
+   }
+
+   Not
+
+   if (test) {
+   }
+
+   Same for all other placement of "{" in general.
+
+11) Write
+
+   a = v * 2;
+
+   Not
+
+   a=v*2;
+
+12) Write
+
+   if (some_expression_1
+       || some_expression_2)
+
+   Not
+
+   if (some_expression_1 ||
+       some_expression_2)
+
+   Similarily, write
+
+   foo (string_expression_1
+        + string_expression_2)
+
+   Not
+
+   foo (string_expression_1 +
+        string_expression_2)
+
+13) The studlyCap style of Java is, umm, well let's not go there ...
+    For external API's you probably need to follow it.
+    However for internal methods,etc. you are encouraged to use _'s.
+
+14) Write
+
+   function_name (arg1, arg2)
+
+   Not
+
+   function_name( arg1, arg2 )
+
+15) Write
+
+   public int
+   my_method ()
+       throws FooException
+   {
+       return mumble;
+   }
+
+   Not
+
+   public int my_method() throws FooException {
+       return mumble;
+   }
+
+   Write constructors as
+
+   public ClassName ()
+       throws FooException
+   {
+       mumble;
+   }
+
+16) Put a README in every directory that contains important files or a
+    substantial number of files.  One thing the README contains is a
+    description of what the directory contains, and any special instructions
+    useful to those hacking on the code there.
+
+17) Mark code that must be fixed with FIXME.
+    Mark code that might need to be fixed with ???.
+    Mark code that is unfinished with TODO.
+    Mark code that needs (or may need) performance improvements with PERF.
+
+18) static final class members are generally named in UPPERCASE
+
+19) normal class members are prefixed with _

@@ -1,0 +1,67 @@
+README for Tumri/ads/joz/src/com/tumri/joz/keywordServer.
+
+Contents:
+
+This directory contains code for two jars:
+IndexProducts.jar and KeywordServer.jar.
+
+IndexProducts.jar is used to create the lucene index,
+and KeywordServer.jar is used to perform searches in
+the database for joz.
+
+Scoring:
+
+Getting usable results from the data is tricky.  The default search
+field is "alltext" which is basically brand + name, but it can also
+consist of a lot of other junk.  It can also consist of brand + name
+repeated several times.  The repetition can increase the score for
+searches on words in the brand or name, but it can also negatively
+impact the score.  Lucene favors hits in shorter fields, so if the
+document we really want has an alltext field with lots of junk we're
+basically screwed unless the search text is carefully chosen, but we
+don't want to require that.  Verbose alltext fields also makes it hard
+to debug low scores and improve them, all the extra text makes it hard
+to decide why a score is low and reduces the affect of other changes
+on improving the score.
+
+To compensate we try three things.
+
+1) deboost less preferable documents
+
+   If the user searches for "nikon cameras", for example, we don't want
+   camera cases to score higher than cameras.  To accomplish this we
+   use a boost of < 1.0 for categories that are "accessory-like".
+   By "accessory-like" we don't mean "clothing accessories", instead we
+   mean things like camera cases, monitor cables, etc.  The taxonomy
+   has a set of categories for such things so this is relatively easy to do.
+
+   There are a few caveats of course:
+
+   - There aren't enough categories for "accessory-like things,
+     e.g. _1291.US1644982, Kingston 2GB Compact Flash Memory Card is
+     in the category "Cameras", there is no "Camera Accessories" category.
+
+   - Some products are mis-categorized.  Not much we can do here
+     except provide feedback when such things are detected.
+
+   - Sometimes the user wants to search for the accessory.
+     This is compensated for by the fact that if the user searches for
+     "nikon camera case", cases will tend to score higher than cameras.
+     It is still important to not deboost accessory-like categories by
+     too much.
+
+2) shrink alltext
+
+   alltext can contain the name and brand repeated several times.
+   Not all products do this.  To reduce the verbosity and level the
+   playing field for all products we uniqify the text and then afterwards
+   we append the name before passing the text to lucene for indexing.
+
+3) don't use alltext
+
+   alltext can contain a lot of prose, and while stopwords are removed
+   there is still a lot of junk left over.
+   To allow for experiments in avoiding alltext altogether, we create a new
+   field "canonicalname" that consists of: parents + brand + name.  joz can
+   use this as the default search field by starting the keyword server with
+   "-field canonicalname".

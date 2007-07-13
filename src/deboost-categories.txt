@@ -1,0 +1,18 @@
+# This file lists the categories in the MUP taxonomy that we "deboost".
+# WARNING: The master copy of this file is in Tumri/Java/SoZ/src.
+
+Camcorder Accessories
+Camera Cases
+Computer Cables
+Computer Peripheral Supplies
+Computer Peripherals
+Desk Accessories
+Joysticks, Trackballs, Etc
+Lenses & Filters
+Misc Electronics
+Misc Personal Audio
+Misc TV & Video
+MP3 Accessories
+Phone Accessories
+Toner & Ink
+TV Accessories

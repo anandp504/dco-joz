@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<project name="joz" default="build" basedir="..">
+
+    <property name="root.dir" value="."/>
+
+    <!-- The buildconf.properties file MUST be loaded before build.properties.
+         Ideally the order should not matter, but not all directories use
+         buildconf.properties.  To support a transition period we mandate
+         that it must be loaded before build.properties allowing it to take
+         precedence.  See the Tumri/build/default.buildconf.properties for
+         more info.  -->
+    <property name="buildconf.properties" value="../../buildconf.properties"/>
+    <fail message="Must configure tree first.">
+        <condition>
+            <not> <available file="${buildconf.properties}"/> </not>
+        </condition>
+    </fail>
+    <property file="${buildconf.properties}"/>
+
+    <!-- This property file contains various parameters that in general
+         DO NOT change.  -->
+    <property file="${root.dir}/build/build.properties"/>
+
+    <import file="joz.xml"/>
+    <import file="lucene.xml"/>
+    <import file="testsuite.xml"/>
+
+    <path id="project.class.path">
+        <fileset dir="${ext.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+	<fileset dir="${zini.lib.dir}">
+            <include name="*.jar"/>
+	</fileset>
+	<fileset dir="${utils.lib.dir}">
+            <include name="*.jar"/>
+	</fileset>
+	<fileset dir="${dist.dir}">
+	    <include name="*.jar"/>
+	</fileset>
+    </path>
+
+    <!-- ****************************************************************** -->
+
+    <target name="init">
+        <mkdir dir="${classes.dir}"/>
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <target name="clean"
+            description="Remove all build objects from the tree.">
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <target name="build"
+            depends="build-IndexProducts-jar,build-KeywordServer-jar,build-Joz-war"
+            description="Build everything.">
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <target name="install"
+            description="Install joz.">
+	<!-- FIXME: Aahhh!  tomcat prefers the unzipped copy of the previous
+	     war over the newly installed one.  -->
+	<delete dir="${joz.war.install.dir}/Joz"/>
+	<!-- This used to copy *.war with a fileset but no error is signalled
+	     if Joz.war doesn't exist.  -->
+	<copy file="${dist.dir}/Joz.war" todir="${joz.war.install.dir}"/>
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <!-- Targets invoked by the top level build harness don't have
+         descriptions as they're not intended to be manually invoked.  -->
+
+    <target name="top-clean" depends="clean"/>
+
+    <target name="top-build" depends="build"/>
+
+    <target name="top-install" depends="install"/>
+
+</project>
