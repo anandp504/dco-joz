@@ -21,7 +21,7 @@ get-ad-data steps
     otherwise realm = mux-choose-t-spec
 - if t-spec is non-nil,
     - (products num-prods t-spec-name realm) = (ad-request ...)
-    - result = morph-product-list-into-sexpr
+    - send result back to client
   otherwise error "null t-spec, most likely no default realm"
 
 */
@@ -32,51 +32,82 @@ package com.tumri.joz.jozMain;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.io.OutputStream;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.*;
+import com.tumri.utils.strings.EString;
+import com.tumri.utils.strings.RFC1630Encoder;
 
-public class CmdGetAdData extends Command
+public class CmdGetAdData extends CommandOwnWriting
 {
     public CmdGetAdData (Sexp e)
     {
 	super (e);
     }
 
-    public Sexp
-    process ()
+    public void
+    process_and_write (OutputStream out)
     {
-	Sexp e;
-
+/*
 	try
 	{
 	    AdDataRequest rqst = new AdDataRequest (expr);
-	    e = choose_products (rqst);
+	    choose_and_write_products (rqst, out);
 	}
-	catch (Exception ex)
+	catch (IOException e)
 	{
-	    log.error (ex);
-	    e = JozData.mup_db.get_default_realm_response ();
+	    // Blech, may be in middle of transmission.
+	    // FIXME: what to do?
+	    log.error (e);
 	}
-
-	return e;
+	catch (Exception e)
+	{
+	    log.error (e);
+	    // FIXME: could still be in the middle of transmission
+	    Sexp sexp = JozData.mup_db.get_default_realm_response ();
+	    SexpIFASLWriter.write (out, sexp, false);
+	}
+*/
+	Sexp sexp = JozData.mup_db.get_default_realm_response ();
+	SexpIFASLWriter.write (out, sexp, false);
     }
 
     // implementation details -------------------------------------------------
 
     private static Logger log = Logger.getLogger (CmdGetAdData.class);
 
-    private Sexp
-    choose_products (AdDataRequest rqst)
+    // Main entry point to product selection once the request has been read
+    // and parsed.
+
+    private void
+    choose_and_write_products (AdDataRequest rqst, OutputStream out)
+	throws IOException, Exception
     {
 	TSpecAndRealm tsar = choose_t_spec_and_realm (rqst);
 	TSpec t_spec = tsar._t_spec;
 	Realm realm = tsar._realm;
-	List<SelectedProduct> products = choose_products (rqst, t_spec, realm);
-	Sexp e = morph_product_list_into_sexp (products, rqst, t_spec, realm);
-	return e;
+	String seed = rqst.get_seed (); // FIXME: wip
+	Features features = new Features (seed);
+	boolean private_label_p = t_spec.private_label_p ();
+
+	// This does the real work of selecting a set of products.
+	long start_time = System.nanoTime ();
+	List<SelectedProduct> products =
+	    SelectProducts.select_products (rqst, t_spec, realm);
+	long end_time = System.nanoTime ();
+	long elapsed_time = end_time - start_time;
+
+	// Send the result back to the client.
+	write_result (rqst, t_spec, realm,
+		      private_label_p, features, elapsed_time,
+		      products,
+		      out);
     }
+
+    // Utility class so {choose_t_spec_and_realm} can pass back two values.
 
     private class TSpecAndRealm
     {
@@ -164,19 +195,6 @@ public class CmdGetAdData extends Command
 	return tasr;
     }
 
-    private List<SelectedProduct>
-    choose_products (AdDataRequest rqst, TSpec t_spec, Realm realm)
-    {
-	return null; // FIXME: wip
-    }
-
-    private Sexp
-    morph_product_list_into_sexp (List<SelectedProduct> products,
-				  AdDataRequest rqst, TSpec t_spec, Realm realm)
-    {
-	return null; // FIXME: wip
-    }
-
     private Realm
     choose_best_realm_for_uri (Uri uri)
     {
@@ -205,5 +223,151 @@ public class CmdGetAdData extends Command
     choose_t_spec_for_realm (Uri realm_uri)
     {
 	return null; // FIXME: wip
+    }
+
+    // Write the chosen product list back to the client.
+    // The format is:
+    //
+    // (
+    //  ("VERSION" "1.0")
+    //  ("PRODUCTS" product-list)
+    //  ("PROD-IDS" product-id-list)
+    //  ("CATEGORIES" category-list)
+    //  ("CAT-NAMES" category-name-list)
+    //  ("REALM" realm)
+    //  ("STRATEGY" t-spec-name)
+    //  ("IS-PRIVATE-LABEL-P" is-private-label-p)
+    //  ("SOZFEATURES" feature-list-or-nil)
+    // )
+    //
+    // FIXME: version number needs to be spec'd to be first, remainder should
+    // allow for optional parameters, (consider precedent of IS-PRIVATE-LABEL-P
+    // and what happens over time as more are added).
+    //
+    // NOTE: In SoZ this is the "js-friendly" format, though that's a bit of
+    // a misnomer.  Being js-friendly is secondary to its main function of
+    // providing leadgens in addition to products.
+
+    private void
+    write_result (AdDataRequest rqst,
+		  TSpec t_spec, Realm realm,
+		  boolean private_label_p,
+		  Features features,
+		  long elapsed_time,
+		  List<SelectedProduct> products,
+		  OutputStream out)
+	throws IOException, Exception
+    {
+	SexpIFASLWriter w = new SexpIFASLWriter (out);
+
+	// See above, 9 elements in result list.
+	w.startList (9);
+	w.startDocument ();
+
+	write_elm (w, "VERSION", new SexpString ("1.0"));
+
+	// This is a big part of the result, write directly.
+	w.startList (2);
+	w.writeString8Array (EString.stringToASCII ("PRODUCTS"));
+	write_products (w, products);
+	w.endList ();
+
+	SexpList product_ids = products_to_id_list (products);
+	write_elm (w, "PROD-IDS", product_ids);
+
+	SexpList cat_names = products_to_cat_name_list (products);
+	SexpList categories = cat_names_to_category_list (cat_names);
+	write_elm (w, "CATEGORIES", categories);
+	write_elm (w, "CAT-NAMES", cat_names);
+
+	write_elm (w, "REALM", realm.toString ());
+
+	write_elm (w, "STRATEGY", t_spec.get_name ());
+
+	write_elm (w, "IS-PRIVATE-LABEL-P", (private_label_p ? "t" : "nil"));
+
+	SexpList sexp_features = features.toSexpList (elapsed_time);
+	write_elm (w, "SOZFEATURES", sexp_features);
+
+	w.endList ();
+	w.endDocument ();
+    }
+
+    // Write the list of selected products to {out}.
+    // This is the biggest part of the result of get-ad-data, so we write
+    // each product out individually instead of building an object describing
+    // all of them and then write that out.
+    // Things are complicated because the value that is written is a single
+    // string containing all the products.
+
+    private void
+    write_products (SexpIFASLWriter w, List<SelectedProduct> products)
+	throws IOException
+    {
+	Iterator<SelectedProduct> iter = products.iterator ();
+	StringBuilder b = new StringBuilder ();
+
+	// Ahh!!!  The IFASL format requires a leading length of the
+	// string.  That means we pretty much have to build the entire string
+	// of all products' data before we can send it.
+
+	b.append ("[");
+
+	boolean done1 = false;
+	while (iter.hasNext ())
+	{
+	    if (done1)
+		b.append (",");
+	    SelectedProduct p = iter.next ();
+	    b.append (p.toAdDataResultString ());
+	    done1 = true;
+	}
+
+	b.append ("]");
+
+	String s = b.toString ();
+	byte[] encoded_string = RFC1630Encoder.encodeString (s);
+	w.writeString8Array (encoded_string);
+    }
+
+    // Write an element of the result.
+
+    private void
+    write_elm (SexpIFASLWriter w, String name, Sexp sexp)
+	throws IOException, Exception
+    {
+	w.startList (2);
+	w.writeString8Array (EString.stringToASCII (name));
+	w.visit (sexp);
+	w.endList ();
+    }
+
+    private void
+    write_elm (SexpIFASLWriter w, String name, String s)
+	throws IOException
+    {
+	w.startList (2);
+	w.writeString8Array (EString.stringToASCII (name));
+	// FIXME: assumes ASCII
+	w.writeString8Array (EString.stringToASCII (s));
+	w.endList ();
+    }
+
+    private static SexpList
+    products_to_id_list (List<SelectedProduct> products)
+    {
+	return null; // FIXME
+    }
+
+    private static SexpList
+    products_to_cat_name_list (List<SelectedProduct> products)
+    {
+	return null; // FIXME
+    }
+
+    private static SexpList
+    cat_names_to_category_list (SexpList cat_names)
+    {
+	return null; // FIXME
     }
 }

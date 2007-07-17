@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.*;
 
-public class CmdGetCounts extends Command
+public class CmdGetCounts extends CommandDeferWriting
 {
     public CmdGetCounts (Sexp e)
     {

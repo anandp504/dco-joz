@@ -4,7 +4,7 @@ package com.tumri.joz.jozMain;
 
 import java.io.Reader;
 import java.io.StringReader;
-//import java.io.PrintWriter;
+import java.io.OutputStream;
 
 import com.tumri.utils.sexp.*;
 
@@ -14,7 +14,7 @@ public abstract class Command
 
     private static final String CMD_PREFIX = "Message=";
 
-    Command (Sexp e)
+    protected Command (Sexp e)
     {
 	expr = e;
     }
@@ -89,11 +89,15 @@ public abstract class Command
     }
 
     // Process the command, returning the result as an s-expression.
-
     public abstract Sexp process ();
 
+    // Process the command, writing the results directly to {out}.
+    public abstract void process_and_write (OutputStream out);
+
+    // Return true if this command writes its own results.
+    public abstract boolean write_own_results_p ();
+
     // Return true if result needs to be passed back with uppercase syms.
-    // This is a hack for the tabulate-search-results command, which is
-    // going away.
+    // This is a hack for the tabulate-search-results command.
     public boolean need_uppercase_syms () { return false; }
 }

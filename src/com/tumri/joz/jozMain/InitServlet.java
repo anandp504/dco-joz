@@ -35,6 +35,9 @@ public class InitServlet extends HttpServlet
 
 	try
 	{
+	    // Initialize this first in case something needs a property.
+	    Props.init ();
+
 	    JozData.init ();
 	}
 	catch (Exception e)

@@ -34,7 +34,7 @@ class JozData
 	    mup_db = new TmpMUPDB (mup_prefix + ".ifasl",
 				   mup_prefix + ".strings",
 				   mup_prefix + ".taxonomy",
-				   "../data/default-realm.lisp");
+				   "../data/default-realm-js-friendly.lisp");
 	}
 	catch (Exception e)
 	{

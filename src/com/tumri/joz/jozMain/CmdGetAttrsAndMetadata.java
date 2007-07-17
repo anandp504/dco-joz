@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.Sexp;
 
-public class CmdGetAttrsAndMetadata extends Command
+public class CmdGetAttrsAndMetadata extends CommandDeferWriting
 {
     public CmdGetAttrsAndMetadata (Sexp e)
     {

@@ -32,6 +32,9 @@ public class TSpec
     public Integer get_max_prods () { return _max_prods; }
     public Long get_modified_time () { return _modified_time; }
 
+    // FIXME: for now
+    public boolean private_label_p () { return false; }
+
     // implementation details -------------------------------------------------
 
     String _name = null;

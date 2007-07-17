@@ -12,7 +12,7 @@ import javax.servlet.http.*;
 
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.strings.RFC1738Decoder;
+import com.tumri.utils.strings.RFC1630Decoder;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpIFASLWriter;
 
@@ -43,23 +43,34 @@ public class JozServlet extends HttpServlet
 
 	try
 	{
-	    log.info ("Query: " + query);
-	    query = RFC1738Decoder.convertString (query);
+	    query = RFC1630Decoder.convertString (query);
 	    log.info ("Query= " + query);
 
 	    long start_time = System.nanoTime ();
 
 	    Command cmd = Command.parse (query);
-	    Sexp result = cmd.process ();
 
-	    boolean uppercase_syms = cmd.need_uppercase_syms ();
-	    SexpIFASLWriter.write (out, result, uppercase_syms);
+	    // Allow commands to write the result out themselves.
+	    // For large results it doesn't make much sense to build up a
+	    // temp result in one format format only to convert it to a
+	    // different format and only then write out the result.
+
+	    if (cmd.write_own_results_p ())
+	    {
+		cmd.process_and_write (out);
+	    }
+	    else
+	    {
+		Sexp result = cmd.process ();
+		boolean uppercase_syms = cmd.need_uppercase_syms ();
+		SexpIFASLWriter.write (out, result, uppercase_syms);
+		// FIXME: Need option to not print entire s-expression,
+		// they can be pretty large.
+		log.info ("Result: " + result);
+	    }
 
 	    long end_time = System.nanoTime ();
 
-	    // FIXME: Need option to not print entire s-expression,
-	    // they can be pretty large.
-	    log.info ("Result: " + result);
 	    log.info ("Response time: " + ((end_time - start_time) / 1000.0)
 		      + " usecs");
 	}

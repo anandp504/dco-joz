@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.Sexp;
 
-public class CmdTabulateSearchResults extends Command
+public class CmdTabulateSearchResults extends CommandDeferWriting
 {
     public CmdTabulateSearchResults (Sexp e)
     {
