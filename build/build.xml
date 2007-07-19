@@ -83,4 +83,12 @@
 
     <target name="top-install" depends="install"/>
 
+    <target name="top-build-doc">
+	<!-- FIXME: wip -->
+    </target>
+
+    <target name="top-install-doc">
+	<!-- FIXME: wip -->
+    </target>
+
 </project>
