@@ -1,6 +1,6 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.IProduct;
 
 /**
@@ -8,7 +8,7 @@ import com.tumri.joz.products.IProduct;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class BrandIndex extends Index<Integer, Handle> {
+public class BrandIndex extends Index<Integer, ProductHandle> {
   public BrandIndex() {
   }
 
@@ -20,7 +20,7 @@ public class BrandIndex extends Index<Integer, Handle> {
     return p.getBrand();
   }
 
-  public Handle getValue(IProduct p) {
+  public ProductHandle getValue(IProduct p) {
     return p.getHandle();
   }
 

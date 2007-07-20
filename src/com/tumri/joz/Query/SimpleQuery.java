@@ -1,7 +1,7 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
-import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 
@@ -23,14 +23,14 @@ public abstract class SimpleQuery implements Query, Comparable {
 
   private IProduct.Attribute m_attribute;
   private boolean m_negation; // used to express !=, not in range queries
-  protected SortedSet<Handle> m_results;
-  protected Filter<Handle> m_filter;
+  protected SortedSet<ProductHandle> m_results;
+  protected Filter<ProductHandle> m_filter;
 
   public abstract Type getType();
   public abstract int getCount();
   public abstract double getCost();
-  public abstract SortedSet<Handle> exec();
-  public abstract Filter<Handle> getFilter();
+  public abstract SortedSet<ProductHandle> exec();
+  public abstract Filter<ProductHandle> getFilter();
 
   protected SimpleQuery(IProduct.Attribute aAttribute) {
     m_attribute = aAttribute;
@@ -62,13 +62,13 @@ public abstract class SimpleQuery implements Query, Comparable {
     return ProductDB.getInstance().hasIndex(m_attribute);
   }
 
-  protected SortedSet<Handle> tableScan() {
-    Filter<Handle> lFilter = getFilter();
-    SortedSet<Handle> set = new TreeSet<Handle>();
+  protected SortedSet<ProductHandle> tableScan() {
+    Filter<ProductHandle> lFilter = getFilter();
+    SortedSet<ProductHandle> set = new TreeSet<ProductHandle>();
     if (lFilter != null) {
-      Iterator<Handle> iter = ProductDB.getInstance().getAll().iterator();
+      Iterator<ProductHandle> iter = ProductDB.getInstance().getAll().iterator();
       while (iter.hasNext()) {
-        Handle lHandle = iter.next();
+        ProductHandle lHandle = iter.next();
         if (lFilter.accept(lHandle))
           set.add(lHandle);
       }

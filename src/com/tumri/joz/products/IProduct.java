@@ -10,7 +10,7 @@ package com.tumri.joz.products;
  * Defines the interface object called IProduct
  */
 public interface IProduct {
-  public Handle getHandle();
+  public ProductHandle getHandle();
   public String getGId();
   public int getId();
   public Integer getCatalog();

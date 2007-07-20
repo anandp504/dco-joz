@@ -18,11 +18,11 @@ public class ProductDB {
   // Map m_map maintains map from product id -> Product
   private RWLockedTreeMap<Integer, IProduct> m_map = new RWLockedTreeMap<Integer, IProduct>();
   // Map m_allproducts maintains set of all product handles
-  private RWLockedTreeSet<Handle> m_allProducts = new RWLockedTreeSet<Handle>();
+  private RWLockedTreeSet<ProductHandle> m_allProducts = new RWLockedTreeSet<ProductHandle>();
   // All indices are maintained in the class in a hashtable
   private Hashtable<IProduct.Attribute,Index> m_indices = new Hashtable<IProduct.Attribute, Index>();
   // table of all filters associated with attributes
-  private Hashtable<IProduct.Attribute, Filter<Handle>> m_filters = new Hashtable<IProduct.Attribute, Filter<Handle>>();
+  private Hashtable<IProduct.Attribute, Filter<ProductHandle>> m_filters = new Hashtable<IProduct.Attribute, Filter<ProductHandle>>();
 
   public static ProductDB getInstance() {
     if (g_DB == null) {
@@ -68,10 +68,10 @@ public class ProductDB {
   // Step 2. Add Handle to set of all products
   // Step 3. Add Id->IProduct mapping to m_map
   // Step 4. Update all indices in a sequence
-  public Handle addProduct(IProduct p) {
+  public ProductHandle addProduct(IProduct p) {
     checkUpdate(p);
 
-    Handle h = p.getHandle();
+    ProductHandle h = p.getHandle();
     // Step 2.
     m_allProducts.writerLock();
     try {
@@ -117,8 +117,8 @@ public class ProductDB {
    * @param p
    * @return
    */
-  public Handle deleteProduct(IProduct p) {
-    Handle h = p.getHandle();
+  public ProductHandle deleteProduct(IProduct p) {
+    ProductHandle h = p.getHandle();
     // Step 1.
     Iterator<Index> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
@@ -144,11 +144,11 @@ public class ProductDB {
     return h;
   }
 
-  public IProduct get(Handle handle) {
+  public IProduct get(ProductHandle handle) {
     return get(handle.getId());
   }
 
-  public Handle get(IProduct p) {
+  public ProductHandle get(IProduct p) {
     return p.getHandle();
   }
 
@@ -161,7 +161,7 @@ public class ProductDB {
     }
   }
 
-  public SortedSet<Handle> getAll() {
+  public SortedSet<ProductHandle> getAll() {
     return m_allProducts;
   }
 
@@ -199,12 +199,12 @@ public class ProductDB {
     return m_indices.containsKey(aAttribute);
   }
 
-  public void registerFilter(IProduct.Attribute aAttribute, Filter<Handle> filter) {
+  public void registerFilter(IProduct.Attribute aAttribute, Filter<ProductHandle> filter) {
     m_filters.put(aAttribute,filter);
   }
 
-  public Filter<Handle> getFilter(IProduct.Attribute aAttribute) {
-    Filter<Handle> filter = m_filters.get(aAttribute);
+  public Filter<ProductHandle> getFilter(IProduct.Attribute aAttribute) {
+    Filter<ProductHandle> filter = m_filters.get(aAttribute);
     return ((filter != null) ? filter.clone() : filter);
   }
 
@@ -213,7 +213,7 @@ public class ProductDB {
    * @param h
    * @return
    */
-  public Handle changeHandle(Handle h) {
+  public ProductHandle changeHandle(ProductHandle h) {
     IProduct p = get(h);
     if ( p == null)
       return null;

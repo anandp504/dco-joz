@@ -2,7 +2,7 @@ package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
 import com.tumri.joz.index.IIndex;
-import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 
@@ -50,7 +50,7 @@ public class AttributeQuery extends SimpleQuery {
     return m_count;
   }
 
-  public SortedSet<Handle> exec() {
+  public SortedSet<ProductHandle> exec() {
     if (m_results == null) {
       IIndex index = ProductDB.getInstance().getIndex(getAttribute());
       m_results = (index != null) ? index.get(m_values) : tableScan();
@@ -62,7 +62,7 @@ public class AttributeQuery extends SimpleQuery {
     return getCount();
   }
 
-  public Filter<Handle> getFilter() {
+  public Filter<ProductHandle> getFilter() {
     if (m_filter == null) {
       m_filter = ProductDB.getInstance().getFilter(getAttribute());
       m_filter.setValue(m_values);

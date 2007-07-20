@@ -1,6 +1,6 @@
 package com.tumri.joz.filter;
 
-import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 
@@ -9,7 +9,7 @@ import com.tumri.joz.products.ProductDB;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class CPCRangeFilter extends Filter<Handle> {
+public class CPCRangeFilter extends Filter<ProductHandle> {
   public CPCRangeFilter() {
     super();
   }
@@ -18,12 +18,12 @@ public class CPCRangeFilter extends Filter<Handle> {
     super(f);
   }
 
-  public boolean accept(Handle h) {
+  public boolean accept(ProductHandle h) {
     IProduct p = ProductDB.getInstance().get(h);
     return ((p != null && inRange(p.getCPC())) ^ isNegation());
   }
 
-  public Filter<Handle> clone() {
+  public Filter<ProductHandle> clone() {
     return new CPCRangeFilter(this);
   }
 }

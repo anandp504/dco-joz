@@ -7,7 +7,7 @@ import java.util.Random;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class Handle implements Comparable<Handle> {
+public class ProductHandle implements Comparable<ProductHandle> {
   private static Random g_random = new Random();
   private static int k_RANK =52;
   private static int k_POS =32;
@@ -22,15 +22,15 @@ public class Handle implements Comparable<Handle> {
   private long m_data;
   // @todo this needs additional score keeping and a comparator to go with it
   
-  public Handle(long l) {
+  public ProductHandle(long l) {
     m_data = l;
   }
 
-  public Handle(String s) throws NumberFormatException {
+  public ProductHandle(String s) throws NumberFormatException {
     m_data = new Long(s).longValue();
   }
 
-  public Handle(int id, int rank) {
+  public ProductHandle(int id, int rank) {
     setValue(rank,0,id);
   }
   public void update() {
@@ -42,7 +42,7 @@ public class Handle implements Comparable<Handle> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    Handle lHandle = (Handle) o;
+    ProductHandle lHandle = (ProductHandle) o;
 
     if (m_data != lHandle.m_data) return false;
 
@@ -53,7 +53,7 @@ public class Handle implements Comparable<Handle> {
     return (int) (m_data ^ (m_data >>> 32));
   }
 
-  public int compareTo(Handle lHandle) {
+  public int compareTo(ProductHandle lHandle) {
     return (m_data < lHandle.m_data ? -1 :
             m_data == lHandle.m_data ? 0 : 1);
   }

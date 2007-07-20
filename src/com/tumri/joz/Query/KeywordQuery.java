@@ -2,7 +2,7 @@ package com.tumri.joz.Query;
 
 import com.tumri.joz.Query.SimpleQuery;
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.filter.Filter;
 
 import java.util.SortedSet;
@@ -44,14 +44,14 @@ public class KeywordQuery extends SimpleQuery {
     return true;
   }
 
-  public SortedSet<Handle> exec() {
+  public SortedSet<ProductHandle> exec() {
     if (m_results == null) {
-      m_results = new TreeSet<Handle>();  // @todo results to be hooked to lucene
+      m_results = new TreeSet<ProductHandle>();  // @todo results to be hooked to lucene
     }
     return m_results;
   }
 
-  public Filter<Handle> getFilter() {
+  public Filter<ProductHandle> getFilter() {
     return null;
   }
 }

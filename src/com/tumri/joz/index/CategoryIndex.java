@@ -1,6 +1,6 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.Taxonomy;
 
@@ -11,7 +11,7 @@ import java.util.*;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class CategoryIndex extends Index<Integer, Handle> {
+public class CategoryIndex extends Index<Integer, ProductHandle> {
   public CategoryIndex() {
   }
 
@@ -23,7 +23,7 @@ public class CategoryIndex extends Index<Integer, Handle> {
     return p.getCategory();
   }
 
-  public Handle getValue(IProduct p) {
+  public ProductHandle getValue(IProduct p) {
     return p.getHandle();
   }
 
@@ -46,10 +46,10 @@ public class CategoryIndex extends Index<Integer, Handle> {
     }
   }
 
-  private SortedSet<Handle> getChildSet(Integer childId) {
-    SortedSet<Handle> childSet = get(childId);
+  private SortedSet<ProductHandle> getChildSet(Integer childId) {
+    SortedSet<ProductHandle> childSet = get(childId);
     if (childSet == null) {
-      RWLockedTreeSet<Handle> set = new RWLockedTreeSet<Handle>();
+      RWLockedTreeSet<ProductHandle> set = new RWLockedTreeSet<ProductHandle>();
       childSet = set;
       m_map.put(childId,set);
     }
@@ -59,25 +59,25 @@ public class CategoryIndex extends Index<Integer, Handle> {
   /**
    * find the parent set from the index
    * If the parent is not a MultiSortedSet then change the class to be so
-   * The parent category Node should have MultiSortedSet<Handle> as its set, where constituents are as follows
+   * The parent category Node should have MultiSortedSet<ProductHandle> as its set, where constituents are as follows
    * MultiSortedSet = { Native Products to Category, child0, child1, child2 ... }
    * Note: MultiSortedSet.add(Key,Value) adds the native products to first set in the row
    * @return
    */
   private void update(Integer pid, TreeSet<Integer> children) {
-    SortedSet<Handle> parentSet = get(pid);
-    if (parentSet == null) parentSet = new RWLockedTreeSet<Handle>();
-    List<SortedSet<Handle>> nlist = new ArrayList<SortedSet<Handle>>();
-    nlist.add(parentSet instanceof MultiSortedSet ? ((MultiSortedSet<Handle>)parentSet).getList().get(0) : parentSet);
+    SortedSet<ProductHandle> parentSet = get(pid);
+    if (parentSet == null) parentSet = new RWLockedTreeSet<ProductHandle>();
+    List<SortedSet<ProductHandle>> nlist = new ArrayList<SortedSet<ProductHandle>>();
+    nlist.add(parentSet instanceof MultiSortedSet ? ((MultiSortedSet<ProductHandle>)parentSet).getList().get(0) : parentSet);
     Iterator<Integer> iter = children.iterator();
     while (iter.hasNext()) {
-      SortedSet<Handle> childSet = getChildSet(iter.next());
+      SortedSet<ProductHandle> childSet = getChildSet(iter.next());
       if (childSet instanceof MultiSortedSet) {
         nlist.addAll(((MultiSortedSet)childSet).getList());
       } else {
         nlist.add(childSet);
       }
     }
-    put(pid,new MultiSortedSet<Handle>(nlist));
+    put(pid,new MultiSortedSet<ProductHandle>(nlist));
   }
 }

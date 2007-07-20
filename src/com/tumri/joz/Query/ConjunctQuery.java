@@ -1,6 +1,6 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.AttributeWeights;
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class ConjunctQuery implements Query {
   private ArrayList<SimpleQuery> m_queries = new ArrayList<SimpleQuery>();
-  private SortedSet<Pair<Handle,Double>> m_results;
+  private SortedSet<Pair<ProductHandle,Double>> m_results;
 
   public ConjunctQuery() {
   }
@@ -43,10 +43,10 @@ public class ConjunctQuery implements Query {
    * 7.          all                              + negative (add as filters)
    *
    */
-  public SortedSet<Pair<Handle,Double>> exec() {
+  public SortedSet<Pair<ProductHandle,Double>> exec() {
     if (m_results != null) return m_results;
     Collections.sort(m_queries);
-    SetIntersector<Handle> intersector = new SetIntersector<Handle>();
+    SetIntersector<ProductHandle> intersector = new SetIntersector<ProductHandle>();
     for (int i = 0; i < m_queries.size(); i++) { // Step 1
       SimpleQuery lSimpleQuery = m_queries.get(i);
       if ((lSimpleQuery.getType() == SimpleQuery.Type.kAttribute ||
@@ -93,7 +93,7 @@ public class ConjunctQuery implements Query {
     return m_results;
   }
 
-  public SortedSet<Pair<Handle,Double>> getResults() {
+  public SortedSet<Pair<ProductHandle,Double>> getResults() {
     return m_results;
   }
 
@@ -115,23 +115,23 @@ public class ConjunctQuery implements Query {
       }
     }
     if (lCatPlus != null && lCatMinus != null) {
-      SortedSet<Handle> plusset = lCatPlus.exec();
+      SortedSet<ProductHandle> plusset = lCatPlus.exec();
       if (plusset instanceof MultiSortedSet) {
-        SortedSet<Handle> minusset = lCatMinus.exec();
-        List<SortedSet<Handle>> mlist = null;
+        SortedSet<ProductHandle> minusset = lCatMinus.exec();
+        List<SortedSet<ProductHandle>> mlist = null;
         if (minusset instanceof MultiSortedSet) {
-          mlist = ((MultiSortedSet<Handle>)minusset).getList();
+          mlist = ((MultiSortedSet<ProductHandle>)minusset).getList();
         } else {
-          mlist = new ArrayList<SortedSet<Handle>>();
+          mlist = new ArrayList<SortedSet<ProductHandle>>();
           mlist.add(minusset);
         }
-        List<SortedSet<Handle>> res= new ArrayList<SortedSet<Handle>>();
-        res.addAll(((MultiSortedSet<Handle>)plusset).getList());
+        List<SortedSet<ProductHandle>> res= new ArrayList<SortedSet<ProductHandle>>();
+        res.addAll(((MultiSortedSet<ProductHandle>)plusset).getList());
         res.removeAll(mlist);
-        ArrayList<SortedSet<Handle>> alist = intersector.getIncludes();
+        ArrayList<SortedSet<ProductHandle>> alist = intersector.getIncludes();
         for(int i=0;i< alist.size() ; i++) {
           if (alist.get(i) == plusset) {
-            alist.set(i,new MultiSortedSet<Handle>(res));
+            alist.set(i,new MultiSortedSet<ProductHandle>(res));
             break;
           }
         }
