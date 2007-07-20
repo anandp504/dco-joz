@@ -1,6 +1,10 @@
 // Container for a selected product.
+// TODO: OMG, OMG, this is all wrong.  Chill dude.  As things evolve this
+// will get rewritten to be The Right Way.
 
 package com.tumri.joz.jozMain;
+
+import com.tumri.utils.strings.EString;
 
 public class SelectedProduct
 {
@@ -21,21 +25,39 @@ public class SelectedProduct
 
 	// FIXME: wip
 
-	b.append ("id:");
-	b.append (",display_category_name:");
-	b.append (",price:");
-	b.append (",discount_price:");
-	b.append (",brand:");
-	b.append (",merchant_id:");
-	b.append (",provider:");
-	b.append (",merchantlogo:");
-	b.append (",ship_promo:");
-	b.append (",description:");
-	b.append (",thumbnailraw:");
-	b.append (",product_url:");
-	b.append (",picture_url:");
-	b.append (",c_code:");
-	b.append (",offer_type:");
+	b.append ("id:\"");
+	b.append (encode (_product.get_product_id ()));
+	b.append ("\",display_category_name:\"");
+	// Use the first parent as the category.
+	b.append (encode (_product.get_parents ().get (0)));
+	b.append ("\",price:\"");
+	b.append (encode_price (_product.get_price ()));
+	b.append ("\",discount_price:\"");
+	b.append (encode_price (_product.get_discount_price ()));
+	b.append ("\",brand:\"");
+	b.append (encode (_product.get_brand ()));
+	b.append ("\",merchant_id:\"");
+	b.append (encode (_product.get_merchant ()));
+	b.append ("\",provider:\"");
+	b.append (encode (_product.get_retailer ()));
+	b.append ("\",merchantlogo:\"");
+	b.append (encode (JozData.merchant_db.get_logo_url (_product.get_merchant ())));
+	b.append ("\",ship_promo:\"");
+	b.append (encode (JozData.merchant_db.get_shipping_promo (_product.get_merchant ())));
+	b.append ("\",description:\"");
+	// FIXME: soz has code to limit size of description passed back
+	b.append (encode (_product.get_description ()));
+	b.append ("\",thumbnailraw:\"");
+	b.append (encode (_product.get_thumbnail_url ()));
+	b.append ("\",product_url:\"");
+	b.append (encode (_product.get_purchase_url ()));
+	b.append ("\",picture_url:\"");
+	b.append (encode (_product.get_image_url ()));
+	b.append ("\",c_code:\"");
+	b.append (encode (_product.get_currency ()));
+	b.append ("\",offer_type:\"");
+	b.append (encode (_product.get_product_type ()));
+	b.append ("\"");
 
 	b.append ("}");
 
@@ -45,4 +67,25 @@ public class SelectedProduct
     // implementation details -------------------------------------------------
 
     MUPProductObj _product;
+
+    private String
+    encode (EString es)
+    {
+	// FIXME: wip
+	return es.toString ();
+    }
+
+    private String
+    encode (String s)
+    {
+	// FIXME: wip
+	return s;
+    }
+
+    private String
+    encode_price (Float f)
+    {
+	// FIXME: wip
+	return String.format ("%.2f", f);
+    }
 }

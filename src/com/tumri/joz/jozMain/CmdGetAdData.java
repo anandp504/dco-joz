@@ -1,4 +1,6 @@
 // get-ad-data command
+// TODO: OMG, OMG, this is all wrong.  Chill dude.  As things evolve this
+// will get rewritten to be The Right Way.
 
 /*
    See https://secure.tumri.com/twiki/bin/view/Engineering/JozPublicAPI
@@ -60,7 +62,9 @@ public class CmdGetAdData extends CommandOwnWriting
 	catch (IOException e)
 	{
 	    // Blech, may be in middle of transmission.
-	    // FIXME: what to do?
+	    // FIXME: what to do?  drop the connection and rely on client
+	    // to detect dropped connection as an error indicator and
+	    // reconnect?
 	    log.error (e);
 	}
 	catch (Exception e)
@@ -201,6 +205,10 @@ public class CmdGetAdData extends CommandOwnWriting
 	return null; // FIXME: wip
     }
 
+    // If there are multiple strategies for this theme then pick one randomly.
+    // If nothing matches, return nil.  Returns the NAME of the t-spec, not
+    // the t-spec itself.
+
     private String
     choose_t_spec_for_store_id (String store_id)
     {
@@ -326,7 +334,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	b.append ("]");
 
 	String s = b.toString ();
-	byte[] encoded_string = RFC1630Encoder.encodeString (s);
+	byte[] encoded_string = RFC1630Encoder.encodeCharSequence (s);
 	w.writeString8Array (encoded_string);
     }
 

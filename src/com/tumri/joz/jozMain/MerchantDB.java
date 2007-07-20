@@ -1,5 +1,7 @@
 // The merchant database.
 // FIXME: wip
+// TODO: OMG, OMG, this is all wrong.  Chill dude.  As things evolve this
+// will get rewritten to be The Right Way.
 
 package com.tumri.joz.jozMain;
 
@@ -7,15 +9,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
+import com.tumri.utils.strings.EString;
 import com.tumri.utils.sexp.*;
 
 public class MerchantDB
 {
     MerchantDB (String attributes_and_metadata_path,
 		String tabulated_search_results_path)
+	throws BadMerchantDataException
     {
 	init (attributes_and_metadata_path,
 	      tabulated_search_results_path);
@@ -27,10 +33,28 @@ public class MerchantDB
 	return _attributes_and_metadata;
     }
 
-    public Sexp
+    public SexpList
     get_tabulated_search_results ()
     {
 	return _tabulated_search_results;
+    }
+
+    // Return the logo url for {merchant} or null if not provided.
+
+    public String
+    get_logo_url (EString merchant)
+    {
+	return _logo_url_db.get (merchant.toString ().toLowerCase ());
+    }
+
+    // Return the shipping promo for {merchant} or null if not provided.
+    // An example of a shipping promo is, I think,
+    // "Free Shipping on Orders over $50".
+
+    public String
+    get_shipping_promo (EString merchant)
+    {
+	return _shipping_promo_db.get (merchant.toString ().toLowerCase ());
     }
 
     // implementation details -------------------------------------------------
@@ -39,13 +63,18 @@ public class MerchantDB
     private Sexp _attributes_and_metadata = null;
 
     // Content of soz's inputs/MD/attributes-and-metadata.lisp.
-    private Sexp _tabulated_search_results = null;
+    private SexpList _tabulated_search_results = null;
+
+    private HashMap<String, String> _logo_url_db = null;
+
+    private HashMap<String, String> _shipping_promo_db = null;
 
     private static Logger log = Logger.getLogger (MerchantDB.class);
 
     private void
     init (String attributes_and_metadata_path,
 	  String tabulated_search_results_path)
+	throws BadMerchantDataException
     {
 	log.info ("Loading merchant data from "
 		  + attributes_and_metadata_path);
@@ -57,7 +86,14 @@ public class MerchantDB
 		  + tabulated_search_results_path);
 
 	e = load_sexp_from_file (tabulated_search_results_path);
-	_tabulated_search_results = e;
+	if (! e.isSexpList ())
+	    throw new BadMerchantDataException ("tabulated-search-results is not a list");
+	SexpList l = e.toSexpList ();
+	if (l.size () != 4)
+	    throw new BadMerchantDataException ("tabulated-search-results is not a list of four elements");
+	_tabulated_search_results = l;
+
+	extract_merchant_logos_and_shipping_promos ();
     }
 
     private static Sexp
@@ -86,5 +122,97 @@ public class MerchantDB
 	}
 
 	return expr;
+    }
+
+    private void
+    extract_merchant_logos_and_shipping_promos ()
+	throws BadMerchantDataException
+    {
+	// tabulated-search-results is a list of four elements:
+	// ((# # #) nil (column-name-list) (merchant-info-list))
+
+	SexpList tsr = _tabulated_search_results;
+	Sexp e;
+	SexpList l;
+	SexpList col_names;
+	SexpList data;
+
+	_logo_url_db = new HashMap<String, String> ();
+	_shipping_promo_db = new HashMap<String, String> ();
+
+	e = tsr.get (2);
+	if (! e.isSexpList ())
+	    throw new BadMerchantDataException ("t-s-r column names not a list");
+	col_names = e.toSexpList ();
+
+	e = tsr.get (3);
+	if (! e.isSexpList ())
+	    throw new BadMerchantDataException ("t-s-r merchant info not a list");
+	data = e.toSexpList ();
+
+	int logo_url_idx = get_position (col_names, "Logo URL");
+	int promo_idx = get_position (col_names, "Shipping Promotion");
+
+	Iterator<Sexp> iter = data.iterator ();
+	while (iter.hasNext ())
+	{
+	    e = iter.next ();
+	    if (! e.isSexpList ())
+		throw new BadMerchantDataException ("t-s-r merchant entry is not a list");
+	    l = e.toSexpList ();
+	    if (l.size () == 0)
+		continue; // ignore empty entries
+
+	    Sexp id = l.get (0);
+	    if (! e.isSexpSymbol ())
+		throw new BadMerchantDataException ("t-s-r merchant id not a symbol");
+	    String idstr = id.toString ().toLowerCase ();
+
+	    String logo_url = get_string (l, logo_url_idx, "logo url");
+	    if (logo_url != null)
+		_logo_url_db.put (idstr, logo_url); // FIXME: collisions?
+
+	    String promo = get_string (l, promo_idx, "shipping promo");
+	    if (promo != null)
+		_shipping_promo_db.put (idstr, promo); // FIXME: collisions?
+	}
+    }
+
+    // Return the position of {s} in {l} or -1 if not present.
+
+    private static int
+    get_position (SexpList l, String s)
+    {
+	Iterator<Sexp> iter = l.iterator ();
+	int i = 0;
+
+	while (iter.hasNext ())
+	{
+	    Sexp n = iter.next ();
+	    if (! n.isSexpString ())
+		continue;
+	    if (n.toSexpString ().toString ().equals (s))
+		return i;
+	    ++i;
+	}
+
+	return -1;
+    }
+
+    // Fetch element {n} from list {l}.
+    // {what} is used in error text.
+    // Returns null if list is too small.
+    // Throws BadMerchantDataException if element is not a string.
+
+    private static String
+    get_string (SexpList l, int n, String what)
+	throws BadMerchantDataException
+    {
+	if (l.size () <= n)
+	    return null;
+	Sexp e = l.get (n);
+	if (! e.isSexpString ())
+	    throw new BadMerchantDataException ("expected string for " + what);
+	return e.toString (); // FIXME: toStringValue?
     }
 }
