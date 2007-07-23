@@ -91,4 +91,6 @@
 	<!-- FIXME: wip -->
     </target>
 
+    <target name="top-run-tests" depends="run-tests"/>
+
 </project>
