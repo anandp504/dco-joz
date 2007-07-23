@@ -36,7 +36,10 @@ public class InitServlet extends HttpServlet
 	try
 	{
 	    // Initialize this first in case something needs a property.
-	    Props.init ();
+	    String config_dir = getInitParameter ("tumri.joz.config.dir");
+	    String config_file = getInitParameter ("tumri.joz.config.file");
+	    String app_config_file = getInitParameter ("tumri.joz.app.config.file");
+	    Props.init (config_dir, config_file, app_config_file);
 
 	    JozData.init ();
 	}

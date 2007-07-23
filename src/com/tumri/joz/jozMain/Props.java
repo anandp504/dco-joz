@@ -55,10 +55,48 @@ public class Props
     }
 
     public static void
-    init ()
+    init (String config_dir, String config_file, String app_config_file)
     {
-	read_properties (props, PROP_DIR + "/" + CONFIG_PROPERTIES_FILE);
-	read_properties (props, PROP_DIR + "/" + APP_PROPERTIES_FILE);
+	// Fetch the config directory.
+
+	if (empty_p (config_dir))
+	{
+	    config_dir = DEFAULT_CONFIG_DIR;
+	    log.info ("Configuring joz from default config dir: " + config_dir);
+	}
+	else
+	{
+	    // Drop trailing / if present.
+	    // This tests both / and File.separator as a portability hack for
+	    // non-/ file systems.
+	    if (config_dir.endsWith ("/")
+		|| config_dir.endsWith (File.separator))
+	    {
+		config_dir = config_dir.substring (0, config_dir.length () - 1);
+	    }
+	    log.info ("Configuring joz from config dir: " + config_dir);
+	}
+	_config_dir = config_dir;
+
+	// Fetch the main properties file.
+	// This file generally contains properties specific to this app/host.
+
+	if (empty_p (config_file))
+	    _config_file = DEFAULT_CONFIG_FILE;
+	else
+	    _config_file = config_file;
+	read_properties (props, _config_dir + "/" + _config_file);
+
+	// Fetch the app properties file.
+	// This file generally contains properties specific to this app,
+	// independent of host.
+
+	if (empty_p (app_config_file))
+	    _app_config_file = DEFAULT_APP_CONFIG_FILE;
+	else
+	    _app_config_file = app_config_file;
+	read_properties (props, _config_dir + "/" + _app_config_file);
+
 	find_host_name ();
     }
 
@@ -67,14 +105,18 @@ public class Props
     private static Logger log = Logger.getLogger (Props.class);
 
     // Property files live here.
-    private static final String PROP_DIR = "../conf";
+    private static final String DEFAULT_CONFIG_DIR = "../conf";
 
     // This file contains user-configurable properties.
-    private static final String CONFIG_PROPERTIES_FILE = "joz.properties";
+    private static final String DEFAULT_CONFIG_FILE = "joz.properties";
 
     // This file contains properties specific to this version of joz
     // and should in general not be editied.
-    private static final String APP_PROPERTIES_FILE = "joz-app.properties";
+    private static final String DEFAULT_APP_CONFIG_FILE = "joz.app.properties";
+
+    private static String _config_dir;
+    private static String _config_file;
+    private static String _app_config_file;
 
     // holds all properties from both property files
     // ??? one per file?
@@ -157,5 +199,11 @@ public class Props
 	    log.error ("Using default value: " + default_value);
 	    return default_value;
 	}
+    }
+
+    private static boolean
+    empty_p (String s)
+    {
+	return s == null || s.length () == 0;
     }
 }
