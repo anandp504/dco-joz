@@ -1,0 +1,13 @@
+package com.tumri.joz.ranks;
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: snawathe
+ * To change this template use File | Settings | File Templates.
+ */
+public interface IWeight<Value> {
+  public double getWeight(Value v);
+  public double getWeight(Integer pid);
+  public int match(Value v);
+  public int match(Integer pid);
+}
