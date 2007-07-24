@@ -1,6 +1,6 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.ProductHandle;
+import com.tumri.joz.utils.Result;
 
 import java.util.ArrayList;
 import java.util.SortedSet;
@@ -15,7 +15,7 @@ public class CNFQuery implements Query {
   private int m_pagesize = 12;
   private int m_maxPages = 4;
 
-  private SortedSet<ProductHandle> m_results;
+  private SortedSet<Result> m_results;
 
   public CNFQuery() {
   }
@@ -28,13 +28,13 @@ public class CNFQuery implements Query {
     m_queries.add(q);
   }
 
-  public SortedSet<ProductHandle> exec() {
+  public SortedSet<Result> exec() {
     if (m_results == null) {
-      SetUnionizer<ProductHandle> unionizer = new SetUnionizer<ProductHandle>();
+      SetUnionizer<Result> unionizer = new SetUnionizer<Result>();
       for (int i = 0; i < m_queries.size(); i++) {
         ConjunctQuery lConjunctQuery = m_queries.get(i);
         lConjunctQuery.exec();
-        unionizer.include(lConjunctQuery.getResults());
+        unionizer.include(lConjunctQuery.exec());
       }
       m_results = unionizer.union();
     }
