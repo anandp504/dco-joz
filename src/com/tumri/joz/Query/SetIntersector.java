@@ -3,9 +3,13 @@ package com.tumri.joz.Query;
 import com.tumri.joz.filter.Filter;
 import com.tumri.joz.index.MultiSortedSet;
 import com.tumri.joz.index.RWLocked;
-import com.tumri.joz.utils.Pair;
+import com.tumri.joz.index.SortedArraySet;
+import com.tumri.joz.ranks.IWeight;
+import com.tumri.joz.utils.Result;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -19,31 +23,38 @@ import java.util.*;
  * S1 ^ S2 ^ ~S3 ^ S4 ....
  * Where ~S3 indicates exclusion set S3
  *
- * @todo Need to improve fallback mechanisms for ads
  */
-public class SetIntersector<Value extends Comparable> {
+abstract public class SetIntersector<Value extends Comparable> {
   public static int MAXRET = 1000;
   private ArrayList<SortedSet<Value>> m_includes;
-  private ArrayList<Double> m_includesWeight;
+  private ArrayList<IWeight<Value>> m_includesWeight;
   private ArrayList<Filter<Value>> m_filters;
-  private ArrayList<Double> m_filtersWeight;
+  private ArrayList<IWeight<Value>> m_filtersWeight;
   private ArrayList<SortedSet<Value>> m_excludes;
-  private ArrayList<Double> m_excludesWeight;
+  private ArrayList<IWeight<Value>> m_excludesWeight;
   private int m_maxSetSize = MAXRET;
   // Temp class variables
-  private ArrayList<SortedSet<Pair<Value,Double>>> m_returnList;
-  private SortedSet<Pair<Value,Double>> m_returnSet;
+  private ArrayList<ArrayList<Result>> m_returnList;
+  private SortedSet<Result> m_returnSet;
   private int m_incSize;
   private int m_filterSize;
   private int m_excSize;
 
+  /**
+   * Given a Value v and a score build the Result object.
+   * @param v
+   * @param score
+   * @return a Pair<Value,Double>
+   */
+  public abstract Result getResult(Value v, Double score);
+
   public SetIntersector() {
     m_includes = new ArrayList<SortedSet<Value>>();
-    m_includesWeight = new ArrayList<Double>();
+    m_includesWeight = new ArrayList<IWeight<Value>>();
     m_filters = new ArrayList<Filter<Value>>();
-    m_filtersWeight = new ArrayList<Double>();
+    m_filtersWeight = new ArrayList<IWeight<Value>>();
     m_excludes = new ArrayList<SortedSet<Value>>();
-    m_excludesWeight = new ArrayList<Double>();
+    m_excludesWeight = new ArrayList<IWeight<Value>>();
   }
 
   /**
@@ -51,7 +62,7 @@ public class SetIntersector<Value extends Comparable> {
    *
    * @param set
    */
-  public void include(SortedSet<Value> set, double weight) {
+  public void include(SortedSet<Value> set, IWeight<Value> weight) {
     if (set != null && set.size() > 0) {
       m_includes.add(set);
       m_includesWeight.add(weight);
@@ -67,7 +78,7 @@ public class SetIntersector<Value extends Comparable> {
    *
    * @param set
    */
-  public void exclude(SortedSet<Value> set, double weight) {
+  public void exclude(SortedSet<Value> set, IWeight<Value> weight) {
     if (set.size() > 0) {
       m_excludes.add(set);
       m_excludesWeight.add(weight);
@@ -80,7 +91,7 @@ public class SetIntersector<Value extends Comparable> {
    *
    * @param aFilter
    */
-  public void addFilter(Filter<Value> aFilter, double weight) {
+  public void addFilter(Filter<Value> aFilter, IWeight<Value> weight) {
     m_filters.add(aFilter);
     m_filtersWeight.add(weight);
   }
@@ -94,26 +105,26 @@ public class SetIntersector<Value extends Comparable> {
    * Each of the entry is set to TreeSet for now
    */
   private void setup() {
-    m_returnList = new ArrayList<SortedSet<Pair<Value,Double>>>();
+    m_returnList = new ArrayList<ArrayList<Result>>();
     m_incSize = m_includes.size();
     m_filterSize = m_filters.size();
     m_excSize = m_excludes.size();
-    Comparator<Pair<Value,Double>> c = new Pair<Value, Double>();
     for (int i = 0; i < m_incSize + m_excSize + m_filterSize; i++) {
-      m_returnList.add(new TreeSet<Pair<Value,Double>>(c)); // Sorted by weight,handle
+      m_returnList.add(new ArrayList<Result>());
     }
   }
 
   /**
-   * Adds a set element to the correct set in returnsets. The offset is calculated by score
-   *
-   * @param matches
-   * @param element
+   * Adds a set element to the correct set in returnsets.
+   * @param matches number of required matches met so far
+   * @param element the element to be added
+   * @param score the score of element match
+   * @return
    */
   private boolean addResult(int matches, Value element, double score) {
     int index = m_incSize + m_excSize + m_filterSize - 1 - matches;
     if (resultsSize(index) < m_maxSetSize)
-      m_returnList.get(index).add(new Pair<Value,Double>(element,score));
+      m_returnList.get(index).add(getResult(element,score));
     return (m_returnList.get(0).size() >= m_maxSetSize);
   }
 
@@ -145,7 +156,7 @@ public class SetIntersector<Value extends Comparable> {
    * variable score is incremented each time a positive match happens, based on the total score the
    * item pointed to by cPointer is added to one of the entries in returnSet
    */
-  public SortedSet<Pair<Value,Double>> intersect() {
+  public SortedSet<Result> intersect() {
     if (m_returnSet != null) {
       return m_returnSet;
     }
@@ -166,7 +177,7 @@ public class SetIntersector<Value extends Comparable> {
         loopcount++;
         currentSet = currentSet.tailSet(cPointer);
         m_includes.set((setIndex-1)%m_incSize,currentSet);
-        totalWeight *= m_includesWeight.get((setIndex-1)%m_incSize);
+        totalWeight *= m_includesWeight.get((setIndex-1)%m_incSize).getWeight(cPointer);
         // Inner loops runs as many times as the size of the sets
         for (int i = 0; i < m_incSize - 1; i++) {
           itemLookupCount++;
@@ -176,19 +187,22 @@ public class SetIntersector<Value extends Comparable> {
           if (currentSet.isEmpty() || !currentSet.first().equals(cPointer)) {
             break;
           }
-          matches++;
-          totalWeight *= m_includesWeight.get(setIndex);
+          IWeight w = m_includesWeight.get(i);
+          matches += w.match(cPointer);
+          totalWeight *= w.getWeight(cPointer);
         }
         for (int i = 0; i < m_filterSize; i++) {
           if (!m_filters.get(i).accept(cPointer)) break; // @todo fail on first filter may not be the best move
-          matches++;
-          totalWeight *= m_filtersWeight.get(i);
+          IWeight w = m_filtersWeight.get(i);
+          matches += w.match(cPointer);
+          totalWeight *= w.getWeight(cPointer);
         }
         for (int i = 0; i < m_excSize; i++) {
           itemLookupCount++;
-          if (m_excludes.get(i).contains(cPointer)) break; // @todo fail on first filter may not be the best move
-          totalWeight *= m_excludesWeight.get(i);
-          matches++;
+          if (m_excludes.get(i).contains(cPointer)) break; // @todo fail on first exclude may not be the best move
+          IWeight w = m_excludesWeight.get(i);
+          matches += w.match(cPointer);
+          totalWeight *= w.getWeight(cPointer);
         }
         if (addResult(matches, cPointer, totalWeight)) break;
         matches = 0; totalWeight = 1.0;
@@ -239,7 +253,16 @@ public class SetIntersector<Value extends Comparable> {
    */
   private void buildReturnSet() {
     if (m_returnSet != null) return;
-    m_returnSet = new MultiSortedSet<Pair<Value,Double>>(m_returnList);
+    if (m_returnList.size() > 0) {
+      ArrayList<Result> list = m_returnList.get(0);
+      for (int i = 1;list.size() < m_maxSetSize && i < m_returnList.size(); i++) {
+        list.addAll(m_returnList.get(i));
+      }
+      m_returnSet = new SortedArraySet<Result>(list);
+    } else {
+      m_returnSet = new SortedArraySet<Result>();
+    }
+    m_returnList.clear();
   }
 
   protected ArrayList<SortedSet<Value>> getIncludes() {

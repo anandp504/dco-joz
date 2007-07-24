@@ -1,16 +1,15 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.ProductHandle;
+import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.AttributeWeights;
-import com.tumri.joz.index.MultiSortedSet;
-import com.tumri.joz.utils.Pair;
+import com.tumri.joz.ranks.AttributeWeights;
+import com.tumri.joz.utils.Result;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.SortedSet;
 import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -19,7 +18,7 @@ import java.util.List;
  */
 public class ConjunctQuery implements Query {
   private ArrayList<SimpleQuery> m_queries = new ArrayList<SimpleQuery>();
-  private SortedSet<Pair<ProductHandle,Double>> m_results;
+  private SortedSet<Result> m_results;
 
   public ConjunctQuery() {
   }
@@ -43,17 +42,17 @@ public class ConjunctQuery implements Query {
    * 7.          all                              + negative (add as filters)
    *
    */
-  public SortedSet<Pair<ProductHandle,Double>> exec() {
+  public SortedSet<Result> exec() {
     if (m_results != null) return m_results;
     Collections.sort(m_queries);
-    SetIntersector<ProductHandle> intersector = new SetIntersector<ProductHandle>();
+    ProductSetIntersector intersector = new ProductSetIntersector();
     for (int i = 0; i < m_queries.size(); i++) { // Step 1
       SimpleQuery lSimpleQuery = m_queries.get(i);
       if ((lSimpleQuery.getType() == SimpleQuery.Type.kAttribute ||
            lSimpleQuery.getType() == SimpleQuery.Type.kKeyword) &&
           lSimpleQuery.hasIndex() &&
           !lSimpleQuery.isNegation()) {
-        intersector.include(lSimpleQuery.exec(), AttributeWeights.getWeight(lSimpleQuery.getAttribute())); // include indexed attribute/keyword queries first
+        intersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // include indexed attribute/keyword queries first
       }
     }
     for (int i = 0; i < m_queries.size(); i++) {
@@ -62,9 +61,9 @@ public class ConjunctQuery implements Query {
           lSimpleQuery.hasIndex() &&
           !lSimpleQuery.isNegation()) {
         if (!intersector.hasIncludes() || i == 0) {
-          intersector.include(lSimpleQuery.exec(), AttributeWeights.getWeight(lSimpleQuery.getAttribute())); // Step 2. include indexed range query if efficient
+          intersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 2. include indexed range query if efficient
         } else {
-          intersector.addFilter(lSimpleQuery.getFilter(), AttributeWeights.getWeight(lSimpleQuery.getAttribute())); // Step. 3 else range queries are filters
+          intersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 3 else range queries are filters
         }
       }
     }
@@ -72,19 +71,19 @@ public class ConjunctQuery implements Query {
       SimpleQuery lSimpleQuery = m_queries.get(i);
       if (!lSimpleQuery.hasIndex() && !lSimpleQuery.isNegation()) {
         if (!intersector.hasIncludes())
-          intersector.include(lSimpleQuery.exec(), AttributeWeights.getWeight(lSimpleQuery.getAttribute())); // Step 4. non indexed table scan query
+          intersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 4. non indexed table scan query
         else
-          intersector.addFilter(lSimpleQuery.getFilter(), AttributeWeights.getWeight(lSimpleQuery.getAttribute())); // Step. 5 else range queries are filters
+          intersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 5 else range queries are filters
       }
     }
     if (!intersector.hasIncludes()) { // Step 6. this means we have closed world negation query
-      intersector.include(ProductDB.getInstance().getAll(),1.0); // add our universe for negation
+      intersector.include(ProductDB.getInstance().getAll(),AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     }
     boolean excludeCategory = categoryExclusion(intersector);
     for (int i = 0; i < m_queries.size(); i++) {
       SimpleQuery lSimpleQuery = m_queries.get(i);
       if (lSimpleQuery.isNegation() && (!excludeCategory || lSimpleQuery.getAttribute() != IProduct.Attribute.kCategory)) {
-        intersector.addFilter(lSimpleQuery.getFilter(), AttributeWeights.getWeight(lSimpleQuery.getAttribute())); // Step 7. Add filter for all negations
+        intersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step 7. Add filter for all negations
       }
     }
     long start = System.currentTimeMillis();
@@ -93,7 +92,7 @@ public class ConjunctQuery implements Query {
     return m_results;
   }
 
-  public SortedSet<Pair<ProductHandle,Double>> getResults() {
+  public SortedSet<Result> getResults() {
     return m_results;
   }
 
@@ -115,23 +114,23 @@ public class ConjunctQuery implements Query {
       }
     }
     if (lCatPlus != null && lCatMinus != null) {
-      SortedSet<ProductHandle> plusset = lCatPlus.exec();
+      SortedSet<Handle> plusset = lCatPlus.exec();
       if (plusset instanceof MultiSortedSet) {
-        SortedSet<ProductHandle> minusset = lCatMinus.exec();
-        List<SortedSet<ProductHandle>> mlist = null;
+        SortedSet<Handle> minusset = lCatMinus.exec();
+        List<SortedSet<Handle>> mlist = null;
         if (minusset instanceof MultiSortedSet) {
-          mlist = ((MultiSortedSet<ProductHandle>)minusset).getList();
+          mlist = ((MultiSortedSet<Handle>)minusset).getList();
         } else {
-          mlist = new ArrayList<SortedSet<ProductHandle>>();
+          mlist = new ArrayList<SortedSet<Handle>>();
           mlist.add(minusset);
         }
-        List<SortedSet<ProductHandle>> res= new ArrayList<SortedSet<ProductHandle>>();
-        res.addAll(((MultiSortedSet<ProductHandle>)plusset).getList());
+        List<SortedSet<Handle>> res= new ArrayList<SortedSet<Handle>>();
+        res.addAll(((MultiSortedSet<Handle>)plusset).getList());
         res.removeAll(mlist);
-        ArrayList<SortedSet<ProductHandle>> alist = intersector.getIncludes();
+        ArrayList<SortedSet<Handle>> alist = intersector.getIncludes();
         for(int i=0;i< alist.size() ; i++) {
           if (alist.get(i) == plusset) {
-            alist.set(i,new MultiSortedSet<ProductHandle>(res));
+            alist.set(i,new MultiSortedSet<Handle>(res));
             break;
           }
         }
@@ -140,5 +139,4 @@ public class ConjunctQuery implements Query {
     }
     return false;
   }
-
 }
