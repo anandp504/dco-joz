@@ -33,7 +33,7 @@ public class Product implements IProduct {
   private String m_BaseProductNumber;
 
   // Handle object is constructed on the fly
-  private ProductHandle m_handle;
+  private Handle m_handle;
   private int m_id = 0;
 
   public int getId() {
@@ -271,9 +271,9 @@ public class Product implements IProduct {
     return (m_Gid != null ? m_Gid.hashCode() : 0);
   }
 
-  public ProductHandle getHandle() {
+  public Handle getHandle() {
     if (m_handle == null) {
-      m_handle = new ProductHandle(getId(),DictionaryManager.getInstance().getId(IProduct.Attribute.kRank,getRank()));
+      m_handle = new Handle32(getId(),DictionaryManager.getInstance().getId(IProduct.Attribute.kRank,getRank()));
     }
     return m_handle;
   }
