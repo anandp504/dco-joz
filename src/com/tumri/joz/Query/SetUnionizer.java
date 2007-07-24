@@ -1,7 +1,7 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.utils.Pair;
 import com.tumri.joz.index.MultiSortedSet;
+import com.tumri.joz.index.SortedArraySet;
 
 import java.util.*;
 
@@ -11,15 +11,15 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class SetUnionizer<Value extends Comparable> {
-  private ArrayList<SortedSet<Pair<Value,Double>>> m_includes;
+  private ArrayList<SortedSet<Value>> m_includes;
   private SortedSet<Value> m_results;
   private int m_maxSetSize = 120;
 
   public SetUnionizer() {
-    m_includes = new ArrayList<SortedSet<Pair<Value,Double>>>();
+    m_includes = new ArrayList<SortedSet<Value>>();
   }
 
-  public void include(SortedSet<Pair<Value,Double>> set) {
+  public void include(SortedSet<Value> set) {
     m_includes.add(set);
   }
 
@@ -33,20 +33,21 @@ public class SetUnionizer<Value extends Comparable> {
       return this.m_results;
     }
     int max = m_maxSetSize * m_includes.size();
-    MultiSortedSet<Pair<Value,Double>> msorted = new MultiSortedSet<Pair<Value, Double>>();
-    m_results = new TreeSet<Value>();
+    MultiSortedSet<Value> msorted = new MultiSortedSet<Value>();
+    ArrayList<Value> list = new ArrayList<Value>();
 
     for(int i=0;i<m_includes.size();i++) {
       msorted.add(m_includes.get(i),true);
     }
     int count = 0;
-    Iterator<Pair<Value, Double>> iter = msorted.iterator();
+    Iterator<Value> iter = msorted.iterator();
     while (iter.hasNext()) {
-      Pair<Value, Double> entry = iter.next();
-      m_results.add(entry.getFirst());
+      Value entry = iter.next();
+      list.add(entry);
       if (++count >= max)
         break;
     }
+    m_results = new SortedArraySet<Value>(list,true); // presorted set
     return m_results;
   }
 }
