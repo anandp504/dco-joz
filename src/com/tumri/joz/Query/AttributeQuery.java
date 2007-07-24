@@ -2,12 +2,12 @@ package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
 import com.tumri.joz.index.IIndex;
-import com.tumri.joz.products.ProductHandle;
+import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 
-import java.util.SortedSet;
 import java.util.ArrayList;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,7 +50,7 @@ public class AttributeQuery extends SimpleQuery {
     return m_count;
   }
 
-  public SortedSet<ProductHandle> exec() {
+  public SortedSet<Handle> exec() {
     if (m_results == null) {
       IIndex index = ProductDB.getInstance().getIndex(getAttribute());
       m_results = (index != null) ? index.get(m_values) : tableScan();
@@ -62,7 +62,7 @@ public class AttributeQuery extends SimpleQuery {
     return getCount();
   }
 
-  public Filter<ProductHandle> getFilter() {
+  public Filter<Handle> getFilter() {
     if (m_filter == null) {
       m_filter = ProductDB.getInstance().getFilter(getAttribute());
       m_filter.setValue(m_values);

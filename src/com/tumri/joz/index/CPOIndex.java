@@ -1,6 +1,6 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.products.ProductHandle;
+import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 
 /**
@@ -8,7 +8,7 @@ import com.tumri.joz.products.IProduct;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class CPOIndex extends Index<Double, ProductHandle>  {
+public class CPOIndex extends Index<Double, Handle>  {
   public CPOIndex() {
   }
 
@@ -20,7 +20,7 @@ public class CPOIndex extends Index<Double, ProductHandle>  {
     return p.getCPO();
   }
 
-  public ProductHandle getValue(IProduct p) {
+  public Handle getValue(IProduct p) {
     return p.getHandle();
   }
 }

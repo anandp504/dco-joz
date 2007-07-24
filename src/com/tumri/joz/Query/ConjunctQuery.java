@@ -1,8 +1,9 @@
 package com.tumri.joz.Query;
 
+import com.tumri.joz.index.MultiSortedSet;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.ranks.AttributeWeights;
 import com.tumri.joz.utils.Result;
 

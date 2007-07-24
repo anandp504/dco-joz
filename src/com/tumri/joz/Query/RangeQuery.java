@@ -56,7 +56,7 @@ public class RangeQuery extends SimpleQuery {
     return ((double)getCount()) * 4; // @todo these numbers are random guess work needs to be nlogn
   }
 
-  public SortedSet<ProductHandle> exec() {
+  public SortedSet<Handle> exec() {
     if (m_results == null) {
       IIndex index = ProductDB.getInstance().getIndex(getAttribute());
       m_results = (index != null) ? index.get(m_min,m_max) : tableScan();
@@ -64,7 +64,7 @@ public class RangeQuery extends SimpleQuery {
     return m_results;
   }
 
-  public Filter<ProductHandle> getFilter() {
+  public Filter<Handle> getFilter() {
     if (m_filter == null) {
       m_filter = ProductDB.getInstance().getFilter(getAttribute());
       m_filter.setNegation(isNegation());
