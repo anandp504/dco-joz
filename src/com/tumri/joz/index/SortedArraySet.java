@@ -40,7 +40,7 @@ public class SortedArraySet<V> implements SortedSet<V> {
   }
 
   /**
-   * The list aList is adopted
+   * The list aList is adopted, caller should ensure no duplicate items
    * @param aList
    */
   public SortedArraySet(ArrayList<V> aList) {
@@ -48,11 +48,20 @@ public class SortedArraySet<V> implements SortedSet<V> {
     sort();
   }
 
+  /**
+   * The list aList is adopted, caller should ensure no duplicates
+   * @param aList
+   * @param presorted
+   */
   public SortedArraySet(ArrayList<V> aList, boolean presorted) {
     m_list = aList;
     if (!presorted) sort();
   }
 
+  /**
+   * Caller should ensure no duplicates
+   * @param aList
+   */
   public SortedArraySet(Collection<V> aList) {
     m_list = new ArrayList<V>();
     m_list.addAll(aList);
@@ -125,9 +134,18 @@ public class SortedArraySet<V> implements SortedSet<V> {
   }
 
   public boolean remove(Object o) {
-    int insertionPoint = search((V)o);
+    V item = (V)o;
+    int insertionPoint = search(item);
     if (insertionPoint >= 0) {
-      m_list.remove(insertionPoint);
+      int i = insertionPoint + 1;
+      for (; i < m_list.size(); i++) {
+        V lV = m_list.get(i);
+        if (compare(item, lV) != 0)
+          break;
+      }
+      for (int j = i-1; j >= insertionPoint; j--) {
+        m_list.remove(j); // can be optimized to avoid too many remove calls
+      }
       return true;
     }
     return false;
@@ -219,7 +237,11 @@ public class SortedArraySet<V> implements SortedSet<V> {
     }
 
     public V next() {
-      return m_list.get(current++);
+      V ret = m_list.get(current++);
+      while(hasNext() && compare(m_list.get(current),ret) == 0) {
+        current++; // avoid returning same element twice, set semantics
+      }
+      return ret;
     }
 
     public void remove() {
@@ -242,4 +264,55 @@ public class SortedArraySet<V> implements SortedSet<V> {
       return m_end;
     }
   }
+
+  public static void main(String argv[]) {
+    ArrayList<Integer> set1 = new ArrayList<Integer>();
+    set1.add(9);
+    set1.add(1);
+    set1.add(24);
+    set1.add(1);
+    set1.add(5);
+    set1.add(5);
+    set1.add(9);
+    set1.add(9);
+    set1.add(1);
+    set1.add(23);
+    set1.add(24);
+    set1.add(24);
+    SortedArraySet<Integer> set2 = new SortedArraySet<Integer>();
+    set2.add(24);
+    set2.add(24);
+    set2.add(1);
+    set2.add(1);
+    set2.add(23);
+    set2.add(23);
+    set2.add(4);
+    set2.add(4);
+    set2.add(8);
+    set2.add(8);
+    {
+      SortedArraySet<Integer> set = new SortedArraySet<Integer>(set1);
+      Iterator<Integer> iter = set.iterator();
+      while (iter.hasNext()) {
+        Integer lInteger = iter.next();
+        System.out.println(lInteger);
+      }
+    }
+    {
+      Iterator<Integer> iter = set2.iterator();
+      while (iter.hasNext()) {
+        Integer lInteger = iter.next();
+        System.out.println(lInteger);
+      }
+    }
+    {
+      set2.addAll(set1);
+      Iterator<Integer> iter = set2.iterator();
+      while (iter.hasNext()) {
+        Integer lInteger = iter.next();
+        System.out.println(lInteger);
+      }
+    }
+  }
+
 }
