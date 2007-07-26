@@ -345,7 +345,7 @@ public class TmpMUPDB implements MUPDB
 	{
 	case FASLType.zini_symbol:
 	    if (IFASLUtils.isUnsigned16Symbol (t))
-		return new ProductName (Sexp.ENCODE_UCS16BE_SKIP_FIRST_BYTE,
+		return new ProductName (Sexp.ENCODE_UCS8OR16BE,
 					t.getBytes ());
 	    else
 		return new ProductName (Sexp.ENCODE_UCS8, t.getBytes ());
