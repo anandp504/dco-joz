@@ -1,5 +1,8 @@
 package com.tumri.joz.index;
 
+import org.junit.Test;
+import org.junit.Assert;
+
 import java.util.*;
 
 /**
@@ -28,6 +31,9 @@ public class SortedSplitSet<V> implements SortedSet<V> {
   private V m_splitter;
   private Comparator<? super V> m_comparator = null;
 
+  public SortedSplitSet() {
+  }
+  
   public SortedSplitSet(SortedSet<V> set, V s) {
     m_splitter = s;
     m_head = set.tailSet(m_splitter);
@@ -48,16 +54,17 @@ public class SortedSplitSet<V> implements SortedSet<V> {
   }
 
   public SortedSet<V> subSet(V aV, V aV1) {
+    int cmp0 = compare(aV,aV1);
     int cmp = compare(aV,m_splitter);
     int cmp1 = compare(aV1,m_splitter);
-    if (cmp < 0 && cmp1 < 0) {
+    if (cmp < 0 && cmp1 < 0 && cmp0 <= 0) {
       return m_tail.subSet(aV,aV1);
-    } else if (cmp >= 0 && cmp1 >= 0) {
+    } else if (cmp >= 0 && cmp1 >= 0 && cmp0 <= 0) {
       return m_head.subSet(aV,aV1);
-    } else if (cmp < 0 && cmp1 >= 0) {
-      return new SortedSplitSet<V>(m_head.tailSet(aV1),m_tail.headSet(aV),m_splitter,m_comparator);
-    } else {
+    } else if (cmp >= 0 && cmp1 < 0 && cmp0 > 0) {
       return new SortedSplitSet<V>(m_head.tailSet(aV),m_tail.headSet(aV1),m_splitter,m_comparator);
+    } else {
+      throw new IllegalArgumentException();
     }
   }
 
@@ -80,11 +87,11 @@ public class SortedSplitSet<V> implements SortedSet<V> {
   }
 
   public V first() {
-    return m_head.first();
+    return (m_head.isEmpty() ? m_tail.first() : m_head.first());
   }
 
   public V last() {
-    return m_tail.last();
+    return (m_tail.isEmpty() ? m_head.last() : m_tail.last());
   }
 
   public int size() {
@@ -101,7 +108,7 @@ public class SortedSplitSet<V> implements SortedSet<V> {
   }
 
   public Iterator<V> iterator() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return new SortedSplitSetIterator();
   }
 
   public Object[] toArray() {
@@ -181,6 +188,43 @@ public class SortedSplitSet<V> implements SortedSet<V> {
         m_flip = false;
       }
       return ret;
+    }
+  }
+  @Test public void test() {
+    Integer x[] = new Integer[] {1, 2, 4, 5, 6, 7, 8, 9, 12 };
+    ArrayList<Integer> y = new ArrayList<Integer>();
+    for (int i = 0; i < x.length; i++) { y.add(x[i]); }
+    SortedArraySet<Integer> sortedSet = new SortedArraySet<Integer>(y);
+    for (int i = 0; i < x.length; i++) {
+      SortedSplitSet<Integer> splitSet = new SortedSplitSet<Integer>(sortedSet,x[i]);
+      Assert.assertEquals(splitSet.first(),x[i]);
+      Integer prev = x[(i+x.length-1)%x.length];
+      Assert.assertEquals(splitSet.last(),prev);
+      Iterator<Integer> iter = splitSet.iterator();
+      for (int j = 0; j < x.length; j++) {
+        Assert.assertTrue(iter.hasNext());
+        Integer e = x[(i+j)%x.length];
+        Assert.assertTrue(splitSet.contains(e));
+        Assert.assertEquals(iter.next(),e);
+        SortedSet<Integer> tailset = splitSet.tailSet(e);
+        SortedSet<Integer> headset = splitSet.headSet(e);
+        SortedSet<Integer> subset = splitSet.subSet(x[i],e);
+        Assert.assertEquals(tailset.size(),x.length-j);
+        if (!tailset.isEmpty()) {
+          Assert.assertEquals(tailset.first(),e);
+          Assert.assertEquals(tailset.last(),prev);
+        }
+        Assert.assertEquals(headset.size(),j);
+        if (!headset.isEmpty()) {
+          Assert.assertEquals(headset.first(),x[i]);
+          Assert.assertEquals(headset.last(),x[(i+j+x.length-1)%x.length]);
+        }
+        Assert.assertEquals(subset.size(),j);
+        if (!subset.isEmpty()) {
+          Assert.assertEquals(subset.first(),x[i]);
+          Assert.assertEquals(subset.last(),x[(i+j+x.length-1)%x.length]);
+        }
+      }
     }
   }
 }

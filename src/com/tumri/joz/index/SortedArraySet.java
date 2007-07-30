@@ -37,6 +37,11 @@ public class SortedArraySet<V> implements SortedSet<V> {
     m_list = new ArrayList<V>();
   }
 
+  protected SortedArraySet(SortedArraySet<V> set) {
+    m_list = set.m_list;
+    m_comparator = set.m_comparator;
+  }
+
   public SortedArraySet(Comparator<? super V> aComparator) {
     m_list = new ArrayList<V>();
     m_comparator = aComparator;
@@ -78,21 +83,21 @@ public class SortedArraySet<V> implements SortedSet<V> {
   public SortedSet<V> subSet(V aV, V aV1) {
     int pos = search(aV);
     if (pos < 0) pos = (-1 - pos);
-    int pos1 = search(aV);
+    int pos1 = search(aV1);
     if (pos1 < 0) pos1 = (-1 - pos1);
-    return new SortedArraySubset<V>(pos,pos1);
+    return new SortedArraySubset<V>(this,pos,pos1);
   }
 
   public SortedSet<V> headSet(V aV) {
     int pos = search(aV);
     if (pos < 0) pos = (-1 - pos);
-    return new SortedArraySubset<V>(0,pos);
+    return new SortedArraySubset<V>(this,start(),pos);
   }
 
   public SortedSet<V> tailSet(V aV) {
     int pos = search(aV);
     if (pos < 0) pos = (-1 - pos);
-    return new SortedArraySubset<V>(pos,end());
+    return new SortedArraySubset<V>(this,pos,end());
   }
 
   public V first() {
@@ -100,7 +105,7 @@ public class SortedArraySet<V> implements SortedSet<V> {
   }
 
   public V last() {
-    return m_list.get(end());
+    return m_list.get(end()-1);
   }
 
   public int size() {
@@ -112,7 +117,8 @@ public class SortedArraySet<V> implements SortedSet<V> {
   }
 
   public boolean contains(Object o) {
-    return (search((V)o) >= 0);
+    int s = search((V)o);
+    return (s >= start() && s < end());
   }
 
   public Iterator<V> iterator() {
@@ -120,11 +126,20 @@ public class SortedArraySet<V> implements SortedSet<V> {
   }
 
   public Object[] toArray() {
-    return m_list.toArray();
+    Object ar[] = new Object[end()-start()];
+    int j=0;
+    for(int i = start(); i < end(); i++) {
+      ar[j++] = m_list.get(i);
+    }
+    return ar;
   }
 
   public <T> T[] toArray(T[] aTs) {
-    return m_list.toArray(aTs);
+    int j=0;
+    for (int i = start(); i < end(); i++) {
+      aTs[j++] = (T)m_list.get(i);
+    }
+    return aTs;
   }
 
   public boolean add(V aV) {
@@ -252,21 +267,6 @@ public class SortedArraySet<V> implements SortedSet<V> {
     }
   }
 
-  class SortedArraySubset<V> extends SortedArraySet<V> {
-    private int m_start;
-    private int m_end;
-
-    public SortedArraySubset(int aStart, int aEnd) {
-      m_start = aStart;
-      m_end = aEnd;
-    }
-    protected int start() {
-      return m_start;
-    }
-    protected int end() {
-      return m_end;
-    }
-  }
 
   @Test public void test() {
     Integer res1[] = new Integer[] {1, 5, 9, 23, 24};
@@ -324,4 +324,20 @@ public class SortedArraySet<V> implements SortedSet<V> {
     }
   }
 
+}
+class SortedArraySubset<V> extends SortedArraySet<V> {
+  private int m_start;
+  private int m_end;
+
+  public SortedArraySubset(SortedArraySet<V> set,int aStart, int aEnd) {
+    super(set);
+    m_start = aStart;
+    m_end = aEnd;
+  }
+  protected int start() {
+    return m_start;
+  }
+  protected int end() {
+    return m_end;
+  }
 }
