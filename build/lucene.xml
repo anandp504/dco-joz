@@ -4,8 +4,6 @@
     <!-- NOTE WELL: This file is imported into the main build.xml file.
          It is not intended to work standalone.  -->
 
-    <property name="root.dir" value="."/>
-
     <!-- ****************************************************************** -->
 
     <target name="build-KeywordServer-jar" depends="init">
