@@ -14,13 +14,13 @@ public class CPCRangeFilter extends Filter<Handle> {
     super();
   }
 
-  public CPCRangeFilter(Filter f) {
+  public CPCRangeFilter(Filter<Handle> f) {
     super(f);
   }
 
   public boolean accept(Handle h) {
     IProduct p = ProductDB.getInstance().get(h);
-    return ((p != null && inRange(p.getCPC())) ^ isNegation());
+    return ((p != null) && (inRange(p.getCPC()) ^ isNegation()));
   }
 
   public Filter<Handle> clone() {

@@ -82,4 +82,8 @@ public abstract class SimpleQuery implements Query, Comparable {
     return set;
   }
 
+  // Clear the internal results of last computation
+  public void clear() {
+    m_results = null;
+  }
 }

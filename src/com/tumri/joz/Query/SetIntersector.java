@@ -26,6 +26,8 @@ import java.util.SortedSet;
  */
 abstract public class SetIntersector<Value extends Comparable> {
   public static int MAXRET = 1000;
+
+  private boolean m_strict = false;
   private ArrayList<SortedSet<Value>> m_includes;
   private ArrayList<IWeight<Value>> m_includesWeight;
   private ArrayList<Filter<Value>> m_filters;
@@ -39,6 +41,7 @@ abstract public class SetIntersector<Value extends Comparable> {
   private int m_incSize;
   private int m_filterSize;
   private int m_excSize;
+  private int m_zeroSize = 0; // Incremented whenever include() or exclude() sees zero size set
 
   /**
    * Given a Value v and a score build the Result object.
@@ -57,15 +60,26 @@ abstract public class SetIntersector<Value extends Comparable> {
     m_excludesWeight = new ArrayList<IWeight<Value>>();
   }
 
+  public boolean isStrict() {
+    return m_strict;
+  }
+
+  public void setStrict(boolean aStrict) {
+    m_strict = aStrict;
+  }
+
   /**
    * Set to be included in the conjunction
    *
-   * @param set
+   * @param set SortedSet of values to be include in the intersection
+   * @param weight of a Value is computed using weight object
    */
   public void include(SortedSet<Value> set, IWeight<Value> weight) {
     if (set != null && set.size() > 0) {
-      m_includes.add(set);
-      m_includesWeight.add(weight);
+        m_includes.add(set);
+        m_includesWeight.add(weight);
+    } else {
+        m_zeroSize++;
     }
   }
 
@@ -76,20 +90,23 @@ abstract public class SetIntersector<Value extends Comparable> {
   /**
    * Complement of set to be added to conjunction
    *
-   * @param set
+   * @param set SortedSet of values to be include in the intersection
+   * @param weight of a Value is computed using weight object
    */
   public void exclude(SortedSet<Value> set, IWeight<Value> weight) {
-    if (set.size() > 0) {
+    if (set != null && set.size() > 0) {
       m_excludes.add(set);
       m_excludesWeight.add(weight);
-
+    } else {
+      m_zeroSize++;
     }
   }
 
   /**
    * Add a filter to the conjunction, filter acts as an alternative to an index
    *
-   * @param aFilter
+   * @param aFilter filter used for accepting matches
+   * @param weight of a Value is computed using weight object
    */
   public void addFilter(Filter<Value> aFilter, IWeight<Value> weight) {
     m_filters.add(aFilter);
@@ -102,14 +119,15 @@ abstract public class SetIntersector<Value extends Comparable> {
 
   /**
    * Create the returnSet with same length as includes sets + exclude sets
-   * Each of the entry is set to TreeSet for now
+   * Each of the entry is set to ArrayList for now
+   * Also m_zeroSize is used to avoid false accurate matches with zero sized weights
    */
   private void setup() {
     m_returnList = new ArrayList<ArrayList<Result>>();
     m_incSize = m_includes.size();
     m_filterSize = m_filters.size();
     m_excSize = m_excludes.size();
-    for (int i = 0; i < m_incSize + m_excSize + m_filterSize; i++) {
+    for (int i = 0; i < m_incSize + m_excSize + m_filterSize + m_zeroSize; i++) {
       m_returnList.add(new ArrayList<Result>());
     }
   }
@@ -122,8 +140,8 @@ abstract public class SetIntersector<Value extends Comparable> {
    * @return
    */
   private boolean addResult(int matches, Value element, double score) {
-    int index = m_incSize + m_excSize + m_filterSize - 1 - matches;
-    if (resultsSize(index) < m_maxSetSize)
+    int index = m_incSize + m_excSize + m_filterSize + m_zeroSize - 1 - matches;
+    if ((!isStrict() || index == 0) && resultsSize(index) < m_maxSetSize)
       m_returnList.get(index).add(getResult(element,score));
     return (m_returnList.get(0).size() >= m_maxSetSize);
   }
@@ -150,6 +168,15 @@ abstract public class SetIntersector<Value extends Comparable> {
     return null;
   }
 
+  private void print() {
+    for (int i = 0; i < m_includes.size(); i++) {
+      Iterator<Value> lValues = m_includes.get(i).iterator();
+      while (lValues.hasNext()) {
+        Value lValue = lValues.next();
+        System.out.println(lValue);
+      }
+    }
+  }
   /**
    * Starts walking all the sorted sets, till one of them reaches the end point
    * cPointer points to a set member
@@ -160,6 +187,7 @@ abstract public class SetIntersector<Value extends Comparable> {
     if (m_returnSet != null) {
       return m_returnSet;
     }
+    //print();
     setup();
     if (m_incSize == 0) {
       return m_returnSet;
@@ -187,20 +215,20 @@ abstract public class SetIntersector<Value extends Comparable> {
           if (currentSet.isEmpty() || !currentSet.first().equals(cPointer)) {
             break;
           }
-          IWeight w = m_includesWeight.get(i);
+          IWeight<Value> w = m_includesWeight.get(i);
           matches += w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }
         for (int i = 0; i < m_filterSize; i++) {
           if (!m_filters.get(i).accept(cPointer)) break; // @todo fail on first filter may not be the best move
-          IWeight w = m_filtersWeight.get(i);
+          IWeight<Value> w = m_filtersWeight.get(i);
           matches += w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }
         for (int i = 0; i < m_excSize; i++) {
           itemLookupCount++;
           if (m_excludes.get(i).contains(cPointer)) break; // @todo fail on first exclude may not be the best move
-          IWeight w = m_excludesWeight.get(i);
+          IWeight<Value> w = m_excludesWeight.get(i);
           matches += w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }

@@ -28,6 +28,15 @@ public class CNFQuery implements Query {
     m_queries.add(q);
   }
 
+
+  // Clear the internal results of last computation
+  public void clear() {
+    for (int i = 0; i < m_queries.size(); i++) {
+      m_queries.get(i).clear();
+    }
+    m_results = null;
+  }
+
   public SortedSet<Result> exec() {
     if (m_results == null) {
       SetUnionizer<Result> unionizer = new SetUnionizer<Result>();

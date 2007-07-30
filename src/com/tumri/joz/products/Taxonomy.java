@@ -29,6 +29,18 @@ public class Taxonomy {
     return g_taxonomy;
   }
 
+  public Integer getRoot() {
+    Iterator<Integer> iter = m_parent.keySet().iterator();
+    Integer root = null;
+    if (iter.hasNext()) {
+      root = iter.next();
+      while(m_parent.containsKey(root)) {
+        root = m_parent.get(root);
+      }
+    }
+    return root;
+  }
+
   private Taxonomy() {
   }
 
@@ -53,6 +65,14 @@ public class Taxonomy {
       m_children.put(pid,children);
     }
     children.add(cid);
+  }
+
+  public Integer getParent(Integer child) {
+    return m_parent.get(child);
+  }
+
+  public TreeSet<Integer> getChildren(Integer node) {
+    return m_children.get(node);
   }
 
   public void clear() {

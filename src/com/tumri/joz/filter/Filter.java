@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Created by IntelliJ IDEA.
  * User: snawathe
  * To change this template use File | Settings | File Templates.
- */
+ */ 
 public abstract class Filter<Value> {
   private boolean m_negation;
   private ArrayList<Integer> m_values = new ArrayList<Integer>();
@@ -24,7 +24,7 @@ public abstract class Filter<Value> {
   protected Filter() {
   }
 
-  protected Filter(Filter f) {
+  protected Filter(Filter<Value> f) {
     m_negation = f.m_negation;
     m_values.addAll(f.m_values);
     m_min = f.m_min;

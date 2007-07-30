@@ -1,7 +1,5 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.index.IDictionary;
-
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -13,7 +11,7 @@ import java.util.TreeMap;
 public class Dictionary<Type> implements IDictionary<Type> {
   private int m_Id = 0;
   private TreeMap<Type,Integer> m_map = new TreeMap<Type, Integer>();
-  private ArrayList<Type> m_List = new ArrayList();
+  private ArrayList<Type> m_List = new ArrayList<Type>();
   private ArrayList<Integer> m_freeSlots = new ArrayList<Integer>();
 
   public Integer getId(Type t) {

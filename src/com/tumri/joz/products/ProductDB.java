@@ -13,14 +13,14 @@ import java.util.Iterator;
  * To change this template use File | Settings | File Templates.
  */
 // @todo add handle changes to take care of randomization
-public class ProductDB {
+public class ProductDB { 
   private static ProductDB g_DB;
   // Map m_map maintains map from product id -> Product
   private RWLockedTreeMap<Integer, IProduct> m_map = new RWLockedTreeMap<Integer, IProduct>();
   // Map m_allproducts maintains set of all product handles
   private RWLockedTreeSet<Handle> m_allProducts = new RWLockedTreeSet<Handle>();
   // All indices are maintained in the class in a hashtable
-  private Hashtable<IProduct.Attribute,Index> m_indices = new Hashtable<IProduct.Attribute, Index>();
+  private Hashtable<IProduct.Attribute,Index<?,Handle>> m_indices = new Hashtable<IProduct.Attribute, Index<?,Handle>>();
   // table of all filters associated with attributes
   private Hashtable<IProduct.Attribute, Filter<Handle>> m_filters = new Hashtable<IProduct.Attribute, Filter<Handle>>();
 
@@ -87,9 +87,9 @@ public class ProductDB {
       m_map.writerUnlock();
     }
     // Step 4.
-    Iterator<Index> iter = m_indices.values().iterator();
+    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
-      Index lIndex = iter.next();
+      Index<?,Handle> lIndex = iter.next();
       lIndex.addProduct(p);
     }
     return h;
@@ -120,9 +120,9 @@ public class ProductDB {
   public Handle deleteProduct(IProduct p) {
     Handle h = p.getHandle();
     // Step 1.
-    Iterator<Index> iter = m_indices.values().iterator();
+    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
-      Index lIndex = iter.next();
+      Index<?,Handle> lIndex = iter.next();
       lIndex.deleteProduct(p);
     }
     // Step 2.
@@ -165,7 +165,7 @@ public class ProductDB {
     return m_allProducts;
   }
 
-  public void addIndex(IProduct.Attribute aAttribute, Index index) {
+  public void addIndex(IProduct.Attribute aAttribute, Index<?,Handle> index) {
     m_indices.put(aAttribute,index);
     reindex(aAttribute);
   }
@@ -191,7 +191,7 @@ public class ProductDB {
     }
   }
 
-  public IIndex getIndex(IProduct.Attribute aAttribute) {
+  public Index getIndex(IProduct.Attribute aAttribute) {
     return m_indices.get(aAttribute);
   }
 
@@ -218,9 +218,9 @@ public class ProductDB {
     IProduct p = get(h);
     if ( p == null)
       return null;
-    Iterator<Index> iter = m_indices.values().iterator();
+    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
-      Index lIndex = iter.next();
+      Index<?,Handle> lIndex = iter.next();
       lIndex.deleteProduct(p);
     }
     iter = m_indices.values().iterator();

@@ -14,13 +14,13 @@ public class PriceRangeFilter extends Filter<Handle> {
     super();
   }
 
-  public PriceRangeFilter(Filter f) {
+  public PriceRangeFilter(Filter<Handle> f) {
     super(f);
   }
 
   public boolean accept(Handle h) {
     IProduct p = ProductDB.getInstance().get(h);
-    return ((p != null && inRange(p.getPrice())) ^ isNegation());
+    return ((p != null) && (inRange(p.getPrice()) ^ isNegation()));
   }
 
   public Filter<Handle> clone() {

@@ -20,7 +20,7 @@ public class ProviderFilter extends Filter<Handle> {
 
   public boolean accept(Handle h) {
     IProduct p = ProductDB.getInstance().get(h);
-    return ((p != null && isMatch(p.getProvider())) ^ isNegation());
+    return ((p != null) && (isMatch(p.getProvider()) ^ isNegation()));
   }
 
   public Filter<Handle> clone() {

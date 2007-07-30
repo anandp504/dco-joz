@@ -1,7 +1,6 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.utils.Pair;
 import com.tumri.joz.utils.Result;
 
 /**

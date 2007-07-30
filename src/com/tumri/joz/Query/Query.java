@@ -8,5 +8,8 @@ import java.util.SortedSet;
  * To change this template use File | Settings | File Templates.
  */
 public interface Query {
+  // Returns results from execution of the query
   public SortedSet exec();
+  // Clear the internal results of last computation
+  public void clear();
 }

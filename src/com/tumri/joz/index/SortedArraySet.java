@@ -1,5 +1,8 @@
 package com.tumri.joz.index;
 
+import org.junit.Test;
+import org.junit.Assert;
+
 import java.util.*;
 
 /**
@@ -265,7 +268,10 @@ public class SortedArraySet<V> implements SortedSet<V> {
     }
   }
 
-  public static void main(String argv[]) {
+  @Test public void test() {
+    Integer res1[] = new Integer[] {1, 5, 9, 23, 24};
+    Integer res2[] = new Integer[] {1, 4, 8, 23, 24};
+    Integer res3[] = new Integer[] {1, 4, 5, 8, 9, 23, 24};
     ArrayList<Integer> set1 = new ArrayList<Integer>();
     set1.add(9);
     set1.add(1);
@@ -291,26 +297,29 @@ public class SortedArraySet<V> implements SortedSet<V> {
     set2.add(8);
     set2.add(8);
     {
+      int i=0;
       SortedArraySet<Integer> set = new SortedArraySet<Integer>(set1);
       Iterator<Integer> iter = set.iterator();
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        System.out.println(lInteger);
+        Assert.assertEquals(lInteger.intValue(),res1[i++]);
       }
     }
     {
+      int i=0;
       Iterator<Integer> iter = set2.iterator();
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        System.out.println(lInteger);
+        Assert.assertEquals(lInteger.intValue(),res2[i++]);
       }
     }
     {
+      int i=0;
       set2.addAll(set1);
       Iterator<Integer> iter = set2.iterator();
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        System.out.println(lInteger);
+        Assert.assertEquals(lInteger.intValue(),res3[i++]);
       }
     }
   }

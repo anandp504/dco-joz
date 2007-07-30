@@ -2,27 +2,19 @@
 
 package com.tumri.joz.keywordServer;
 
-import java.io.File;
-import java.io.Reader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.lucene.analysis.Analyzer;
-//import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.FilterIndexReader;
 import org.apache.lucene.index.IndexReader;
-//import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.Hits;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Searcher;
-import org.apache.lucene.search.Explanation;
+import org.apache.lucene.search.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class LuceneDB
 {
@@ -38,7 +30,7 @@ public class LuceneDB
 		log.info ("Loading keyword index from " + _index_dir);
 		_reader = IndexReader.open (_index_dir);
 		_searcher = new IndexSearcher (_reader);
-		_analyzer = IndexProducts.getAnalyzer (false /*no-dump*/);
+    _analyzer = IndexProducts.getAnalyzer (false /*no-dump*/);
 		return;
 	    }
 	}

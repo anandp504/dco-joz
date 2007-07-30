@@ -17,7 +17,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
   private static double kCPC = 1.2;
   private static double kCPO = 1.2;
   private static double kKeywords = 3.0;
-  private static double kNone = 10.0;
+  private static double kNone = 1.0;
 
 
   public int match(Handle h) {

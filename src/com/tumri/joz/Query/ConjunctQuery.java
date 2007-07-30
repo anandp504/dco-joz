@@ -20,6 +20,8 @@ import java.util.SortedSet;
 public class ConjunctQuery implements Query {
   private ArrayList<SimpleQuery> m_queries = new ArrayList<SimpleQuery>();
   private SortedSet<Result> m_results;
+  private boolean m_strict = false; // If true Strict match only no rel. ranking
+  private boolean m_scan = false; // Forces a table scan approach
 
   public ConjunctQuery() {
   }
@@ -32,6 +34,55 @@ public class ConjunctQuery implements Query {
     m_queries.add(q);
   }
 
+
+  public boolean isStrict() {
+    return m_strict;
+  }
+
+  public void setStrict(boolean aStrict) {
+    m_strict = aStrict;
+  }
+
+
+  public boolean isScan() {
+    return m_scan;
+  }
+
+  public void setScan(boolean aScan) {
+    m_scan = aScan;
+  }
+
+
+  // Clear the internal results of last computation
+  public void clear() {
+    for (int i = 0; i < m_queries.size(); i++) {
+      m_queries.get(i).clear();
+    }
+    m_results = null;
+  }
+
+  public SortedSet<Result> exec() {
+    if (m_results != null) return m_results;
+    Collections.sort(m_queries);
+    ProductSetIntersector intersector = new ProductSetIntersector();
+    intersector.setStrict(isStrict());
+    if (isScan())
+      buildTableScanner(intersector);
+    else
+      buildIntersector(intersector);
+    long start = System.currentTimeMillis();
+    m_results = intersector.intersect();
+    System.out.println("Time is " + (System.currentTimeMillis() - start));
+    return m_results;
+  }
+
+  private void buildTableScanner(ProductSetIntersector aIntersector) {
+    aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
+    for (int i = 0; i < m_queries.size(); i++) {
+      SimpleQuery lSimpleQuery = m_queries.get(i);
+      aIntersector.addFilter(lSimpleQuery.getFilter(),lSimpleQuery.getWeight());
+    }
+  }
   /**
    * Order of walking through the query set
    * 1. Look for Attribute/kdeyword + indexed + positive (include: indexed)
@@ -43,17 +94,14 @@ public class ConjunctQuery implements Query {
    * 7.          all                              + negative (add as filters)
    *
    */
-  public SortedSet<Result> exec() {
-    if (m_results != null) return m_results;
-    Collections.sort(m_queries);
-    ProductSetIntersector intersector = new ProductSetIntersector();
+  private void buildIntersector(ProductSetIntersector aIntersector) {
     for (int i = 0; i < m_queries.size(); i++) { // Step 1
       SimpleQuery lSimpleQuery = m_queries.get(i);
       if ((lSimpleQuery.getType() == SimpleQuery.Type.kAttribute ||
            lSimpleQuery.getType() == SimpleQuery.Type.kKeyword) &&
           lSimpleQuery.hasIndex() &&
           !lSimpleQuery.isNegation()) {
-        intersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // include indexed attribute/keyword queries first
+        aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // include indexed attribute/keyword queries first
       }
     }
     for (int i = 0; i < m_queries.size(); i++) {
@@ -61,36 +109,32 @@ public class ConjunctQuery implements Query {
       if (lSimpleQuery.getType() == SimpleQuery.Type.kRange &&
           lSimpleQuery.hasIndex() &&
           !lSimpleQuery.isNegation()) {
-        if (!intersector.hasIncludes() || i == 0) {
-          intersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 2. include indexed range query if efficient
+        if (!aIntersector.hasIncludes() || i == 0) {
+          aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 2. include indexed range query if efficient
         } else {
-          intersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 3 else range queries are filters
+          aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 3 else range queries are filters
         }
       }
     }
     for (int i = 0; i < m_queries.size(); i++) {
       SimpleQuery lSimpleQuery = m_queries.get(i);
       if (!lSimpleQuery.hasIndex() && !lSimpleQuery.isNegation()) {
-        if (!intersector.hasIncludes())
-          intersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 4. non indexed table scan query
+        if (!aIntersector.hasIncludes())
+          aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 4. non indexed table scan query
         else
-          intersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 5 else range queries are filters
+          aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 5 else range queries are filters
       }
     }
-    if (!intersector.hasIncludes()) { // Step 6. this means we have closed world negation query
-      intersector.include(ProductDB.getInstance().getAll(),AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
+    if (!aIntersector.hasIncludes()) { // Step 6. this means we have closed world negation query
+      aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     }
-    boolean excludeCategory = categoryExclusion(intersector);
+    boolean excludeCategory = categoryExclusion(aIntersector);
     for (int i = 0; i < m_queries.size(); i++) {
       SimpleQuery lSimpleQuery = m_queries.get(i);
       if (lSimpleQuery.isNegation() && (!excludeCategory || lSimpleQuery.getAttribute() != IProduct.Attribute.kCategory)) {
-        intersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step 7. Add filter for all negations
+        aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step 7. Add filter for all negations
       }
     }
-    long start = System.currentTimeMillis();
-    m_results = intersector.intersect();
-    System.out.println("Time is " + (System.currentTimeMillis() - start));
-    return m_results;
   }
 
   public SortedSet<Result> getResults() {
@@ -102,7 +146,7 @@ public class ConjunctQuery implements Query {
    * The excluded category set is simply removed from include category set using subset level differences
    * @return returns true if difference was already computed
    */
-  private boolean categoryExclusion(SetIntersector intersector) {
+  private boolean categoryExclusion(ProductSetIntersector intersector) {
     SimpleQuery lCatPlus = null;
     SimpleQuery lCatMinus = null;
     for (int i = 0; i < m_queries.size(); i++) {

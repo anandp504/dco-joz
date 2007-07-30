@@ -7,7 +7,7 @@ import java.util.Comparator;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class Pair<A extends Comparable, B extends Comparable> implements Comparable<Pair <A, B>>, Comparator<Pair<A, B>> {
+public class Pair<A extends Comparable<A>, B extends Comparable<B>> implements Comparable<Pair <A, B>>, Comparator<Pair<A, B>> {
   private A m_first;
   private B m_second;
 

@@ -3,7 +3,6 @@ package com.tumri.joz.index;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.Taxonomy;
-import com.tumri.joz.products.Handle;
 
 import java.util.*;
 
@@ -29,6 +28,32 @@ public class CategoryIndex extends Index<Integer, Handle> {
   }
 
   /**
+   * Given a List of Key objects keys, returns the SortedSet of values. The sort order is decided by the
+   * natural order of the Value. Key and Value both should implement Comparable
+   * @param keys a List of key objects
+   */
+  public SortedSet<Handle> get(List<Integer> keys) {
+    if (keys.size() == 1) {
+      return get(keys.get(0));
+    } else {
+      MultiSortedSet<Handle> set = new MultiSortedSet<Handle>();
+      for (int i = 0; i < keys.size(); i++) {
+        SortedSet<Handle> s = get(keys.get(i));
+        if (s instanceof MultiSortedSet) {
+          List<SortedSet<Handle>> slist = ((MultiSortedSet<Handle>)s).getList();
+          for (int j = 0; j < slist.size(); j++) {
+            SortedSet<Handle> lHandles = slist.get(j);
+            set.add(lHandles);
+          }
+        } else {
+          set.add(s);
+        }
+      }
+      return set;
+    }
+
+  }
+  /**
    * Updates the index with the taxonomy object
    * Internally for each of the parent child relationship index entries are created
    * Any old entries are updated
@@ -37,10 +62,9 @@ public class CategoryIndex extends Index<Integer, Handle> {
   public void update(Taxonomy taxonomy) {
     try {
       m_map.writerLock();
-      Iterator<Map.Entry<Integer, TreeSet<Integer>>> iter = taxonomy.iterator();
-      while (iter.hasNext()) {
-        Map.Entry<Integer, TreeSet<Integer>> lEntry = iter.next();
-        update(lEntry.getKey(),lEntry.getValue());
+      Integer root = taxonomy.getRoot();
+      if (root != null) {
+        update(taxonomy,root);
       }
     } finally {
       m_map.writerUnlock();
@@ -58,27 +82,34 @@ public class CategoryIndex extends Index<Integer, Handle> {
   }
 
   /**
+   * Update all the child nodes before updating the parent node
    * find the parent set from the index
    * If the parent is not a MultiSortedSet then change the class to be so
    * The parent category Node should have MultiSortedSet<Handle> as its set, where constituents are as follows
    * MultiSortedSet = { Native Products to Category, child0, child1, child2 ... }
-   * Note: MultiSortedSet.add(Key,Value) adds the native products to first set in the row
-   * @return
+   * Note: MultiSortedSet.add(Key,Value) adds the native products to first set in the row, while updating
+   * @param tax
+   * @param pid
    */
-  private void update(Integer pid, TreeSet<Integer> children) {
-    SortedSet<Handle> parentSet = get(pid);
-    if (parentSet == null) parentSet = new RWLockedTreeSet<Handle>();
-    List<SortedSet<Handle>> nlist = new ArrayList<SortedSet<Handle>>();
-    nlist.add(parentSet instanceof MultiSortedSet ? ((MultiSortedSet<Handle>)parentSet).getList().get(0) : parentSet);
-    Iterator<Integer> iter = children.iterator();
-    while (iter.hasNext()) {
-      SortedSet<Handle> childSet = getChildSet(iter.next());
-      if (childSet instanceof MultiSortedSet) {
-        nlist.addAll(((MultiSortedSet)childSet).getList());
-      } else {
-        nlist.add(childSet);
+  private void update(Taxonomy tax, Integer pid) {
+    TreeSet<Integer> children = tax.getChildren(pid);
+    if (children != null) {
+      SortedSet<Handle> parentSet = get(pid);
+      if (parentSet == null) parentSet = new RWLockedTreeSet<Handle>();
+      List<SortedSet<Handle>> nlist = new ArrayList<SortedSet<Handle>>();
+      nlist.add(parentSet instanceof MultiSortedSet ? ((MultiSortedSet<Handle>)parentSet).getList().get(0) : parentSet);
+      Iterator<Integer> iter = children.iterator();
+      while (iter.hasNext()) {
+        Integer child = iter.next();
+        update(tax,child);
+        SortedSet<Handle> childSet = getChildSet(child);
+        if (childSet instanceof MultiSortedSet) {
+          nlist.addAll(((MultiSortedSet<Handle>)childSet).getList());
+        } else {
+          nlist.add(childSet);
+        }
       }
+      put(pid,new MultiSortedSet<Handle>(nlist));
     }
-    put(pid,new MultiSortedSet<Handle>(nlist));
   }
 }

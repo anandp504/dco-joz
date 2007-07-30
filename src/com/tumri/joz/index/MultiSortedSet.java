@@ -1,5 +1,8 @@
 package com.tumri.joz.index;
 
+import org.junit.Test;
+import org.junit.Assert;
+
 import java.util.*;
 
 /**
@@ -16,7 +19,7 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
   private EndItems<V> m_endItems = null;
   private Comparator<? super V> m_comparator = null;
 
-
+ 
   public MultiSortedSet() {
   }
 
@@ -62,8 +65,8 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
 
   public SortedSet<V> tailSet(V aV) {
     MultiSortedSet<V> set = new MultiSortedSet<V>();
-    EndItems<V> endItems = (m_endItems == null ? new EndItems() : m_endItems);
-    EndItems<V> nEndItems = new EndItems();
+    EndItems<V> endItems = (m_endItems == null ? new EndItems<V>() : m_endItems);
+    EndItems<V> nEndItems = new EndItems<V>();
     for (int i = 0; i < m_list.size(); i++) {
       V lastItem = endItems.get(i,false);
       SortedSet<V> lVs = m_list.get(i);
@@ -224,8 +227,8 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
     TreeSet<V> set = new TreeSet<V>();
     Iterator<?> iter = aObjects.iterator();
     while (iter.hasNext()) {
-      Object v = iter.next();
-      if (contains(v)) set.add((V) v);
+      V v = (V)iter.next();
+      if (contains(v)) set.add(v);
     }
     clear();
     add(set);
@@ -345,7 +348,7 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
     }
   }
 
-  public static void main(String argv[]) {
+  @Test public void test() {
     TreeSet<Integer> set1 = new TreeSet<Integer>();
     set1.add(1);
     set1.add(5);
@@ -362,9 +365,10 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
       MultiSortedSet<Integer> set = new MultiSortedSet<Integer>();
       set.add(set1);
       Iterator<Integer> iter = set.iterator();
+      Iterator<Integer> iter1 = set1.iterator();
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        System.out.println(lInteger);
+        Assert.assertEquals(iter1.next(),lInteger);
       }
     }
     {
@@ -372,9 +376,11 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
       set.add(set1);
       set.add(set2);
       Iterator<Integer> iter = set.iterator();
+      int i=0;
+      Integer set3[] = new Integer[] {1, 4 , 5, 8, 9, 23, 24};
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        System.out.println(lInteger);
+        Assert.assertEquals(lInteger.intValue(),set3[i++]);
       }
     }
   }
@@ -433,7 +439,7 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
   }
 
 
-  private void setLastItems(EndItems aEndItems) {
+  private void setLastItems(EndItems<V> aEndItems) {
     m_endItems = aEndItems;
   }
 }

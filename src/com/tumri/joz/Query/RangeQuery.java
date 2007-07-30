@@ -1,8 +1,11 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.*;
-import com.tumri.joz.index.IIndex;
 import com.tumri.joz.filter.Filter;
+import com.tumri.joz.index.IIndex;
+import com.tumri.joz.index.Index;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.ProductDB;
 
 import java.util.SortedSet;
 
@@ -58,7 +61,7 @@ public class RangeQuery extends SimpleQuery {
 
   public SortedSet<Handle> exec() {
     if (m_results == null) {
-      IIndex index = ProductDB.getInstance().getIndex(getAttribute());
+      Index<Double,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       m_results = (index != null) ? index.get(m_min,m_max) : tableScan();
     }
     return m_results;

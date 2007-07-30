@@ -20,7 +20,7 @@ public class BrandFilter extends Filter<Handle> {
 
   public boolean accept(Handle h) {
     IProduct p = ProductDB.getInstance().get(h);
-    return ((p != null && isMatch(p.getBrand())) ^ isNegation());
+    return ((p != null) && (isMatch(p.getBrand()) ^ isNegation()));
   }
 
   public Filter<Handle> clone() {

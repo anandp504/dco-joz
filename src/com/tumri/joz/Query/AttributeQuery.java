@@ -1,7 +1,7 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
-import com.tumri.joz.index.IIndex;
+import com.tumri.joz.index.Index;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
@@ -14,7 +14,7 @@ import java.util.SortedSet;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class AttributeQuery extends SimpleQuery {
+public class AttributeQuery extends SimpleQuery { 
   private ArrayList<Integer> m_values = new ArrayList<Integer>();
   private int m_count = kMax;
 
@@ -42,7 +42,7 @@ public class AttributeQuery extends SimpleQuery {
 
   public int getCount() {
     if (m_count == kMax) {
-      IIndex index = ProductDB.getInstance().getIndex(getAttribute());
+      Index<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       if (index != null) {
         m_count = index.getCount(m_values);
       }
@@ -52,7 +52,7 @@ public class AttributeQuery extends SimpleQuery {
 
   public SortedSet<Handle> exec() {
     if (m_results == null) {
-      IIndex index = ProductDB.getInstance().getIndex(getAttribute());
+      Index<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       m_results = (index != null) ? index.get(m_values) : tableScan();
     }
     return m_results;

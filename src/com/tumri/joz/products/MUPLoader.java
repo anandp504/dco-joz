@@ -21,14 +21,23 @@ import com.tumri.joz.Query.*;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.index.CategoryIndex;
 import com.tumri.joz.utils.DOMUtils;
+import com.tumri.joz.utils.Result;
 import org.w3c.dom.*;
+import org.junit.Test;
+import org.junit.Assert;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.SortedSet;
+import java.util.Iterator;
 
 public class MUPLoader {
   File m_file;
+
+  public MUPLoader() {
+    this(new File("MUP-USpub0012_MUP_US0050-US-DEFAULT_.utf8"));
+  }
 
   public MUPLoader(File f) {
     m_file = f;
@@ -120,15 +129,13 @@ public class MUPLoader {
     return p;
   }
 
-  public static void main(String argv[]) {
+  @Test public void test() {
     try {
-      File f = new File("MUP-USpub0012_MUP_US0050-US-DEFAULT_.utf8");
-      MUPLoader mup = new MUPLoader(f);
-      mup.loadProducts();
+      loadProducts();
       TaxonomyLoader tl = new TaxonomyLoader();
       DictionaryManager dm = DictionaryManager.getInstance();
       ProductDB.getInstance();
-      new TSpecLoader();
+      new TSpecLoader(false);
       long start = System.currentTimeMillis();
       for (int i = 0; i < 1; i++) {
         CNFQuery q = new CNFQuery();
@@ -177,8 +184,10 @@ class TaxonomyLoader {
 class TSpecLoader {
   Document m_document = null;
   ArrayList<TSpec> m_tspecs = new ArrayList<TSpec>();
+  private boolean m_validate = false;
 
-  TSpecLoader() {
+  TSpecLoader(boolean validate) {
+    m_validate = validate;
     File ftspecs = new File("t-specs.xml");
     m_document = DOMUtils.parse(ftspecs);
     process();
@@ -205,10 +214,26 @@ class TSpecLoader {
     for (int i = 0; i < m_tspecs.size(); i++) {
       TSpec lTSpec = m_tspecs.get(i);
       ConjunctQuery cjq = lTSpec.getQuery().getQueries().get(0);
-      cjq.exec();
-      System.out.println(i +": results: "+cjq.getResults().size());
+      cjq.setStrict(true);
+      SortedSet<Result> results = cjq.exec();
+      if (m_validate) {
+        cjq.clear();
+        cjq.setScan(true);
+        SortedSet<Result> results1 = cjq.exec();
+        Iterator<Result> iter = results.iterator();
+        Iterator<Result> iter1 = results1.iterator();
+        boolean hasNext = iter.hasNext();
+        boolean hasNext1 = iter1.hasNext();
+        Assert.assertEquals(hasNext,hasNext1);
+        while(hasNext && hasNext1) {
+          Assert.assertEquals(iter.next().getOid(),iter1.next().getOid());
+          hasNext = iter.hasNext();
+          hasNext1 = iter1.hasNext();
+          Assert.assertEquals(hasNext,hasNext1);
+        }
+      }
     }
-    System.out.println("Time is "+(System.currentTimeMillis()-start));
+    System.out.println("TSpec Time is "+(System.currentTimeMillis()-start));
   }
 }
 
@@ -326,9 +351,28 @@ class TSpec {
     StringTokenizer tokens = new StringTokenizer(value," ",false);
     DictionaryManager dm = DictionaryManager.getInstance();
     ArrayList<Integer> vals = new ArrayList<Integer>();
+    String last = null;
     while(tokens.hasMoreTokens()) {
       String token = tokens.nextToken().trim();
-      vals.add(dm.getId(attr,token));
+      if (last == null) {
+        if (token.startsWith("|")) {
+          last = token;
+          if (token.endsWith("|")) {
+            last = last.substring(1,last.length()-1);
+            vals.add(dm.getId(attr,last));
+            last = null;
+          }
+        } else {
+          vals.add(dm.getId(attr,token));
+        }
+      } else {
+        last = last + " " + token;
+        if (token.endsWith("|")) {
+          last = last.substring(1,last.length()-1);
+          vals.add(dm.getId(attr,last));
+          last = null;
+        }
+      }
     }
     return vals;
   }

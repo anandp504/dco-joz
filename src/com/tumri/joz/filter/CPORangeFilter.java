@@ -20,7 +20,7 @@ public class CPORangeFilter extends Filter<Handle> {
 
   public boolean accept(Handle h) {
     IProduct p = ProductDB.getInstance().get(h);
-    return ((p != null && inRange(p.getCPO())) ^ isNegation());
+    return ((p != null) && (inRange(p.getCPO()) ^ isNegation()));
   }
 
   public Filter<Handle> clone() {

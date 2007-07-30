@@ -65,6 +65,11 @@ public class Handle32 implements Handle<Handle32> {
    * @return weighted rank number
    */
   private int weightedRank(int rank) {
-    return g_random.nextInt(0x100);
+    //return g_random.nextInt(0x100);
+    return 0;
+  }
+
+  public String toString() {
+    return Integer.toString(getOid());
   }
 }
