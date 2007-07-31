@@ -155,15 +155,7 @@ public class SortedArraySet<V> implements SortedSet<V> {
     V item = (V)o;
     int insertionPoint = search(item);
     if (insertionPoint >= 0) {
-      int i = insertionPoint + 1;
-      for (; i < m_list.size(); i++) {
-        V lV = m_list.get(i);
-        if (compare(item, lV) != 0)
-          break;
-      }
-      for (int j = i-1; j >= insertionPoint; j--) {
-        m_list.remove(j); // can be optimized to avoid too many remove calls
-      }
+      m_list.remove(insertionPoint);
       return true;
     }
     return false;
@@ -222,6 +214,17 @@ public class SortedArraySet<V> implements SortedSet<V> {
       Collections.sort((ArrayList<Comparable>)m_list);
     else
       Collections.sort(m_list,m_comparator);
+
+    // Remove duplicates
+    ArrayList<V> list = new ArrayList<V>();
+    V prev = null;
+    for (int i = 0; i < m_list.size(); i++) {
+      V lV = m_list.get(i);
+      if (prev == null || compare(prev,lV) != 0)
+        list.add(lV);
+      prev = lV;
+    }
+    m_list = list;
   }
 
   private int compare(V aV, V aV1) {
@@ -255,11 +258,7 @@ public class SortedArraySet<V> implements SortedSet<V> {
     }
 
     public V next() {
-      V ret = m_list.get(current++);
-      while(hasNext() && compare(m_list.get(current),ret) == 0) {
-        current++; // avoid returning same element twice, set semantics
-      }
-      return ret;
+      return m_list.get(current++);
     }
 
     public void remove() {
@@ -321,6 +320,13 @@ public class SortedArraySet<V> implements SortedSet<V> {
         Integer lInteger = iter.next();
         Assert.assertEquals(lInteger.intValue(),res3[i++]);
       }
+    }
+    {
+      int offset = 4;
+      for (int i = 0; i < res3.length; i++) {
+        Assert.assertTrue(set2.remove(res3[(i+offset)%res3.length]));
+      }
+      Assert.assertTrue(set2.size() == 0);
     }
   }
 

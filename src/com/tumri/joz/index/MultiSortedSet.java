@@ -442,6 +442,55 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
   private void setLastItems(EndItems<V> aEndItems) {
     m_endItems = aEndItems;
   }
+
+  @Test public void test1() {
+    Integer x[] = new Integer[] {1, 2, 4, 5, 6, 7, 8, 9, 12 };
+    Integer x1[] = new Integer[] {1, 2, 5, 6, 8, 9};
+    Integer x2[] = new Integer[] {1, 4, 5, 7, 8, 12 };
+    Integer x3[] = new Integer[] {2, 4, 6, 7, 9, 12 };
+
+    ArrayList<Integer> y1 = new ArrayList<Integer>();
+    for (int i = 0; i < x1.length; i++) { y1.add(x1[i]); }
+
+    ArrayList<Integer> y2 = new ArrayList<Integer>();
+    for (int i = 0; i < x2.length; i++) { y2.add(x2[i]); }
+
+    ArrayList<Integer> y3 = new ArrayList<Integer>();
+    for (int i = 0; i < x3.length; i++) { y3.add(x3[i]); }
+
+    MultiSortedSet<Integer> set = new MultiSortedSet<Integer>();
+    set.add(new SortedArraySet<Integer>(y1));
+    set.add(new SortedArraySet<Integer>(y2));
+    set.add(new SortedArraySet<Integer>(y3));
+    Iterator<Integer> iter = set.iterator();
+    for (int i = 0; i < x.length; i++) {
+      Integer cur = x[i];
+      Assert.assertTrue(iter.hasNext());
+      Assert.assertEquals(iter.next(),cur);
+
+      SortedSet<Integer> headset = set.headSet(cur);
+      SortedSet<Integer> tailset = set.tailSet(cur);
+      SortedSet<Integer> subset  = set.subSet(x[0],cur);
+
+      Assert.assertTrue(headset.size() >= i);
+      if (!headset.isEmpty()) {
+        Assert.assertEquals(headset.first(),x[0]);
+        Assert.assertEquals(headset.last(),x[(i+x.length-1)%x.length]);
+      }
+
+      Assert.assertTrue(tailset.size() >= (x.length-i));
+      if (!tailset.isEmpty()) {
+        Assert.assertEquals(tailset.first(),x[i]);
+        Assert.assertEquals(tailset.last(),x[x.length-1]);
+      }
+
+      Assert.assertTrue(subset.size() >= i);
+      if (!subset.isEmpty()) {
+        Assert.assertEquals(subset.first(),x[0]);
+        Assert.assertEquals(subset.last(),x[(i+x.length-1)%x.length]);
+      }
+    }
+  }
 }
 class EndItems<V> {
   private List<V> m_last = new ArrayList<V>();
