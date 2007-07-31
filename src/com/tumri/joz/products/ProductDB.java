@@ -231,7 +231,7 @@ public class ProductDB {
 
 
   public IProduct get(Handle handle) {
-    return get(handle.getOid());
+    return (handle instanceof IProduct) ? (IProduct) handle: get(handle.getOid());
   }
 
   public Handle get(IProduct p) {

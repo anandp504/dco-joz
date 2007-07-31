@@ -7,7 +7,7 @@ import com.tumri.joz.index.DictionaryManager;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class Product implements IProduct {
+public class Product implements IProduct, Handle<Product> {
   private String m_Gid;
   private Integer m_Catalog;
   private Integer m_Category;
@@ -38,6 +38,16 @@ public class Product implements IProduct {
 
   public int getId() {
     return m_id;
+  }
+
+  public int getOid() {
+    return m_id;
+  }
+
+
+  public int compareTo(Product aProduct) {
+    return (m_id < aProduct.m_id ? -1 :
+            m_id == aProduct.m_id ? 0 : 1);
   }
 
   public String getGId() {
@@ -272,10 +282,11 @@ public class Product implements IProduct {
   }
 
   public Handle getHandle() {
-    if (m_handle == null) {
-      m_handle = new Handle32(getId(),DictionaryManager.getInstance().getId(IProduct.Attribute.kRank,getRank()));
-    }
-    return m_handle;
+    return this;
+    //if (m_handle == null) {
+      //m_handle = new Handle32(getId(),DictionaryManager.getInstance().getId(IProduct.Attribute.kRank,getRank()));
+    //}
+    //return m_handle;
   }
 }
 
