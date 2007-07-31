@@ -74,7 +74,7 @@ public class CategoryIndex extends Index<Integer, Handle> {
   private SortedSet<Handle> getChildSet(Integer childId) {
     SortedSet<Handle> childSet = get(childId);
     if (childSet == null) {
-      RWLockedTreeSet<Handle> set = new RWLockedTreeSet<Handle>();
+      RWLockedSortedSet<Handle> set = createSet();
       childSet = set;
       m_map.put(childId,set);
     }
@@ -95,7 +95,7 @@ public class CategoryIndex extends Index<Integer, Handle> {
     TreeSet<Integer> children = tax.getChildren(pid);
     if (children != null) {
       SortedSet<Handle> parentSet = get(pid);
-      if (parentSet == null) parentSet = new RWLockedTreeSet<Handle>();
+      if (parentSet == null) parentSet = createSet();
       List<SortedSet<Handle>> nlist = new ArrayList<SortedSet<Handle>>();
       nlist.add(parentSet instanceof MultiSortedSet ? ((MultiSortedSet<Handle>)parentSet).getList().get(0) : parentSet);
       Iterator<Integer> iter = children.iterator();

@@ -3,9 +3,7 @@ package com.tumri.joz.products;
 import com.tumri.joz.index.*;
 import com.tumri.joz.filter.*;
 
-import java.util.SortedSet;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -95,6 +93,38 @@ public class ProductDB {
     return h;
   }
 
+  public ArrayList<Handle> addProduct(ArrayList<IProduct> products) {
+    checkUpdate(products);
+    ArrayList<Handle> handles = new ArrayList<Handle>();
+    for (int i = 0; i < products.size(); i++) {
+      handles.add(products.get(i).getHandle());
+    }
+    // Step 2.
+    m_allProducts.writerLock();
+    try {
+      m_allProducts.addAll(handles);
+    } finally {
+      m_allProducts.writerUnlock();
+    }
+    // Step 3.
+    m_map.writerLock();
+    try {
+      for (int i = 0; i < products.size(); i++) {
+        IProduct p = products.get(i);
+        m_map.put(p.getId(),p);
+      }
+    } finally {
+      m_map.writerUnlock();
+    }
+    // Step 4.
+    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
+    while (iter.hasNext()) {
+      Index<?,Handle> lIndex = iter.next();
+      lIndex.addProduct(products);
+    }
+    return handles;
+  }
+
   private void checkUpdate(IProduct p) {
     IProduct op = null;
     try {
@@ -105,6 +135,23 @@ public class ProductDB {
     }
     if (op != null) {
       deleteProduct(op);
+    }
+  }
+  private void checkUpdate(ArrayList<IProduct> products) {
+    ArrayList<IProduct> ops = new ArrayList<IProduct>();
+    try {
+      m_map.readerLock();
+      for (int i = 0; i < products.size(); i++) {
+        IProduct p = products.get(i);
+        IProduct op = m_map.get(p.getId());
+        if (op != null)
+          ops.add(op);
+      }
+    } finally {
+      m_map.readerUnlock();
+    }
+    if (ops.size() > 0) {
+      deleteProduct(ops);
     }
   }
 
@@ -143,6 +190,45 @@ public class ProductDB {
     DictionaryManager.getInstance().remove(IProduct.Attribute.kId,h.getOid());
     return h;
   }
+
+  public ArrayList<Handle> deleteProduct(ArrayList<IProduct> products) {
+    ArrayList<Handle> handles = new ArrayList<Handle>();
+    for (int i = 0; i < products.size(); i++) {
+      handles.add(products.get(i).getHandle());
+    }
+    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
+    while (iter.hasNext()) {
+      Index<?,Handle> lIndex = iter.next();
+      lIndex.deleteProduct(products);
+    }
+    // Step 2.
+    m_map.writerLock();
+    try {
+      for (int i = 0; i < products.size(); i++) {
+        IProduct p = products.get(i);
+        m_map.remove(p.getId());
+      }
+    } finally {
+      m_map.writerUnlock();
+    }
+    // Step 3.
+    m_allProducts.writerLock();
+    try {
+      for (int i = 0; i < handles.size(); i++) {
+        Handle h = handles.get(i);
+        m_allProducts.remove(h);
+      }
+    } finally {
+      m_allProducts.writerUnlock();
+    }
+    // step 4
+    for (int i = 0; i < handles.size(); i++) {
+      Handle h = handles.get(i);
+      DictionaryManager.getInstance().remove(IProduct.Attribute.kId,h.getOid());
+    }
+    return handles;
+  }
+
 
   public IProduct get(Handle handle) {
     return get(handle.getOid());

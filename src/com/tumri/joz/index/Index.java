@@ -29,7 +29,7 @@ public abstract class Index<Key, Value> implements IIndex<Key, Value> {
       m_map.writerLock();
       set = m_map.get(k);
       if (set == null) {
-        set = new RWLockedTreeSet<Value>();
+        set = createSet();
         m_map.put(k, set);
       }
     } finally {
@@ -42,6 +42,33 @@ public abstract class Index<Key, Value> implements IIndex<Key, Value> {
       set.writerUnlock();
     }
   }
+
+  public void addProduct(ArrayList<IProduct> products) {
+    TreeMap<Key,ArrayList<Value>> map = buildMap(products);
+    Iterator<Key> iter = map.keySet().iterator();
+    while (iter.hasNext()) {
+      Key k = iter.next();
+      ArrayList<Value> list = map.get(k);
+      RWLockedSortedSet<Value> set = null;
+      try {
+        m_map.writerLock();
+        set = m_map.get(k);
+        if (set == null) {
+          set = createSet();
+          m_map.put(k, set);
+        }
+      } finally {
+        m_map.writerUnlock();
+      }
+      try {
+        set.writerLock();
+        set.addAll(list);
+      } finally {
+        set.writerUnlock();
+      }
+    }
+  }
+
 
   /**
    * Removes a product from the index. uses the getKey method to get the key
@@ -69,6 +96,46 @@ public abstract class Index<Key, Value> implements IIndex<Key, Value> {
     }
   }
 
+  public void deleteProduct(ArrayList<IProduct> products) {
+    TreeMap<Key,ArrayList<Value>> map = buildMap(products);
+    Iterator<Key> iter = map.keySet().iterator();
+    while (iter.hasNext()) {
+      Key k = iter.next();
+      ArrayList<Value> list = map.get(k);
+      RWLockedSortedSet<Value> set = null;
+      try {
+        m_map.writerLock();
+        set = m_map.get(k);
+        if (set == null) {
+          continue;
+        }
+      } finally {
+        m_map.writerUnlock();
+      }
+      try {
+        set.writerLock();
+        set.removeAll(list);
+      } finally {
+        set.writerUnlock();
+      }
+    }
+  }
+
+  private TreeMap<Key,ArrayList<Value>> buildMap(ArrayList<IProduct> products) {
+    TreeMap<Key,ArrayList<Value>> map = new TreeMap<Key, ArrayList<Value>>();
+    for (int i = 0; i < products.size(); i++) {
+      IProduct p = products.get(i);
+      Key k = getKey(p);
+      ArrayList<Value> list = map.get(k);
+      if (list == null) {
+        list = new ArrayList<Value>();
+        map.put(k,list);
+      }
+      list.add(getValue(p));
+    }
+    return map;
+  }
+
   /**
    * Constructs an empty index
    */
@@ -88,7 +155,7 @@ public abstract class Index<Key, Value> implements IIndex<Key, Value> {
       m_map.writerLock();
       set = m_map.get(key);
       if (set == null) {
-        set = new RWLockedTreeSet<Value>();
+        set = createSet();
         m_map.put(key, set);
       }
     } finally {
@@ -250,5 +317,7 @@ public abstract class Index<Key, Value> implements IIndex<Key, Value> {
       m_map.writerUnlock();
     }
   }
-
+  protected RWLockedSortedSet<Value> createSet() {
+    return new RWLockedSortedArraySet<Value>();
+  }
 }

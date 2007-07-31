@@ -58,6 +58,7 @@ public class MUPLoader {
 
     boolean eof = false;
     String line = null;
+    ArrayList<IProduct> products = new ArrayList<IProduct>();
     while (!eof) {
       line = br.readLine();
       if (line == null) {
@@ -65,8 +66,9 @@ public class MUPLoader {
         continue;
       }
       IProduct p = convertLine(line);
-      pdb.addProduct(p);
+      products.add(p);
     }
+    pdb.addProduct(products);
   }
 
   private IProduct convertLine(String line) {
@@ -135,7 +137,7 @@ public class MUPLoader {
       TaxonomyLoader tl = new TaxonomyLoader();
       DictionaryManager dm = DictionaryManager.getInstance();
       ProductDB.getInstance();
-      new TSpecLoader(false);
+      new TSpecLoader(true);
       long start = System.currentTimeMillis();
       for (int i = 0; i < 1; i++) {
         CNFQuery q = new CNFQuery();

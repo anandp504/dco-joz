@@ -202,7 +202,29 @@ public class SortedArraySet<V> implements SortedSet<V> {
   }
 
   public boolean removeAll(Collection<?> aObjects) {
-    throw new UnsupportedOperationException();
+    Iterator<?> iter = aObjects.iterator();
+    ArrayList<Integer> list = new ArrayList<Integer>();
+    while (iter.hasNext()) {
+      Object o = iter.next();
+      int index = search((V)o);
+      if (index >= 0)
+        list.add(index);
+    }
+    if (list.size() > 0) {
+      for (int i = 0; i < list.size(); i++) {
+        m_list.set(list.get(i),null);
+      }
+      ArrayList<V> nlist = new ArrayList<V>();
+      for (int i = 0; i < m_list.size(); i++) {
+        V lV = m_list.get(i);
+        if (lV != null) {
+          nlist.add(lV);
+        }
+      }
+      m_list = nlist;
+      return true;
+    }
+    return false;
   }
 
   public void clear() {
@@ -328,8 +350,26 @@ public class SortedArraySet<V> implements SortedSet<V> {
       }
       Assert.assertTrue(set2.size() == 0);
     }
+    {
+      SortedArraySet<Integer> set = new SortedArraySet<Integer>(set1);
+      int size = set.size();
+      ArrayList<Integer> list = new ArrayList<Integer>();
+      list.add(100); list.add(5); list.add(9);
+      set.removeAll(list);
+      Assert.assertFalse(set.isEmpty());
+      Assert.assertTrue(set.size() == (size-2));
+      int last = -1;
+      Iterator<Integer> iter = set.iterator();
+      while (iter.hasNext()) {
+        int next = iter.next();
+        Assert.assertTrue(last < next);
+        last = next;
+      }
+      set.removeAll(set1);
+      Assert.assertTrue(set.isEmpty());
+      Assert.assertTrue(set.size() == 0);
+    }
   }
-
 }
 class SortedArraySubset<V> extends SortedArraySet<V> {
   private int m_start;
