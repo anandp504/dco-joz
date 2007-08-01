@@ -323,7 +323,7 @@ public class SortedArraySet<V> implements SortedSet<V> {
       Iterator<Integer> iter = set.iterator();
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        Assert.assertEquals(lInteger.intValue(),res1[i++]);
+        Assert.assertEquals(lInteger,res1[i++]);
       }
     }
     {
@@ -331,7 +331,7 @@ public class SortedArraySet<V> implements SortedSet<V> {
       Iterator<Integer> iter = set2.iterator();
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        Assert.assertEquals(lInteger.intValue(),res2[i++]);
+        Assert.assertEquals(lInteger,res2[i++]);
       }
     }
     {
@@ -340,7 +340,7 @@ public class SortedArraySet<V> implements SortedSet<V> {
       Iterator<Integer> iter = set2.iterator();
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        Assert.assertEquals(lInteger.intValue(),res3[i++]);
+        Assert.assertEquals(lInteger,res3[i++]);
       }
     }
     {

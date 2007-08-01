@@ -380,7 +380,7 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
       Integer set3[] = new Integer[] {1, 4 , 5, 8, 9, 23, 24};
       while (iter.hasNext()) {
         Integer lInteger = iter.next();
-        Assert.assertEquals(lInteger.intValue(),set3[i++]);
+        Assert.assertEquals(lInteger,set3[i++]);
       }
     }
   }
