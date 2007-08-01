@@ -61,6 +61,14 @@ public class DictionaryManager {
     return null;
   }
 
+  public int maxId(IProduct.Attribute aAttribute) {
+    if (m_table.containsKey(aAttribute)) {
+      return m_table.get(aAttribute).maxId();
+    }
+    return 0;
+  }
+
+
   public void addType(IProduct.Attribute aAttribute) {
     if (!m_table.containsKey(aAttribute))
       m_table.put(aAttribute,new Dictionary());

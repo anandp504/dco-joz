@@ -22,6 +22,7 @@ public class ConjunctQuery implements Query {
   private SortedSet<Result> m_results;
   private boolean m_strict = false; // If true Strict match only no rel. ranking
   private boolean m_scan = false; // Forces a table scan approach
+  private Handle  m_reference;
 
   public ConjunctQuery() {
   }
@@ -53,18 +54,26 @@ public class ConjunctQuery implements Query {
   }
 
 
+  public Handle getReference() {
+    return m_reference;
+  }
+
+  public void setReference(Handle aReference) {
+    m_reference = aReference;
+  }
   // Clear the internal results of last computation
   public void clear() {
     for (int i = 0; i < m_queries.size(); i++) {
       m_queries.get(i).clear();
     }
     m_results = null;
+    m_reference = null;
   }
 
   public SortedSet<Result> exec() {
     if (m_results != null) return m_results;
     Collections.sort(m_queries);
-    ProductSetIntersector intersector = new ProductSetIntersector();
+    ProductSetIntersector intersector = new ProductSetIntersector(m_reference);
     intersector.setStrict(isStrict());
     if (isScan())
       buildTableScanner(intersector);

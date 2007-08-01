@@ -37,4 +37,10 @@ public interface IDictionary<Type> {
    * @param index
    */
   public void remove(int index);
+
+  /**
+   * Max ids allocated so far
+   * @return
+   */
+  public int maxId();
 }

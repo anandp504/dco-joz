@@ -20,7 +20,8 @@ public class ProductSetIntersector extends SetIntersector<Handle> {
     return new Result(h.getOid(),score);
   }
 
-  public ProductSetIntersector() {
+  public ProductSetIntersector(Handle reference) {
     super();
+    setReference(reference);
   }
 }

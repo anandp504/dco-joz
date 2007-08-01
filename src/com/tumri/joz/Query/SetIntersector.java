@@ -4,6 +4,7 @@ import com.tumri.joz.filter.Filter;
 import com.tumri.joz.index.MultiSortedSet;
 import com.tumri.joz.index.RWLocked;
 import com.tumri.joz.index.SortedArraySet;
+import com.tumri.joz.index.SortedSplitSet;
 import com.tumri.joz.ranks.IWeight;
 import com.tumri.joz.utils.Result;
 
@@ -35,6 +36,7 @@ abstract public class SetIntersector<Value extends Comparable> {
   private ArrayList<SortedSet<Value>> m_excludes;
   private ArrayList<IWeight<Value>> m_excludesWeight;
   private int m_maxSetSize = MAXRET;
+  private Value m_reference; // Reference point is used as a starting point of set intersection
   // Temp class variables
   private ArrayList<ArrayList<Result>> m_returnList;
   private SortedSet<Result> m_returnSet;
@@ -50,6 +52,23 @@ abstract public class SetIntersector<Value extends Comparable> {
    * @return a Pair<Value,Double>
    */
   public abstract Result getResult(Value v, Double score);
+
+
+  /**
+   * Gets the reference point of staring the intersection, default is first()
+   * @return reference value
+   */
+  public Value getReference() {
+    return m_reference;
+  }
+
+  /**
+   * Sets the reference point of staring the intersection, default is first()
+   * @return reference value
+   */
+  public void setReference(Value aReference) {
+    m_reference = aReference;
+  }
 
   public SetIntersector() {
     m_includes = new ArrayList<SortedSet<Value>>();
@@ -187,13 +206,13 @@ abstract public class SetIntersector<Value extends Comparable> {
     if (m_returnSet != null) {
       return m_returnSet;
     }
-    //print();
     setup();
     if (m_incSize == 0) {
       return m_returnSet;
     }
     try {
       lock();
+      markReference();
       int matches = 0; // score for the cPointer matches
       int setIndex = 0;
       double totalWeight = 1.0;
@@ -246,6 +265,18 @@ abstract public class SetIntersector<Value extends Comparable> {
     return m_returnSet;
   }
 
+  /**
+   * Set the reference point for intersection
+   */
+  private void markReference() {
+    if (m_reference != null) {
+      for (int i = 0; i < m_includes.size(); i++) {
+        SortedSet<Value> lValues = m_includes.get(i);
+        m_includes.set(i,new SortedSplitSet<Value>(lValues,m_reference));
+      }
+    }
+  }
+
   private void lock() {
     for (int i = 0; i < m_includes.size(); i++) {
       SortedSet<Value> lValues = m_includes.get(i);
@@ -287,6 +318,9 @@ abstract public class SetIntersector<Value extends Comparable> {
         list.addAll(m_returnList.get(i));
       }
       m_returnSet = new SortedArraySet<Result>(list);
+      if (m_reference != null) {
+        m_returnSet = new SortedSplitSet<Result>(m_returnSet,getResult(m_reference,1.0));
+      }
     } else {
       m_returnSet = new SortedArraySet<Result>();
     }

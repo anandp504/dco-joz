@@ -63,4 +63,9 @@ public class Dictionary<Type> implements IDictionary<Type> {
   private void isValid() {
     if (m_List.size() != m_Id) System.err.println("Dictionary next id doesn't match list size");
   }
+
+
+  public int maxId() {
+    return m_Id;
+  }
 }

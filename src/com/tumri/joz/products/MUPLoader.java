@@ -213,14 +213,18 @@ class TSpecLoader {
 
   public void materialize() {
     long start = System.currentTimeMillis();
+    ProductDB pdb = ProductDB.getInstance();
     for (int i = 0; i < m_tspecs.size(); i++) {
+      Handle ref = pdb.genReference();
       TSpec lTSpec = m_tspecs.get(i);
       ConjunctQuery cjq = lTSpec.getQuery().getQueries().get(0);
       cjq.setStrict(true);
+      cjq.setReference(ref);
       SortedSet<Result> results = cjq.exec();
       if (m_validate) {
         cjq.clear();
         cjq.setScan(true);
+        cjq.setReference(ref);
         SortedSet<Result> results1 = cjq.exec();
         Iterator<Result> iter = results.iterator();
         Iterator<Result> iter1 = results1.iterator();

@@ -22,6 +22,8 @@ public class ProductDB {
   // table of all filters associated with attributes
   private Hashtable<IProduct.Attribute, Filter<Handle>> m_filters = new Hashtable<IProduct.Attribute, Filter<Handle>>();
 
+  private static Random g_random = new Random();
+
   public static ProductDB getInstance() {
     if (g_DB == null) {
       synchronized(ProductDB.class) {
@@ -317,4 +319,13 @@ public class ProductDB {
     return h;
   }
 
+  public Handle genReference() {
+    int max = DictionaryManager.getInstance().maxId(IProduct.Attribute.kId);
+    if(max > 0) {
+      IProduct p = m_map.get(g_random.nextInt(max));
+      if (p != null)
+        return p.getHandle();
+    }
+    return null;
+  }
 }
