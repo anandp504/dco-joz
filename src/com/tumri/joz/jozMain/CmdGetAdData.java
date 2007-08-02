@@ -31,8 +31,10 @@ get-ad-data steps
 package com.tumri.joz.jozMain;
 
 //import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -283,9 +285,10 @@ public class CmdGetAdData extends CommandOwnWriting
 	SexpList product_ids = products_to_id_list (products);
 	write_elm (w, "PROD-IDS", product_ids);
 
-	SexpList cat_names = products_to_cat_name_list (products);
-	SexpList categories = cat_names_to_category_list (cat_names);
+	List<EString> cat_list = products_to_cat_list (products);
+	SexpString categories = cat_list_to_result_categories (cat_list);
 	write_elm (w, "CATEGORIES", categories);
+	SexpString cat_names = cat_list_to_result_cat_names (cat_list);
 	write_elm (w, "CAT-NAMES", cat_names);
 
 	write_elm (w, "REALM", realm.toString ());
@@ -364,18 +367,82 @@ public class CmdGetAdData extends CommandOwnWriting
     private static SexpList
     products_to_id_list (List<SelectedProduct> products)
     {
-	return null; // FIXME
+	SexpList l = new SexpList ();
+
+	for (SelectedProduct sp : products)
+	{
+	    EString id = sp.get_product_id ();
+	    l.addLast (new SexpSymbol (id));
+	}
+
+	return l;
     }
 
-    private static SexpList
-    products_to_cat_name_list (List<SelectedProduct> products)
+    // Return uniqified list of all categories in {products}.
+
+    private static List<EString>
+    products_to_cat_list (List<SelectedProduct> products)
     {
-	return null; // FIXME
+	HashSet<EString> categories = new HashSet<EString> ();
+
+	for (SelectedProduct sp : products)
+	{
+	    List<EString> parents = sp.get_parents ();
+	    for (EString p : parents)
+		categories.add (p);
+	}
+
+	List<EString> l = new ArrayList<EString> ();
+
+	for (EString c : categories)
+	    l.add (c);
+
+	return l;
     }
 
-    private static SexpList
-    cat_names_to_category_list (SexpList cat_names)
+    private static SexpString
+    cat_list_to_result_categories (List<EString> cats)
     {
-	return null; // FIXME
+	StringBuilder sb = new StringBuilder ();
+
+	sb.append ("[");
+	boolean done_one = false;
+
+	for (EString c : cats)
+	{
+	    if (done_one)
+		sb.append (",");
+	    sb.append ("{categoryName:\"");
+	    sb.append ("GLASSVIEW.TUMRI_");
+	    sb.append (c);
+	    sb.append ("\",categoryDisplayName:\"");
+	    // FIXME: See soz-taxonomy.lisp:print-name, what's this about?
+	    sb.append (c);
+	    sb.append ("\"}");
+	    done_one = true;
+	}
+
+	sb.append ("]");
+
+	return new SexpString (sb.toString ());
+    }
+
+    private static SexpString
+    cat_list_to_result_cat_names (List<EString> cats)
+    {
+	StringBuilder sb = new StringBuilder ();
+
+	boolean done_one = false;
+
+	for (EString c : cats)
+	{
+	    if (done_one)
+		sb.append ("||");
+	    // FIXME: See soz-taxonomy.lisp:print-name, what's this about?
+	    sb.append (c);
+	    done_one = true;
+	}
+
+	return new SexpString (sb.toString ());
     }
 }

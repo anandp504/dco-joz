@@ -4,6 +4,8 @@
 
 package com.tumri.joz.jozMain;
 
+import java.util.List;
+
 import com.tumri.utils.strings.EString;
 
 public class SelectedProduct
@@ -62,6 +64,22 @@ public class SelectedProduct
 	b.append ("}");
 
 	return b.toString ();
+    }
+
+    // Return the selected product's id.
+
+    EString
+    get_product_id ()
+    {
+	return _product.get_product_id ();
+    }
+
+    // Return the selected product's parents (categories).
+
+    List<EString>
+    get_parents ()
+    {
+	return _product.get_parents ();
     }
 
     // implementation details -------------------------------------------------

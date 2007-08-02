@@ -29,7 +29,6 @@ public class TmpMUPDB implements MUPDB
 	      String strings_path,
 	      String taxonomy_path,
 	      String default_realm_path)
-
 	throws FileNotFoundException, IOException, BadMUPDataException
     {
 	init (ifasl_path,
@@ -47,7 +46,7 @@ public class TmpMUPDB implements MUPDB
     public MUPProductObj
     get_entry (int entry_nr)
     {
-	return null;
+	return _product_db.get (entry_nr);
     }
 
     public MUPProductObj
