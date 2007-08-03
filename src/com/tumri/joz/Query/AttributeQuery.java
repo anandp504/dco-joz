@@ -40,8 +40,10 @@ public class AttributeQuery extends SimpleQuery {
     m_values.add(aValue);
   }
 
+  @SuppressWarnings("unchecked")
   public int getCount() {
     if (m_count == kMax) {
+      // ??? This gets an "unchecked conversion" warning.
       Index<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       if (index != null) {
         m_count = index.getCount(m_values);
@@ -50,8 +52,10 @@ public class AttributeQuery extends SimpleQuery {
     return m_count;
   }
 
+  @SuppressWarnings("unchecked")
   public SortedSet<Handle> exec() {
     if (m_results == null) {
+      // ??? This gets an "unchecked conversion" warning.
       Index<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       m_results = (index != null) ? index.get(m_values) : tableScan();
     }

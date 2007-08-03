@@ -14,7 +14,9 @@ public class CPORangeFilter extends Filter<Handle> {
     super();
   }
 
+  @SuppressWarnings("unchecked")
   public CPORangeFilter(Filter f) {
+    // ??? This gets an "unchecked conversion" warning.
     super(f);
   }
 

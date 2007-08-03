@@ -116,7 +116,9 @@ public class SortedArraySet<V> implements SortedSet<V> {
     return (start() == end());
   }
 
+  @SuppressWarnings("unchecked")
   public boolean contains(Object o) {
+    // ??? This gets an "unchecked cast" exception.
     int s = search((V)o);
     return (s >= start() && s < end());
   }
@@ -134,9 +136,11 @@ public class SortedArraySet<V> implements SortedSet<V> {
     return ar;
   }
 
+  @SuppressWarnings("unchecked")
   public <T> T[] toArray(T[] aTs) {
     int j=0;
     for (int i = start(); i < end(); i++) {
+      // ??? This gets an "unchecked cast" exception.
       aTs[j++] = (T)m_list.get(i);
     }
     return aTs;
@@ -151,7 +155,9 @@ public class SortedArraySet<V> implements SortedSet<V> {
     return false;
   }
 
+  @SuppressWarnings("unchecked")
   public boolean remove(Object o) {
+    // ??? This gets an "unchecked cast" exception.
     V item = (V)o;
     int insertionPoint = search(item);
     if (insertionPoint >= 0) {
@@ -185,11 +191,13 @@ public class SortedArraySet<V> implements SortedSet<V> {
     return false;
   }
 
+  @SuppressWarnings("unchecked")
   public boolean retainAll(Collection<?> aObjects) {
     Iterator iter = aObjects.iterator();
     Set<V> list = new TreeSet<V>();
     while (iter.hasNext()) {
       Object o = iter.next();
+      // ??? This gets an "unchecked cast" warning.
       if(contains(o)) list.add((V)o);
     }
     if (size() != list.size()) {
@@ -201,11 +209,13 @@ public class SortedArraySet<V> implements SortedSet<V> {
     return false;
   }
 
+  @SuppressWarnings("unchecked")
   public boolean removeAll(Collection<?> aObjects) {
     Iterator<?> iter = aObjects.iterator();
     ArrayList<Integer> list = new ArrayList<Integer>();
     while (iter.hasNext()) {
       Object o = iter.next();
+      // ??? This gets an "unchecked cast" warning.
       int index = search((V)o);
       if (index >= 0)
         list.add(index);
@@ -231,8 +241,10 @@ public class SortedArraySet<V> implements SortedSet<V> {
     m_list.clear();
   }
 
+  @SuppressWarnings("unchecked")
   private void sort() {
     if (m_comparator == null)
+      // ??? This gets an "unchecked cast" warning.
       Collections.sort((ArrayList<Comparable>)m_list);
     else
       Collections.sort(m_list,m_comparator);
@@ -249,13 +261,17 @@ public class SortedArraySet<V> implements SortedSet<V> {
     m_list = list;
   }
 
+  @SuppressWarnings("unchecked")
   private int compare(V aV, V aV1) {
+    // ??? This gets an "unchecked cast" warning.
     return (m_comparator == null ? ((Comparable<V>) aV).compareTo(aV1) :
         m_comparator.compare(aV, aV1));
   }
 
+  @SuppressWarnings("unchecked")
   private int search(V v) {
     if (m_comparator == null)
+      // ??? This gets an "unchecked cast" warning.
       return Collections.binarySearch((ArrayList<Comparable<? super Comparable>>)m_list,(Comparable)v);
     else
       return Collections.binarySearch(m_list,v,m_comparator);

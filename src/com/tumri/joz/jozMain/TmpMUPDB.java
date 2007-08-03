@@ -143,6 +143,7 @@ public class TmpMUPDB implements MUPDB
 	_default_realm_data = e;
     }
 
+    @SuppressWarnings("unchecked")
     private void
     load_products_from_ifasl_file (String file)
 	throws FileNotFoundException, IOException, BadMUPDataException
@@ -172,9 +173,9 @@ public class TmpMUPDB implements MUPDB
 		    continue;
 		}
 
-		// FIXME: This generates a warning, but methinks the fix
-		// belongs in the zini code.  I'd rather not cast if I don't
-		// have to.
+		// FIXME: This generates an "unchecked" warning, but methinks
+		// the fix belongs in the zini code.  I'd rather not cast if I
+		// don't have to.
 		Iterator<FASLType> iter = t.iterator ();
 
 		MUPProductObj obj = null;
@@ -214,6 +215,7 @@ public class TmpMUPDB implements MUPDB
 	}
     }
 
+    @SuppressWarnings("unchecked")
     private void
     load_strings_from_ifasl_file (String file)
 	throws FileNotFoundException, IOException, BadMUPDataException
@@ -243,9 +245,9 @@ public class TmpMUPDB implements MUPDB
 		    continue;
 		}
 
-		// FIXME: This generates a warning, but methinks the fix
-		// belongs in the zini code.  I'd rather not cast if I don't
-		// have to.
+		// FIXME: This generates an "unchecked" warning, but methinks
+		// the fix belongs in the zini code.  I'd rather not cast if I
+		// don't have to.
 		Iterator<FASLType> iter = t.iterator ();
 		FASLType name = iter.next ();
 		if (name.type () != FASLType.zini_symbol)

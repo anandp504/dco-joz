@@ -144,3 +144,21 @@ Coding Standards
 18) static final class members are generally named in UPPERCASE
 
 19) normal class members are prefixed with _
+
+20) Compiler warnings are good.  Don't ignore them.
+    Keeping the signal/noise ratio of compiler output high is good too.
+    If you must write code that triggers warnings, consider adding a
+    @SuppressWarnings annotation, and if you do that add a comment at the
+    warning site so that the reason for the presence of the @SuppressWarnings
+    annotation is visible.
+
+    Example;
+
+    @SuppressWarnings("unchecked")
+    public void
+    foo ()
+    {
+        // ??? This gets an "unchecked method invocation" warning.
+        if (mumble)
+            bar ();
+    }

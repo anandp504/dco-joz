@@ -102,7 +102,9 @@ public class SortedSplitSet<V> implements SortedSet<V> {
     return (m_head.isEmpty() && m_tail.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   public boolean contains(Object o) {
+    // ??? This gets an "unchecked cast" warning.
     int cmp = compare((V)o,m_splitter);
     return (cmp >= 0 ? m_head.contains(o) : m_tail.contains(o));
   }
@@ -156,7 +158,9 @@ public class SortedSplitSet<V> implements SortedSet<V> {
     m_comparator = null;
   }
 
+  @SuppressWarnings("unchecked")
   private int compare(V aV, V aV1) {
+    // ??? This gets an "unchecked cast" warning.
     return (m_comparator == null ? ((Comparable<V>) aV).compareTo(aV1) :
         m_comparator.compare(aV, aV1));
   }

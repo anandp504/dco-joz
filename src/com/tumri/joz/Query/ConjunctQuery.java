@@ -70,8 +70,10 @@ public class ConjunctQuery implements Query {
     m_reference = null;
   }
 
+  @SuppressWarnings("unchecked")
   public SortedSet<Result> exec() {
     if (m_results != null) return m_results;
+    // ??? This gets an "unchecked method invocation" warning.
     Collections.sort(m_queries);
     ProductSetIntersector intersector = new ProductSetIntersector(m_reference);
     intersector.setStrict(isStrict());

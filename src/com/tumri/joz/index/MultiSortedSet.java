@@ -223,10 +223,12 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
     return ret;
   }
 
+  @SuppressWarnings("unchecked")
   public boolean retainAll(Collection<?> aObjects) {
     TreeSet<V> set = new TreeSet<V>();
     Iterator<?> iter = aObjects.iterator();
     while (iter.hasNext()) {
+      // ??? This gets an "unchecked cast" warning.
       V v = (V)iter.next();
       if (contains(v)) set.add(v);
     }
@@ -252,7 +254,9 @@ public class MultiSortedSet<V> implements RWLockedSortedSet<V>  {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private int compare(V aV, V aV1) {
+    // ??? This gets an "unchecked cast" warning.
     return (m_comparator == null ? ((Comparable<V>) aV).compareTo(aV1) :
         m_comparator.compare(aV, aV1));
   }
