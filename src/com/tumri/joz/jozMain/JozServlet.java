@@ -66,7 +66,9 @@ public class JozServlet extends HttpServlet
 		SexpIFASLWriter.write (out, result, uppercase_syms);
 		// FIXME: Need option to not print entire s-expression,
 		// they can be pretty large.
+/*
 		log.info ("Result: " + result);
+*/
 	    }
 
 	    long end_time = System.nanoTime ();

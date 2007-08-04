@@ -133,7 +133,6 @@ public class MerchantDB
 
 	SexpList tsr = _tabulated_search_results;
 	Sexp e;
-	SexpList l;
 	SexpList col_names;
 	SexpList data;
 
@@ -159,20 +158,20 @@ public class MerchantDB
 	    e = iter.next ();
 	    if (! e.isSexpList ())
 		throw new BadMerchantDataException ("t-s-r merchant entry is not a list");
-	    l = e.toSexpList ();
+	    SexpList l = e.toSexpList ();
 	    if (l.size () == 0)
 		continue; // ignore empty entries
 
 	    Sexp id = l.get (0);
-	    if (! e.isSexpSymbol ())
-		throw new BadMerchantDataException ("t-s-r merchant id not a symbol");
+	    if (! id.isSexpSymbol ())
+		throw new BadMerchantDataException ("t-s-r merchant id not a symbol: " + id.toString ());
 	    String idstr = id.toString ().toLowerCase ();
 
-	    String logo_url = get_string (l, logo_url_idx, "logo url");
+	    String logo_url = get_caar_string (l, logo_url_idx, "logo url");
 	    if (logo_url != null)
 		_logo_url_db.put (idstr, logo_url); // FIXME: collisions?
 
-	    String promo = get_string (l, promo_idx, "shipping promo");
+	    String promo = get_caar_string (l, promo_idx, "shipping promo");
 	    if (promo != null)
 		_shipping_promo_db.put (idstr, promo); // FIXME: collisions?
 	}
@@ -191,7 +190,7 @@ public class MerchantDB
 	    Sexp n = iter.next ();
 	    if (! n.isSexpString ())
 		continue;
-	    if (n.toSexpString ().toString ().equals (s))
+	    if (n.toSexpString ().toStringValue ().equals (s))
 		return i;
 	    ++i;
 	}
@@ -199,20 +198,32 @@ public class MerchantDB
 	return -1;
     }
 
-    // Fetch element {n} from list {l}.
+    // Fetch element {n} from list {l}, and if it is (("string1" ...)) then
+    // return string1; otherwise return null.
     // {what} is used in error text.
-    // Returns null if list is too small.
-    // Throws BadMerchantDataException if element is not a string.
+    // Returns null if list is too small or the string is not present.
 
     private static String
-    get_string (SexpList l, int n, String what)
-	throws BadMerchantDataException
+    get_caar_string (SexpList l, int n, String what)
     {
 	if (l.size () <= n)
 	    return null;
 	Sexp e = l.get (n);
+	if (! e.isSexpList ())
+	    return null;
+	l = e.toSexpList ();
+	if (l.size () == 0)
+	    return null;
+	e = l.get (0);
+	if (! e.isSexpList ())
+	    return null;
+	l = e.toSexpList ();
+	if (l.size () == 0)
+	    return null;
+	e = l.get (0);
 	if (! e.isSexpString ())
-	    throw new BadMerchantDataException ("expected string for " + what);
-	return e.toString (); // FIXME: toStringValue?
+	    log.error ("Bad merchant data, expected string for " + what
+		       + ", got: " + e.toString ());
+	return e.toStringValue ();
     }
 }

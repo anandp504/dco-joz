@@ -11,29 +11,30 @@
                 :strategy 't-spec-symbol ;; deprecated, synonym for :t-spec
                 :referrer "...."
                 :zip-code "..."
-                :num-products [t|&lt;integer&gt;] ;; t means return all products
+                :num-products [t|<integer>] ;; t means return all products
                 ;; if row-size and which-row are non-nil and integers then deterministically return a row/page of results:
-                :row-size [nil|&lt;integer&gt;] 
-                :which-row [nil|&lt;integer&gt;]
+                :row-size [nil|<integer>] 
+                :which-row [nil|<integer>]
                 :revert-to-default-realm [nil|t] ;; if t and don't get enough products then retry on default realm, defaults to t
-                :keywords [nil|&lt;string&gt;] ;; white-space-separated keywords from search box in widget
-                :script-keywords [nil|&lt;string&gt;] ;; white-space-separated keywords from publisher's script
+                :keywords [nil|<string>] ;; white-space-separated keywords from search box in widget
+                :script-keywords [nil|<string>] ;; white-space-separated keywords from publisher's script
                 :include-cat-counts [nil|t] ;; add category-counts to output?
-                :seed [nil|&lt;integer&gt;] ;; plug seed in here to deterministically replay a previous call
+                :seed [nil|<integer>] ;; plug seed in here to deterministically replay a previous call
                ;; product selection parameters:
                 :psychographics-p [t|nil|:maybe] ;; use psychographic curves when building roulette wheel
                 :mine-ref-URL-p [t|nil|:maybe] ;; not currently used
                 :mine-pub-URL-p [t|nil|:maybe] ;; pull keywords out of publisher URL and get products based on them
                 :irrelevad-p [t|nil|:maybe] ;; not currently used
                 :allow-too-few-products [t|nil|:maybe] ;; if t then we don't care about too few products
-                :ad-width [nil|&lt;number&gt;] ;; for leadgens, only return offers of these dimensions
-                :ad-height [nil|&lt;number&gt;]
+                :ad-width [nil|<number>] ;; for leadgens, only return offers of these dimensions
+                :ad-height [nil|<number>]
                 ;; if ad-offer-type is :product-only or :leadgen-only then appropriately filter the offers returned:
                 :ad-offer-type [:product-only|:leadgen-only:product-leadgen]  ;; defaults to :product-only
-                :min-num-leadgens [nil|&lt;integer&gt;] ;; if non-nil, *try* to put this many leadgens in the result
+                :min-num-leadgens [nil|<integer>] ;; if non-nil, *try* to put this many leadgens in the result
                 :output-format [:normal|:js-friendly]  ;; defaults to :normal
                 :output-order [:uniform-random|:deterministic-best-first|:perturbed-best-first] ;; defaults to :uniform-random, see note below
-                :output-order-noise-stddev &lt;number&gt; ;; defaults to 0.1
+                :output-order-noise-stddev <number> ;; defaults to 0.1
+		:max-prod-desc-len <integer> ;; FIXME: ???
 */
 
 /*
@@ -60,6 +61,19 @@ public class AdDataRequest
 	parse_request (expr);
     }
 
+    public enum AdOfferType
+    {
+	PRODUCT_ONLY,
+	LEADGEN_ONLY,
+	PRODUCT_LEADGEN
+    }
+
+    public enum OutputFormat
+    {
+	NORMAL,
+	JS_FRIENDLY
+    }
+
     public String get_url () { return _url; }
     public String get_theme () { return _theme; }
     public String get_store_id () { return _store_id; }
@@ -67,24 +81,33 @@ public class AdDataRequest
     public String get_t_spec () { return _t_spec; }
     public String get_referrer () { return _referrer; }
     public String get_zip_code () { return _zip_code; }
-    public String get_num_products () { return _num_products; }
-    public String get_row_size () { return _row_size; }
-    public String get_which_row () { return _which_row; }
+    // null represents "t" or "all products"
+    public Integer get_num_products () { return _num_products; }
+    // null represents "nil" or "unspecified"
+    public Integer get_row_size () { return _row_size; }
+    // null represents "nil" or "unspecified"
+    public Integer get_which_row () { return _which_row; }
     public Boolean get_revert_to_default_realm () { return _revert_to_default_realm; }
     public String get_keywords () { return _keywords; }
     public String get_script_keywords () { return _script_keywords; }
     public Boolean get_include_cat_counts () { return _include_cat_counts; }
-    public String get_seed () { return _seed; }
+    // null represents "nil" or "unspecified"
+    public Integer get_seed () { return _seed; }
     public Enums.MaybeBoolean get_psychographics_p () { return _psychographics_p; }
     public Enums.MaybeBoolean get_mine_pub_url_p () { return _mine_pub_url_p; }
     public Enums.MaybeBoolean get_allow_too_few_products () { return _allow_too_few_products; }
-    public String get_ad_width () { return _ad_width; }
-    public String get_ad_height () { return _ad_height; }
-    public String get_ad_offer_type () { return _ad_offer_type; }
+    // null represents "nil" or "unspecified"
+    public Integer get_ad_width () { return _ad_width; }
+    // null represents "nil" or "unspecified"
+    public Integer get_ad_height () { return _ad_height; }
+    public AdOfferType get_ad_offer_type () { return _ad_offer_type; }
+    // null represents "nil" or "unspecified"
     public Integer get_min_num_leadgens () { return _min_num_leadgens; }
-    public String get_output_format () { return _output_format; }
+    public OutputFormat get_output_format () { return _output_format; }
     public String get_output_order () { return _output_order; }
     public Double get_output_order_noise_stddev () { return _output_order_noise_stddev; }
+    // null represents "nil" or "unspecified"
+    public Integer get_max_prod_desc_len () { return _max_prod_desc_len; }
 
     public String
     toString ()
@@ -103,29 +126,30 @@ public class AdDataRequest
 	{
 	    b.append (" :url ").append (_url);
 	    b.append (" :theme ").append (_theme);
-	    b.append (" :store_id ").append (_store_id);
+	    b.append (" :store-id ").append (_store_id);
 	    b.append (" :category ").append (_category);
-	    b.append (" :t_spec ").append (_t_spec);
+	    b.append (" :t-spec ").append (_t_spec);
 	    b.append (" :referrer ").append (_referrer);
-	    b.append (" :zip_code ").append (_zip_code);
-	    b.append (" :num_products ").append (_num_products);
-	    b.append (" :row_size ").append (_row_size);
-	    b.append (" :which_row ").append (_which_row);
-	    b.append (" :revert_to_default_realm ").append (_revert_to_default_realm);
+	    b.append (" :zip-code ").append (_zip_code);
+	    b.append (" :num-products ").append (_num_products != null ? _num_products : "null");
+	    b.append (" :row-size ").append (_row_size != null ? _row_size : "null");
+	    b.append (" :which-row ").append (_which_row != null ? _which_row : "null");
+	    b.append (" :revert-to-default-realm ").append (_revert_to_default_realm);
 	    b.append (" :keywords ").append (_keywords);
-	    b.append (" :script_keywords ").append (_script_keywords);
-	    b.append (" :include_cat_counts ").append (_include_cat_counts);
-	    b.append (" :seed ").append (_seed);
-	    b.append (" :psychographics_p ").append (_psychographics_p);
-	    b.append (" :mine_pub_url_p ").append (_mine_pub_url_p);
-	    b.append (" :allow_too_few_products ").append (_allow_too_few_products);
-	    b.append (" :ad_width ").append (_ad_width);
-	    b.append (" :ad_height ").append (_ad_height);
-	    b.append (" :ad_offer_type ").append (_ad_offer_type);
-	    b.append (" :min_num_leadgens ").append (_min_num_leadgens);
-	    b.append (" :output_format ").append (_output_format);
-	    b.append (" :output_order ").append (_output_order);
-	    b.append (" :output_order_noise_stddev ").append (_output_order_noise_stddev);
+	    b.append (" :script-keywords ").append (_script_keywords);
+	    b.append (" :include-cat-counts ").append (_include_cat_counts);
+	    b.append (" :seed ").append (_seed != null ? _seed : "null");
+	    b.append (" :psychographics-p ").append (_psychographics_p);
+	    b.append (" :mine-pub-url-p ").append (_mine_pub_url_p);
+	    b.append (" :allow-too-few-products ").append (_allow_too_few_products);
+	    b.append (" :ad-width ").append (_ad_width != null ? _ad_width : "null");
+	    b.append (" :ad-height ").append (_ad_height != null ? _ad_height : "null");
+	    b.append (" :ad-offer-type ").append (_ad_offer_type);
+	    b.append (" :min-num-leadgens ").append (_min_num_leadgens != null ? _min_num_leadgens : "null");
+	    b.append (" :output-format ").append (_output_format);
+	    b.append (" :output-order ").append (_output_order);
+	    b.append (" :output-order-noise-stddev ").append (_output_order_noise_stddev);
+	    b.append (" :max-prod-desc-len ").append (_max_prod_desc_len != null ? _max_prod_desc_len : "null");
 	}
 	else
 	{
@@ -134,51 +158,51 @@ public class AdDataRequest
 	    if (_theme != DEFAULT_THEME)
 		b.append (" :theme ").append (_theme);
 	    if (_store_id != DEFAULT_STORE_ID)
-		b.append (" :store_id ").append (_store_id);
+		b.append (" :store-id ").append (_store_id);
 	    if (_category != DEFAULT_CATEGORY)
 		b.append (" :category ").append (_category);
 	    if (_t_spec != DEFAULT_T_SPEC)
-		b.append (" :t_spec ").append (_t_spec);
+		b.append (" :t-spec ").append (_t_spec);
 	    if (_referrer != DEFAULT_REFERRER)
 		b.append (" :referrer ").append (_referrer);
 	    if (_zip_code != DEFAULT_ZIP_CODE)
-		b.append (" :zip_code ").append (_zip_code);
+		b.append (" :zip-code ").append (_zip_code);
 	    if (_num_products != DEFAULT_NUM_PRODUCTS)
-		b.append (" :num_products ").append (_num_products);
+		b.append (" :num-products ").append (_num_products);
 	    if (_row_size != DEFAULT_ROW_SIZE)
-		b.append (" :row_size ").append (_row_size);
+		b.append (" :row-size ").append (_row_size);
 	    if (_which_row != DEFAULT_WHICH_ROW)
-		b.append (" :which_row ").append (_which_row);
+		b.append (" :which-row ").append (_which_row);
 	    if (_revert_to_default_realm != DEFAULT_REVERT_TO_DEFAULT_REALM)
-		b.append (" :revert_to_default_realm ").append (_revert_to_default_realm);
+		b.append (" :revert-to-default-realm ").append (_revert_to_default_realm);
 	    if (_keywords != DEFAULT_KEYWORDS)
 		b.append (" :keywords ").append (_keywords);
 	    if (_script_keywords != DEFAULT_SCRIPT_KEYWORDS)
-		b.append (" :script_keywords ").append (_script_keywords);
+		b.append (" :script-keywords ").append (_script_keywords);
 	    if (_include_cat_counts != DEFAULT_INCLUDE_CAT_COUNTS)
-		b.append (" :include_cat_counts ").append (_include_cat_counts);
+		b.append (" :include-cat-counts ").append (_include_cat_counts);
 	    if (_seed != DEFAULT_SEED)
 		b.append (" :seed ").append (_seed);
 	    if (_psychographics_p != DEFAULT_PSYCHOGRAPHICS_P)
-		b.append (" :psychographics_p ").append (_psychographics_p);
+		b.append (" :psychographics-p ").append (_psychographics_p);
 	    if (_mine_pub_url_p != DEFAULT_MINE_PUB_URL_P)
-		b.append (" :mine_pub_url_p ").append (_mine_pub_url_p);
+		b.append (" :mine-pub-url-p ").append (_mine_pub_url_p);
 	    if (_allow_too_few_products != DEFAULT_ALLOW_TOO_FEW_PRODUCTS)
-		b.append (" :allow_too_few_products ").append (_allow_too_few_products);
+		b.append (" :allow-too-few-products ").append (_allow_too_few_products);
 	    if (_ad_width != DEFAULT_AD_WIDTH)
-		b.append (" :ad_width ").append (_ad_width);
+		b.append (" :ad-width ").append (_ad_width);
 	    if (_ad_height != DEFAULT_AD_HEIGHT)
-		b.append (" :ad_height ").append (_ad_height);
+		b.append (" :ad-height ").append (_ad_height);
 	    if (_ad_offer_type != DEFAULT_AD_OFFER_TYPE)
-		b.append (" :ad_offer_type ").append (_ad_offer_type);
+		b.append (" :ad-offer-type ").append (_ad_offer_type);
 	    if (_min_num_leadgens != DEFAULT_MIN_NUM_LEADGENS)
-		b.append (" :min_num_leadgens ").append (_min_num_leadgens);
+		b.append (" :min-num-leadgens ").append (_min_num_leadgens);
 	    if (_output_format != DEFAULT_OUTPUT_FORMAT)
-		b.append (" :output_format ").append (_output_format);
+		b.append (" :output-format ").append (_output_format);
 	    if (_output_order != DEFAULT_OUTPUT_ORDER)
-		b.append (" :output_order ").append (_output_order);
+		b.append (" :output-order ").append (_output_order);
 	    if (_output_order_noise_stddev != DEFAULT_OUTPUT_ORDER_NOISE_STDDEV)
-		b.append (" :output_order_noise_stddev ").append (_output_order_noise_stddev);
+		b.append (" :output-order-noise-stddev ").append (_output_order_noise_stddev);
 	}
 
 	b.append (")");
@@ -217,6 +241,7 @@ public class AdDataRequest
 	OUTPUT_FORMAT,
 	OUTPUT_ORDER,
 	OUTPUT_ORDER_NOISE_STDDEV,
+	MAX_PROD_DESC_LEN
     }
 
     private static HashMap<String, RqstParam> rqst_params =
@@ -250,6 +275,7 @@ public class AdDataRequest
 	rqst_params.put (":output-format", RqstParam.OUTPUT_FORMAT);
 	rqst_params.put (":output-order", RqstParam.OUTPUT_ORDER);
 	rqst_params.put (":output-order-noise-stddev", RqstParam.OUTPUT_ORDER_NOISE_STDDEV);
+	rqst_params.put (":max-prod-desc-len", RqstParam.MAX_PROD_DESC_LEN);
     }
 
     // WARNING: If the default value is not null, you're probably doing
@@ -265,26 +291,27 @@ public class AdDataRequest
     private static final String DEFAULT_T_SPEC = null;
     private static final String DEFAULT_REFERRER = null;
     private static final String DEFAULT_ZIP_CODE = null;
-    private static final String DEFAULT_NUM_PRODUCTS = null;
-    private static final String DEFAULT_ROW_SIZE = null;
-    private static final String DEFAULT_WHICH_ROW = null;
+    private static final Integer DEFAULT_NUM_PRODUCTS = null;
+    private static final Integer DEFAULT_ROW_SIZE = null;
+    private static final Integer DEFAULT_WHICH_ROW = null;
     private static final Boolean DEFAULT_REVERT_TO_DEFAULT_REALM = new Boolean (true);
     private static final String DEFAULT_KEYWORDS = null;
     private static final String DEFAULT_SCRIPT_KEYWORDS = null;
     // FIXME: should be null, fix.
     private static final Boolean DEFAULT_INCLUDE_CAT_COUNTS = new Boolean (false); // FIXME: check default value
-    private static final String DEFAULT_SEED = null;
+    private static final Integer DEFAULT_SEED = null;
     private static final Enums.MaybeBoolean DEFAULT_PSYCHOGRAPHICS_P = null;
     private static final Enums.MaybeBoolean DEFAULT_MINE_PUB_URL_P = null;
     private static final Enums.MaybeBoolean DEFAULT_ALLOW_TOO_FEW_PRODUCTS = null;
-    private static final String DEFAULT_AD_WIDTH = null;
-    private static final String DEFAULT_AD_HEIGHT = null;
-    private static final String DEFAULT_AD_OFFER_TYPE = null;
+    private static final Integer DEFAULT_AD_WIDTH = null;
+    private static final Integer DEFAULT_AD_HEIGHT = null;
+    private static final AdOfferType DEFAULT_AD_OFFER_TYPE = AdOfferType.PRODUCT_ONLY;
     private static final Integer DEFAULT_MIN_NUM_LEADGENS = null;
-    private static final String DEFAULT_OUTPUT_FORMAT = ":normal";
+    private static final OutputFormat DEFAULT_OUTPUT_FORMAT = OutputFormat.NORMAL;
     private static final String DEFAULT_OUTPUT_ORDER = null;
     // FIXME: should be null, fix.
     private static final Double DEFAULT_OUTPUT_ORDER_NOISE_STDDEV = new Double (0.1);
+    private static final Integer DEFAULT_MAX_PROD_DESC_LEN = null;
 
     String _url = DEFAULT_URL;
     String _theme = DEFAULT_THEME;
@@ -295,11 +322,11 @@ public class AdDataRequest
     String _referrer = DEFAULT_REFERRER;
     String _zip_code = DEFAULT_ZIP_CODE;
     // "all" means return all products
-    String _num_products = DEFAULT_NUM_PRODUCTS;
-    // If row-size and which-row are non-nil and integers then
+    Integer _num_products = DEFAULT_NUM_PRODUCTS;
+    // If row-size and which-row are non-null and integers then
     // deterministically return a row/page of results.
-    String _row_size = DEFAULT_ROW_SIZE;
-    String _which_row = DEFAULT_WHICH_ROW;
+    Integer _row_size = DEFAULT_ROW_SIZE;
+    Integer _which_row = DEFAULT_WHICH_ROW;
     Boolean _revert_to_default_realm = DEFAULT_REVERT_TO_DEFAULT_REALM;
     // white-space-separated keywords from search box in widget
     String _keywords = DEFAULT_KEYWORDS;
@@ -308,7 +335,7 @@ public class AdDataRequest
     // add category-counts to output?
     Boolean _include_cat_counts = DEFAULT_INCLUDE_CAT_COUNTS;
     // plug seed in here to deterministically replay a previous call
-    String _seed = DEFAULT_SEED;
+    Integer _seed = DEFAULT_SEED;
     // use psychographic curves when building roulette wheel
     Enums.MaybeBoolean _psychographics_p = DEFAULT_PSYCHOGRAPHICS_P;
     // pull keywords out of publisher URL and get products based on them
@@ -316,19 +343,20 @@ public class AdDataRequest
     // if t then we don't care about too few products
     Enums.MaybeBoolean _allow_too_few_products = DEFAULT_ALLOW_TOO_FEW_PRODUCTS;
     // for leadgens, only return offers of these dimensions
-    String _ad_width = DEFAULT_AD_WIDTH;
-    String _ad_height = DEFAULT_AD_HEIGHT;
+    Integer _ad_width = DEFAULT_AD_WIDTH;
+    Integer _ad_height = DEFAULT_AD_HEIGHT;
     // one of :product-only, :leadgen-only, or product-leadgen
-    String _ad_offer_type = DEFAULT_AD_OFFER_TYPE;
+    AdOfferType _ad_offer_type = DEFAULT_AD_OFFER_TYPE;
     // if non-null, *try* to put this many leadgens in the result
     Integer _min_num_leadgens = DEFAULT_MIN_NUM_LEADGENS;
     // one of :normal, :js-friendly, defaults to :normal
-    String _output_format = DEFAULT_OUTPUT_FORMAT;
+    OutputFormat _output_format = DEFAULT_OUTPUT_FORMAT;
     // one of :uniform-random|:deterministic-best-first|:perturbed-best-first
     // default is :uniform-random
     String _output_order = DEFAULT_OUTPUT_ORDER;
     // default is 0.1
     Double _output_order_noise_stddev = DEFAULT_OUTPUT_ORDER_NOISE_STDDEV;
+    Integer _max_prod_desc_len = DEFAULT_MAX_PROD_DESC_LEN;
 
     private void
     parse_request (Sexp expr)
@@ -340,6 +368,8 @@ public class AdDataRequest
 	int n = l.size ();
 
 	Iterator<Sexp> iter = l.iterator ();
+
+	Sexp get_ad_data = iter.next (); // get-ad-data symbol
 
 	while (iter.hasNext ())
 	{
@@ -397,15 +427,15 @@ public class AdDataRequest
 		    break;
 
 		case NUM_PRODUCTS:
-		    this._num_products = SexpUtils.get_next_string (name, iter);
+		    this._num_products = get_next_integer_or_t_null (name, iter);
 		    break;
 
 		case ROW_SIZE:
-		    this._row_size = SexpUtils.get_next_string (name, iter);
+		    this._row_size = get_next_integer_or_nil_null (name, iter);
 		    break;
 
 		case WHICH_ROW:
-		    this._which_row = SexpUtils.get_next_string (name, iter);
+		    this._which_row = get_next_integer_or_nil_null (name, iter);
 		    break;
 
 		case REVERT_TO_DEFAULT_REALM:
@@ -425,7 +455,7 @@ public class AdDataRequest
 		    break;
 
 		case SEED:
-		    this._seed = SexpUtils.get_next_string (name, iter);
+		    this._seed = get_next_integer_or_nil_null (name, iter);
 		    break;
 
 		case PSYCHOGRAPHICS_P:
@@ -441,23 +471,23 @@ public class AdDataRequest
 		    break;
 
 		case AD_WIDTH:
-		    this._ad_width = SexpUtils.get_next_string (name, iter);
+		    this._ad_width = get_next_integer_or_nil_null (name, iter);
 		    break;
 
 		case AD_HEIGHT:
-		    this._ad_height = SexpUtils.get_next_string (name, iter);
+		    this._ad_height = get_next_integer_or_nil_null (name, iter);
 		    break;
 
 		case AD_OFFER_TYPE:
-		    this._ad_offer_type = SexpUtils.get_next_string (name, iter);
+		    this._ad_offer_type = get_next_ad_offer_type (name, iter);
 		    break;
 
 		case MIN_NUM_LEADGENS:
-		    this._min_num_leadgens = SexpUtils.get_next_integer (name, iter);
+		    this._min_num_leadgens = get_next_integer_or_nil_null (name, iter);
 		    break;
 
 		case OUTPUT_FORMAT:
-		    this._output_format = SexpUtils.get_next_string (name, iter);
+		    this._output_format = get_next_output_format (name, iter);
 		    break;
 
 		case OUTPUT_ORDER:
@@ -466,6 +496,10 @@ public class AdDataRequest
 
 		case OUTPUT_ORDER_NOISE_STDDEV:
 		    this._output_order_noise_stddev = SexpUtils.get_next_double (name, iter);
+		    break;
+
+		case MAX_PROD_DESC_LEN:
+		    this._max_prod_desc_len = get_next_integer_or_nil_null (name, iter);
 		    break;
 
 		default:
@@ -477,5 +511,117 @@ public class AdDataRequest
 		throw new BadCommandException (ex.getMessage ());
 	    }
 	}
+    }
+
+    // Same as SexpUtils.get_next_integer except t -> null.
+
+    private static Integer
+    get_next_integer_or_t_null (String param_name, Iterator<Sexp> iter)
+	throws SexpUtils.BadGetNextException
+    {
+	if (! iter.hasNext ())
+	    throw new SexpUtils.BadGetNextException ("missing value for "
+						     + param_name);
+	Sexp e = iter.next ();
+	if (e.isSexpSymbol ())
+	{
+	    SexpSymbol s = e.toSexpSymbol ();
+	    if (s.equalsStringIgnoreCase ("t"))
+		return null;
+	    throw new SexpUtils.BadGetNextException ("bad value for "
+						     + param_name);
+	}
+	if (! e.isSexpInteger ())
+	    throw new SexpUtils.BadGetNextException ("bad value for "
+						     + param_name);
+	SexpInteger n = e.toSexpInteger ();
+	try
+	{
+	    return n.toNativeInteger32 ();
+	}
+	catch (NumberFormatException ex)
+	{
+	    throw new SexpUtils.BadGetNextException ("non-32-bit-integer value for "
+						     + param_name);
+	}
+    }
+
+    // Same as SexpUtils.get_next_integer except nil -> null.
+
+    private static Integer
+    get_next_integer_or_nil_null (String param_name, Iterator<Sexp> iter)
+	throws SexpUtils.BadGetNextException
+    {
+	if (! iter.hasNext ())
+	    throw new SexpUtils.BadGetNextException ("missing value for "
+						     + param_name);
+	Sexp e = iter.next ();
+	if (e.isSexpSymbol ())
+	{
+	    SexpSymbol s = e.toSexpSymbol ();
+	    if (s.equalsStringIgnoreCase ("nil"))
+		return null;
+	    throw new SexpUtils.BadGetNextException ("bad value for "
+						     + param_name);
+	}
+	if (! e.isSexpInteger ())
+	    throw new SexpUtils.BadGetNextException ("bad value for "
+						     + param_name);
+	SexpInteger n = e.toSexpInteger ();
+	try
+	{
+	    return n.toNativeInteger32 ();
+	}
+	catch (NumberFormatException ex)
+	{
+	    throw new SexpUtils.BadGetNextException ("non-32-bit-integer value for "
+						     + param_name);
+	}
+    }
+
+    // Parse an :ad-offer-type parameter.
+
+    private static AdOfferType
+    get_next_ad_offer_type (String param_name, Iterator<Sexp> iter)
+	throws SexpUtils.BadGetNextException
+    {
+	if (! iter.hasNext ())
+	    throw new SexpUtils.BadGetNextException ("missing value for "
+						     + param_name);
+	Sexp e = iter.next ();
+	if (! e.isSexpKeyword ())
+	    throw new SexpUtils.BadGetNextException ("bad value for "
+						     + param_name);
+	SexpKeyword kw = e.toSexpKeyword ();
+	if (kw.equalsString (":product-only"))
+	    return AdOfferType.PRODUCT_ONLY;
+	if (kw.equalsString (":leadgen-only"))
+	    return AdOfferType.LEADGEN_ONLY;
+	if (kw.equalsString (":product-leadgen"))
+	    return AdOfferType.PRODUCT_LEADGEN;
+	throw new SexpUtils.BadGetNextException ("invalid value for "
+						 + param_name);
+    }
+
+    // Parse an :output-format parameter.
+
+    private static OutputFormat
+    get_next_output_format (String param_name, Iterator<Sexp> iter)
+	throws SexpUtils.BadGetNextException
+    {
+	if (! iter.hasNext ())
+	    throw new SexpUtils.BadGetNextException ("missing value for "
+						     + param_name);
+	Sexp e = iter.next ();
+	if (! e.isSexpKeyword ())
+	    throw new SexpUtils.BadGetNextException ("bad value for "
+						     + param_name);
+	SexpKeyword kw = e.toSexpKeyword ();
+	if (kw.equalsString (":normal"))
+	    return OutputFormat.NORMAL;
+	if (kw.equalsString (":js-friendly"))
+	    return OutputFormat.JS_FRIENDLY;
+	throw new SexpUtils.BadGetNextException ("invalid value for "
+						 + param_name);
     }
 }

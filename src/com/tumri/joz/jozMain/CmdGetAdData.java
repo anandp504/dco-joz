@@ -55,9 +55,11 @@ public class CmdGetAdData extends CommandOwnWriting
     public void
     process_and_write (OutputStream out)
     {
-/*
 	try
 	{
+/*
+	    throw new Exception ("temp hack, send default realm only");
+*/
 	    AdDataRequest rqst = new AdDataRequest (expr);
 	    choose_and_write_products (rqst, out);
 	}
@@ -76,9 +78,6 @@ public class CmdGetAdData extends CommandOwnWriting
 	    Sexp sexp = JozData.mup_db.get_default_realm_response ();
 	    SexpIFASLWriter.write (out, sexp, false);
 	}
-*/
-	Sexp sexp = JozData.mup_db.get_default_realm_response ();
-	SexpIFASLWriter.write (out, sexp, false);
     }
 
     // implementation details -------------------------------------------------
