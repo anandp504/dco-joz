@@ -2,7 +2,11 @@
 
 package com.tumri.joz.jozMain;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Iterator;
+
+import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.*;
 
@@ -124,4 +128,36 @@ public class SexpUtils
 					   + param_name);
 	}
     }
+
+    public static Sexp
+    load_sexp_from_file (String path)
+    {
+	Sexp expr = null;
+
+	try
+	{
+	    expr = SexpReader.readFromFile (path);
+
+	    if (expr == null)
+		log.info ("empty file: " + path); // FIXME
+	}
+	catch (FileNotFoundException e)
+	{
+	    log.info (e.toString ()); // FIXME
+	}
+	catch (IOException e)
+	{
+	    log.info (e.toString ()); // FIXME
+	}
+	catch (BadSexpException e)
+	{
+	    log.info (e.toString ()); // FIXME
+	}
+
+	return expr;
+    }
+
+    // implementation details -------------------------------------------------
+
+    private static Logger log = Logger.getLogger (MerchantDB.class);
 }

@@ -34,18 +34,27 @@ public class TmpTSpecDB implements TSpecDB
     public String
     get_default_realm_url ()
     {
-	return null; // FIXME: wip
+	return "http://default-realm"; // FIXME: wip
     }
 
     public TSpec
     get (String name)
     {
-	return null; // FIXME: wip
+	TSpec ts = _tspec_db.get (name);
+	if (ts == null)
+	    ts = default_t_spec;
+	return ts;
     }
 
     // implementation details -------------------------------------------------
 
     HashMap<String, TSpec> _tspec_db;
+
+    private static final TSpec default_t_spec =
+	new TSpec ("T-SPEC-http://default-realm/",
+		   new Integer (42),
+		   new Integer (42),
+		   new Long (42));
 
     private static Logger log = Logger.getLogger (TmpTSpecDB.class);
 

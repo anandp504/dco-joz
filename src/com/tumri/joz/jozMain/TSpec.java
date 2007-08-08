@@ -27,6 +27,15 @@ public class TSpec
 	}
     }
 
+    public TSpec (String name, Integer version, Integer max_prods,
+		  Long modified)
+    {
+	_name = name;
+	_version = version;
+	_max_prods = max_prods;
+	_modified_time = modified;
+    }
+
     public String get_name () { return _name; }
     public Integer get_version () { return _version; }
     public Integer get_max_prods () { return _max_prods; }

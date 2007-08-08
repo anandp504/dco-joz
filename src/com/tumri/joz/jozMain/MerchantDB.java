@@ -21,7 +21,7 @@ public class MerchantDB
 {
     MerchantDB (String attributes_and_metadata_path,
 		String tabulated_search_results_path)
-	throws BadMerchantDataException
+	throws FileNotFoundException, IOException, BadMerchantDataException
     {
 	init (attributes_and_metadata_path,
 	      tabulated_search_results_path);
@@ -74,18 +74,34 @@ public class MerchantDB
     private void
     init (String attributes_and_metadata_path,
 	  String tabulated_search_results_path)
-	throws BadMerchantDataException
+	throws FileNotFoundException, IOException, BadMerchantDataException
     {
 	log.info ("Loading merchant data from "
 		  + attributes_and_metadata_path);
 
-	Sexp e = load_sexp_from_file (attributes_and_metadata_path);
+	Sexp e = null;
+	try
+	{
+	    e = SexpReader.readFromFile (attributes_and_metadata_path);
+	}
+	catch (BadSexpException ex)
+	{
+	    throw new BadMerchantDataException ("error reading sexp");
+	}
 	_attributes_and_metadata = e;
 
 	log.info ("Loading tabulated search results from "
 		  + tabulated_search_results_path);
 
-	e = load_sexp_from_file (tabulated_search_results_path);
+	e = null;
+	try
+	{
+	    e = SexpReader.readFromFile (tabulated_search_results_path);
+	}
+	catch (BadSexpException ex)
+	{
+	    throw new BadMerchantDataException ("error reading sexp");
+	}
 	if (! e.isSexpList ())
 	    throw new BadMerchantDataException ("tabulated-search-results is not a list");
 	SexpList l = e.toSexpList ();
@@ -94,34 +110,6 @@ public class MerchantDB
 	_tabulated_search_results = l;
 
 	extract_merchant_logos_and_shipping_promos ();
-    }
-
-    private static Sexp
-    load_sexp_from_file (String path)
-    {
-	Sexp expr = null;
-
-	try
-	{
-	    expr = SexpReader.readFromFile (path);
-
-	    if (expr == null)
-		log.info ("empty attributes and metadata file"); // FIXME
-	}
-	catch (FileNotFoundException e)
-	{
-	    log.info (e.toString ()); // FIXME
-	}
-	catch (IOException e)
-	{
-	    log.info (e.toString ()); // FIXME
-	}
-	catch (BadSexpException e)
-	{
-	    log.info (e.toString ()); // FIXME
-	}
-
-	return expr;
     }
 
     private void

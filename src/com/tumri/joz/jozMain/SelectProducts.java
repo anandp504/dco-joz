@@ -13,7 +13,15 @@ public class SelectProducts
     {
 	List<SelectedProduct> l = new ArrayList<SelectedProduct> ();
 
-	for (int i = 0; i < 6; ++i)
+	// FIXME: temp hack
+	Integer num_products = rqst.get_num_products ();
+	int n = num_products.intValue ();
+	if (n < 12)
+	    n = 12;
+	if (n > 100)
+	    n = 100;
+
+	for (int i = 0; i < n; ++i)
 	{
 	    int r = random.nextInt (100000);
 	    MUPProductObj p = JozData.mup_db.get_entry (r);

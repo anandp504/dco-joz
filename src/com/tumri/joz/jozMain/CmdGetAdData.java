@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
@@ -84,6 +85,8 @@ public class CmdGetAdData extends CommandOwnWriting
 
     private static Logger log = Logger.getLogger (CmdGetAdData.class);
 
+    private static int dump_seq = 0;
+
     // Main entry point to product selection once the request has been read
     // and parsed.
 
@@ -94,7 +97,9 @@ public class CmdGetAdData extends CommandOwnWriting
 	TSpecAndRealm tsar = choose_t_spec_and_realm (rqst);
 	TSpec t_spec = tsar._t_spec;
 	Realm realm = tsar._realm;
-	String seed = rqst.get_seed (); // FIXME: wip
+	Integer seed = rqst.get_seed (); // FIXME: wip
+	if (seed == null)
+	    seed = new Integer (42); // FIXME: wip
 	Features features = new Features (seed);
 	boolean private_label_p = t_spec.private_label_p ();
 
@@ -110,19 +115,21 @@ public class CmdGetAdData extends CommandOwnWriting
 		      private_label_p, features, elapsed_time,
 		      products,
 		      out);
-    }
 
-    // Utility class so {choose_t_spec_and_realm} can pass back two values.
-
-    private class TSpecAndRealm
-    {
-	public TSpec _t_spec = null;
-	public Realm _realm = null;
-
-	public TSpecAndRealm (TSpec t, Realm r)
+	// Log the result for debugging.
+	String dump_file = "/tmp/soz3-" + dump_seq + ".dump";
+	++dump_seq;
+	try
 	{
-	    _t_spec = t;
-	    _realm = r;
+	    FileOutputStream f = new FileOutputStream (dump_file);
+	    write_result (rqst, t_spec, realm,
+			  private_label_p, features, elapsed_time,
+			  products,
+			  f);
+	}
+	catch (Exception e)
+	{
+	    log.error ("Unable to dump result: " + e.toString ());
 	}
     }
 
@@ -269,9 +276,10 @@ public class CmdGetAdData extends CommandOwnWriting
     {
 	SexpIFASLWriter w = new SexpIFASLWriter (out);
 
+	w.startDocument ();
+
 	// See above, 9 elements in result list.
 	w.startList (9);
-	w.startDocument ();
 
 	write_elm (w, "VERSION", new SexpString ("1.0"));
 
@@ -300,6 +308,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	write_elm (w, "SOZFEATURES", sexp_features);
 
 	w.endList ();
+
 	w.endDocument ();
     }
 

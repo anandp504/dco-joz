@@ -54,6 +54,16 @@ class JozData
 
 	try
 	{
+	    mapping_db = new TmpMappingDB (data_path + "/mappings/mapping.lisp");
+	}
+	catch (Exception e)
+	{
+	    log.error ("Unable to initialize Mapping DB: "
+		       + e.toString ());
+	}
+
+	try
+	{
 	    String lucene_path = data_path + "/lucene";
 	    lucene_db = new LuceneDB (lucene_path);
 	}
@@ -72,6 +82,9 @@ class JozData
 
     // T-Specs.
     public static TSpecDB tspec_db = null;
+
+    // Mapping DB.
+    public static MappingDB mapping_db = null;
 
     // The Lucene database.
     public static LuceneDB lucene_db = null;

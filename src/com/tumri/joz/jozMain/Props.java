@@ -120,7 +120,7 @@ public class Props
 
     // holds all properties from both property files
     // ??? one per file?
-    private static Properties props;
+    private static Properties props = new Properties ();
 
     private static final String SERVER_PORT = "server.port";
     private static final String MONITOR_PORT = "monitor.port";

@@ -139,7 +139,15 @@ public class TmpMUPDB implements MUPDB
 	load_taxonomy_from_text_file (taxonomy_path);
 
 	log.info ("Loading default realm data from " + default_realm_path);
-	Sexp e = load_sexp_from_file (default_realm_path);
+	Sexp e = null;
+	try
+	{
+	    e = SexpReader.readFromFile (default_realm_path);
+	}
+	catch (BadSexpException ex)
+	{
+	    throw new BadMUPDataException ("error reading sexp");
+	}
 	_default_realm_data = e;
     }
 
@@ -309,34 +317,6 @@ public class TmpMUPDB implements MUPDB
 	{
 	    fr.close ();
 	}
-    }
-
-    private static Sexp
-    load_sexp_from_file (String path)
-    {
-	Sexp expr = null;
-
-	try
-	{
-	    expr = SexpReader.readFromFile (path);
-
-	    if (expr == null)
-		log.info ("empty attributes and metadata file"); // FIXME
-	}
-	catch (FileNotFoundException e)
-	{
-	    log.info (e.toString ()); // FIXME
-	}
-	catch (IOException e)
-	{
-	    log.info (e.toString ()); // FIXME
-	}
-	catch (BadSexpException e)
-	{
-	    log.info (e.toString ()); // FIXME
-	}
-
-	return expr;
     }
 
     private ProductName

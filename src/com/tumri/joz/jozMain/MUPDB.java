@@ -5,9 +5,6 @@
 
 package com.tumri.joz.jozMain;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.strings.EString;
 

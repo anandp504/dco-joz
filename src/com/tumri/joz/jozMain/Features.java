@@ -7,7 +7,7 @@ import com.tumri.utils.sexp.*;
 
 public class Features
 {
-    public Features (String seed /*FIXME: wip*/ /*, FIXME: others?*/)
+    public Features (Integer seed /*FIXME: wip*/ /*, FIXME: others?*/)
     {
 	_seed = seed;
 	_joz_version = Props.get_joz_version ();
@@ -18,7 +18,7 @@ public class Features
     public String get_joz_version () { return _joz_version; }
     public String get_mup_version () { return _mup_version; }
     public String get_host_name () { return _host_name; }
-    public String get_seed () { return _seed; } // FIXME: wip
+    public Integer get_seed () { return _seed; } // FIXME: wip
 
     // Convert the feature spec to a list that can be passed back to a client.
     // {elapsed_time} is in nanoseconds.
@@ -58,7 +58,7 @@ public class Features
     private String _joz_version;
     private String _mup_version;
     private String _host_name;
-    private String _seed;
+    private Integer _seed;
 
     private static SexpList
     build_list (String k, String s)
@@ -91,6 +91,6 @@ public class Features
 	// FIXME: wip
 	double d = (double) t;
 	d /= 1e9;
-	return String.format ("%0.5f", d);
+	return String.format ("%,.3f", d);
     }
 }
