@@ -159,7 +159,7 @@ public class MergeSortedSets<V> {
       Iterator<Integer> iter = sorted.iterator();
       int i=1;
       while (iter.hasNext()) {
-        Assert.assertEquals(iter.next(),i++);
+	Assert.assertEquals(iter.next().intValue(),i++);
       }
     }
     {
@@ -169,7 +169,7 @@ public class MergeSortedSets<V> {
       Iterator<Integer> iter = sorted.iterator();
       int i=1;
       while (iter.hasNext()) {
-        Assert.assertEquals(iter.next(),i++);
+	Assert.assertEquals(iter.next().intValue(),i++);
       }
     }
   }
