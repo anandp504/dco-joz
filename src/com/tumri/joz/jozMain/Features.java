@@ -12,11 +12,11 @@ public class Features
 	_seed = seed;
 	_joz_version = Props.get_joz_version ();
 	_host_name = Props.get_host_name ();
-	_mup_version = "666"; // FIXME: wip
+	_mup_version = 666; // FIXME: wip
     }
 
     public String get_joz_version () { return _joz_version; }
-    public String get_mup_version () { return _mup_version; }
+    public Integer get_mup_version () { return _mup_version; }
     public String get_host_name () { return _host_name; }
     public Integer get_seed () { return _seed; } // FIXME: wip
 
@@ -32,21 +32,21 @@ public class Features
 	SexpKeyword k;
 	SexpInteger i;
 
-	flist.addLast (build_list (":time", format_elapsed_time (elapsed_time)));
+	flist.addLast (build_list (":TIME", format_elapsed_time (elapsed_time)));
 
-	flist.addLast (build_list (":soz-ver", get_joz_version ()));
+	flist.addLast (build_list (":SOZ-VER", get_joz_version ()));
 
-	flist.addLast (build_list (":mup-ver", get_mup_version ()));
+	flist.addLast (build_list (":MUP-VER", get_mup_version ()));
 
-	flist.addLast (build_list (":host", get_host_name ()));
+	flist.addLast (build_list (":HOST", get_host_name ()));
 
-	flist.addLast (build_list (":seed", get_seed ()));
+	flist.addLast (build_list (":SEED", get_seed ()));
 
 	// FIXME: wip
 	l = new SexpList ();
-	k = new SexpKeyword (":features");
+	k = new SexpKeyword (":FEATURES");
 	l.addLast (k);
-	s = new SexpString ("nil");
+	s = new SexpString ("NIL");
 	l.addLast (s);
 	flist.addLast (l);
 
@@ -56,7 +56,7 @@ public class Features
     // implementation details -------------------------------------------------
 
     private String _joz_version;
-    private String _mup_version;
+    private Integer _mup_version;
     private String _host_name;
     private Integer _seed;
 

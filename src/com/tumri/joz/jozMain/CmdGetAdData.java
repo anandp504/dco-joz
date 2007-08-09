@@ -276,6 +276,8 @@ public class CmdGetAdData extends CommandOwnWriting
     {
 	SexpIFASLWriter w = new SexpIFASLWriter (out);
 
+	w.writeVersion ();
+
 	w.startDocument ();
 
 	// See above, 9 elements in result list.
@@ -289,20 +291,20 @@ public class CmdGetAdData extends CommandOwnWriting
 	write_products (w, products);
 	w.endList ();
 
-	SexpList product_ids = products_to_id_list (products);
+	String product_ids = products_to_id_list (products);
 	write_elm (w, "PROD-IDS", product_ids);
 
 	List<EString> cat_list = products_to_cat_list (products);
-	SexpString categories = cat_list_to_result_categories (cat_list);
+	String categories = cat_list_to_result_categories (cat_list);
 	write_elm (w, "CATEGORIES", categories);
-	SexpString cat_names = cat_list_to_result_cat_names (cat_list);
+	String cat_names = cat_list_to_result_cat_names (cat_list);
 	write_elm (w, "CAT-NAMES", cat_names);
 
 	write_elm (w, "REALM", realm.toString ());
 
 	write_elm (w, "STRATEGY", t_spec.get_name ());
 
-	write_elm (w, "IS-PRIVATE-LABEL-P", (private_label_p ? "t" : "nil"));
+	write_elm (w, "IS-PRIVATE-LABEL-P", (private_label_p ? "T" : "NIL"));
 
 	SexpList sexp_features = features.toSexpList (elapsed_time);
 	write_elm (w, "SOZFEATURES", sexp_features);
@@ -372,18 +374,22 @@ public class CmdGetAdData extends CommandOwnWriting
 	w.endList ();
     }
 
-    private static SexpList
+    private static String
     products_to_id_list (List<SelectedProduct> products)
     {
-	SexpList l = new SexpList ();
+	StringBuilder b = new StringBuilder ();
+	boolean done_one = false;
 
 	for (SelectedProduct sp : products)
 	{
+	    if (done_one)
+		b.append (",");
 	    EString id = sp.get_product_id ();
-	    l.addLast (new SexpSymbol (id));
+	    b.append (id.toString ());
+	    done_one = true;
 	}
 
-	return l;
+	return b.toString ();
     }
 
     // Return uniqified list of all categories in {products}.
@@ -408,7 +414,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	return l;
     }
 
-    private static SexpString
+    private static String
     cat_list_to_result_categories (List<EString> cats)
     {
 	StringBuilder sb = new StringBuilder ();
@@ -432,10 +438,10 @@ public class CmdGetAdData extends CommandOwnWriting
 
 	sb.append ("]");
 
-	return new SexpString (sb.toString ());
+	return sb.toString ();
     }
 
-    private static SexpString
+    private static String
     cat_list_to_result_cat_names (List<EString> cats)
     {
 	StringBuilder sb = new StringBuilder ();
@@ -451,6 +457,6 @@ public class CmdGetAdData extends CommandOwnWriting
 	    done_one = true;
 	}
 
-	return new SexpString (sb.toString ());
+	return sb.toString ();
     }
 }
