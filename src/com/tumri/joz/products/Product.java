@@ -81,7 +81,10 @@ public class Product implements IProduct, Handle<Product> {
 
   public void setPrice(String aPrice) {
     try {
-      m_Price = new Double(aPrice);
+      if (aPrice.equals ("nil"))
+	m_Price = new Double (0.0); // FIXME
+      else
+	m_Price = new Double(aPrice);
     } catch (Exception e) {
       System.err.println("Error in parsing Price value");
       m_Price = new Double(0.0);
@@ -94,7 +97,10 @@ public class Product implements IProduct, Handle<Product> {
 
   public void setDiscountPrice(String aDiscountPrice) {
     try {
-      m_DiscountPrice = new Double(aDiscountPrice);
+      if (aDiscountPrice.equals ("nil"))
+	m_DiscountPrice = new Double (0.0); // FIXME
+      else
+        m_DiscountPrice = new Double(aDiscountPrice);
     } catch (NumberFormatException e) {
       System.err.println("Error in parsing DiscountPrice value");
     }

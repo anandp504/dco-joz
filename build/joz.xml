@@ -12,7 +12,8 @@
                debug="on"
                optimize="on"
                srcdir="${src.dir}"
-               includes="com/tumri/joz/jozMain/*.java,com/tumri/joz/Query/*.java,com/tumri/joz/filter/*.java,com/tumri/joz/index/*.java,com/tumri/joz/products/*.java,com/tumri/joz/utils/*.java">
+               includes="com/tumri/joz/*/*.java"
+	       excludes="com/tumri/joz/testsuite/*.java">
             <classpath refid="project.class.path"/>
             <compilerarg value="-Xlint:unchecked"/>
 	    <compilerarg value="-Xlint:deprecation"/>
@@ -42,7 +43,9 @@
 	       dest="${dist.dir}/Joz"/>
 
         <jar destfile="${dist.dir}/Joz.jar">
-            <fileset dir="${classes.dir}" includes="com/tumri/joz/jozMain/*.class"/>
+            <fileset dir="${classes.dir}"
+		     includes="com/tumri/joz/*/*.class"
+		     excludes="com/tumri/joz/testsuite/*.class"/>
             <fileset dir="${dist.dir}/Joz"/>
             <manifest>
                 <attribute name="Main-Class" value="com.tumri.joz.jozMain.JozMain"/>

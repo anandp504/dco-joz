@@ -12,6 +12,8 @@ import java.io.LineNumberReader;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collection;
+import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
@@ -22,6 +24,10 @@ import com.tumri.utils.strings.EString;
 import com.tumri.utils.strings.ProductName;
 import com.tumri.utils.sexp.*;
 import com.tumri.utils.ifasl.IFASLUtils;
+
+import com.tumri.joz.products.*;
+import com.tumri.joz.Query.*;
+import com.tumri.joz.utils.Result;
 
 public class TmpTSpecDB implements TSpecDB
 {
@@ -45,6 +51,48 @@ public class TmpTSpecDB implements TSpecDB
 	    ts = default_t_spec;
 	return ts;
     }
+
+    // Called after the t-specs have been read in to verify them.
+
+    public void
+    materialize ()
+    {
+	long start = System.currentTimeMillis ();
+	ProductDB pdb = ProductDB.getInstance ();
+	Collection<TSpec> tspecs = _tspec_db.values ();
+	for (TSpec tspec : tspecs)
+	{
+	    Handle ref = pdb.genReference ();
+	    ConjunctQuery cjq = tspec.get_query ().getQueries ().get (0);
+	    cjq.setStrict (true);
+	    cjq.setReference (ref);
+	    SortedSet<Result> results = cjq.exec ();
+/*
+	    boolean validate = true;
+	    if (validate)
+	    {
+		cjq.clear ();
+		cjq.setScan (true);
+		cjq.setReference (ref);
+		SortedSet<Result> results1 = cjq.exec ();
+		Iterator<Result> iter = results.iterator ();
+		Iterator<Result> iter1 = results1.iterator ();
+		boolean hasNext = iter.hasNext ();
+		boolean hasNext1 = iter1.hasNext ();
+		Assert.assertEquals (hasNext, hasNext1);
+		while (hasNext && hasNext1)
+		{
+		    Assert.assertEquals (iter.next ().getOid (),
+					 iter1.next ().getOid ());
+		    hasNext = iter.hasNext ();
+		    hasNext1 = iter1.hasNext ();
+		    Assert.assertEquals (hasNext,hasNext1);
+		}
+	    }
+*/
+	}
+	log.info ("TSpec materialization time is " + (System.currentTimeMillis () - start));
+  }
 
     // implementation details -------------------------------------------------
 
@@ -116,6 +164,10 @@ public class TmpTSpecDB implements TSpecDB
 		    if (count % 10000 == 0)
 			log.info ("Loaded " + count + " entries ...");
 		    continue;
+		}
+		if (cmd.equalsStringIgnoreCase ("t-spec-delete"))
+		{
+		    continue; // FIXME: wip, ignore for now
 		}
 		log.error ("Bad t-spec entry, unknown request: " + s.toString ());
 		// FIXME: throw exception?

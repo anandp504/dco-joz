@@ -7,10 +7,17 @@ package com.tumri.joz.jozMain;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.*;
+
+import com.tumri.joz.Query.*;
+import com.tumri.joz.products.*;
+import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.index.CategoryIndex;
 
 public class TSpec
 {
@@ -25,6 +32,8 @@ public class TSpec
 	    _name = "t-spec-" + String.valueOf (next_anonymous);
 	    ++next_anonymous;
 	}
+
+	_query.addQuery (_cjquery);
     }
 
     public TSpec (String name, Integer version, Integer max_prods,
@@ -34,6 +43,8 @@ public class TSpec
 	_version = version;
 	_max_prods = max_prods;
 	_modified_time = modified;
+
+	_query.addQuery (_cjquery);
     }
 
     public String get_name () { return _name; }
@@ -44,15 +55,20 @@ public class TSpec
     // FIXME: for now
     public boolean private_label_p () { return false; }
 
+    public CNFQuery get_query () { return _query; }
+
     // implementation details -------------------------------------------------
 
-    String _name = null;
-    Integer _version = -1;
-    Integer _max_prods = 42; // FIXME, max-prods-per-realm
-    Long _modified_time = System.currentTimeMillis ();
+    private String _name = null;
+    private Integer _version = -1;
+    private Integer _max_prods = 42; // FIXME, max-prods-per-realm
+    private Long _modified_time = System.currentTimeMillis ();
+
+    private CNFQuery _query = new CNFQuery ();
+    private ConjunctQuery _cjquery = new ConjunctQuery ();
 
     // Used to give unique names to anonymous t-specs.
-    static long next_anonymous = 0;
+    private static long next_anonymous = 0;
 
     private static Logger log = Logger.getLogger (TSpec.class);
 
@@ -127,7 +143,8 @@ public class TSpec
 		continue;
 	    }
 
-	    String str = null;
+	    String value = null;
+	    SimpleQuery sq = null;
 
 	    try
 	    {
@@ -155,47 +172,81 @@ public class TSpec
 
 		case LOAD_TIME_KEYWORD_EXPR:
 		    t = iter.next ();
+		    // FIXME: wip
 		    break;
 
 		case ZINI_KEYWORDS:
 		    t = iter.next ();
+		    // FIXME: wip
 		    break;
 
 		case INCLUDE_CATEGORIES:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    ArrayList<Integer> values = getValues (IProduct.Attribute.kCategory, value);
+		    sq =  new AttributeQuery (IProduct.Attribute.kCategory, values);
 		    break;
+		}
 
 		case EXCLUDE_CATEGORIES:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    ArrayList<Integer> values = getValues (IProduct.Attribute.kCategory, value);
+		    sq =  new AttributeQuery (IProduct.Attribute.kCategory, values);
+		    sq.setNegation (true);
 		    break;
+		}
 
 		case ATTR_INCLUSIONS:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    // FIXME: wip
 		    break;
+		}
 
 		case ATTR_EXCLUSIONS:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    // FIXME: wip
 		    break;
+		}
 
 		case INCOME_PERCENTILE:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    // FIXME: wip
 		    break;
+		}
 
 		case REF_PRICE_CONSTRAINTS:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    ArrayList<Double> values = getRangeValues (value);
+		    sq =  new RangeQuery (IProduct.Attribute.kPrice, values.get (0), values.get (1));
 		    break;
+		}
 
 		case RANK_CONSTRAINTS:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    // FIXME: wip
 		    break;
+		}
 
 		case CPC_RANGE:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    ArrayList<Double> values = getRangeValues (value);
+		    sq =  new RangeQuery (IProduct.Attribute.kCPC, values.get (0), values.get (1));
 		    break;
+		}
 
 		case CPO_RANGE:
-		    t = iter.next ();
+		{
+		    value = SexpUtils.get_next_string (name, iter);
+		    // FIXME: wip
 		    break;
+		}
 
 		default:
 		    assert (false);
@@ -205,6 +256,78 @@ public class TSpec
 	    {
 		throw new BadTSpecException (ex.getMessage ());
 	    }
+
+	    if (sq != null)
+	    {
+		_cjquery.addQuery (sq);
+	    }
 	}
+    }
+
+    private ArrayList<Integer>
+    getValues (IProduct.Attribute attr, String value)
+    {
+	// FIXME: use of StringTokenizer is discouraged
+	StringTokenizer tokens = new StringTokenizer (value," ",false);
+	DictionaryManager dm = DictionaryManager.getInstance();
+	ArrayList<Integer> vals = new ArrayList<Integer>();
+	String last = null;
+	while(tokens.hasMoreTokens())
+	{
+	    String token = tokens.nextToken().trim();
+	    if (last == null)
+	    {
+		if (token.startsWith("|"))
+		{
+		    last = token;
+		    if (token.endsWith("|"))
+		    {
+			last = last.substring(1,last.length()-1);
+			vals.add(dm.getId(attr,last));
+			last = null;
+		    }
+		}
+		else
+		{
+		    vals.add(dm.getId(attr,token));
+		}
+	    }
+	    else
+	    {
+		last = last + " " + token;
+		if (token.endsWith("|"))
+		{
+		    last = last.substring(1,last.length()-1);
+		    vals.add(dm.getId(attr,last));
+		    last = null;
+		}
+	    }
+	}
+	return vals;
+    }
+
+    private ArrayList<Double>
+    getRangeValues(String value)
+    {
+	// FIXME: use of StringTokenizer is discouraged
+	StringTokenizer tokens = new StringTokenizer(value, " ", false);
+	ArrayList<Double> vals = new ArrayList<Double>();
+	while (tokens.hasMoreTokens())
+	{
+	    String token = tokens.nextToken().trim();
+	    try
+	    {
+		vals.add(Double.parseDouble(token));
+	    }
+	    catch (NumberFormatException e)
+	    {
+		vals.add(new Double(vals.size() == 0 ? 0 : 100000));
+	    }
+	}
+	while (vals.size() < 2)
+	{
+	    vals.add(new Double(vals.size() == 0 ? 0 : 100000));
+	}
+	return vals;
     }
 }

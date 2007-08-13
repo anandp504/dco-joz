@@ -10,4 +10,6 @@ public interface TSpecDB
     public String get_default_realm_url ();
 
     public TSpec get (String name);
+
+    public void materialize ();
 }
