@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.SortedSet;
 
+import org.apache.log4j.Logger;
+
 import com.tumri.joz.products.*;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.utils.Result;
@@ -35,6 +37,8 @@ public class SelectProducts
 	}
 */
 
+	log.info ("Running query for " + t_spec.get_name () + " ...");
+
 	ProductDB pdb = ProductDB.getInstance ();
 	Handle ref = pdb.genReference ();
 	ConjunctQuery cjq = t_spec.get_query ().getQueries ().get (0);
@@ -43,6 +47,21 @@ public class SelectProducts
 	SortedSet<Result> results = cjq.exec ();
 
 	int nr_results = results.size ();
+
+	log.info ("Obtained " + nr_results + " products.");
+	int i = 0;
+	for (Result res : results)
+	{
+	    if (++i > 12)
+	    {
+		log.info ("Remaining products elided.");
+		break;
+	    }
+	    int id = res.getOid ();
+	    IProduct ip = pdb.get (id);
+	    log.info (ip.getGId ());
+	}
+
 	while (l.size () < n)
 	{
 	    for (Result res : results)
@@ -62,4 +81,6 @@ public class SelectProducts
     // implementation details -------------------------------------------------
 
     static private Random random = new Random ();
+
+    private static Logger log = Logger.getLogger (SelectProducts.class);
 }

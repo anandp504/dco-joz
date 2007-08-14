@@ -68,7 +68,7 @@ public class SelectedProduct
 
     // Return the selected product's id.
 
-    EString
+    String
     get_product_id ()
     {
 	return _product.get_product_id ();
@@ -76,7 +76,7 @@ public class SelectedProduct
 
     // Return the selected product's parents (categories).
 
-    List<EString>
+    List<String>
     get_parents ()
     {
 	return _product.get_parents ();
@@ -90,6 +90,8 @@ public class SelectedProduct
     encode (EString es)
     {
 	// FIXME: wip
+	if (es == null)
+	    return "nil";
 	return es.toString ();
     }
 
@@ -97,6 +99,8 @@ public class SelectedProduct
     encode (String s)
     {
 	// FIXME: wip
+	if (s == null)
+	    return "nil";
 	return s;
     }
 
@@ -104,6 +108,17 @@ public class SelectedProduct
     encode_price (Float f)
     {
 	// FIXME: wip
+	if (f == null)
+	    return "nil";
 	return String.format ("%.2f", f);
+    }
+
+    private String
+    encode_price (Double d)
+    {
+	// FIXME: wip
+	if (d == null)
+	    return "nil";
+	return String.format ("%.2f", d);
     }
 }

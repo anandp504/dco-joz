@@ -44,7 +44,19 @@ public class MerchantDB
     public String
     get_logo_url (EString merchant)
     {
+	if (merchant == null)
+	    return null;
 	return _logo_url_db.get (merchant.toString ().toLowerCase ());
+    }
+
+    // Return the logo url for {merchant} or null if not provided.
+
+    public String
+    get_logo_url (String merchant)
+    {
+	if (merchant == null)
+	    return null;
+	return _logo_url_db.get (merchant.toLowerCase ());
     }
 
     // Return the shipping promo for {merchant} or null if not provided.
@@ -54,7 +66,21 @@ public class MerchantDB
     public String
     get_shipping_promo (EString merchant)
     {
+	if (merchant == null)
+	    return null;
 	return _shipping_promo_db.get (merchant.toString ().toLowerCase ());
+    }
+
+    // Return the shipping promo for {merchant} or null if not provided.
+    // An example of a shipping promo is, I think,
+    // "Free Shipping on Orders over $50".
+
+    public String
+    get_shipping_promo (String merchant)
+    {
+	if (merchant == null)
+	    return null;
+	return _shipping_promo_db.get (merchant.toLowerCase ());
     }
 
     // implementation details -------------------------------------------------
@@ -209,6 +235,18 @@ public class MerchantDB
 	if (l.size () == 0)
 	    return null;
 	e = l.get (0);
+
+	// watch for nil
+	if (e.isSexpList ())
+	{
+	    l = e.toSexpList ();
+	    if (l.size () == 0)
+		return "nil";
+	    log.error ("Bad merchant data, expected nil or string for " + what
+		       + ", got: " + e.toString ());
+	    return "nil"; // FIXME
+	}
+
 	if (! e.isSexpString ())
 	    log.error ("Bad merchant data, expected string for " + what
 		       + ", got: " + e.toString ());

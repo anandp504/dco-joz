@@ -14,6 +14,7 @@ public class JozURI
     {
 	try
 	{
+	    _orig_string = uri;
 	    _uri = new URI (uri);
 	}
 	catch (URISyntaxException e)
@@ -38,8 +39,8 @@ public class JozURI
 
     // implementation details -------------------------------------------------
 
-    protected URI _uri;
     protected String _orig_string;
+    protected URI _uri;
 
-    private static Logger log = Logger.getLogger (CmdGetAdData.class);
+    private static Logger log = Logger.getLogger (JozURI.class);
 }

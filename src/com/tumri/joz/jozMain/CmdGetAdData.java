@@ -324,7 +324,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	String product_ids = products_to_id_list (products);
 	write_elm (w, "PROD-IDS", product_ids);
 
-	List<EString> cat_list = products_to_cat_list (products);
+	List<String> cat_list = products_to_cat_list (products);
 	String categories = cat_list_to_result_categories (cat_list);
 	write_elm (w, "CATEGORIES", categories);
 	String cat_names = cat_list_to_result_cat_names (cat_list);
@@ -414,8 +414,8 @@ public class CmdGetAdData extends CommandOwnWriting
 	{
 	    if (done_one)
 		b.append (",");
-	    EString id = sp.get_product_id ();
-	    b.append (id.toString ());
+	    String id = sp.get_product_id ();
+	    b.append (id);
 	    done_one = true;
 	}
 
@@ -424,35 +424,35 @@ public class CmdGetAdData extends CommandOwnWriting
 
     // Return uniqified list of all categories in {products}.
 
-    private static List<EString>
+    private static List<String>
     products_to_cat_list (List<SelectedProduct> products)
     {
-	HashSet<EString> categories = new HashSet<EString> ();
+	HashSet<String> categories = new HashSet<String> ();
 
 	for (SelectedProduct sp : products)
 	{
-	    List<EString> parents = sp.get_parents ();
-	    for (EString p : parents)
+	    List<String> parents = sp.get_parents ();
+	    for (String p : parents)
 		categories.add (p);
 	}
 
-	List<EString> l = new ArrayList<EString> ();
+	List<String> l = new ArrayList<String> ();
 
-	for (EString c : categories)
+	for (String c : categories)
 	    l.add (c);
 
 	return l;
     }
 
     private static String
-    cat_list_to_result_categories (List<EString> cats)
+    cat_list_to_result_categories (List<String> cats)
     {
 	StringBuilder sb = new StringBuilder ();
 
 	sb.append ("[");
 	boolean done_one = false;
 
-	for (EString c : cats)
+	for (String c : cats)
 	{
 	    if (done_one)
 		sb.append (",");
@@ -472,13 +472,13 @@ public class CmdGetAdData extends CommandOwnWriting
     }
 
     private static String
-    cat_list_to_result_cat_names (List<EString> cats)
+    cat_list_to_result_cat_names (List<String> cats)
     {
 	StringBuilder sb = new StringBuilder ();
 
 	boolean done_one = false;
 
-	for (EString c : cats)
+	for (String c : cats)
 	{
 	    if (done_one)
 		sb.append ("||");

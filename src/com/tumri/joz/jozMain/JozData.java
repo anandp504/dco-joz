@@ -38,6 +38,18 @@ class JozData
 
 	try
 	{
+	    String merchant_path = data_path + "/MD";
+	    merchant_db = new MerchantDB (merchant_path + "/attributes-and-metadata.lisp",
+					  merchant_path + "/tabulated-search-results.lisp");
+	}
+	catch (Exception e)
+	{
+	    log.error ("Unable to initialize Merchant DB: "
+		       + e.toString ());
+	}
+
+	try
+	{
 	    log.info ("Loading products ...");
 	    load_products (data_path);
 	}
