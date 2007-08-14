@@ -59,7 +59,7 @@ public abstract class SimpleQuery implements Query, Comparable {
     if (this == o) return 0;
     if (o == null || getClass() != o.getClass()) return -1;
 
-    AttributeQuery that = (AttributeQuery) o;
+    SimpleQuery that = (SimpleQuery) o;
 
     return ((getCost() < that.getCost()) ? -1 :
         (getCost() == that.getCost() ? 0 : 1));
