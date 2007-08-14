@@ -15,7 +15,7 @@ public class SupplierFilter extends Filter<Handle> {
   }
 
   @SuppressWarnings("unchecked")
-  public SupplierFilter(Filter f) {
+  public SupplierFilter(Filter<Handle> f) {
     // ??? This gets an "unchecked conversion" warning.
     super(f);
   }

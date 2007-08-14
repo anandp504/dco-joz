@@ -50,23 +50,23 @@ public class RangeQuery extends SimpleQuery {
     if (m_count == kMax) {
       IIndex index = ProductDB.getInstance().getIndex(getAttribute());
       if (index != null) {
-	  // ??? This gets an "unchecked call" warning.
-        m_count = index.getCount(m_min,m_max);
+        // ??? This gets an "unchecked call" warning.
+        m_count = index.getCount(m_min, m_max);
       }
     }
     return m_count;
   }
 
   public double getCost() {
-    return ((double)getCount()) * 4; // @todo these numbers are random guess work needs to be nlogn
+    return ((double) getCount()) * 4; // @todo these numbers are random guess work needs to be nlogn
   }
 
   @SuppressWarnings("unchecked")
   public SortedSet<Handle> exec() {
     if (m_results == null) {
       // ??? This gets an "unchecked conversion" warning.
-      Index<Double,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
-      m_results = (index != null) ? index.get(m_min,m_max) : tableScan();
+      Index<Double, Handle> index = ProductDB.getInstance().getIndex(getAttribute());
+      m_results = (index != null) ? index.get(m_min, m_max) : tableScan();
     }
     return m_results;
   }
@@ -75,7 +75,7 @@ public class RangeQuery extends SimpleQuery {
     if (m_filter == null) {
       m_filter = ProductDB.getInstance().getFilter(getAttribute());
       m_filter.setNegation(isNegation());
-      m_filter.setBounds(m_min,m_max);
+      m_filter.setBounds(m_min, m_max);
     }
     return m_filter;
   }

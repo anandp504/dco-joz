@@ -43,4 +43,9 @@ public interface IDictionary<Type> {
    * @return
    */
   public int maxId();
+  /**
+   * min ids allocated so far
+   * @return
+   */
+  public int minId();
 }

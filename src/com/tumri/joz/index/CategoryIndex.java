@@ -2,7 +2,7 @@ package com.tumri.joz.index;
 
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.Taxonomy;
+import com.tumri.joz.products.JOZTaxonomy;
 
 import java.util.*;
 
@@ -59,7 +59,7 @@ public class CategoryIndex extends Index<Integer, Handle> {
    * Any old entries are updated
    * @param taxonomy
    */
-  public void update(Taxonomy taxonomy) {
+  public void update(JOZTaxonomy taxonomy) {
     try {
       m_map.writerLock();
       Integer root = taxonomy.getRoot();
@@ -91,7 +91,7 @@ public class CategoryIndex extends Index<Integer, Handle> {
    * @param tax
    * @param pid
    */
-  private void update(Taxonomy tax, Integer pid) {
+  private void update(JOZTaxonomy tax, Integer pid) {
     TreeSet<Integer> children = tax.getChildren(pid);
     if (children != null) {
       SortedSet<Handle> parentSet = get(pid);

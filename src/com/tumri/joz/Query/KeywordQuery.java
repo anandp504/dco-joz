@@ -1,11 +1,13 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
+import com.tumri.joz.index.SortedArraySet;
+import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 
+import java.util.ArrayList;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,7 +20,7 @@ public class KeywordQuery extends SimpleQuery {
     return Type.kKeyword;
   }
 
-  public KeywordQuery(IProduct.Attribute aAttribute, String aKeywords) {
+  public KeywordQuery(String aKeywords) {
     super(IProduct.Attribute.kKeywords);
     m_keywords = aKeywords;
   }
@@ -32,20 +34,22 @@ public class KeywordQuery extends SimpleQuery {
   }
 
   public int getCount() {
-    return kMax; // @todo improve this with Lucenes help
+    return exec().size();
   }
 
   public double getCost() {
-    return ((double)getCount()) * 8; // @todo numbers are random guess work
+    return getCount();
   }
 
   public boolean hasIndex() {
     return true;
   }
 
+  @SuppressWarnings("unchecked")
   public SortedSet<Handle> exec() {
     if (m_results == null) {
-      m_results = new TreeSet<Handle>();  // @todo results to be hooked to lucene
+      ArrayList<Handle> res = ProductIndex.getInstance().search(m_keywords,0.0,2000);
+      m_results = new SortedArraySet(res);
     }
     return m_results;
   }

@@ -6,7 +6,6 @@ import com.tumri.joz.index.RWLocked;
 import com.tumri.joz.index.SortedArraySet;
 import com.tumri.joz.index.SortedSplitSet;
 import com.tumri.joz.ranks.IWeight;
-import com.tumri.joz.utils.Result;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,8 +37,8 @@ abstract public class SetIntersector<Value extends Comparable> {
   private int m_maxSetSize = MAXRET;
   private Value m_reference; // Reference point is used as a starting point of set intersection
   // Temp class variables
-  private ArrayList<ArrayList<Result>> m_returnList;
-  private SortedSet<Result> m_returnSet;
+  private ArrayList<ArrayList<Value>> m_returnList;
+  private SortedSet<Value> m_returnSet;
   private int m_incSize;
   private int m_filterSize;
   private int m_excSize;
@@ -51,7 +50,7 @@ abstract public class SetIntersector<Value extends Comparable> {
    * @param score
    * @return a Pair<Value,Double>
    */
-  public abstract Result getResult(Value v, Double score);
+  public abstract Value getResult(Value v, Double score);
 
 
   /**
@@ -142,12 +141,12 @@ abstract public class SetIntersector<Value extends Comparable> {
    * Also m_zeroSize is used to avoid false accurate matches with zero sized weights
    */
   private void setup() {
-    m_returnList = new ArrayList<ArrayList<Result>>();
+    m_returnList = new ArrayList<ArrayList<Value>>();
     m_incSize = m_includes.size();
     m_filterSize = m_filters.size();
     m_excSize = m_excludes.size();
     for (int i = 0; i < m_incSize + m_excSize + m_filterSize + m_zeroSize; i++) {
-      m_returnList.add(new ArrayList<Result>());
+      m_returnList.add(new ArrayList<Value>());
     }
   }
 
@@ -202,7 +201,7 @@ abstract public class SetIntersector<Value extends Comparable> {
    * variable score is incremented each time a positive match happens, based on the total score the
    * item pointed to by cPointer is added to one of the entries in returnSet
    */
-  public SortedSet<Result> intersect() {
+  public SortedSet<Value> intersect() {
     if (m_returnSet != null) {
       return m_returnSet;
     }
@@ -313,16 +312,16 @@ abstract public class SetIntersector<Value extends Comparable> {
   private void buildReturnSet() {
     if (m_returnSet != null) return;
     if (m_returnList.size() > 0) {
-      ArrayList<Result> list = m_returnList.get(0);
+      ArrayList<Value> list = m_returnList.get(0);
       for (int i = 1;list.size() < m_maxSetSize && i < m_returnList.size(); i++) {
         list.addAll(m_returnList.get(i));
       }
-      m_returnSet = new SortedArraySet<Result>(list);
+      m_returnSet = new SortedArraySet<Value>(list);
       if (m_reference != null) {
-        m_returnSet = new SortedSplitSet<Result>(m_returnSet,getResult(m_reference,1.0));
+        m_returnSet = new SortedSplitSet<Value>(m_returnSet,getResult(m_reference,1.0));
       }
     } else {
-      m_returnSet = new SortedArraySet<Result>();
+      m_returnSet = new SortedArraySet<Value>();
     }
     m_returnList.clear();
   }

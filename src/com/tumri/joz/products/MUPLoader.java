@@ -18,19 +18,18 @@
 package com.tumri.joz.products;
 
 import com.tumri.joz.Query.*;
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.index.CategoryIndex;
+import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.utils.DOMUtils;
-import com.tumri.joz.utils.Result;
-import org.w3c.dom.*;
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
+import org.w3c.dom.*;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.SortedSet;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.StringTokenizer;
 
 public class MUPLoader {
   File m_file;
@@ -44,6 +43,13 @@ public class MUPLoader {
   }
 
   public void loadProducts() throws IOException {
+    ProductDB pdb = ProductDB.getInstance();
+
+    ArrayList<IProduct> products = getAll();
+    pdb.addProduct(products);
+  }
+
+  public ArrayList<IProduct> getAll() throws IOException {
     if (!m_file.exists()) {
       throw new RuntimeException("File " + m_file + " doesn't exist");
     }
@@ -52,23 +58,26 @@ public class MUPLoader {
     }
 
     FileInputStream fir = new FileInputStream(m_file);
-    InputStreamReader isr = new InputStreamReader(fir, "utf8");
-    BufferedReader br = new BufferedReader(isr);
-    ProductDB pdb = ProductDB.getInstance();
+    try {
+      InputStreamReader isr = new InputStreamReader(fir, "utf8");
+      BufferedReader br = new BufferedReader(isr);
 
-    boolean eof = false;
-    String line = null;
-    ArrayList<IProduct> products = new ArrayList<IProduct>();
-    while (!eof) {
-      line = br.readLine();
-      if (line == null) {
-        eof = true;
-        continue;
+      boolean eof = false;
+      String line = null;
+      ArrayList<IProduct> products = new ArrayList<IProduct>();
+      while (!eof) {
+        line = br.readLine();
+        if (line == null) {
+          eof = true;
+          continue;
+        }
+        IProduct p = convertLine(line);
+        products.add(p);
       }
-      IProduct p = convertLine(line);
-      products.add(p);
+      return products;
+    } finally {
+      fir.close();
     }
-    pdb.addProduct(products);
   }
 
   private IProduct convertLine(String line) {
@@ -137,7 +146,7 @@ public class MUPLoader {
       TaxonomyLoader tl = new TaxonomyLoader();
       DictionaryManager dm = DictionaryManager.getInstance();
       ProductDB.getInstance();
-      new TSpecLoader(true);
+      new TSpecLoader(false);
       long start = System.currentTimeMillis();
       for (int i = 0; i < 1; i++) {
         CNFQuery q = new CNFQuery();
@@ -162,23 +171,11 @@ class TaxonomyLoader {
   Document m_document = null;
 
   public TaxonomyLoader() {
-    File ftspecs = new File("taxonomy.xml");
-    m_document = DOMUtils.parse(ftspecs);
-    process();
-  }
-
-  private void process() {
-    NodeList nlist = m_document.getDocumentElement().getChildNodes();
     Taxonomy tax = Taxonomy.getInstance();
-    for (int i = 0; i < nlist.getLength(); i++) {
-      Node child = nlist.item(i);
-      if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals("NODE")) {
-        Element node = ((Element) child);
-        tax.addNodes(node.getAttribute("parent"),node.getAttribute("NAME"));
-      }
-    }
+    JOZTaxonomy jtax = JOZTaxonomy.getInstance();
+    jtax.build(tax);
     CategoryIndex catIndex = (CategoryIndex)ProductDB.getInstance().getIndex(IProduct.Attribute.kCategory);
-    catIndex.update(tax);
+    catIndex.update(jtax);
   }
 }
 // Temp class for testing purposes
@@ -220,14 +217,14 @@ class TSpecLoader {
       ConjunctQuery cjq = lTSpec.getQuery().getQueries().get(0);
       cjq.setStrict(true);
       cjq.setReference(ref);
-      SortedSet<Result> results = cjq.exec();
+      SortedSet<Handle> results = cjq.exec();
       if (m_validate) {
         cjq.clear();
         cjq.setScan(true);
         cjq.setReference(ref);
-        SortedSet<Result> results1 = cjq.exec();
-        Iterator<Result> iter = results.iterator();
-        Iterator<Result> iter1 = results1.iterator();
+        SortedSet<Handle> results1 = cjq.exec();
+        Iterator<Handle> iter = results.iterator();
+        Iterator<Handle> iter1 = results1.iterator();
         boolean hasNext = iter.hasNext();
         boolean hasNext1 = iter1.hasNext();
         Assert.assertEquals(hasNext,hasNext1);
@@ -337,7 +334,8 @@ class TSpec {
     } else if (WEIGHTMAPCOMBOSCHEME.equals(name)) {
       return null;
     } else if (LOADTIMEKEYWORDEXPR.equals(name)) {
-      return null;
+      SimpleQuery sq = new KeywordQuery(value);
+      return sq;
     } else if (INCOMEPERCENTILE.equals(name)) {
       return null;
     } else if (CPCRANGE.equals(name)) {

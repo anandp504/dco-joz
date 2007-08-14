@@ -1,7 +1,7 @@
 package com.tumri.joz.Query;
 
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.utils.Result;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,8 +16,8 @@ public class ProductSetIntersector extends SetIntersector<Handle> {
    * @param score
    * @return a Pair<Pid,Double>
    */
-  public Result getResult(Handle h, Double score) {
-    return new Result(h.getOid(),score);
+  public Handle getResult(Handle h, Double score) {
+    return h.createHandle(score);
   }
 
   public ProductSetIntersector(Handle reference) {

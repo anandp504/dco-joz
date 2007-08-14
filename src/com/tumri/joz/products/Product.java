@@ -7,7 +7,7 @@ import com.tumri.joz.index.DictionaryManager;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class Product implements IProduct, Handle<Product> {
+public class Product implements IProduct, Comparable<Product> {
   private String m_Gid;
   private Integer m_Catalog;
   private Integer m_Category;
@@ -33,7 +33,7 @@ public class Product implements IProduct, Handle<Product> {
   private String m_BaseProductNumber;
 
   // Handle object is constructed on the fly
-  private Handle m_handle;
+  private ProductHandle m_handle;
   private int m_id = 0;
 
   public int getId() {
@@ -64,7 +64,11 @@ public class Product implements IProduct, Handle<Product> {
   }
 
   public void setCatalog(String aCatalog) {
-    m_Catalog = DictionaryManager.getInstance().getId(Attribute.kCatalog, aCatalog);
+    m_Catalog = DictionaryManager.getInstance().getId(Attribute.kCatalog, aCatalog.intern());
+  }
+
+  public String getCategoryStr() {
+    return (String)DictionaryManager.getInstance().getValue(Attribute.kCategory, m_Category);
   }
 
   public Integer getCategory() {
@@ -72,7 +76,7 @@ public class Product implements IProduct, Handle<Product> {
   }
 
   public void setCategory(String aCategory) {
-    m_Category = DictionaryManager.getInstance().getId(Attribute.kCategory, aCategory);
+    m_Category = DictionaryManager.getInstance().getId(Attribute.kCategory, aCategory.intern());
   }
 
   public Double getPrice() {
@@ -110,8 +114,12 @@ public class Product implements IProduct, Handle<Product> {
     return m_Brand;
   }
 
+  public String getBrandStr() {
+    return (String)DictionaryManager.getInstance().getValue(Attribute.kBrand, m_Brand);
+  }
+
   public void setBrand(String aBrand) {
-    m_Brand = DictionaryManager.getInstance().getId(Attribute.kBrand, aBrand);
+    m_Brand = DictionaryManager.getInstance().getId(Attribute.kBrand, aBrand.intern());
   }
 
   public Integer getSupplier() {
@@ -119,7 +127,7 @@ public class Product implements IProduct, Handle<Product> {
   }
 
   public void setSupplier(String aSupplier) {
-    m_Supplier = DictionaryManager.getInstance().getId(Attribute.kSupplier, aSupplier);
+    m_Supplier = DictionaryManager.getInstance().getId(Attribute.kSupplier, aSupplier.intern());
   }
 
   public Integer getProvider() {
@@ -127,7 +135,7 @@ public class Product implements IProduct, Handle<Product> {
   }
 
   public void setProvider(String aProvider) {
-    m_Provider = DictionaryManager.getInstance().getId(Attribute.kProvider, aProvider);
+    m_Provider = DictionaryManager.getInstance().getId(Attribute.kProvider, aProvider.intern());
   }
 
   public String getProductName() {
@@ -152,7 +160,7 @@ public class Product implements IProduct, Handle<Product> {
 
   public void setRank(String aRank) {
     try {
-      m_Rank = new Integer(aRank); // @todo explore this
+      m_Rank = new Integer(aRank);
     } catch (NumberFormatException e) {
       System.err.println("Error in parsing Rank value");
     }
@@ -287,12 +295,11 @@ public class Product implements IProduct, Handle<Product> {
     return (m_Gid != null ? m_Gid.hashCode() : 0);
   }
 
-  public Handle getHandle() {
-    return this;
-    //if (m_handle == null) {
-      //m_handle = new Handle32(getId(),DictionaryManager.getInstance().getId(IProduct.Attribute.kRank,getRank()));
-    //}
-    //return m_handle;
+  public ProductHandle getHandle() {
+    if (m_handle == null) {
+      m_handle = new ProductHandle(this, 1.0);
+    }
+    return m_handle;
   }
 }
 

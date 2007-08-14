@@ -10,8 +10,7 @@ import java.util.*;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-// @todo add handle changes to take care of randomization
-public class ProductDB { 
+public class ProductDB {
   private static ProductDB g_DB;
   // Map m_map maintains map from product id -> Product
   private RWLockedTreeMap<Integer, IProduct> m_map = new RWLockedTreeMap<Integer, IProduct>();
@@ -233,7 +232,7 @@ public class ProductDB {
 
 
   public IProduct get(Handle handle) {
-    return (handle instanceof IProduct) ? (IProduct) handle: get(handle.getOid());
+    return (handle instanceof ProductHandle) ? ((ProductHandle)handle).getProduct() : get(handle.getOid());
   }
 
   public Handle get(IProduct p) {
@@ -247,6 +246,23 @@ public class ProductDB {
     } finally {
       m_map.readerUnlock();
     }
+  }
+
+  /**
+   * Get IProduct without checking a lock, reader should call readerLock()
+   * @param id
+   * @return IProduct
+   */
+  public IProduct getInt(int id) {
+    return m_map.get(id);
+  }
+
+  public void readerLock() {
+    m_map.readerLock();
+  }
+
+  public void readerUnlock() {
+    m_map.readerUnlock();
   }
 
   public SortedSet<Handle> getAll() {
@@ -296,35 +312,17 @@ public class ProductDB {
     return ((filter != null) ? filter.clone() : filter);
   }
 
-  /**
-   * Changes the handle for a given product. This causes the indices to be rearranged
-   * @param h
-   * @return
-   */
-  public Handle changeHandle(Handle h) {
-    // @todo implement this
-    IProduct p = get(h);
-    if ( p == null)
-      return null;
-    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
-    while (iter.hasNext()) {
-      Index<?,Handle> lIndex = iter.next();
-      lIndex.deleteProduct(p);
-    }
-    iter = m_indices.values().iterator();
-    while (iter.hasNext()) {
-      Index lIndex = iter.next();
-      lIndex.addProduct(p);
-    }
-    return h;
-  }
-
   public Handle genReference() {
     int max = DictionaryManager.getInstance().maxId(IProduct.Attribute.kId);
-    if(max > 0) {
-      IProduct p = m_map.get(g_random.nextInt(max));
-      if (p != null)
-        return p.getHandle();
+    int min = DictionaryManager.getInstance().minId(IProduct.Attribute.kId);
+    if(max-min > 0) {
+      int rand = g_random.nextInt(max-min) + min;
+      SortedMap<Integer,IProduct> map = m_map.tailMap(rand);
+      if (!map.isEmpty()) {
+        IProduct p = m_map.get(map.firstKey());
+        if (p != null)
+          return p.getHandle();
+      }
     }
     return null;
   }

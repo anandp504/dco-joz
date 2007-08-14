@@ -1,81 +1,67 @@
 package com.tumri.joz.products;
 
-import java.util.Random;
+import java.util.Comparator;
 
 /**
  * Created by IntelliJ IDEA.
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class ProductHandle implements Comparable<ProductHandle> {
-  private static Random g_random = new Random();
-  private static int k_RANK =52;
-  private static int k_POS =32;
-  private static long k_POSMASK =  0x000fffff00000000L;
-  private static long k_RANKMASK = 0xfff0000000000000L;
-  private static long k_IDMASK =   0x00000000ffffffffL;
-  // The handle is a 64 bit number composed as follows:
-  // -----------------------------------------
-  // | 12-bit   |  20-bit   |   32-bit        |
-  // | rank     | position  |  product id     |
-  // -----------------------------------------
-  private long m_data;
-  // @todo this needs additional score keeping and a comparator to go with it
-  
-  public ProductHandle(long l) {
-    m_data = l;
+public class ProductHandle implements Handle<ProductHandle> {
+  private IProduct m_product;
+  private double m_score;
+  private int m_oid;
+
+
+  public ProductHandle(IProduct aProduct, double aScore) {
+    m_product = aProduct;
+    m_score = aScore;
+    m_oid = m_product.getId();
   }
 
-  public ProductHandle(String s) throws NumberFormatException {
-    m_data = new Long(s).longValue();
+  public int getOid() {
+    return m_oid;  }
+
+  public double getScore() {
+    return m_score;
   }
 
-  public ProductHandle(int id, int rank) {
-    setValue(rank,0,id);
+
+  public IProduct getProduct() {
+    return m_product;
   }
-  public void update() {
-     int pos = g_random.nextInt(0xfffff);
-     setValue(getRank(),pos,getId());
-   }
+
+  public int compareTo(ProductHandle handle) {
+    return (m_oid < handle.m_oid ? -1 :
+            m_oid == handle.m_oid ? 0 : 1);
+  }
+
 
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    ProductHandle lHandle = (ProductHandle) o;
+    ProductHandle that = (ProductHandle) o;
 
-    if (m_data != lHandle.m_data) return false;
+    if (m_oid != that.m_oid) return false;
 
     return true;
   }
 
   public int hashCode() {
-    return (int) (m_data ^ (m_data >>> 32));
+    return m_oid;
   }
 
-  public int compareTo(ProductHandle lHandle) {
-    return (m_data < lHandle.m_data ? -1 :
-            m_data == lHandle.m_data ? 0 : 1);
+
+  public int compare(ProductHandle handle1, ProductHandle handle2) {
+    if (handle1.m_score > handle2.m_score) return -1;
+    if (handle1.m_score < handle2.m_score) return 1;
+    if (handle1.m_oid < handle2.m_oid) return -1;
+    if (handle1.m_oid > handle2.m_oid) return 1;
+    return 0;
   }
 
-  public int getId() {
-    return (int)(m_data & k_IDMASK);
-  }
-
-  private int getRank() {
-    return (int)((m_data & k_RANKMASK) >> k_RANK);
-  }
-
-  private int getPos() {
-    return (int)((m_data & k_POSMASK) >> k_POS);
-  }
-
-  private void setValue(int rank,int pos,int id) {
-    m_data = ((((long)rank) << k_RANK) & k_RANKMASK) |
-             ((((long)pos) << k_POS) & k_POSMASK) |
-             ((long)id);
-  }
-  public String toString() {
-    return Long.toString(m_data);
+  public Handle createHandle(double score) {
+    return (score != m_score ? new ProductHandle(m_product,score) : this);
   }
 }

@@ -71,4 +71,19 @@ public class Handle64 implements Handle<Handle64> {
   public String toString() {
     return Long.toString(m_data);
   }
+
+
+  public double getScore() {
+    return 1.0; // @todo
+  }
+
+
+  public Handle createHandle(double score) {
+    return null;  //@Todo change body of implemented methods use File | Settings | File Templates.
+  }
+
+  public int compare(ProductHandle aProductHandle, ProductHandle aProductHandle1) {
+    return aProductHandle.compareTo(aProductHandle1); // @todo
+  }
+
 }

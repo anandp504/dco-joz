@@ -18,7 +18,7 @@ public class Dictionary<Type> implements IDictionary<Type> {
     isValid();
     synchronized (this) {
       if (!m_map.containsKey(t)) {
-        Integer id = getNextId();
+        Integer id = getNextId(t);
         m_map.put(t,id);
         if (id < m_List.size())
           m_List.set(id,t);
@@ -54,7 +54,7 @@ public class Dictionary<Type> implements IDictionary<Type> {
     }
   }
 
-  private Integer getNextId() {
+  protected Integer getNextId(Type t) {
     if (m_freeSlots.size() > 0) {
       return m_freeSlots.remove(m_freeSlots.size()-1);
     }
@@ -67,5 +67,8 @@ public class Dictionary<Type> implements IDictionary<Type> {
 
   public int maxId() {
     return m_Id;
+  }
+  public int minId() {
+    return 0;
   }
 }

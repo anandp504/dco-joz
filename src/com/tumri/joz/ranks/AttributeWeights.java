@@ -1,7 +1,7 @@
 package com.tumri.joz.ranks;
 
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
 
 /**
  * Created by IntelliJ IDEA.

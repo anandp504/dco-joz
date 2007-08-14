@@ -14,17 +14,17 @@ public class DictionaryManager {
   Hashtable<IProduct.Attribute, IDictionary> m_table = new Hashtable<IProduct.Attribute, IDictionary>();
   static {
     DictionaryManager dm = getInstance();
-    dm.addType(IProduct.Attribute.kId);
-    dm.addType(IProduct.Attribute.kCategory);
-    dm.addType(IProduct.Attribute.kProvider);
-    dm.addType(IProduct.Attribute.kRank);
-    dm.addType(IProduct.Attribute.kSupplier);
-    dm.addType(IProduct.Attribute.kBrand);
-    dm.addType(IProduct.Attribute.kCatalog);
-    dm.addType(IProduct.Attribute.kCurrency);
-    dm.addType(IProduct.Attribute.kDiscountPriceCurrency);
-    dm.addType(IProduct.Attribute.kBlackWhiteListStatus);
-    dm.addType(IProduct.Attribute.kProductType);
+    dm.addType(IProduct.Attribute.kId, new ProductDictionary());
+    dm.addType(IProduct.Attribute.kCategory, new Dictionary());
+    dm.addType(IProduct.Attribute.kProvider, new Dictionary());
+    dm.addType(IProduct.Attribute.kRank, new Dictionary());
+    dm.addType(IProduct.Attribute.kSupplier, new Dictionary());
+    dm.addType(IProduct.Attribute.kBrand, new Dictionary());
+    dm.addType(IProduct.Attribute.kCatalog, new Dictionary());
+    dm.addType(IProduct.Attribute.kCurrency, new Dictionary());
+    dm.addType(IProduct.Attribute.kDiscountPriceCurrency, new Dictionary());
+    dm.addType(IProduct.Attribute.kBlackWhiteListStatus, new Dictionary());
+    dm.addType(IProduct.Attribute.kProductType, new Dictionary());
   }
 
   public static final DictionaryManager getInstance() {
@@ -58,7 +58,7 @@ public class DictionaryManager {
   public final Object getValue(IProduct.Attribute aAttribute, int index) {
     if (m_table.containsKey(aAttribute)) {
       IDictionary dict = m_table.get(aAttribute);
-      dict.getValue(index);
+      return dict.getValue(index);
     }
     return null;
   }
@@ -69,11 +69,17 @@ public class DictionaryManager {
     }
     return 0;
   }
+  public int minId(IProduct.Attribute aAttribute) {
+    if (m_table.containsKey(aAttribute)) {
+      return m_table.get(aAttribute).minId();
+    }
+    return 0;
+  }
 
 
-  public void addType(IProduct.Attribute aAttribute) {
+  public void addType(IProduct.Attribute aAttribute, IDictionary dict) {
     if (!m_table.containsKey(aAttribute))
-      m_table.put(aAttribute,new Dictionary());
+      m_table.put(aAttribute,dict);
   }
 
   public void remove(IProduct.Attribute aAttribute, int index) {

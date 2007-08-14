@@ -116,9 +116,8 @@ public class SortedArraySet<V> implements SortedSet<V> {
     return (start() == end());
   }
 
-  @SuppressWarnings("unchecked")
   public boolean contains(Object o) {
-    // ??? This gets an "unchecked cast" exception.
+    @SuppressWarnings("unchecked")
     int s = search((V)o);
     return (s >= start() && s < end());
   }
@@ -155,9 +154,8 @@ public class SortedArraySet<V> implements SortedSet<V> {
     return false;
   }
 
-  @SuppressWarnings("unchecked")
   public boolean remove(Object o) {
-    // ??? This gets an "unchecked cast" exception.
+    @SuppressWarnings("unchecked")
     V item = (V)o;
     int insertionPoint = search(item);
     if (insertionPoint >= 0) {
@@ -209,13 +207,12 @@ public class SortedArraySet<V> implements SortedSet<V> {
     return false;
   }
 
-  @SuppressWarnings("unchecked")
   public boolean removeAll(Collection<?> aObjects) {
     Iterator<?> iter = aObjects.iterator();
     ArrayList<Integer> list = new ArrayList<Integer>();
     while (iter.hasNext()) {
       Object o = iter.next();
-      // ??? This gets an "unchecked cast" warning.
+      @SuppressWarnings("unchecked")
       int index = search((V)o);
       if (index >= 0)
         list.add(index);

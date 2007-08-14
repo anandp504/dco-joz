@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * To change this template use File | Settings | File Templates.
  */
 public class RWLockedTreeSet<Type> extends TreeSet<Type> implements RWLockedSortedSet<Type> {
+  private static final long serialVersionUID = 1L;
   private ReadWriteLock m_rwlock = new ReentrantReadWriteLock();
   private AtomicInteger m_size = new AtomicInteger(0);
   private AtomicBoolean m_modified = new AtomicBoolean(false);

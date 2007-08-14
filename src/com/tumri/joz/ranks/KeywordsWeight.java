@@ -25,7 +25,7 @@ public class KeywordsWeight extends AttributeWeights {
   }
 
   public double getWeight(Handle h) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kKeywords);
+    return h.getScore();
   }
 
   public double getWeight(Integer pid) {

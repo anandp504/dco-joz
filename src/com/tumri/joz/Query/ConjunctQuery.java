@@ -4,8 +4,8 @@ import com.tumri.joz.index.MultiSortedSet;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.AttributeWeights;
-import com.tumri.joz.utils.Result;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import java.util.SortedSet;
  */
 public class ConjunctQuery implements Query {
   private ArrayList<SimpleQuery> m_queries = new ArrayList<SimpleQuery>();
-  private SortedSet<Result> m_results;
+  private SortedSet<Handle> m_results;
   private boolean m_strict = false; // If true Strict match only no rel. ranking
   private boolean m_scan = false; // Forces a table scan approach
   private Handle  m_reference;
@@ -71,7 +71,7 @@ public class ConjunctQuery implements Query {
   }
 
   @SuppressWarnings("unchecked")
-  public SortedSet<Result> exec() {
+  public SortedSet<Handle> exec() {
     if (m_results != null) return m_results;
     // ??? This gets an "unchecked method invocation" warning.
     Collections.sort(m_queries);
@@ -88,11 +88,15 @@ public class ConjunctQuery implements Query {
   }
 
   private void buildTableScanner(ProductSetIntersector aIntersector) {
-    aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     for (int i = 0; i < m_queries.size(); i++) {
       SimpleQuery lSimpleQuery = m_queries.get(i);
-      aIntersector.addFilter(lSimpleQuery.getFilter(),lSimpleQuery.getWeight());
+      if (lSimpleQuery.getAttribute() == IProduct.Attribute.kKeywords)
+        aIntersector.include(lSimpleQuery.exec(),AttributeWeights.getWeight(IProduct.Attribute.kKeywords));
+      else
+        aIntersector.addFilter(lSimpleQuery.getFilter(),lSimpleQuery.getWeight());
     }
+    if (!aIntersector.hasIncludes())
+      aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
   }
   /**
    * Order of walking through the query set
@@ -148,7 +152,7 @@ public class ConjunctQuery implements Query {
     }
   }
 
-  public SortedSet<Result> getResults() {
+  public SortedSet<Handle> getResults() {
     return m_results;
   }
 

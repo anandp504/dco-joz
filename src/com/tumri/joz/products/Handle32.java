@@ -72,4 +72,18 @@ public class Handle32 implements Handle<Handle32> {
   public String toString() {
     return Integer.toString(getOid());
   }
+
+  public double getScore() {
+    return 1.0; // @todo
+  }
+
+
+  public Handle createHandle(double score) {
+    return null;  //@ToDo change body of implemented methods use File | Settings | File Templates.
+  }
+
+
+  public int compare(ProductHandle aProductHandle, ProductHandle aProductHandle1) {
+    return aProductHandle.compareTo(aProductHandle1); // @todo
+  }
 }

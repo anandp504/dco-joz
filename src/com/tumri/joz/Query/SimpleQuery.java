@@ -4,6 +4,7 @@ import com.tumri.joz.filter.Filter;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.AttributeWeights;
 import com.tumri.joz.ranks.IWeight;
 
