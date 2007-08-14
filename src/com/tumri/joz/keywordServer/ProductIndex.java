@@ -131,8 +131,9 @@ public class ProductIndex {
   }
 
   public void addProducts(ArrayList<IProduct> products) {
+    IndexModifier index_modifier = null;
     try {
-      IndexModifier index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
+      index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
       for (int i = 0; i < products.size(); i++) {
         IProduct p = products.get(i);
         Document doc = getDocument(p);
@@ -144,12 +145,17 @@ public class ProductIndex {
     } catch (IOException e) {
       log.error("Exception while adding products",e);
     } finally {
+      try {
+        if (index_modifier != null) index_modifier.close();
+      } catch (IOException e) {
+      }
     }
   }
 
   public void deleteProducts(ArrayList<IProduct> products) {
+    IndexModifier index_modifier = null;
     try {
-      IndexModifier index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
+      index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
       for (int i = 0; i < products.size(); i++) {
         IProduct p = products.get(i);
         index_modifier.deleteDocuments(new Term("id",p.getGId()));
@@ -160,6 +166,10 @@ public class ProductIndex {
     } catch (IOException e) {
       log.error("Exception while deleting products",e);
     } finally {
+      try {
+        if (index_modifier != null) index_modifier.close();
+      } catch (IOException e) {
+      }
     }
   }
   /**
