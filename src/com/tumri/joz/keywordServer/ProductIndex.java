@@ -1,6 +1,5 @@
 package com.tumri.joz.keywordServer;
 
-import com.tumri.joz.index.RWLocked;
 import com.tumri.joz.products.*;
 import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
@@ -13,22 +12,22 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.memory.AnalyzerUtil;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by IntelliJ IDEA.
  * User: snawathe
  * Maintains the lucene index of all products, provides offline means of indexing the products
  */
-public class ProductIndex implements RWLocked {
+public class ProductIndex {
   static Logger log = Logger.getLogger(ProductIndex.class);
   private static final String LUCENEDIR = "lucene";
   private static AtomicReference<ProductIndex> g_Instance = new AtomicReference<ProductIndex>();
@@ -46,11 +45,8 @@ public class ProductIndex implements RWLocked {
   private Set<String> deboostCategories = new HashSet<String>();
 
   private String deboostCategoryFile = null;
-  private IndexModifier m_index_modifier = null;
   private File m_index_dir;
-  private IndexSearcher m_searcher = null;
-  private ReadWriteLock m_rwlock = new ReentrantReadWriteLock();
-
+  private AtomicReference<IndexSearcher> m_searcher = new AtomicReference<IndexSearcher>();
 
   /**
    * @return singleton instance of LuceneDB
@@ -92,8 +88,7 @@ public class ProductIndex implements RWLocked {
       if (f.exists() && f.isDirectory()) {
         m_index_dir = f;
         log.info("Loading keyword index from " + f.getAbsolutePath());
-        m_index_modifier = new IndexModifier(f,getAnalyzer(false),false);
-        m_searcher = new IndexSearcher(new RAMDirectory(f));
+        m_searcher.set(new IndexSearcher(new RAMDirectory(f)));
       } else {
         log.error("Bad index directory: " + f.getAbsolutePath());
         log.error("Keyword searching disbled.");
@@ -107,11 +102,10 @@ public class ProductIndex implements RWLocked {
   public ArrayList<Handle> search(String query_string, double min_score, int max_docs) {
     ArrayList<Handle> alist = new ArrayList<Handle>();
     ProductDB db = ProductDB.getInstance();
-    readerLock();
     try {
       Query q = createQuery(query_string);
       if (q != null) {
-        Hits hits = m_searcher.search(q);
+        Hits hits = m_searcher.get().search(q);
         int len = (hits.length() < max_docs ? hits.length() : max_docs);
         db.readerLock();
         try {
@@ -131,42 +125,41 @@ public class ProductIndex implements RWLocked {
     } catch (IOException e) {
       log.error("Exception",e);
     } finally {
-      readerUnlock();
     }
     System.out.println("returned "+alist.size() + " products");
     return alist;
   }
 
   public void addProducts(ArrayList<IProduct> products) {
-    writerLock();
     try {
+      IndexModifier index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
       for (int i = 0; i < products.size(); i++) {
         IProduct p = products.get(i);
         Document doc = getDocument(p);
-        m_index_modifier.addDocument(doc,getAnalyzer(false));
+        index_modifier.addDocument(doc,getAnalyzer(false));
       }
-      m_searcher.close();
-      m_searcher = new IndexSearcher(new RAMDirectory(m_index_dir));
+      index_modifier.close();
+      m_searcher.get().close();
+      m_searcher.set(new IndexSearcher(new RAMDirectory(m_index_dir)));
     } catch (IOException e) {
       log.error("Exception while adding products",e);
     } finally {
-      writerUnlock();
     }
   }
 
   public void deleteProducts(ArrayList<IProduct> products) {
-    writerLock();
     try {
+      IndexModifier index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
       for (int i = 0; i < products.size(); i++) {
         IProduct p = products.get(i);
-        m_index_modifier.deleteDocuments(new Term("id",p.getGId()));
+        index_modifier.deleteDocuments(new Term("id",p.getGId()));
       }
-      m_searcher.close();
-      m_searcher = new IndexSearcher(new RAMDirectory(m_index_dir));
+      index_modifier.close();
+      m_searcher.get().close();
+      m_searcher.set(new IndexSearcher(new RAMDirectory(m_index_dir)));
     } catch (IOException e) {
       log.error("Exception while deleting products",e);
     } finally {
-      writerUnlock();
     }
   }
   /**
@@ -390,34 +383,6 @@ public class ProductIndex implements RWLocked {
     }
   }
 
-  public void readerLock() {
-    try {
-      m_rwlock.readLock().lock();
-    } catch (Exception e) {
-      log.error("Exception reader locking ",e);
-    }
-  }
-  public void readerUnlock() {
-    try {
-      m_rwlock.readLock().unlock();
-    } catch (Exception e) {
-      log.error("Exception reader unlocking ",e);
-    }
-  }
-  public void writerLock() {
-    try {
-      m_rwlock.writeLock().lock();
-    } catch (Exception e) {
-      log.error("Exception writer locking ",e);
-    }
-  }
-  public void writerUnlock() {
-    try {
-      m_rwlock.writeLock().unlock();
-    } catch (Exception e) {
-      log.error("Exception writer unlocking ",e);
-    }
-  }
 
   @Test
   public void test() {
@@ -425,7 +390,7 @@ public class ProductIndex implements RWLocked {
     long start = System.currentTimeMillis();
     for (int i=0;i<1;i++) {
       try {
-        pi.m_searcher.search(createQuery("canon eos 400D"));
+        pi.m_searcher.get().search(createQuery("canon eos 400D"));
       } catch (IOException e) {
       }
     }
