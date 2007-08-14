@@ -148,19 +148,19 @@ public class CmdGetAdData extends CommandOwnWriting
 	Realm realm; // not initialized on purpose
 	String store_id = null;
 	String theme = null;
-	Uri uri; // not initialized on purpose
+	JozURI uri; // not initialized on purpose
 
 	String t_spec_param = rqst.get_t_spec ();
 
-	if (t_spec_param != null)
+	if (t_spec_param != null) // FIXME: todo: (and name-is-t-spec-p)
 	{
 	    t_spec_name = t_spec_param;
 	    String url = rqst.get_url ();
 	    if (url != null)
 	    {
-		realm = choose_best_realm_for_uri (Uri.build_lax_uri (url));
+		realm = choose_best_realm_for_uri (JozURI.build_lax_uri (url));
 		if (realm == null)
-		    realm = new Realm (Uri.build_lax_uri (JozData.tspec_db.get_default_realm_url ()));
+		    realm = new Realm (JozURI.build_lax_uri (JozData.tspec_db.get_default_realm_url ()));
 	    }
 	    else
 	    {
@@ -174,21 +174,21 @@ public class CmdGetAdData extends CommandOwnWriting
 	    realm = new Realm (store_id);
 	}
 	else if ((theme = rqst.get_theme ()) != null
-		 && (t_spec_name = choose_t_spec_for_theme (rqst)) != null)
+		 && (t_spec_name = choose_t_spec_for_theme (theme)) != null)
 	{
 	    // got it
 	    realm = new Realm (theme);
 	}
 	// NOTE: We're picking up {theme} set in the previous test.
 	else if (theme != null
-		 && (uri = Uri.build_lax_uri (theme)) != null
+		 && (uri = JozURI.build_lax_uri (theme)) != null
 		 && (t_spec_name = choose_t_spec_for_uri (uri)) != null)
 	{
 	    // got it
 	    realm = new Realm (uri);
 	}
 	else if (rqst.get_url () != null
-		 && (uri = Uri.build_lax_uri (rqst.get_url ())) != null
+		 && (uri = JozURI.build_lax_uri (rqst.get_url ())) != null
 		 && (t_spec_name = choose_t_spec_for_uri (uri)) != null)
 	{
 	    // got it
@@ -197,7 +197,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	else
 	{
 	    String default_realm_url = JozData.tspec_db.get_default_realm_url ();
-	    Uri default_realm_uri = Uri.build_lax_uri (default_realm_url);
+	    JozURI default_realm_uri = JozURI.build_lax_uri (default_realm_url);
 	    t_spec_name = choose_t_spec_for_realm (default_realm_uri);
 	    realm = new Realm (default_realm_uri);
 	}
@@ -208,37 +208,67 @@ public class CmdGetAdData extends CommandOwnWriting
     }
 
     private Realm
-    choose_best_realm_for_uri (Uri uri)
+    choose_best_realm_for_uri (JozURI uri)
     {
-	return null; // FIXME: wip
+	// FIXME: for now
+	MappingObjList mol = JozData.mapping_db.get_url_t_specs (uri);
+	if (mol == null || mol.size () == 0)
+	    return null;
+	List<MappingObj> lmo = mol.get_list ();
+	MappingObj mo = lmo.get (0);
+	return new Realm (mo.get_t_spec ());
     }
 
     // If there are multiple strategies for this theme then pick one randomly.
-    // If nothing matches, return nil.  Returns the NAME of the t-spec, not
-    // the t-spec itself.
+    // If nothing matches, return nil.  Returns the NAME of the t-spec, not the
+    // t-spec itself.
 
     private String
     choose_t_spec_for_store_id (String store_id)
     {
-	return null; // FIXME: wip
+	// FIXME: for now
+	MappingObjList mol = JozData.mapping_db.get_store_id_t_specs (store_id);
+	if (mol == null || mol.size () == 0)
+	    return null;
+	List<MappingObj> lmo = mol.get_list ();
+	MappingObj mo = lmo.get (0);
+	return mo.get_t_spec ();
     }
 
     private String
-    choose_t_spec_for_theme (AdDataRequest rqst)
+    choose_t_spec_for_theme (String theme)
     {
-	return null; // FIXME: wip
+	// FIXME: for now
+	MappingObjList mol = JozData.mapping_db.get_theme_t_specs (theme);
+	if (mol == null || mol.size () == 0)
+	    return null;
+	List<MappingObj> lmo = mol.get_list ();
+	MappingObj mo = lmo.get (0);
+	return mo.get_t_spec ();
     }
 
     private String
-    choose_t_spec_for_uri (Uri uri)
+    choose_t_spec_for_uri (JozURI uri)
     {
-	return null; // FIXME: wip
+	// FIXME: for now
+	MappingObjList mol = JozData.mapping_db.get_url_t_specs (uri);
+	if (mol == null || mol.size () == 0)
+	    return null;
+	List<MappingObj> lmo = mol.get_list ();
+	MappingObj mo = lmo.get (0);
+	return mo.get_t_spec ();
     }
 
     private String
-    choose_t_spec_for_realm (Uri realm_uri)
+    choose_t_spec_for_realm (JozURI realm_uri)
     {
-	return null; // FIXME: wip
+	// FIXME: for now
+	MappingObjList mol = JozData.mapping_db.get_url_t_specs (realm_uri);
+	if (mol == null || mol.size () == 0)
+	    return null;
+	List<MappingObj> lmo = mol.get_list ();
+	MappingObj mo = lmo.get (0);
+	return mo.get_t_spec ();
     }
 
     // Write the chosen product list back to the client.

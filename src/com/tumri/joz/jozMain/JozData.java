@@ -58,8 +58,23 @@ class JozData
 
 	try
 	{
+	    log.info ("Loading mappings ...");
+	    mapping_db = new TmpMappingDB (data_path + "/mappings/mapping.lisp");
+	}
+	catch (Exception e)
+	{
+	    log.error ("Unable to initialize Mapping DB: "
+		       + e.toString ());
+	}
+
+	try
+	{
+	    log.info ("Loading t-specs ...");
 	    tspec_db = new TmpTSpecDB (data_path + "/t-specs/t-specs.lisp");
+	    log.info ("Materializing t-specs ...");
+/*
 	    tspec_db.materialize ();
+*/
 	}
 	catch (Exception e)
 	{
@@ -160,7 +175,7 @@ class JozData
     load_products (String dir)
 	throws Exception
     {
-	String file = dir + "/MUP/MUP-USpub0017_MUP_US0071-US-DEFAULT_.ifasl";
+	String file = dir + "/MUP/MUP-USpub0025_MUP_US0092-US-DEFAULT_.ifasl";
 	FileInputStream in = new FileInputStream (file);
 	FASLReader fr = new FASLReader (in);
 	fr.setReadKeywordsAsKeywords (true);
@@ -221,7 +236,12 @@ class JozData
 	String merchant = IFASLUtils.toString (iter.next (), "merchant");
 	String name = IFASLUtils.toString (iter.next (), "name");
 	String description = IFASLUtils.toString (iter.next (), "description");
+/* FIXME: rank type seems to be real
 	Integer rank = IFASLUtils.toInteger (iter.next (), "rank");
+*/
+	iter.next (); // swallow rank
+	Integer rank = new Integer (0);
+/* end rank temp hack */
 	String thumbnail_url = IFASLUtils.toString (iter.next (), "thumbnail url");
 	String purchase_url = IFASLUtils.toString (iter.next (), "purchase url");
 	String image_url = IFASLUtils.toString (iter.next (), "image url");
@@ -241,7 +261,7 @@ class JozData
 	// E.g. _1296.US3660122 -> 3660122
 	String gid = product_id.substring (product_id.indexOf ('.'));
 	while (gid.charAt (0) < '0' || gid.charAt (0) > '9')
-	    gid = gid.substring(1);
+	    gid = gid.substring (1);
 
 	p.setGId (gid);
 	p.setCatalog (catalog);
@@ -274,7 +294,7 @@ class JozData
     load_taxonomy (String dir)
 	throws Exception
     {
-	String file = dir + "/MUP/MUP-USpub0017_MUP_US0071-US-DEFAULT_.taxonomy";
+	String file = dir + "/MUP/MUP-USpub0025_MUP_US0092-US-DEFAULT_.taxonomy";
 	FileReader fr = new FileReader (file);
 	LineNumberReader rdr = new LineNumberReader (fr);
 	Taxonomy tax = Taxonomy.getInstance ();

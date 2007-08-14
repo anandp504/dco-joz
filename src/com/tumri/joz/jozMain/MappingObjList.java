@@ -20,6 +20,8 @@ public class MappingObjList
 	_list.add (obj);
     }
 
+    public int size () { return _list.size (); }
+
     // implementation details -------------------------------------------------
 
     ArrayList<MappingObj> _list = new ArrayList<MappingObj> ();

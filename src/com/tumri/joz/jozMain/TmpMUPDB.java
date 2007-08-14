@@ -19,7 +19,6 @@ import com.tumri.zini.transport.FASLType;
 import com.tumri.zini.transport.FASLReader;
 
 import com.tumri.utils.strings.EString;
-import com.tumri.utils.strings.ProductName;
 import com.tumri.utils.sexp.*;
 import com.tumri.utils.ifasl.IFASLUtils;
 
@@ -93,10 +92,10 @@ public class TmpMUPDB implements MUPDB
     private int _next_id;
 
     // Given an internal product id, return the product's name.
-    ArrayList<ProductName> _product_name_table;
+    ArrayList<String> _product_name_table;
 
     // Given a product's name, return its internal product id.
-    HashMap<ProductName, Integer> _product_name_map;
+    HashMap<String, Integer> _product_name_map;
 
     // FIXME: wip
     HashMap<Integer, MUPProductObj> _product_db;
@@ -126,8 +125,8 @@ public class TmpMUPDB implements MUPDB
 	// when the table grows to handle the current 200k products
 	// so that it won't grow again for awhile.
 	// PERF: tuning opportunities
-	_product_name_table = new ArrayList<ProductName> (120000);
-	_product_name_map = new HashMap<ProductName, Integer> (120000, 0.85f);
+	_product_name_table = new ArrayList<String> (120000);
+	_product_name_map = new HashMap<String, Integer> (120000, 0.85f);
 
 	log.info ("Loading MUP products from " + ifasl_path);
 	load_products_from_ifasl_file (ifasl_path);
@@ -197,7 +196,7 @@ public class TmpMUPDB implements MUPDB
 		    continue;
 		}
 
-		ProductName pname = obj.get_guid ();
+		String pname = obj.get_guid ();
 		int internal_id = lookup_or_alloc_product (pname);
 		// FIXME: wip
 		_product_db.put (new Integer (internal_id), obj);
@@ -260,7 +259,7 @@ public class TmpMUPDB implements MUPDB
 		FASLType name = iter.next ();
 		if (name.type () != FASLType.zini_symbol)
 		    throw new BadMUPDataException ("bad string entry: " + t.toString ());
-		ProductName pname = ifasl_to_product_name (name);
+		String pname = ifasl_to_product_name (name);
 
 		MUPStringObj obj = new MUPStringObj (t, iter);
 
@@ -319,19 +318,14 @@ public class TmpMUPDB implements MUPDB
 	}
     }
 
-    private ProductName
+    private String
     ifasl_to_product_name (FASLType t)
     {
 	switch (t.type ())
 	{
 	case FASLType.zini_symbol:
-	    if (IFASLUtils.isUnsigned16Symbol (t))
-		return new ProductName (Sexp.ENCODE_UCS8OR16BE,
-					t.getBytes ());
-	    else
-		return new ProductName (Sexp.ENCODE_UCS8, t.getBytes ());
 	case FASLType.string:
-	    return new ProductName (Sexp.ENCODE_UCS8, t.getBytes ());
+	    return t.toString ();
 	default:
 	    assert (false);
 	    return null;
@@ -339,7 +333,7 @@ public class TmpMUPDB implements MUPDB
     }
 
     private int
-    lookup_or_alloc_product (ProductName name)
+    lookup_or_alloc_product (String name)
     {
 	Integer entry = _product_name_map.get (name);
 	if (entry != null)

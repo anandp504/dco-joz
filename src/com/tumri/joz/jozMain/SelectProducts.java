@@ -5,6 +5,11 @@ package com.tumri.joz.jozMain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.SortedSet;
+
+import com.tumri.joz.products.*;
+import com.tumri.joz.Query.*;
+import com.tumri.joz.utils.Result;
 
 public class SelectProducts
 {
@@ -21,11 +26,34 @@ public class SelectProducts
 	if (n > 100)
 	    n = 100;
 
+/* temp hack, kept in for now
 	for (int i = 0; i < n; ++i)
 	{
 	    int r = random.nextInt (100000);
 	    MUPProductObj p = JozData.mup_db.get_entry (r);
 	    l.add (new SelectedProduct (p));
+	}
+*/
+
+	ProductDB pdb = ProductDB.getInstance ();
+	Handle ref = pdb.genReference ();
+	ConjunctQuery cjq = t_spec.get_query ().getQueries ().get (0);
+	cjq.setStrict (true);
+	cjq.setReference (ref);
+	SortedSet<Result> results = cjq.exec ();
+
+	int nr_results = results.size ();
+	while (l.size () < n)
+	{
+	    for (Result res : results)
+	    {
+		int id = res.getOid ();
+		IProduct ip = pdb.get (id);
+		MUPProductObj p = new MUPProductObj (ip);
+		l.add (new SelectedProduct (p));
+		if (l.size () == n)
+		    break;
+	    }
 	}
 
 	return l;

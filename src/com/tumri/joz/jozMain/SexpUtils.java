@@ -26,12 +26,30 @@ public class SexpUtils
     {
 	if (! iter.hasNext ())
 	    throw new BadGetNextException ("missing value for " + param_name);
-	String s = get_next_symbol (param_name, iter);
-	if (s.equals ("t"))
-	    return new Boolean (true);
-	if (s.equals ("nil"))
-	    return new Boolean (false);
-	throw new BadGetNextException ("bad value for " + param_name);
+	Sexp e = iter.next ();
+
+	// nil = empty list = boolean false
+	if (e.isSexpList ())
+	{
+	    SexpList l = e.toSexpList ();
+	    if (l.size () == 0)
+		return new Boolean (false);
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
+	}
+
+	if (e.isSexpSymbol ())
+	{
+	    SexpSymbol s = e.toSexpSymbol ();
+	    if (s.equalsStringIgnoreCase ("t"))
+		return new Boolean (true);
+	    // ??? in case nil slips through as a symbol
+	    if (s.equalsStringIgnoreCase ("nil"))
+		return new Boolean (false);
+	}
+
+	throw new BadGetNextException ("bad value for " + param_name
+				       + ": " + e.toString ());
     }
 
     public static Enums.MaybeBoolean
@@ -41,13 +59,25 @@ public class SexpUtils
 	if (! iter.hasNext ())
 	    throw new BadGetNextException ("missing value for " + param_name);
 	Sexp e = iter.next ();
+
+	// nil = empty list = boolean false
+	if (e.isSexpList ())
+	{
+	    SexpList l = e.toSexpList ();
+	    if (l.size () == 0)
+		return Enums.MaybeBoolean.FALSE;
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
+	}
+
 	if (e.isSexpSymbol ())
 	{
 	    SexpSymbol s = e.toSexpSymbol ();
-	    if (s.equalsString ("nil"))
-		return Enums.MaybeBoolean.FALSE;
 	    if (s.equalsString ("t"))
 		return Enums.MaybeBoolean.TRUE;
+	    // ??? in case nil slips through as a symbol
+	    if (s.equalsString ("nil"))
+		return Enums.MaybeBoolean.FALSE;
 	    // fall through
 	}
 	else if (e.isSexpKeyword ())
@@ -58,7 +88,8 @@ public class SexpUtils
 	    // fall through
 	}
 
-	throw new BadGetNextException ("bad value for " + param_name);
+	throw new BadGetNextException ("bad value for " + param_name
+				       + ": " + e.toString ());
     }
 
     public static String
@@ -69,7 +100,8 @@ public class SexpUtils
 	    throw new BadGetNextException ("missing value for " + param_name);
 	Sexp e = iter.next ();
 	if (! e.isSexpSymbol ())
-	    throw new BadGetNextException ("bad value for " + param_name);
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
 	SexpSymbol s = e.toSexpSymbol ();
 	return s.toStringValue ();
     }
@@ -82,7 +114,8 @@ public class SexpUtils
 	    throw new BadGetNextException ("missing value for " + param_name);
 	Sexp e = iter.next ();
 	if (! e.isSexpString ())
-	    throw new BadGetNextException ("bad value for " + param_name);
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
 	SexpString s = e.toSexpString ();
 	return s.toStringValue ();
     }
@@ -95,7 +128,8 @@ public class SexpUtils
 	    throw new BadGetNextException ("missing value for " + param_name);
 	Sexp e = iter.next ();
 	if (! e.isSexpInteger ())
-	    throw new BadGetNextException ("bad value for " + param_name);
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
 	SexpInteger n = e.toSexpInteger ();
 	try
 	{
@@ -115,8 +149,18 @@ public class SexpUtils
 	if (! iter.hasNext ())
 	    throw new BadGetNextException ("missing value for " + param_name);
 	Sexp e = iter.next ();
+
+	if (e.isSexpInteger ())
+	{
+	    SexpInteger si = e.toSexpInteger ();
+	    Integer i = si.toNativeInteger32 ();
+	    return new Double (i);
+	}
+
 	if (! e.isSexpReal ())
-	    throw new BadGetNextException ("bad value for " + param_name);
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
+
 	SexpReal r = e.toSexpReal ();
 	try
 	{
@@ -127,6 +171,65 @@ public class SexpUtils
 	    throw new BadGetNextException ("non-64-bit-double value for "
 					   + param_name);
 	}
+    }
+
+    // Same as {get_next_double} except return null for NIL.
+
+    public static Double
+    get_next_maybe_double (String param_name, Iterator<Sexp> iter)
+	throws BadGetNextException
+    {
+	if (! iter.hasNext ())
+	    throw new BadGetNextException ("missing value for " + param_name);
+	Sexp e = iter.next ();
+
+	// nil = empty list = boolean false
+	// NOTE: We don't handle "nil slipping through as a symbol" here on
+	// purpose.  It's a bogosity that shouldn't exist, so we don't let it
+	// proliferate.
+	if (e.isSexpList ())
+	{
+	    SexpList l = e.toSexpList ();
+	    if (l.size () == 0)
+		return null;
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
+	}
+
+	if (e.isSexpInteger ())
+	{
+	    SexpInteger si = e.toSexpInteger ();
+	    Integer i = si.toNativeInteger32 ();
+	    return new Double (i);
+	}
+
+	if (! e.isSexpReal ())
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
+	SexpReal r = e.toSexpReal ();
+	try
+	{
+	    return r.toNativeReal64 ();
+	}
+	catch (NumberFormatException ex)
+	{
+	    throw new BadGetNextException ("non-64-bit-double value for "
+					   + param_name);
+	}
+    }
+
+    public static SexpList
+    get_next_list (String param_name, Iterator<Sexp> iter)
+	throws BadGetNextException
+    {
+	if (! iter.hasNext ())
+	    throw new BadGetNextException ("missing value for " + param_name);
+	Sexp e = iter.next ();
+	if (! e.isSexpList ())
+	    throw new BadGetNextException ("bad value for " + param_name
+					   + ": " + e.toString ());
+	SexpList l = e.toSexpList ();
+	return l;
     }
 
     public static Sexp

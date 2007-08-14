@@ -119,6 +119,8 @@ public class TSpec
     process_iter (Iterator<Sexp> iter)
 	throws BadTSpecException
     {
+	DictionaryManager dm = DictionaryManager.getInstance ();
+
 	while (iter.hasNext ())
 	{
 	    Sexp elm = iter.next ();
@@ -171,80 +173,114 @@ public class TSpec
 		}
 
 		case LOAD_TIME_KEYWORD_EXPR:
-		    t = iter.next ();
 		    // FIXME: wip
+		    t = iter.next ();
 		    break;
 
 		case ZINI_KEYWORDS:
-		    t = iter.next ();
 		    // FIXME: wip
+		    t = iter.next ();
 		    break;
 
 		case INCLUDE_CATEGORIES:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
-		    ArrayList<Integer> values = getValues (IProduct.Attribute.kCategory, value);
-		    sq =  new AttributeQuery (IProduct.Attribute.kCategory, values);
+		    // FIXME: wip
+		    SexpList l = SexpUtils.get_next_list (name, iter);
+		    Iterator<Sexp> iter2 = l.iterator ();
+		    ArrayList<Integer> values = get_attr_values (name, IProduct.Attribute.kCategory, iter2);
+		    sq = new AttributeQuery (IProduct.Attribute.kCategory, values);
 		    break;
 		}
 
 		case EXCLUDE_CATEGORIES:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
-		    ArrayList<Integer> values = getValues (IProduct.Attribute.kCategory, value);
-		    sq =  new AttributeQuery (IProduct.Attribute.kCategory, values);
+		    // FIXME: wip
+		    SexpList l = SexpUtils.get_next_list (name, iter);
+		    Iterator<Sexp> iter2 = l.iterator ();
+		    ArrayList<Integer> values = get_attr_values (name, IProduct.Attribute.kCategory, iter2);
+		    sq = new AttributeQuery (IProduct.Attribute.kCategory, values);
 		    sq.setNegation (true);
 		    break;
 		}
 
 		case ATTR_INCLUSIONS:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
 		    // FIXME: wip
-		    break;
+		    SexpList l = SexpUtils.get_next_list (name, iter);
+		    for (Sexp e : l)
+		    {
+			if (! e.isSexpList ())
+			    throw new BadTSpecException ("unexpected value for "
+							 + name + ": "
+							 + e.toString ());
+			SexpList attr_expr = e.toSexpList ();
+			sq = get_query (name, attr_expr);
+			_cjquery.addQuery (sq);
+		    }
+		    continue; // we've already added the queries
 		}
 
 		case ATTR_EXCLUSIONS:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
 		    // FIXME: wip
-		    break;
+		    SexpList l = SexpUtils.get_next_list (name, iter);
+		    for (Sexp e : l)
+		    {
+			if (! e.isSexpList ())
+			    throw new BadTSpecException ("unexpected value for "
+							 + name + ": "
+							 + e.toString ());
+			SexpList attr_expr = e.toSexpList ();
+			sq = get_query (name, attr_expr);
+			sq.setNegation (true);
+			_cjquery.addQuery (sq);
+		    }
+		    continue; // we've already added the queries
 		}
 
 		case INCOME_PERCENTILE:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
 		    // FIXME: wip
+		    SexpList range = SexpUtils.get_next_list (name, iter);
+		    ArrayList<Double> values = get_range_values (name, range);
+/*
+		    sq = new RangeQuery (IProduct.Attribute.???,
+					 values.get (0), values.get (1));
+*/
 		    break;
 		}
 
 		case REF_PRICE_CONSTRAINTS:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
-		    ArrayList<Double> values = getRangeValues (value);
-		    sq =  new RangeQuery (IProduct.Attribute.kPrice, values.get (0), values.get (1));
+		    // FIXME: wip
+		    SexpList range = SexpUtils.get_next_list (name, iter);
+		    ArrayList<Double> values = get_range_values (name, range);
+		    sq = new RangeQuery (IProduct.Attribute.kPrice,
+					 values.get (0), values.get (1));
 		    break;
 		}
 
 		case RANK_CONSTRAINTS:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
 		    // FIXME: wip
+		    value = SexpUtils.get_next_string (name, iter);
 		    break;
 		}
 
 		case CPC_RANGE:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
-		    ArrayList<Double> values = getRangeValues (value);
-		    sq =  new RangeQuery (IProduct.Attribute.kCPC, values.get (0), values.get (1));
+		    // FIXME: wip
+		    SexpList range = SexpUtils.get_next_list (name, iter);
+		    ArrayList<Double> values = get_range_values (name, range);
+		    sq = new RangeQuery (IProduct.Attribute.kCPC,
+					 values.get (0), values.get (1));
 		    break;
 		}
 
 		case CPO_RANGE:
 		{
-		    value = SexpUtils.get_next_string (name, iter);
 		    // FIXME: wip
+		    value = SexpUtils.get_next_string (name, iter);
 		    break;
 		}
 
@@ -307,27 +343,80 @@ public class TSpec
     }
 
     private ArrayList<Double>
-    getRangeValues(String value)
+    get_range_values (String name, SexpList range)
+	throws SexpUtils.BadGetNextException
     {
-	// FIXME: use of StringTokenizer is discouraged
-	StringTokenizer tokens = new StringTokenizer(value, " ", false);
 	ArrayList<Double> vals = new ArrayList<Double>();
-	while (tokens.hasMoreTokens())
+	Iterator<Sexp> iter = range.iterator ();
+	while (iter.hasNext ())
 	{
-	    String token = tokens.nextToken().trim();
-	    try
-	    {
-		vals.add(Double.parseDouble(token));
-	    }
-	    catch (NumberFormatException e)
-	    {
-		vals.add(new Double(vals.size() == 0 ? 0 : 100000));
-	    }
+	    Double d = SexpUtils.get_next_maybe_double (name, iter);
+	    // watch for NIL
+	    if (d == null)
+		d = new Double (vals.size () == 0 ? 0 : 100000);
+	    vals.add (d);
 	}
-	while (vals.size() < 2)
+	while (vals.size () < 2)
 	{
-	    vals.add(new Double(vals.size() == 0 ? 0 : 100000));
+	    vals.add (new Double (vals.size () == 0 ? 0 : 100000));
 	}
 	return vals;
+    }
+
+    private ArrayList<Integer>
+    get_attr_values (String name, IProduct.Attribute attr_kind,
+		     Iterator<Sexp> iter)
+	throws SexpUtils.BadGetNextException
+    {
+	DictionaryManager dm = DictionaryManager.getInstance ();
+	ArrayList<Integer> values = new ArrayList<Integer> ();
+	while (iter.hasNext ())
+	{
+	    String cat = SexpUtils.get_next_symbol (name, iter);
+	    Integer cat_id = dm.getId (attr_kind, cat);
+	    values.add (cat_id);
+	}
+	return values;
+    }
+
+    private SimpleQuery
+    get_query (String name, SexpList attr_expr)
+	throws BadTSpecException, SexpUtils.BadGetNextException
+    {
+	DictionaryManager dm = DictionaryManager.getInstance ();
+	if (attr_expr.size () < 2)
+	    throw new BadTSpecException ("unexpected value for "
+					 + name + ": "
+					 + attr_expr.toString ());
+	Iterator<Sexp> iter = attr_expr.iterator ();
+	String attr_kind_name = SexpUtils.get_next_symbol (name, iter);
+	IProduct.Attribute attr_kind = IProduct.Attribute.kNone;
+	if (attr_kind_name.equalsIgnoreCase ("provider"))
+	{
+	    attr_kind = IProduct.Attribute.kProvider;
+	}
+	else if (attr_kind_name.equalsIgnoreCase ("supplier"))
+	{
+	    attr_kind = IProduct.Attribute.kSupplier;
+	}
+	else if (attr_kind_name.equalsIgnoreCase ("brand"))
+	{
+	    attr_kind = IProduct.Attribute.kBrand;
+	}
+	else
+	{
+	    throw new BadTSpecException ("unexpected value for "
+					 + name + ": "
+					 + attr_expr.toString ());
+	}
+	ArrayList<Integer> values = new ArrayList<Integer> ();
+	while (iter.hasNext ())
+	{
+	    String attr_value = SexpUtils.get_next_symbol (name, iter);
+	    Integer value_id = dm.getId (attr_kind, attr_value);
+	    values.add (value_id);
+	}
+	SimpleQuery sq = new AttributeQuery (attr_kind, values);
+	return sq;
     }
 }

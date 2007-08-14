@@ -9,7 +9,7 @@ public class Realm
 	// FIXME: wip
     }
 
-    public Realm (Uri u)
+    public Realm (JozURI u)
     {
 	// FIXME: wip
     }

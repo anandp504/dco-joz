@@ -25,29 +25,35 @@ public class TmpMappingDB implements MappingDB
 	init (mapping_path);
     }
 
-    public List<MappingObj>
-    get_realm_t_specs (String realm)
+    public MappingObjList
+    get_url_t_specs (String url)
     {
-	return null;
+	return _url_db.get (url);
     }
 
-    public List<MappingObj>
+    public MappingObjList
+    get_url_t_specs (JozURI uri)
+    {
+	return _url_db.get (uri.get_orig_string ()); // FIXME
+    }
+
+    public MappingObjList
     get_theme_t_specs (String theme)
     {
-	return null;
+	return _theme_db.get (theme);
     }
 
-    public List<MappingObj>
+    public MappingObjList
     get_store_id_t_specs (String store_id)
     {
-	return null;
+	return _store_id_db.get (store_id);
     }
 
     // implementation details -------------------------------------------------
 
     private static Logger log = Logger.getLogger (TmpMappingDB.class);
 
-    HashMap<String, MappingObjList> _realm_db;
+    HashMap<String, MappingObjList> _url_db;
     HashMap<String, MappingObjList> _theme_db;
     HashMap<String, MappingObjList> _store_id_db;
 
@@ -63,7 +69,7 @@ public class TmpMappingDB implements MappingDB
     load_mappings_from_lisp_file (String mapping_path)
 	throws FileNotFoundException, IOException, BadMappingDataException
     {
-	_realm_db = new HashMap<String, MappingObjList> ();
+	_url_db = new HashMap<String, MappingObjList> ();
 	_theme_db = new HashMap<String, MappingObjList> ();
 	_store_id_db = new HashMap<String, MappingObjList> ();
 
@@ -127,15 +133,16 @@ public class TmpMappingDB implements MappingDB
 	    else
 		modified = tmp_modified.toSexpInteger ().toNativeInteger32 ();
 
+	    // NOTE: :realm is actually a URL mapping
 	    if (kind.equalsStringIgnoreCase (":realm"))
 	    {
-		MappingObjList mol = _realm_db.get (domain);
+		MappingObjList mol = _url_db.get (domain);
 		if (mol == null)
 		{
 		    mol = new MappingObjList ();
-		    _realm_db.put (domain, mol);
+		    _url_db.put (domain, mol);
 		}
-		mol.add (new MappingObj (MappingObj.MappingType.REALM,
+		mol.add (new MappingObj (MappingObj.MappingType.URL,
 					 weight, modified, t_spec));
 	    }
 	    else if (kind.equalsStringIgnoreCase (":theme"))

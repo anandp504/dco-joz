@@ -19,7 +19,7 @@ public class MappingObj
 
     public enum MappingType
     {
-	REALM, THEME, STORE_ID
+	URL, THEME, STORE_ID
     }
 
     public MappingType get_type () { return _type; }

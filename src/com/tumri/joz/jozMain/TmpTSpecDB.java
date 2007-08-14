@@ -21,7 +21,6 @@ import com.tumri.zini.transport.FASLType;
 import com.tumri.zini.transport.FASLReader;
 
 import com.tumri.utils.strings.EString;
-import com.tumri.utils.strings.ProductName;
 import com.tumri.utils.sexp.*;
 import com.tumri.utils.ifasl.IFASLUtils;
 
