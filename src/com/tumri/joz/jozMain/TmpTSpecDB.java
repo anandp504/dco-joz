@@ -65,7 +65,7 @@ public class TmpTSpecDB implements TSpecDB
 	    ConjunctQuery cjq = tspec.get_query ().getQueries ().get (0);
 	    cjq.setStrict (true);
 	    cjq.setReference (ref);
-	    SortedSet<Result> results = cjq.exec ();
+	    SortedSet<Handle> results = cjq.exec ();
 /*
 	    boolean validate = true;
 	    if (validate)

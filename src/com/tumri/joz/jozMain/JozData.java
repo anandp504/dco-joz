@@ -309,7 +309,7 @@ class JozData
 	String file = dir + "/MUP/MUP-USpub0025_MUP_US0092-US-DEFAULT_.taxonomy";
 	FileReader fr = new FileReader (file);
 	LineNumberReader rdr = new LineNumberReader (fr);
-	Taxonomy tax = Taxonomy.getInstance ();
+	JOZTaxonomy tax = JOZTaxonomy.getInstance ();
 
 	try
 	{
@@ -331,6 +331,7 @@ class JozData
 		String parent_id = tokens[2]; // E.g. TUMRI_14384
 		String parent_name = tokens[3]; // E.g. Toys & Games
 
+		// FIXME: or the tax codes ...
 		tax.addNodes (parent_name, name);
 	    }
 	}

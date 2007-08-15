@@ -44,13 +44,13 @@ public class SelectProducts
 	ConjunctQuery cjq = t_spec.get_query ().getQueries ().get (0);
 	cjq.setStrict (true);
 	cjq.setReference (ref);
-	SortedSet<Result> results = cjq.exec ();
+	SortedSet<Handle> results = cjq.exec ();
 
 	int nr_results = results.size ();
 
 	log.info ("Obtained " + nr_results + " products.");
 	int i = 0;
-	for (Result res : results)
+	for (Handle res : results)
 	{
 	    if (++i > 12)
 	    {
@@ -64,7 +64,7 @@ public class SelectProducts
 
 	while (l.size () < n)
 	{
-	    for (Result res : results)
+	    for (Handle res : results)
 	    {
 		int id = res.getOid ();
 		IProduct ip = pdb.get (id);
