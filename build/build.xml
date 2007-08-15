@@ -55,8 +55,22 @@
 
     <!-- ****************************************************************** -->
 
+    <target name="copy-non-java-files" depends="init">
+	<copy todir="${dist.dir}/conf">
+	    <fileset dir="${src.dir}/conf">
+		<include name="*.properties"/>
+		<include name="*.xml"/>
+	    </fileset>
+	</copy>
+	<replace file="${dist.dir}/conf/jozLog4j.xml"
+		 token="value=&quot;/@error.logs.dir@/"
+		 value="value=&quot;${error.logs.dir}/"/>
+    </target>
+
+    <!-- ****************************************************************** -->
+
     <target name="build"
-            depends="build-IndexProducts-jar,build-KeywordServer-jar,build-Joz-war"
+            depends="build-IndexProducts-jar,build-KeywordServer-jar,build-Joz-war,copy-non-java-files"
             description="Build everything.">
     </target>
 
@@ -66,10 +80,16 @@
             description="Install joz.">
 	<!-- FIXME: Aahhh!  tomcat prefers the unzipped copy of the previous
 	     war over the newly installed one.  -->
-	<delete dir="${joz.war.install.dir}/Joz"/>
+	<delete dir="${war.install.dir}/Joz"/>
 	<!-- This used to copy *.war with a fileset but no error is signalled
 	     if Joz.war doesn't exist.  -->
-	<copy file="${dist.dir}/Joz.war" todir="${joz.war.install.dir}"/>
+	<copy file="${dist.dir}/Joz.war" todir="${war.install.dir}"/>
+	<copy todir="${conf.install.dir}">
+	    <fileset dir="${dist.dir}/conf">
+		<include name="*.properties"/>
+		<include name="*.xml"/>
+	    </fileset>
+	</copy>
     </target>
 
     <!-- ****************************************************************** -->

@@ -377,6 +377,11 @@ public class CmdGetAdData extends CommandOwnWriting
 	b.append ("]");
 
 	String s = b.toString ();
+
+	// Don't construct huge string unnecessarily.
+	if (log.isDebugEnabled ())
+	    log.debug ("Product string: " + s);
+
 	byte[] encoded_string = RFC1630Encoder.encodeCharSequence (s);
 	w.writeString8Array (encoded_string);
     }
@@ -387,6 +392,10 @@ public class CmdGetAdData extends CommandOwnWriting
     write_elm (SexpIFASLWriter w, String name, Sexp sexp)
 	throws IOException, Exception
     {
+	// Don't construct string unnecessarily.
+	if (log.isDebugEnabled ())
+	    log.debug ("Writing " + name + ": " + sexp.toString ());
+
 	w.startList (2);
 	w.writeString8Array (EString.stringToASCII (name));
 	w.visit (sexp);
@@ -397,6 +406,10 @@ public class CmdGetAdData extends CommandOwnWriting
     write_elm (SexpIFASLWriter w, String name, String s)
 	throws IOException
     {
+	// Don't construct string unnecessarily.
+	if (log.isDebugEnabled ())
+	    log.debug ("Writing " + name + ": " + s);
+
 	w.startList (2);
 	w.writeString8Array (EString.stringToASCII (name));
 	// FIXME: assumes ASCII

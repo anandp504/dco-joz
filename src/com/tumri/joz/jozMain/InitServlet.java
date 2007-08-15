@@ -4,13 +4,15 @@ package com.tumri.joz.jozMain;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.xml.DOMConfigurator;
 
 public class InitServlet extends HttpServlet
 {
@@ -18,13 +20,21 @@ public class InitServlet extends HttpServlet
 
     static
     {
-	String filename = System.getProperty ("LOG4J_PROPS");
-	if (filename != null)
+	String filename = "../conf/jozLog4j.xml";
+	try
 	{
+	    // hack to check for file-not-found
+            FileInputStream fis = new FileInputStream (filename);
+	    try { fis.close (); } catch (Exception e) { }
 	    System.out.println ("Loading log4j properties from " + filename);
-	    PropertyConfigurator.configure (filename);
+	    DOMConfigurator.configure (filename);
+	    log = Logger.getLogger (InitServlet.class);
 	}
-	log = Logger.getLogger (InitServlet.class);
+	catch (FileNotFoundException e)
+	{
+	    log = Logger.getLogger (InitServlet.class);
+	    log.error ("File not found: " + filename);
+	}
     }
 
     public void
