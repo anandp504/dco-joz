@@ -33,6 +33,8 @@
                dest="${dist.dir}/Joz"/>
         <unjar src="${ext.lib.dir}/lucene-core-2.1.0.jar"
                dest="${dist.dir}/Joz"/>
+        <unjar src="${ext.lib.dir}/junit-4.4.jar"
+               dest="${dist.dir}/Joz"/>
 
 	<!-- copy all internal libs into our jar -->
 	<unjar src="${zini.lib.dir}/zini.catalog.api.jar"
