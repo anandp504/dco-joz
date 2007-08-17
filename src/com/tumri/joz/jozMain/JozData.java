@@ -55,7 +55,7 @@ class JozData
 	}
 	catch (Exception e)
 	{
-	    // FIXME
+	    log.error ("Unable to load product db: " + e);
 	}
 
 	try
@@ -65,7 +65,7 @@ class JozData
 	}
 	catch (Exception e)
 	{
-	    // FIXME
+	    log.error ("Unable to load taxonomy: " + e);
 	}
 
 	try
@@ -75,8 +75,7 @@ class JozData
 	}
 	catch (Exception e)
 	{
-	    log.error ("Unable to initialize Mapping DB: "
-		       + e.toString ());
+	    log.error ("Unable to initialize Mapping DB: " + e);
 	}
 
 	try
@@ -90,8 +89,7 @@ class JozData
 	}
 	catch (Exception e)
 	{
-	    log.error ("Unable to initialize TSpec DB: "
-		       + e.toString ());
+	    log.error ("Unable to initialize TSpec DB: " + e);
 	}
     }
 
@@ -196,6 +194,8 @@ class JozData
 
 	try
 	{
+	    int count = 0;
+
 	    while ((t = fr.read ()) != null)
 	    {
 		if (t.type () != FASLType.list)
@@ -224,7 +224,14 @@ class JozData
 		}
 
 		pdb.addProduct (p);
+
+		++count;
+		if (count % 10000 == 0)
+		    log.info ("Loaded " + count + " entries ... ");
 	    }
+
+	    if (count > 0)
+		log.info ("Loaded " + count + " entries.");
 	}
 	finally
 	{
