@@ -290,9 +290,8 @@ public class CmdGetAdData extends CommandOwnWriting
     // allow for optional parameters, (consider precedent of IS-PRIVATE-LABEL-P
     // and what happens over time as more are added).
     //
-    // NOTE: In SoZ this is the "js-friendly" format, though that's a bit of
-    // a misnomer.  Being js-friendly is secondary to its main function of
-    // providing leadgens in addition to products.
+    // NOTE: In SoZ this is the "js-friendly" format, js for JSON
+    // http://www.json.org.
 
     private void
     write_result (AdDataRequest rqst,
@@ -382,7 +381,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	if (log.isDebugEnabled ())
 	    log.debug ("Product string: " + s);
 
-	byte[] encoded_string = RFC1630Encoder.encodeCharSequence (s);
+	byte[] encoded_string = EString.stringToASCII (s);
 	w.writeString8Array (encoded_string);
     }
 

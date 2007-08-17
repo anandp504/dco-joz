@@ -17,6 +17,10 @@ public class SelectedProduct
 
     // Return a string suitable for passing back to the client.
     // See soz-product-selector.lisp:morph-product-list-into-sexpr-js-friendly.
+    //
+    // NOTE: If there is any RFC1630-like encoding that is needed, do it here.
+    // Not everything needs to be encoded, and some things may need to be
+    // encoded differently.
 
     public String
     toAdDataResultString ()
