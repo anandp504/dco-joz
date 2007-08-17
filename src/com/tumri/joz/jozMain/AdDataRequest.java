@@ -255,6 +255,7 @@ public class AdDataRequest
 	rqst_params.put (":store-ID", RqstParam.STORE_ID);
 	rqst_params.put (":category", RqstParam.CATEGORY);
 	rqst_params.put (":t-spec", RqstParam.T_SPEC);
+	rqst_params.put (":strategy", RqstParam.T_SPEC); // ??? deprecated
 	rqst_params.put (":referrer", RqstParam.REFERRER);
 	rqst_params.put (":zip-code", RqstParam.ZIP_CODE);
 	rqst_params.put (":num-products", RqstParam.NUM_PRODUCTS);
@@ -377,8 +378,8 @@ public class AdDataRequest
 
 	    if (! elm.isSexpKeyword ())
 	    {
-		// FIXME: TODO
-		assert (false);
+		log.error ("Expected keyword, got: " + elm);
+		continue;
 	    }
 
 	    SexpKeyword k = elm.toSexpKeyword ();
@@ -387,8 +388,9 @@ public class AdDataRequest
 	    RqstParam p = rqst_params.get (name);
 	    if (p == null)
 	    {
-		// bad/unsupported parameter
-		// FIXME: TODO
+		log.error ("Unknown parameter: " + name);
+		// swallow the value
+		iter.next ();
 		continue;
 	    }
 
@@ -503,7 +505,8 @@ public class AdDataRequest
 		    break;
 
 		default:
-		    assert (false);
+		    log.error ("Program error, unrecognized request parameter: " + elm);
+		    continue;
 		}
 	    }
 	    catch (SexpUtils.BadGetNextException ex)
