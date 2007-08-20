@@ -35,6 +35,9 @@
 	<fileset dir="${utils.lib.dir}">
             <include name="*.jar"/>
 	</fileset>
+	<fileset dir="${cma.lib.dir}">
+            <include name="*.jar"/>
+	</fileset>	
 	<fileset dir="${dist.dir}">
 	    <include name="*.jar"/>
 	</fileset>
