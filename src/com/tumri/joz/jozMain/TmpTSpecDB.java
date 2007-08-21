@@ -42,12 +42,12 @@ public class TmpTSpecDB implements TSpecDB
 	return "http://default-realm"; // FIXME: wip
     }
 
+    // Return tspec for {name} or null if not found.
+
     public TSpec
     get (String name)
     {
 	TSpec ts = _tspec_db.get (name);
-	if (ts == null)
-	    ts = default_t_spec;
 	return ts;
     }
 

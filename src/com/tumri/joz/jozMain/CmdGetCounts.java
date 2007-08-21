@@ -5,8 +5,8 @@
 
    (get-counts :t-spec-name 'symbol)
 
-   If t-spec-name is nil then process the entire MUP, otherwise process
-   all products in that t-spec's extension.  We count up the
+   If `symbol' is `nil' then process the entire MUP, otherwise process
+   all products selected by the t-spec.  We count up the
    number of products in each category, the number of products in each
    brand and the number of products in each merchant.  Returns a 3-tuple:
    (category-counts brand-counts merchant-counts) where category counts
@@ -39,11 +39,14 @@ public class CmdGetCounts extends CommandDeferWriting
 
 	try
 	{
-	    e = JozData.mup_db.get_counts (null);
+	    if (! expr.isSexpSymbol ())
+		return SexpReader.readFromStringNoex ("(:error \"expected t-spec name\")");
+	    e = JozData.mup_db.get_counts (expr.toString ());
 	}
 	catch (Exception ex)
 	{
 	    e = SexpReader.readFromStringNoex ("(:error \""
+					       // FIXME: need to escape "s
 					       + ex.toString ()
 					       + "\")");
 	}

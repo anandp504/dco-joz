@@ -72,7 +72,7 @@ public class SelectedProduct
 
     // Return the selected product's id.
 
-    String
+    public String
     get_product_id ()
     {
 	return _product.get_product_id ();
@@ -80,10 +80,26 @@ public class SelectedProduct
 
     // Return the selected product's parents (categories).
 
-    List<String>
+    public List<String>
     get_parents ()
     {
 	return _product.get_parents ();
+    }
+
+    // Return the product's brand or null if there is none.
+
+    public String
+    get_brand ()
+    {
+	return _product.get_brand ();
+    }
+
+    // Return the product's merchant or null if there is none.
+
+    public String
+    get_merchant ()
+    {
+	return _product.get_merchant ();
     }
 
     // implementation details -------------------------------------------------

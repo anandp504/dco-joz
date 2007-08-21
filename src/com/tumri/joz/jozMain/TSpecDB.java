@@ -9,6 +9,7 @@ public interface TSpecDB
 {
     public String get_default_realm_url ();
 
+    // Return tspec for {name} or null if not found.
     public TSpec get (String name);
 
     public void materialize ();

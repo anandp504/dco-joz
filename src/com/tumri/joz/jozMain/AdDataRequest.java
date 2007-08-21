@@ -394,8 +394,6 @@ public class AdDataRequest
 		continue;
 	    }
 
-	    String str = null;
-
 	    try
 	    {
 		switch (p)

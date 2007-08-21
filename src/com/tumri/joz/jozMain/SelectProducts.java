@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.SortedSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.apache.log4j.Logger;
 
@@ -18,8 +20,6 @@ public class SelectProducts
     public static List<SelectedProduct>
     select_products (AdDataRequest rqst, TSpec t_spec, Realm realm)
     {
-	List<SelectedProduct> l = new ArrayList<SelectedProduct> ();
-
 	// FIXME: temp hack
 	Integer num_products = rqst.get_num_products ();
 	int n = num_products.intValue ();
@@ -37,14 +37,25 @@ public class SelectProducts
 	}
 */
 
-	log.info ("Running query for " + t_spec.get_name () + " ...");
-
 	ProductDB pdb = ProductDB.getInstance ();
 	Handle ref = pdb.genReference ();
-	ConjunctQuery cjq = t_spec.get_query ().getQueries ().get (0);
-	cjq.setStrict (true);
-	cjq.setReference (ref);
-	SortedSet<Handle> results = cjq.exec ();
+	SortedSet<Handle> results = null;
+
+	if (rqst.get_keywords () != null)
+	{
+	    String keywords = rqst.get_keywords ();
+	    log.info ("Running query for keywords " + keywords + " ...");
+	    KeywordQuery kq = new KeywordQuery (keywords);
+	    results = kq.exec ();
+	}
+	else
+	{
+	    log.info ("Running query for " + t_spec.get_name () + " ...");
+	    ConjunctQuery cjq = t_spec.get_query ().getQueries ().get (0);
+	    cjq.setStrict (true);
+	    cjq.setReference (ref);
+	    results = cjq.exec ();
+	}
 
 	int nr_results = results.size ();
 
@@ -62,6 +73,8 @@ public class SelectProducts
 	    log.info (ip.getGId ());
 	}
 
+	List<SelectedProduct> l = new ArrayList<SelectedProduct> ();
+
 	while (l.size () < n)
 	{
 	    for (Handle res : results)
@@ -76,6 +89,80 @@ public class SelectProducts
 	}
 
 	return l;
+    }
+
+    public static Iterator<SelectedProduct>
+    get_products_for_tspec (TSpec t_spec)
+    {
+	ProductDB pdb = ProductDB.getInstance ();
+	Handle ref = pdb.genReference ();
+	SortedSet<Handle> results = null;
+
+	log.info ("Running query for " + t_spec.get_name () + " ...");
+	ConjunctQuery cjq = t_spec.get_query ().getQueries ().get (0);
+	cjq.setStrict (true);
+	cjq.setReference (ref);
+	results = cjq.exec ();
+
+	int nr_results = results.size ();
+
+	log.info ("Obtained " + nr_results + " products.");
+
+	List<SelectedProduct> l = new ArrayList<SelectedProduct> ();
+
+	for (Handle res : results)
+	{
+	    int id = res.getOid ();
+	    IProduct ip = pdb.get (id);
+	    MUPProductObj p = new MUPProductObj (ip);
+	    l.add (new SelectedProduct (p));
+	}
+
+	return l.iterator ();
+    }
+
+    // Wrapper class around Handle iterator so we can return SelectedProducts
+    // instead of handles.
+
+    private static class SelectedProductIterator implements Iterator<SelectedProduct>
+    {
+	private Iterator<Handle> _underlying_iterator;
+
+	public SelectedProductIterator (Iterator<Handle> ui)
+	{
+	    _underlying_iterator = ui;
+	}
+
+	public boolean hasNext () { return _underlying_iterator.hasNext (); }
+
+	public SelectedProduct next ()
+	    throws NoSuchElementException
+	{
+	    Handle h = _underlying_iterator.next ();
+	    ProductDB pdb = ProductDB.getInstance();
+	    IProduct ip = pdb.get (h);
+	    MUPProductObj p = new MUPProductObj (ip);
+	    return new SelectedProduct (p);
+	}
+
+	public void
+	remove ()
+	{
+	    throw new RuntimeException ("SelectedProductIterator.remove should never be called");
+	}
+    }
+
+    // Return the entire mup.
+    // The result is an iterator so that we don't have to construct a list
+    // of the entire mup, callers want to iterate over the products anyway.
+    // It also lets us hide the details of how and where we get the products.
+
+    public static Iterator<SelectedProduct>
+    get_entire_mup ()
+    {
+	ProductDB pdb = ProductDB.getInstance();
+	Iterator<Handle> ih = pdb.getAllProducts ();
+	return new SelectedProductIterator (ih);
     }
 
     // implementation details -------------------------------------------------

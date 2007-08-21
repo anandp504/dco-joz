@@ -6,7 +6,6 @@
 package com.tumri.joz.jozMain;
 
 import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.strings.EString;
 
 public interface MUPDB
 {
@@ -22,5 +21,5 @@ public interface MUPDB
     public Sexp get_default_realm_response ();
 
     // Support for the get-counts external API call.
-    public Sexp get_counts (EString tspec);
+    public Sexp get_counts (String tspec_name);
 }
