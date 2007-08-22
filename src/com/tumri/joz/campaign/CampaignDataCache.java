@@ -1,7 +1,7 @@
 package com.tumri.joz.campaign;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -15,9 +15,12 @@ import com.tumri.cma.domain.AdPod;
 import com.tumri.cma.domain.BrandInfo;
 import com.tumri.cma.domain.Campaign;
 import com.tumri.cma.domain.CategoryInfo;
+import com.tumri.cma.domain.MerchantInfo;
 import com.tumri.cma.domain.OSpec;
+import com.tumri.cma.domain.ProductInfo;
+import com.tumri.cma.domain.ProviderInfo;
 import com.tumri.cma.domain.TSpec;
-import com.tumri.cma.persistence.CampaignLispDataProviderImpl;
+import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
 import com.tumri.joz.Query.AttributeQuery;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.Query.ConjunctQuery;
@@ -38,9 +41,9 @@ public class CampaignDataCache {
 	  private static Logger log = Logger.getLogger (CampaignDataCache.class);
 
 	  private static AtomicReference<CampaignDataCache> g_campaignProvider = null;
-	  private Hashtable<String, OSpec> _oSpecHashtable = null;
+	  private HashMap<String, OSpec> m_oSpecHashtable = null;
 	  //TODO: Convert the query cache into LRU
-	  private WeakHashMap<String, CNFQuery> _oSpecQueryCache = null;
+	  private WeakHashMap<String, CNFQuery> m_oSpecQueryCache = null;
 	  
 	  private static String _lispSourceFilePath = "..";
 	  
@@ -50,8 +53,8 @@ public class CampaignDataCache {
 		 if (srcPath != null) {
 			 _lispSourceFilePath = srcPath;
 		 }
-		 _oSpecHashtable = new Hashtable<String, OSpec>();
-		 _oSpecQueryCache = new WeakHashMap<String, CNFQuery>();
+		 m_oSpecHashtable = new HashMap<String, OSpec>();
+		 m_oSpecQueryCache = new WeakHashMap<String, CNFQuery>();
 	  }
 	  
 	  public static CampaignDataCache getInstance() {
@@ -80,6 +83,9 @@ public class CampaignDataCache {
 			  CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(_lispSourceFilePath);
 			  Iterator<Campaign> campaignIter = lispDeltaProvider.getNewDeltas();
 			  CampaignDataCache newCache = new CampaignDataCache();
+			  HashMap<String, OSpec> tmpSpecHashtable = new HashMap<String, OSpec>();
+			  WeakHashMap<String, CNFQuery> tmpSpecQueryCache = new WeakHashMap<String, CNFQuery>();
+
 			  if (campaignIter != null) {
 				  while (campaignIter.hasNext()) {
 					  Campaign theCampaign = campaignIter.next();
@@ -88,13 +94,15 @@ public class CampaignDataCache {
 						  AdPod theAdPod = theCampaign.getAdPods().get(i);
 						  OSpec theOSpec = theAdPod.getOspec();
 						  String oSpecName = theOSpec.getName();
-						  newCache._oSpecHashtable.put(oSpecName, theOSpec);  
+						  tmpSpecHashtable.put(oSpecName, theOSpec);  
 						  //Materialize the queries
 						  //Note: The new string() is done here so that there is no strong reference to the key (not added to the string pool), 
 						  // to enable it to be garbage collected when needed
-						  newCache._oSpecQueryCache.put(new String(oSpecName), getQuery(theOSpec));
+						  tmpSpecQueryCache.put(new String(oSpecName), getQuery(theOSpec));
 					  }
 				  }
+				  newCache.set_oSpecHashtable(tmpSpecHashtable);
+				  newCache.set_oSpecQueryCache(tmpSpecQueryCache);
 				  g_campaignProvider.set(newCache);
 			  }
 			  log.info("Campaign data loaded into cache. Time taken (millis) : " + (System.currentTimeMillis() - startTime));
@@ -110,13 +118,13 @@ public class CampaignDataCache {
 	   * @return
 	   */
 	  public CNFQuery getCNFQuery(String oSpecName) {
-		  CNFQuery query = _oSpecQueryCache.get(oSpecName);
+		  CNFQuery query = m_oSpecQueryCache.get(oSpecName);
 		  if (query == null) {
 			  //Get the query from the g_OSpecHashtable
-			  OSpec oSpec = _oSpecHashtable.get(oSpecName);
+			  OSpec oSpec = m_oSpecHashtable.get(oSpecName);
 			  query = getQuery(oSpec);
 			  //Put into the cache
-			  _oSpecQueryCache.put(new String(oSpecName), query);
+			  m_oSpecQueryCache.put(new String(oSpecName), query);
 		  }
 		  
 		  return query;
@@ -144,92 +152,68 @@ public class CampaignDataCache {
 			  //Excluded Brand
 			  List<BrandInfo> bixList = theTSpec.getExcludedBrands();
 			  if (bixList != null) {
-				ArrayList<String> brandList = new ArrayList<String>(); 
-				for (int i=0;i<bixList.size();i++){
-					BrandInfo bInfo = bixList.get(i);
-					String brand = bInfo.getName();
-					brandList.add(brand);
-				}
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, brandList, true);
+				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, bixList, true);
 				_cjquery.addQuery(sq);
 			  }
 			  
 			  //Included brand
 			  List<BrandInfo> binList = theTSpec.getIncludedBrands();
 			  if (binList != null) {
-				ArrayList<String> brandList = new ArrayList<String>(); 
-				for (int i=0;i<binList.size();i++){
-					BrandInfo bInfo = binList.get(i);
-					String brand = bInfo.getName();
-					brandList.add(brand);
-				}
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, brandList, false);
+				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, binList, false);
 				_cjquery.addQuery(sq);
 			  }			  
 			  
 			  //Include cats
 			  List<CategoryInfo> cinList = theTSpec.getIncludedCategories();
 			  if (cinList != null) {
-				ArrayList<String> catList = new ArrayList<String>(); 
-				for (int i=0;i<cinList.size();i++){
-					CategoryInfo cInfo = cinList.get(i);
-					String category = cInfo.getName();
-					catList.add(category);
-				}
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, catList, false);
+				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cinList, false);
 				_cjquery.addQuery(sq);
 			  }
 
 			  //Excluded cats
 			  List<CategoryInfo> cexList = theTSpec.getExcludedCategories();
 			  if (cexList != null) {
-				ArrayList<String> catList = new ArrayList<String>(); 
-				for (int i=0;i<cexList.size();i++){
-					CategoryInfo cInfo = cexList.get(i);
-					String category = cInfo.getName();
-					catList.add(category);
-				}
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, catList, true);
+				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cexList, true);
 				_cjquery.addQuery(sq);
 			  }
 
 			  //Included merchants
-			  List<String> inMerchants = theTSpec.getIncludedMerchants();
+			  List<MerchantInfo> inMerchants = theTSpec.getIncludedMerchants();
 			  if (inMerchants != null) {
 					SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kSupplier, inMerchants, false);
 					_cjquery.addQuery(sq);				  
 			  }
 			  
 			  //Excluded merchants
-			  List<String> exMerchants = theTSpec.getExcludedMerchants();
+			  List<MerchantInfo> exMerchants = theTSpec.getExcludedMerchants();
 			  if (exMerchants != null) {
 					SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kSupplier, exMerchants, true);
 					_cjquery.addQuery(sq);				  
 			  }
 
 			  //Included Products
-			  List<String> inProducts = theTSpec.getIncludedProducts();
+			  List<ProductInfo> inProducts = theTSpec.getIncludedProducts();
 			  if (inProducts != null) {
 					SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductName, inProducts, false);
 					_cjquery.addQuery(sq);				  
 			  }	
 			  
 			  //Excluded products
-			  List<String> exProducts = theTSpec.getExcludedProducts();
+			  List<ProductInfo> exProducts = theTSpec.getExcludedProducts();
 			  if (exProducts != null) {
 					SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductName, exProducts, true);
 					_cjquery.addQuery(sq);				  
 			  }	
 			  
 			  //Included Providers
-			  List<String> inProviders = theTSpec.getIncludedProviders();
+			  List<ProviderInfo> inProviders = theTSpec.getIncludedProviders();
 			  if (inProviders != null) {
 					SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProvider, inProviders, false);
 					_cjquery.addQuery(sq);				  
 			  }
 			  
 			  //Excluded Providers
-			  List<String> exProviders = theTSpec.getExcludedProviders();
+			  List<ProviderInfo> exProviders = theTSpec.getExcludedProviders();
 			  if (exProviders != null) {
 					SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProvider, exProviders, true);
 					_cjquery.addQuery(sq);				  
@@ -263,13 +247,34 @@ public class CampaignDataCache {
 	   * @param values
 	   * @return
 	   */
-	  private SimpleQuery buildAttributeQuery(IProduct.Attribute type, List<String> values, boolean bNegation) {
+	  private SimpleQuery buildAttributeQuery(IProduct.Attribute type, List values, boolean bNegation) {
 			ArrayList<Integer> valueIdList = new ArrayList<Integer>(values.size()); 
-			for (int i=0;i<values.size();i++){
-				String valueStr = values.get(i);
-				DictionaryManager dm = DictionaryManager.getInstance ();
-				Integer brandId = dm.getId (type, valueStr);
-				valueIdList.add(brandId);
+			ArrayList<String> valueStrList = new ArrayList<String>(values.size()); 
+			if (values != null) {
+				for (int i=0;i<values.size();i++){
+					if (type.equals(IProduct.Attribute.kCategory)) {
+						CategoryInfo cInfo = (CategoryInfo)values.get(i);
+						valueStrList.add(cInfo.getName());
+					} else if (type.equals(IProduct.Attribute.kBrand)) {
+						BrandInfo bInfo = (BrandInfo)values.get(i);
+						valueStrList.add(bInfo.getName());
+					} else if (type.equals(IProduct.Attribute.kProvider)) {
+						ProviderInfo pInfo = (ProviderInfo)values.get(i);
+						valueStrList.add(pInfo.getName());
+					} else if (type.equals(IProduct.Attribute.kSupplier)) {
+						MerchantInfo mInfo = (MerchantInfo)values.get(i);
+						valueStrList.add(mInfo.getName());
+					} else if (type.equals(IProduct.Attribute.kProductName)) {
+						ProductInfo pInfo = (ProductInfo)values.get(i);
+						valueStrList.add(pInfo.getName());
+					}
+				}
+				for (int i=0;i<valueStrList.size();i++){
+					String valueStr = valueStrList.get(i);
+					DictionaryManager dm = DictionaryManager.getInstance ();
+					Integer brandId = dm.getId (type, valueStr);
+					valueIdList.add(brandId);
+				}				
 			}
 			SimpleQuery sq = new AttributeQuery (type, valueIdList);
 			sq.setNegation(bNegation);
@@ -288,4 +293,16 @@ public class CampaignDataCache {
 			  assert(false);
 		  }
 	  }
+
+	private void set_oSpecHashtable(HashMap<String, OSpec> specHashtable) {
+		synchronized (CampaignDataCache.class) {
+			m_oSpecHashtable = specHashtable;			
+		}
+	}
+
+	private void set_oSpecQueryCache(WeakHashMap<String, CNFQuery> specQueryCache) {
+		 synchronized (CampaignDataCache.class) {
+			 m_oSpecQueryCache = specQueryCache;
+		 }
+	}
 }
