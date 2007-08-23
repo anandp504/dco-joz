@@ -39,9 +39,16 @@ public class CmdGetCounts extends CommandDeferWriting
 
 	try
 	{
-	    if (! expr.isSexpSymbol ())
+	    if (! expr.isSexpList ())
+		throw new BadCommandException ("expecting (get-counts t-spec-name)");
+	    SexpList l = expr.toSexpList ();
+	    if (l.size () != 2)
+		throw new BadCommandException ("expecting (get-counts t-spec-name)");
+	    Sexp arg = l.get (1);
+	    if (! arg.isSexpSymbol ())
 		return SexpReader.readFromStringNoex ("(:error \"expected t-spec name\")");
-	    e = JozData.mup_db.get_counts (expr.toString ());
+	    SexpSymbol sym = arg.toSexpSymbol ();
+	    e = JozData.mup_db.get_counts (sym.toString ());
 	}
 	catch (Exception ex)
 	{

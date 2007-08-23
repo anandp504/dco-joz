@@ -49,6 +49,78 @@ public class TmpMappingDB implements MappingDB
 	return _store_id_db.get (store_id);
     }
 
+    public void
+    add (String kind, String domain, String t_spec_name,
+	 Float weight, Long mod_time)
+    {
+	float fweight = weight.floatValue ();
+	long modified = mod_time.longValue ();
+
+	// NOTE: :realm is actually a URL mapping
+	if (kind.equalsIgnoreCase (":realm"))
+	{
+	    MappingObjList mol = _url_db.get (domain);
+	    if (mol == null)
+	    {
+		mol = new MappingObjList ();
+		_url_db.put (domain, mol);
+	    }
+	    mol.add (new MappingObj (MappingObj.MappingType.URL,
+				     fweight, modified, t_spec_name));
+	}
+	else if (kind.equalsIgnoreCase (":theme"))
+	{
+	    MappingObjList mol = _theme_db.get (domain);
+	    if (mol == null)
+	    {
+		mol = new MappingObjList ();
+		_theme_db.put (domain, mol);
+	    }
+	    mol.add (new MappingObj (MappingObj.MappingType.THEME,
+				     fweight, modified, t_spec_name));
+	}
+	else if (kind.equalsIgnoreCase (":store-id"))
+	{
+	    MappingObjList mol = _store_id_db.get (domain);
+	    if (mol == null)
+	    {
+		mol = new MappingObjList ();
+		_store_id_db.put (domain, mol);
+	    }
+	    mol.add (new MappingObj (MappingObj.MappingType.STORE_ID,
+				     fweight, modified, t_spec_name));
+	}
+    }
+
+    public void
+    delete (String kind, String domain, String t_spec_name, Long mod_time)
+    {
+	MappingObjList mol;
+
+	// NOTE: :realm is actually a URL mapping
+	if (kind.equalsIgnoreCase (":realm"))
+	{
+	    mol = _url_db.get (domain);
+	}
+	else if (kind.equalsIgnoreCase (":theme"))
+	{
+	    mol = _theme_db.get (domain);
+	}
+	else if (kind.equalsIgnoreCase (":store-id"))
+	{
+	    mol = _store_id_db.get (domain);
+	}
+	else
+	{
+	    return; // ??? ignore
+	}
+
+	if (mol == null)
+	    return;
+
+	mol.delete (t_spec_name, mod_time);
+    }
+
     // implementation details -------------------------------------------------
 
     private static Logger log = Logger.getLogger (TmpMappingDB.class);
@@ -119,58 +191,25 @@ public class TmpMappingDB implements MappingDB
 		log.error ("Bad mapping entry: " + e.toString ());
 		continue;
 	    }
-	    SexpKeyword kind = tmp_kind.toSexpKeyword ();
-	    String domain = tmp_domain.toStringValue ();
-	    String t_spec = tmp_t_spec.toStringValue ();
+	    String kind = tmp_kind.toSexpKeyword ().toString ();
+	    String domain = tmp_domain.toStringValue (); // ???
+	    String t_spec = tmp_t_spec.toStringValue (); // ???
 	    float weight;
 	    if (tmp_weight.isSexpReal ())
 		weight = new Float (tmp_weight.toSexpReal ().toNativeReal64 ()).floatValue ();
 	    else
 		weight = (float) tmp_weight.toSexpInteger ().toNativeInteger32 ();
-	    int modified;
+	    long modified;
 	    if (tmp_modified.isSexpString ())
 		modified = date_string_to_int (tmp_modified.toStringValue ());
 	    else
-		modified = tmp_modified.toSexpInteger ().toNativeInteger32 ();
+		modified = tmp_modified.toSexpInteger ().toNativeInteger64 ();
 
-	    // NOTE: :realm is actually a URL mapping
-	    if (kind.equalsStringIgnoreCase (":realm"))
-	    {
-		MappingObjList mol = _url_db.get (domain);
-		if (mol == null)
-		{
-		    mol = new MappingObjList ();
-		    _url_db.put (domain, mol);
-		}
-		mol.add (new MappingObj (MappingObj.MappingType.URL,
-					 weight, modified, t_spec));
-	    }
-	    else if (kind.equalsStringIgnoreCase (":theme"))
-	    {
-		MappingObjList mol = _theme_db.get (domain);
-		if (mol == null)
-		{
-		    mol = new MappingObjList ();
-		    _theme_db.put (domain, mol);
-		}
-		mol.add (new MappingObj (MappingObj.MappingType.THEME,
-					 weight, modified, t_spec));
-	    }
-	    else if (kind.equalsStringIgnoreCase (":store-id"))
-	    {
-		MappingObjList mol = _store_id_db.get (domain);
-		if (mol == null)
-		{
-		    mol = new MappingObjList ();
-		    _store_id_db.put (domain, mol);
-		}
-		mol.add (new MappingObj (MappingObj.MappingType.STORE_ID,
-					 weight, modified, t_spec));
-	    }
+	    add (kind, domain, t_spec, weight, modified);
 	}
     }
 
-    private static int
+    private static long
     date_string_to_int (String date)
     {
 	return 42; // FIXME

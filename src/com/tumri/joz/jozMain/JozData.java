@@ -82,8 +82,8 @@ class JozData
 	{
 	    log.info ("Loading t-specs ...");
 	    tspec_db = new TmpTSpecDB (data_path + "/t-specs/t-specs.lisp");
-	    log.info ("Materializing t-specs ...");
 /*
+	    log.info ("Materializing t-specs ...");
 	    tspec_db.materialize ();
 */
 	}

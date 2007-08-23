@@ -5,6 +5,7 @@ package com.tumri.joz.jozMain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 public class MappingObjList
 {
@@ -18,6 +19,22 @@ public class MappingObjList
     add (MappingObj obj)
     {
 	_list.add (obj);
+    }
+
+    public void
+    delete (String t_spec_name, Long modified)
+    {
+	long mod = modified.longValue ();
+	Iterator<MappingObj> iter = _list.iterator ();
+	while (iter.hasNext ())
+	{
+	    MappingObj mo = iter.next ();
+	    if (mo.get_t_spec ().equals (t_spec_name)
+		&& mo.get_modified () == mod)
+	    {
+		iter.remove ();
+	    }
+	}
     }
 
     public int size () { return _list.size (); }

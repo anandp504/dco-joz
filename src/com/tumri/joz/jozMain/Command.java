@@ -71,14 +71,22 @@ public abstract class Command
 
 	    // Return the right Cmd* class to handle this request.
 
+	    if (cmd_name.equals ("get-ad-data"))
+		return new CmdGetAdData (e);
 	    if (cmd_name.equals ("get-attributes-and-metadata"))
 		return new CmdGetAttrsAndMetadata (e);
 	    if (cmd_name.equals ("tabulate-search-results"))
 		return new CmdTabulateSearchResults (e);
-	    if (cmd_name.equals ("get-ad-data"))
-		return new CmdGetAdData (e);
 	    if (cmd_name.equals ("get-counts"))
 		return new CmdGetCounts (e);
+	    if (cmd_name.equals ("get-providers"))
+		return new CmdGetProviders (e);
+	    if (cmd_name.equals ("incorp-mapping-deltas"))
+		return new CmdIncorpMappingDeltas (e);
+	    if (cmd_name.equals ("t-spec-add"))
+		return new CmdTSpecAdd (e);
+	    if (cmd_name.equals ("t-spec-delete"))
+		return new CmdTSpecDelete (e);
 
 	    throw new BadCommandException ("unknown command");
 	}
