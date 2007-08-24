@@ -2,6 +2,9 @@
 
 /* The get-root-categories command has the following format.
    ???
+
+   NOTE: soz doesn't currently implement this command, so we just return
+   an error response.
 */
 
 package com.tumri.joz.jozMain;
@@ -34,7 +37,7 @@ public class CmdGetRootCategories extends CommandDeferWriting
 	{
 	    DictionaryManager dm = DictionaryManager.getInstance ();
 	    JOZTaxonomy tax = JOZTaxonomy.getInstance ();
-	    e = new SexpList (); // FIXME: wip
+	    throw new RuntimeException ("get-root-categories not implemented");
 	}
 	catch (Exception ex)
 	{
