@@ -29,13 +29,13 @@ import com.tumri.joz.utils.DOMUtils;
 import com.tumri.joz.utils.Result;
 import com.tumri.joz.products.*;
 
-class JozData
+public class JozData
 {
     public static void
     init ()
     {
-	String data_path = "../data/joz";
-
+    
+    String data_path = "../data/joz";
 	try
 	{
 	    String merchant_path = data_path + "/MD";

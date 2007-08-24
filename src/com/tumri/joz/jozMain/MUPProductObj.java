@@ -18,7 +18,7 @@ import com.tumri.joz.products.IProduct;
 
 public class MUPProductObj
 {
-    MUPProductObj (IProduct ip)
+    public MUPProductObj (IProduct ip)
     {
 	DictionaryManager dm = DictionaryManager.getInstance ();
 	// FIXME: The casts here are unfortunate.
