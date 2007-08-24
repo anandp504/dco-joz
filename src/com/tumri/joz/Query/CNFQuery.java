@@ -1,10 +1,10 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.Handle;
-
 import java.util.ArrayList;
 import java.util.SortedSet;
+
+import com.tumri.joz.index.SortedArraySet;
+import com.tumri.joz.products.Handle;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,6 +16,8 @@ public class CNFQuery implements Query {
   private Handle m_reference;
   private int m_pagesize = 12;
   private int m_maxPages = 4;
+  private int m_currentPage = 0;
+  private boolean bPaginate = false;
 
   private SortedSet<Handle> m_results;
 
@@ -55,13 +57,33 @@ public class CNFQuery implements Query {
         unionizer.include(lConjunctQuery.exec());
       }
       m_results = unionizer.union();
+    } 
+    //Paginate
+    if (bPaginate) {
+    	ArrayList<Handle> pageResults = new ArrayList<Handle>(m_pagesize);
+    	int start = (m_currentPage*m_pagesize)+1;
+    	int end = start+m_pagesize;
+    	int i=0;
+    	for (Handle handle : m_results) {
+    		i++;
+    		if (i < start) {
+    			continue;
+    		} else if ((i>=start) && (i<end)){
+    			pageResults.add(handle);
+    		} else {
+    			break;
+    		}
+    	}
+    	m_results = new SortedArraySet<Handle>(pageResults);
     }
+    
     return m_results;
   }
 
-  public void setBounds(int pagesize, int maxPages) {
+  public void setBounds(int pagesize, int currentPage) {
+	bPaginate = true;
     m_pagesize = pagesize;
-    m_maxPages = maxPages;
+    m_currentPage = currentPage;
   }
 
 }
