@@ -1,4 +1,3 @@
-test, break build on purpose
 // Initialization servlet
 
 package com.tumri.joz.jozMain;
