@@ -25,6 +25,7 @@ import com.tumri.joz.Query.AttributeQuery;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.Query.ConjunctQuery;
 import com.tumri.joz.Query.KeywordQuery;
+import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.Query.RangeQuery;
 import com.tumri.joz.Query.SimpleQuery;
 import com.tumri.joz.index.DictionaryManager;
@@ -146,7 +147,7 @@ public class CampaignDataCache {
 	   */
 	  private CNFQuery getQuery(OSpec oSpec) {
 		  CNFQuery _query = new CNFQuery ();
-		  ConjunctQuery _cjquery = new ConjunctQuery ();
+		  ConjunctQuery _cjquery = new ConjunctQuery (new ProductQueryProcessor());
 		  List<TSpec> tSpecList = oSpec.getTspecs();
 		  Iterator<TSpec> tSpecIter = tSpecList.iterator();
 		  while (tSpecIter.hasNext()){

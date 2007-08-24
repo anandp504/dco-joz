@@ -65,7 +65,7 @@ public class TSpec
     private Long _modified_time = System.currentTimeMillis ();
 
     private CNFQuery _query = new CNFQuery ();
-    private ConjunctQuery _cjquery = new ConjunctQuery ();
+    private ConjunctQuery _cjquery = new ConjunctQuery (new ProductQueryProcessor());
 
     // Used to give unique names to anonymous t-specs.
     private static long next_anonymous = 0;
