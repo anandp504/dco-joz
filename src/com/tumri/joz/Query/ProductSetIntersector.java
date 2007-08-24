@@ -1,6 +1,5 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.Handle;
 
 /**
@@ -10,7 +9,7 @@ import com.tumri.joz.products.Handle;
  */
 public class ProductSetIntersector extends SetIntersector<Handle> {
   /**
-   * Given a Value v and a score build the Pair object of PID,SCORE
+   * Given a Handle h and a score build a new handle
    * This method should be overridden if default Pair<V,Double> is not acceptable
    * @param h
    * @param score

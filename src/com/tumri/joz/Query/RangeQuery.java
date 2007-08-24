@@ -14,7 +14,7 @@ import java.util.SortedSet;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class RangeQuery extends SimpleQuery {
+public class RangeQuery extends MUPQuery {
   private double m_min;
   private double m_max;
   private int m_count = kMax;

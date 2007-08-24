@@ -2,10 +2,6 @@ package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.ranks.AttributeWeights;
 import com.tumri.joz.ranks.IWeight;
 
 import java.util.Iterator;
@@ -24,7 +20,6 @@ public abstract class SimpleQuery implements Query, Comparable {
     kAttribute, kRange, kKeyword
   }
 
-  private IProduct.Attribute m_attribute;
   private boolean m_negation; // used to express !=, not in range queries
   protected SortedSet<Handle> m_results;
   protected Filter<Handle> m_filter;
@@ -34,17 +29,19 @@ public abstract class SimpleQuery implements Query, Comparable {
   public abstract double getCost();
   public abstract SortedSet<Handle> exec();
   public abstract Filter<Handle> getFilter();
+  public abstract IWeight<Handle> getWeight();
 
-  protected SimpleQuery(IProduct.Attribute aAttribute) {
-    m_attribute = aAttribute;
-  }
+  /**
+   * @return true of the query has index built
+   */
+  public abstract boolean hasIndex();
 
-  public IWeight<Handle> getWeight() {
-    return AttributeWeights.getWeight(m_attribute);
-  }
+  /**
+   * @return list of all possible Handles
+   */
+  public abstract SortedSet<Handle> getAll();
 
-  public IProduct.Attribute getAttribute() {
-    return m_attribute;
+  protected SimpleQuery() {
   }
 
   public boolean isNegation() {
@@ -65,15 +62,11 @@ public abstract class SimpleQuery implements Query, Comparable {
         (getCost() == that.getCost() ? 0 : 1));
   }
 
-  public boolean hasIndex() {
-    return ProductDB.getInstance().hasIndex(m_attribute);
-  }
-
   protected SortedSet<Handle> tableScan() {
     Filter<Handle> lFilter = getFilter();
     SortedSet<Handle> set = new TreeSet<Handle>();
     if (lFilter != null) {
-      Iterator<Handle> iter = ProductDB.getInstance().getAll().iterator();
+      Iterator<Handle> iter = getAll().iterator();
       while (iter.hasNext()) {
         Handle lHandle = iter.next();
         if (lFilter.accept(lHandle))

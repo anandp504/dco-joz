@@ -15,7 +15,7 @@ import java.util.SortedSet;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class KeywordQuery extends SimpleQuery {
+public class KeywordQuery extends MUPQuery {
   private String m_keywords;
   private boolean m_luceneSort = false;   
   private int m_currentPage = 0;

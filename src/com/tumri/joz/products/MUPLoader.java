@@ -143,14 +143,15 @@ public class MUPLoader {
   @Test public void test() {
     try {
       loadProducts();
+      QueryProcessor qp = new ProductQueryProcessor();
       TaxonomyLoader tl = new TaxonomyLoader();
       DictionaryManager dm = DictionaryManager.getInstance();
       ProductDB.getInstance();
-      new TSpecLoader(false);
+      new TSpecLoader(true);
       long start = System.currentTimeMillis();
       for (int i = 0; i < 1; i++) {
         CNFQuery q = new CNFQuery();
-        ConjunctQuery cq = new ConjunctQuery();
+        ConjunctQuery cq = new ConjunctQuery(qp);
         AttributeQuery aq = new AttributeQuery(IProduct.Attribute.kProvider,
             dm.getId(IProduct.Attribute.kProvider, "AUDIBLE.COM"));
         //aq.setNegation(true);
@@ -259,7 +260,7 @@ class TSpec {
 
   private String m_name;
   private CNFQuery m_query = new CNFQuery();
-  private ConjunctQuery m_cjquery = new ConjunctQuery();
+  private ConjunctQuery m_cjquery = new ConjunctQuery(new ProductQueryProcessor());
 
   TSpec(Element e) {
     m_query.addQuery(m_cjquery);

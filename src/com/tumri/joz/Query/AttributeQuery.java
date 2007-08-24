@@ -14,7 +14,7 @@ import java.util.SortedSet;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class AttributeQuery extends SimpleQuery { 
+public class AttributeQuery extends MUPQuery { 
   private ArrayList<Integer> m_values = new ArrayList<Integer>();
   private int m_count = kMax;
 
