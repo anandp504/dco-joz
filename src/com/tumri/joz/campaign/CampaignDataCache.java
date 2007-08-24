@@ -131,6 +131,15 @@ public class CampaignDataCache {
 	  }
 	  
 	  /**
+	   * Returns an ospec object from the cache
+	   * @param oSpecName
+	   * @return
+	   */
+	  public OSpec getOSpec(String oSpecName) {
+		  return m_oSpecHashtable.get(oSpecName);
+	  }
+	  
+	  /**
 	   * Walk thru the OSpec details and create the Query
 	   * @param oSpec
 	   * @return
