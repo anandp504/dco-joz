@@ -1,10 +1,12 @@
 package com.tumri.joz.campaign;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -20,6 +22,7 @@ import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.ProductInfo;
 import com.tumri.cma.domain.ProviderInfo;
 import com.tumri.cma.domain.TSpec;
+import com.tumri.cma.misc.TSpecLispFileParser;
 import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
 import com.tumri.joz.Query.AttributeQuery;
 import com.tumri.joz.Query.CNFQuery;
@@ -31,6 +34,11 @@ import com.tumri.joz.Query.SimpleQuery;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.sexp.BadSexpException;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpReader;
+import com.tumri.utils.sexp.SexpSymbol;
 
 /**
  * Class to maintain the cache of the campaign and oSpec data
@@ -43,8 +51,7 @@ public class CampaignDataCache {
 
 	  private static AtomicReference<CampaignDataCache> g_campaignProvider = null;
 	  private HashMap<String, OSpec> m_oSpecHashtable = null;
-	  //TODO: Convert the query cache into LRU
-	  private WeakHashMap<String, CNFQuery> m_oSpecQueryCache = null;
+	  private LinkedHashMap<String, CNFQuery> m_oSpecQueryCache = null;
 	  
 	  private static String _lispSourceFilePath = "..";
 	  
@@ -55,7 +62,7 @@ public class CampaignDataCache {
 			 _lispSourceFilePath = srcPath;
 		 }
 		 m_oSpecHashtable = new HashMap<String, OSpec>();
-		 m_oSpecQueryCache = new WeakHashMap<String, CNFQuery>();
+		 m_oSpecQueryCache = new LinkedHashMap<String, CNFQuery>(100, 0.75f, true);
 	  }
 	  
 	  public static CampaignDataCache getInstance() {
@@ -65,6 +72,7 @@ public class CampaignDataCache {
 					  g_campaignProvider = new AtomicReference<CampaignDataCache>();
 					  CampaignDataCache cdCache = new CampaignDataCache();
 					  cdCache.load();
+					  g_campaignProvider.set(cdCache);
 				  }
 			  }
 		  }
@@ -83,10 +91,6 @@ public class CampaignDataCache {
 			  //TODO: Change this to the CMA factory instantiation (Once Bhupen makes the change to CMAFactory)
 			  CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(_lispSourceFilePath);
 			  Iterator<Campaign> campaignIter = lispDeltaProvider.getNewDeltas();
-			  CampaignDataCache newCache = new CampaignDataCache();
-			  HashMap<String, OSpec> tmpSpecHashtable = new HashMap<String, OSpec>();
-			  WeakHashMap<String, CNFQuery> tmpSpecQueryCache = new WeakHashMap<String, CNFQuery>();
-
 			  if (campaignIter != null) {
 				  while (campaignIter.hasNext()) {
 					  Campaign theCampaign = campaignIter.next();
@@ -94,17 +98,11 @@ public class CampaignDataCache {
 						  //TODO: Build the indices for the Campaign lookup
 						  AdPod theAdPod = theCampaign.getAdPods().get(i);
 						  OSpec theOSpec = theAdPod.getOspec();
-						  String oSpecName = theOSpec.getName();
-						  tmpSpecHashtable.put(oSpecName, theOSpec);  
-						  //Materialize the queries
-						  //Note: The new string() is done here so that there is no strong reference to the key (not added to the string pool), 
-						  // to enable it to be garbage collected when needed
-						  tmpSpecQueryCache.put(new String(oSpecName), getQuery(theOSpec));
+						  addToOSpecCache(theOSpec);  
+						  //Materialize the query
+						  addToOSpecQueryCache(theOSpec.getName(),getQuery(theOSpec));
 					  }
 				  }
-				  newCache.set_oSpecHashtable(tmpSpecHashtable);
-				  newCache.set_oSpecQueryCache(tmpSpecQueryCache);
-				  g_campaignProvider.set(newCache);
 			  }
 			  log.info("Campaign data loaded into cache. Time taken (millis) : " + (System.currentTimeMillis() - startTime));
 		  } catch (CMAException e) {
@@ -119,13 +117,14 @@ public class CampaignDataCache {
 	   * @return
 	   */
 	  public CNFQuery getCNFQuery(String oSpecName) {
-		  CNFQuery query = m_oSpecQueryCache.get(oSpecName);
-		  if (query == null) {
-			  //Get the query from the g_OSpecHashtable
-			  OSpec oSpec = m_oSpecHashtable.get(oSpecName);
-			  query = getQuery(oSpec);
-			  //Put into the cache
-			  m_oSpecQueryCache.put(new String(oSpecName), query);
+		  CNFQuery query = null;
+		  synchronized (CampaignDataCache.class) {
+			  query = lookupOSpecQuery(oSpecName);
+			  if (query == null) {
+				  OSpec oSpec = lookupOSpec(oSpecName);
+				  query = getQuery(oSpec);
+				  addToOSpecQueryCache(oSpecName, query);
+			  }
 		  }
 		  
 		  return query;
@@ -137,7 +136,36 @@ public class CampaignDataCache {
 	   * @return
 	   */
 	  public OSpec getOSpec(String oSpecName) {
-		  return m_oSpecHashtable.get(oSpecName);
+		  return lookupOSpec(oSpecName);
+	  }
+	  
+	  /**
+	   * Parses the tspec-add directive and adds an Ospec to the cache. 
+	   * This is used when creating a tSpec from the consoles. This tSpec does not become part of the Campaign Cache
+	   * @param str
+	   */
+	  public void doTSpecAdd(String tSpecAddStr) throws BadSexpException {
+		  Reader expReader = new StringReader(tSpecAddStr);
+		  SexpReader lr = new SexpReader(expReader);
+			try {
+				Sexp e = lr.read ();
+				SexpList l = e.toSexpList ();
+			 	Sexp cmd_expr = l.getFirst ();
+				if (! cmd_expr.isSexpSymbol ())
+					log.error("command name not a symbol: " + cmd_expr.toString ());
+
+				SexpSymbol sym = cmd_expr.toSexpSymbol ();
+				String cmd_name = sym.toString ();
+				if (cmd_name.equalsIgnoreCase("t-spec-add")) {
+					OSpec theOSpec = TSpecLispFileParser.readTSpecDetailsFromSExp(l.iterator());
+					m_oSpecHashtable.put(theOSpec.getName(), theOSpec);
+				} else {
+					log.error("Unexpected command received : " + tSpecAddStr);
+				}
+			} catch (Exception e) {
+				throw new BadSexpException("Could not parse and add the tspec into the cache");
+			}
+
 	  }
 	  
 	  /**
@@ -310,9 +338,43 @@ public class CampaignDataCache {
 		}
 	}
 
-	private void set_oSpecQueryCache(WeakHashMap<String, CNFQuery> specQueryCache) {
+	private void set_oSpecQueryCache(LinkedHashMap<String, CNFQuery> specQueryCache) {
 		 synchronized (CampaignDataCache.class) {
 			 m_oSpecQueryCache = specQueryCache;
 		 }
+	}
+	
+	private void addToOSpecCache(OSpec oSpec) {
+		 synchronized (CampaignDataCache.class) {
+			 m_oSpecHashtable.put(oSpec.getName(), oSpec);
+		 }
+	}
+	
+	private void addToOSpecQueryCache(String oSpecName, CNFQuery _query) {
+		 synchronized (CampaignDataCache.class) {
+			 m_oSpecQueryCache.put(oSpecName, _query);
+		 }
+	}
+	
+	private OSpec lookupOSpec(String oSpecName) {
+		 synchronized (CampaignDataCache.class) {
+			 return m_oSpecHashtable.get(oSpecName);
+		 }	
+	}
+
+	private CNFQuery lookupOSpecQuery(String oSpecName) {
+		 synchronized (CampaignDataCache.class) {
+			 return m_oSpecQueryCache.get(oSpecName);
+		 }	
+	}
+	
+	/**
+	 * Clear the last 50 entries of the cache - which are least used
+	 *
+	 */
+	private void clearQueryCache() {
+		 synchronized (CampaignDataCache.class) {
+				m_oSpecQueryCache.clear();
+		}	
 	}
 }
