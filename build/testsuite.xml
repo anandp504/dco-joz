@@ -6,7 +6,7 @@
 
     <!-- ****************************************************************** -->
 
-    <target name="build-tests">
+    <target name="compile-tests">
 
         <javac destdir="${classes.dir}"
                debug="on"
@@ -14,19 +14,83 @@
                srcdir="${src.dir}"
                includes="com/tumri/joz/testsuite/*.java">
             <classpath refid="project.class.path"/>
-            <!--compilerarg value="-Xlint:unchecked"/>
-              <compilerarg value="-Xlint:deprecation"/-->
+            <compilerarg value="-Xlint:unchecked"/>
+	    <compilerarg value="-Xlint:deprecation"/>
         </javac>
 
     </target>
 
     <!-- ****************************************************************** -->
 
+    <target name="build-testsuite-jar"
+	    depends="init,compile-tests">
+
+        <delete dir="${dist.dir}/testsuite"/>
+        <mkdir dir="${dist.dir}/testsuite"/>
+
+        <!-- copy so it gets put into our jar -->
+        <copy file="${src.dir}/log4j.properties"
+              todir="${dist.dir}/testsuite"/>
+        <copy file="${src.dir}/conf/testsuite.properties"
+              todir="${dist.dir}/testsuite"/>
+
+        <!-- copy all our 3rd party libs into our jar -->
+        <unjar src="${ext.lib.dir}/log4j-1.2.6.jar"
+               dest="${dist.dir}/testsuite"/>
+        <unjar src="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"
+               dest="${dist.dir}/testsuite"/>
+        <unjar src="${ext.lib.dir}/commons-logging.jar"
+               dest="${dist.dir}/testsuite"/>
+        <unjar src="${ext.lib.dir}/commons-codec-1.3.jar"
+               dest="${dist.dir}/testsuite"/>
+
+	<!-- copy all internal libs into our jar -->
+	<unjar src="${utils.lib.dir}/utils.jar"
+	       dest="${dist.dir}/testsuite"/>
+
+	<jar destfile="${dist.dir}/testsuite.jar">
+            <fileset dir="${classes.dir}"
+		     includes="com/tumri/joz/testsuite/*.class"/>
+            <fileset dir="${dist.dir}/testsuite"/>
+            <manifest>
+                <attribute name="Main-Class" value="com.tumri.joz.testsuite.TestsuiteUtils"/>
+            </manifest>
+        </jar>
+
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <target name="build-tests"
+	    depends="build-testsuite-jar"/>
+
+    <!-- ****************************************************************** -->
+
     <target name="run-tests" depends="build-tests">
 
-	<java classpath="${dist.dir}/Joz.jar;${ext.lib.dir}/log4j-1.2.6.jar;${classes.dir}"
-	      classname="com/tumri/joz/testsuite/TestIFASL1"
-	      fork="true"/>
+	<!-- First start joz.  -->
+	<exec executable="/bin/sh"
+	      dir="${joz.install.dir}/temp"
+	      spawn="true">
+	    <env key="JAVA_OPTS" value="-Xms512m -Xmx512m"/>
+	    <arg value="../bin/catalina.sh"/>
+	    <arg value="run"/>
+	    <arg value="-config"/>
+	    <arg value="conf/server-joz.xml"/>
+	</exec>
+
+	<!-- Now we can run the tests.  -->
+	<java classpath="${dist.dir}/testsuite.jar"
+	      classname="com/tumri/joz/testsuite/JozTestsuite"
+	      fork="true">
+	    <arg value="all"/>
+	</java>
+
+	<!-- All done, terminate joz.  -->
+	<exec executable="/bin/sh"
+	      dir="${joz.install.dir}/temp">
+	    <arg value="../bin/shutdown.sh"/>
+	</exec>
 
     </target>
 

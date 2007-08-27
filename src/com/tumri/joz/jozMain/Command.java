@@ -79,8 +79,12 @@ public abstract class Command
 		return new CmdTabulateSearchResults (e);
 	    if (cmd_name.equals ("get-counts"))
 		return new CmdGetCounts (e);
+	    if (cmd_name.equals ("get-complete-taxonomy"))
+		return new CmdGetCompleteTaxonomy (e);
 	    if (cmd_name.equals ("get-providers"))
 		return new CmdGetProviders (e);
+	    if (cmd_name.equals ("get-root-categories"))
+		return new CmdGetRootCategories (e);
 	    if (cmd_name.equals ("incorp-mapping-deltas"))
 		return new CmdIncorpMappingDeltas (e);
 	    if (cmd_name.equals ("t-spec-add"))

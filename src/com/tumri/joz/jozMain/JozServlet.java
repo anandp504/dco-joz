@@ -63,7 +63,7 @@ public class JozServlet extends HttpServlet
 	    {
 		Sexp result = cmd.process ();
 		boolean uppercase_syms = cmd.need_uppercase_syms ();
-		SexpIFASLWriter.write (out, result, uppercase_syms);
+		SexpIFASLWriter.writeOne (out, result, uppercase_syms);
 		// FIXME: Need option to not print entire s-expression,
 		// they can be pretty large.
 /*

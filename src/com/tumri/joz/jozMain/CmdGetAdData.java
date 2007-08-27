@@ -77,7 +77,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	    log.error (e);
 	    // FIXME: could still be in the middle of transmission
 	    Sexp sexp = JozData.mup_db.get_default_realm_response ();
-	    SexpIFASLWriter.write (out, sexp, false);
+	    SexpIFASLWriter.writeOne (out, sexp);
 	}
     }
 
@@ -316,7 +316,7 @@ public class CmdGetAdData extends CommandOwnWriting
 
 	// This is a big part of the result, write directly.
 	w.startList (2);
-	w.writeString8Array (EString.stringToASCII ("PRODUCTS"));
+	w.writeString8 ("PRODUCTS");
 	write_products (w, products);
 	w.endList ();
 
@@ -381,8 +381,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	if (log.isDebugEnabled ())
 	    log.debug ("Product string: " + s);
 
-	byte[] encoded_string = EString.stringToASCII (s);
-	w.writeString8Array (encoded_string);
+	w.writeString8 (s);
     }
 
     // Write an element of the result.
@@ -396,7 +395,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	    log.debug ("Writing " + name + ": " + sexp.toString ());
 
 	w.startList (2);
-	w.writeString8Array (EString.stringToASCII (name));
+	w.writeString8 (name);
 	w.visit (sexp);
 	w.endList ();
     }
@@ -410,9 +409,9 @@ public class CmdGetAdData extends CommandOwnWriting
 	    log.debug ("Writing " + name + ": " + s);
 
 	w.startList (2);
-	w.writeString8Array (EString.stringToASCII (name));
+	w.writeString8 (name);
 	// FIXME: assumes ASCII
-	w.writeString8Array (EString.stringToASCII (s));
+	w.writeString8 (s);
 	w.endList ();
     }
 
