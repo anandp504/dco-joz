@@ -1,7 +1,6 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
-import com.tumri.joz.index.MultiSortedSet;
 import com.tumri.joz.index.RWLocked;
 import com.tumri.joz.index.SortedArraySet;
 import com.tumri.joz.index.SortedSplitSet;
@@ -24,7 +23,7 @@ import java.util.SortedSet;
  * Where ~S3 indicates exclusion set S3
  *
  */
-abstract public class SetIntersector<Value extends Comparable> {
+abstract public class SetIntersector<Value> {
   public static int MAXRET = 1000;
 
   private boolean m_strict = false;
@@ -94,8 +93,16 @@ abstract public class SetIntersector<Value extends Comparable> {
    */
   public void include(SortedSet<Value> set, IWeight<Value> weight) {
     if (set != null && set.size() > 0) {
-        m_includes.add(set);
-        m_includesWeight.add(weight);
+      for (int i = 0; i < m_includes.size(); i++) {
+        SortedSet<Value> lValues = m_includes.get(i);
+        if (set.size() < lValues.size()) { // insert in a sorted order with smallest set first
+          m_includes.add(i,set);
+          m_includesWeight.add(weight);
+          return;
+        }
+      }
+      m_includes.add(set);
+      m_includesWeight.add(weight);
     } else {
         m_zeroSize++;
     }
@@ -172,20 +179,6 @@ abstract public class SetIntersector<Value extends Comparable> {
     return count;
   }
 
-  private Value nextElement(SortedSet<Value> set, Value current) {
-    if (set instanceof MultiSortedSet) {
-      Value v = ((MultiSortedSet<Value>)set).nextElement(current);
-      if (v != null) return v;
-    }
-    Iterator<Value> iter = set.iterator();
-    if (iter.hasNext()) {
-      Value next = iter.next();
-      if (!next.equals(current)) return next;
-      if (iter.hasNext()) return iter.next();
-    }
-    return null;
-  }
-
   private void print() {
     for (int i = 0; i < m_includes.size(); i++) {
       Iterator<Value> lValues = m_includes.get(i).iterator();
@@ -215,22 +208,19 @@ abstract public class SetIntersector<Value extends Comparable> {
       int matches = 0; // score for the cPointer matches
       int setIndex = 0;
       double totalWeight = 1.0;
-      SortedSet<Value> currentSet = m_includes.get(setIndex++); // current set where cPointer is fetched
-      Value cPointer = currentSet.first(); // cPointer will point to an item in the set under consideration
+      Value cPointer = getElement(m_includes.get(0),null);
       int itemVisitCount = 1, itemLookupCount = 0; // Performace indicator for how many items were visited
       int loopcount=0;
       while (cPointer != null) {
         loopcount++;
-        currentSet = currentSet.tailSet(cPointer);
-        m_includes.set((setIndex-1)%m_incSize,currentSet);
-        totalWeight *= m_includesWeight.get((setIndex-1)%m_incSize).getWeight(cPointer);
+        totalWeight *= m_includesWeight.get(0).getWeight(cPointer);
         // Inner loops runs as many times as the size of the sets
-        for (int i = 0; i < m_incSize - 1; i++) {
+        Value nextPointer = null;
+        for (int i = 1; i < m_incSize; i++) {
           itemLookupCount++;
-          setIndex = (setIndex + i) % m_incSize;
-          currentSet = m_includes.get(setIndex).tailSet(cPointer);
-          m_includes.set(setIndex,currentSet);
-          if (currentSet.isEmpty() || !currentSet.first().equals(cPointer)) {
+          setIndex = i;
+          nextPointer = getElement(m_includes.get(i),cPointer);
+          if (nextPointer == null || !nextPointer.equals(cPointer)) {
             break;
           }
           IWeight<Value> w = m_includesWeight.get(i);
@@ -238,21 +228,25 @@ abstract public class SetIntersector<Value extends Comparable> {
           totalWeight *= w.getWeight(cPointer);
         }
         for (int i = 0; i < m_filterSize; i++) {
-          if (!m_filters.get(i).accept(cPointer)) break; // @todo fail on first filter may not be the best move
+          if (!m_filters.get(i).accept(cPointer))
+            continue;
           IWeight<Value> w = m_filtersWeight.get(i);
           matches += w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }
         for (int i = 0; i < m_excSize; i++) {
           itemLookupCount++;
-          if (m_excludes.get(i).contains(cPointer)) break; // @todo fail on first exclude may not be the best move
+          if (m_excludes.get(i).contains(cPointer))
+            continue;
           IWeight<Value> w = m_excludesWeight.get(i);
           matches += w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }
         if (addResult(matches, cPointer, totalWeight)) break;
         matches = 0; totalWeight = 1.0;
-        cPointer = nextElement(currentSet, cPointer);
+        cPointer = ((nextPointer == null || cPointer.equals(nextPointer))?
+            nextElement(m_includes.get(0), cPointer) :
+            getElement(m_includes.get(0),nextPointer));
         itemVisitCount++;
         setIndex++;
       }
@@ -328,5 +322,25 @@ abstract public class SetIntersector<Value extends Comparable> {
 
   protected ArrayList<SortedSet<Value>> getIncludes() {
     return m_includes;
+  }
+
+  private Value getElement(SortedSet<Value> set, Value current) {
+    if (current == null)
+      return (set.isEmpty() ? null : set.first());
+    SortedSet<Value> tail = set.tailSet(current);
+    return (!tail.isEmpty() ? tail.first(): null);
+  }
+  private Value nextElement(SortedSet<Value> set, Value current) {
+    if (current != null) {
+      Iterator<Value> tail = set.tailSet(current).iterator();
+      if (tail.hasNext()) {
+        Value v = tail.next();
+        if (!v.equals(current))
+          return v;
+        if (tail.hasNext())
+          return tail.next();
+      }
+    }
+    return null;
   }
 }

@@ -105,9 +105,9 @@ public class ConjunctQuery implements Query {
     (isScan() ?  m_queryProcessor.buildTableScanner(m_queries) : m_queryProcessor.buildIntersector(m_queries));
     intersector.setReference(m_reference);
     intersector.setStrict(isStrict());
-    long start = System.currentTimeMillis();
+    long start = System.nanoTime();
     m_results = intersector.intersect();
-    System.out.println("Time is " + (System.currentTimeMillis() - start));
+    System.out.println("Time is " + (System.nanoTime() - start));
     return m_results;
   }
 
