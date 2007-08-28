@@ -83,9 +83,12 @@ public class CmdGetCompleteTaxonomy extends CommandDeferWriting
 	SexpList children = new SexpList ();
 	TreeSet<Integer> children_ids = tax.getChildren (category_id);
 
-	for (Integer child_id : children_ids)
+	if (children_ids != null)
 	{
-	    children.addLast (get_taxonomy (dm, tax, child_id));
+	    for (Integer child_id : children_ids)
+	    {
+		children.addLast (get_taxonomy (dm, tax, child_id));
+	    }
 	}
 
 	result.addLast (children);
