@@ -10,6 +10,9 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.*;
 
+import com.tumri.zini.transport.FASLType;
+import com.tumri.zini.transport.FASLReader;
+
 public class JozClient
 {
     public JozClient (String server_url, int timeout_seconds)
@@ -49,15 +52,29 @@ public class JozClient
             int status_code = _http_client.executeMethod (_get_method);
 	    byte[] response = _get_method.getResponseBody ();
 
-	    log.info ("Got " + new String (response));
+	    // Try to pretty-print the response.  It's in IFASL format.
+
+	    try
+	    {
+		InputStream in = new ByteArrayInputStream (response);
+		FASLReader fr = new FASLReader (in);
+		int version = fr.readVersion ();
+		FASLType ft = fr.read ();
+		log.info ("Got " + ft.toString ());
+	    }
+	    catch (Exception e)
+	    {
+		// That failed, just do something basic.
+		log.info ("Got " + new String (response));
+	    }
 
 	    if (status_code != HttpStatus.SC_OK)
 	    {
 		log.error ("http request failed: " + _get_method.getStatusLine ());
 		return null;
 	    }
-	    InputStream _response = new ByteArrayInputStream (response);
-	    return _response;
+	    InputStream in = new ByteArrayInputStream (response);
+	    return in;
         }
 	catch (HttpException e)
 	{

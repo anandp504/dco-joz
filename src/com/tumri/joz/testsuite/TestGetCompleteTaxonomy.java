@@ -4,9 +4,9 @@ package com.tumri.joz.testsuite;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import com.tumri.utils.sexp.*;
+import com.tumri.utils.ifasl.*;
 
 public class TestGetCompleteTaxonomy
 {
@@ -24,14 +24,18 @@ public class TestGetCompleteTaxonomy
 	    return;
 	}
 
-	InputStreamReader ir = new InputStreamReader (is);
-	SexpReader sr = new SexpReader (ir);
-
 	try
 	{
-	    Sexp s = sr.read ();
+	    SexpIFASLReader r = new SexpIFASLReader (is);
 
-	    if (sr.read () != null)
+	    Sexp s = r.read ();
+	    if (! validate_taxonomy (s))
+	    {
+		log.fail (me, "not a valid taxonomy");
+		return;
+	    }
+
+	    if (r.read () != null)
 	    {
 		log.fail (me, "should be only one sexp in result");
 		return;
@@ -42,7 +46,7 @@ public class TestGetCompleteTaxonomy
 	    log.fail (me, "i/o exception");
 	    return;
 	}
-	catch (BadSexpException e)
+	catch (IFASLFormatException e)
 	{
 	    log.fail (me, "malformed sexp");
 	    return;
@@ -50,6 +54,57 @@ public class TestGetCompleteTaxonomy
 
 	log.pass (me);
     }
+
+    // Recursive function to validate taxonomy {s}.
+    // Result is true if {s} is a valid taxonomy entry.
+    //
+    // NOTE: This could do more validation.  Maybe over time it will,
+    // depending on what bugs occur.
+
+    private static boolean
+    validate_taxonomy (Sexp s)
+    {
+	if (! s.isSexpList ())
+	{
+	    log.info ("taxonomy not a list");
+	    return false;
+	}
+
+	SexpList tax = s.toSexpList ();
+
+	if (tax.size () != 2)
+	{
+	    log.info ("taxonomy list not two elements");
+	    return false;
+	}
+
+	Sexp elm0 = tax.get (0);
+	Sexp elm1 = tax.get (1);
+
+	if (! elm0.isSexpList ())
+	{
+	    log.info ("elm0 not a list");
+	    return false;
+	}
+
+	if (! elm1.isSexpList ())
+	{
+	    log.info ("elm1 not a list");
+	    return false;
+	}
+
+	// recurse for each element in the child list (elm1)
+
+	for (Sexp child : elm1.toSexpList ())
+	{
+	    if (! validate_taxonomy (child))
+		return false;
+	}
+
+	return true;
+    }
+
+    // implementation details -------------------------------------------------
 
     private static JozTestsuite.Logger log = new JozTestsuite.Logger ();
 }

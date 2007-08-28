@@ -4,6 +4,12 @@
     <!-- NOTE WELL: This file is imported into the main build.xml file.
          It is not intended to work standalone.  -->
 
+    <path id="testsuite.libs">
+	<fileset dir="${ext.lib.dir}" includes="*.jar" />
+	<fileset dir="${utils.lib.dir}" includes="*.jar" />
+	<fileset dir="${zini.lib.dir}" includes="*.jar" />
+    </path>
+
     <!-- ****************************************************************** -->
 
     <target name="compile-tests">
@@ -33,20 +39,6 @@
               todir="${dist.dir}/testsuite"/>
         <copy file="${src.dir}/conf/testsuite.properties"
               todir="${dist.dir}/testsuite"/>
-
-        <!-- copy all our 3rd party libs into our jar -->
-        <unjar src="${ext.lib.dir}/log4j-1.2.6.jar"
-               dest="${dist.dir}/testsuite"/>
-        <unjar src="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"
-               dest="${dist.dir}/testsuite"/>
-        <unjar src="${ext.lib.dir}/commons-logging.jar"
-               dest="${dist.dir}/testsuite"/>
-        <unjar src="${ext.lib.dir}/commons-codec-1.3.jar"
-               dest="${dist.dir}/testsuite"/>
-
-	<!-- copy all internal libs into our jar -->
-	<unjar src="${utils.lib.dir}/utils.jar"
-	       dest="${dist.dir}/testsuite"/>
 
 	<jar destfile="${dist.dir}/testsuite.jar">
             <fileset dir="${classes.dir}"
@@ -79,8 +71,17 @@
 	    <arg value="conf/server-joz.xml"/>
 	</exec>
 
+	<!-- Sleep a bit to allow tomcat to start, but only sleep as long as it
+	     takes before an httpclient request can connect.  The test driver
+	     itself will handle the rest, we only do this to reduce the
+	     "i/o exception" noise in the test driver output before tomcat
+	     has had a chance to initialize.  This sleep is _not_ necessary
+	     for correctness.  -->
+	<sleep seconds="20"/>
+
 	<!-- Now we can run the tests.  -->
-	<java classpath="${dist.dir}/testsuite.jar"
+	<java classpathref="testsuite.libs"
+	      classpath="${dist.dir}/testsuite.jar"
 	      classname="com/tumri/joz/testsuite/JozTestsuite"
 	      fork="true">
 	    <arg value="all"/>
@@ -91,6 +92,23 @@
 	      dir="${joz.install.dir}/temp">
 	    <arg value="../bin/shutdown.sh"/>
 	</exec>
+
+    </target>
+
+    <!-- ****************************************************************** -->
+
+    <!-- Utility target to run one test against an already running joz.  -->
+
+    <property name="run1.test" value="get-complete-taxonomy"/>
+
+    <target name="run1-test">
+
+	<java classpathref="testsuite.libs"
+	      classpath="${dist.dir}/testsuite.jar"
+	      classname="com/tumri/joz/testsuite/JozTestsuite"
+	      fork="true">
+	    <arg value="${run1.test}"/>
+	</java>
 
     </target>
 

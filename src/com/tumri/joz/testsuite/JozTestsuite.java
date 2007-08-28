@@ -46,7 +46,37 @@ public class JozTestsuite
 	    && args[0].equals ("all"))
 	{
 	    TestGetCompleteTaxonomy.run ();
-	    TestGetCompleteTaxonomy.run ();
+	    TestGetCounts.run ();
+	    TestGetAttrsAndMetadata.run ();
+	    TestGetProviders.run ();
+	    TestGetRootCategories.run ();
+	    TestIncorpMappingDeltas.run ();
+	    TestTSpecAdd.run ();
+	    TestTSpecDelete.run ();
+	    TestTabulateSearchResults.run ();
+	    return;
+	}
+
+	for (int i = 0; i < args.length; ++i)
+	{
+	    if (args[i].equals ("get-complete-taxonomy"))
+		TestGetCompleteTaxonomy.run ();
+	    else if (args[i].equals ("get-counts"))
+		TestGetCounts.run ();
+	    else if (args[i].equals ("get-attributes-and-metadata"))
+		TestGetAttrsAndMetadata.run ();
+	    else if (args[i].equals ("get-providers"))
+		TestGetProviders.run ();
+	    else if (args[i].equals ("get-root-categories"))
+		TestGetRootCategories.run ();
+	    else if (args[i].equals ("incorp-mapping-deltas"))
+		TestIncorpMappingDeltas.run ();
+	    else if (args[i].equals ("tspec-add"))
+		TestTSpecAdd.run ();
+	    else if (args[i].equals ("tspec-delete"))
+		TestTSpecDelete.run ();
+	    else if (args[i].equals ("tabulate-search-results"))
+		TestTabulateSearchResults.run ();
 	}
 
 	// FIXME: wip
@@ -84,6 +114,7 @@ public class JozTestsuite
     }
 
     // Interface to log4j.
+    // FIXME: temp hack for now, loses source location for example
 
     public static class Logger
     {
