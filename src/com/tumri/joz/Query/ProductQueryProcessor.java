@@ -23,8 +23,8 @@ public class ProductQueryProcessor extends QueryProcessor {
     super();
   }
 
-  public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries) {
-    ProductSetIntersector aIntersector = new ProductSetIntersector(null);
+  public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference) {
+    ProductSetIntersector aIntersector = new ProductSetIntersector();
     for (int i = 0; i < aQueries.size(); i++) {
       MUPQuery lSimpleQuery = (MUPQuery)aQueries.get(i);
       if (lSimpleQuery.getAttribute() == IProduct.Attribute.kKeywords)
@@ -34,6 +34,7 @@ public class ProductQueryProcessor extends QueryProcessor {
     }
     if (!aIntersector.hasIncludes())
       aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
+    aIntersector.setReference(reference);
     return aIntersector;
   }
   /**
@@ -47,8 +48,8 @@ public class ProductQueryProcessor extends QueryProcessor {
    * 7.          all                              + negative (add as filters)
    *
    */
-  public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries) {
-    ProductSetIntersector aIntersector = new ProductSetIntersector(null);
+  public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference) {
+    ProductSetIntersector aIntersector = new ProductSetIntersector();
     for (int i = 0; i < aQueries.size(); i++) { // Step 1
       SimpleQuery lSimpleQuery = aQueries.get(i);
       if ((lSimpleQuery.getType() == SimpleQuery.Type.kAttribute ||
@@ -90,6 +91,7 @@ public class ProductQueryProcessor extends QueryProcessor {
         aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step 7. Add filter for all negations
       }
     }
+    aIntersector.setReference(reference);
     return aIntersector;
   }
   /**

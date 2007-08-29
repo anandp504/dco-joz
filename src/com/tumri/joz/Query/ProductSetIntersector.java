@@ -19,8 +19,15 @@ public class ProductSetIntersector extends SetIntersector<Handle> {
     return h.createHandle(score);
   }
 
-  public ProductSetIntersector(Handle reference) {
+  public ProductSetIntersector() {
     super();
-    setReference(reference);
+  }
+
+  public ProductSetIntersector(ProductSetIntersector set) {
+    super(set);
+  }
+
+  public SetIntersector<Handle> clone() throws CloneNotSupportedException {
+    return new ProductSetIntersector(this);
   }
 }

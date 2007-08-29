@@ -1,9 +1,11 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.products.Handle;
+import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.SortedSet;
 
 /**
@@ -102,8 +104,7 @@ public class ConjunctQuery implements Query, Cloneable {
     // ??? This gets an "unchecked method invocation" warning.
     Collections.sort(m_queries);
     SetIntersector<Handle> intersector =
-    (isScan() ?  m_queryProcessor.buildTableScanner(m_queries) : m_queryProcessor.buildIntersector(m_queries));
-    intersector.setReference(m_reference);
+    (isScan() ?  m_queryProcessor.buildTableScanner(m_queries, m_reference) : m_queryProcessor.buildIntersector(m_queries, m_reference));
     intersector.setStrict(isStrict());
     long start = System.nanoTime();
     m_results = intersector.intersect();
@@ -111,6 +112,19 @@ public class ConjunctQuery implements Query, Cloneable {
     return m_results;
   }
 
+  public void test() {
+    SetIntersector<Handle> intersector =
+    (isScan() ?  m_queryProcessor.buildTableScanner(m_queries, m_reference) : m_queryProcessor.buildIntersector(m_queries, m_reference));
+    intersector.setStrict(isStrict());
+    Iterator<Handle> iter = m_results.iterator();
+    Iterator<Handle> iter1 = intersector.iterator();
+    int count = 0;
+    while (iter.hasNext() && iter1.hasNext()) {
+      count++;
+      Assert.assertEquals(iter.next().getOid(),iter1.next().getOid());
+    }
+    Assert.assertTrue((count == intersector.getMax()) || (iter.hasNext() == iter1.hasNext()));
+  }
   public Object clone() {
 	  ConjunctQuery copyQuery = null;
       try {
