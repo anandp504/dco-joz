@@ -252,6 +252,8 @@ public class ProductDB {
     }
   }
 
+  public Iterator<Handle> getAllProducts () { return m_allProducts.iterator (); }
+
   /**
    * Get IProduct without checking a lock, reader should call readerLock()
    * @param id
