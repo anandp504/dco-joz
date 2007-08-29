@@ -52,7 +52,8 @@ public class ProductQueryProcessor extends QueryProcessor {
     for (int i = 0; i < aQueries.size(); i++) { // Step 1
       SimpleQuery lSimpleQuery = aQueries.get(i);
       if ((lSimpleQuery.getType() == SimpleQuery.Type.kAttribute ||
-           lSimpleQuery.getType() == SimpleQuery.Type.kKeyword) &&
+           lSimpleQuery.getType() == SimpleQuery.Type.kKeyword ||
+           lSimpleQuery.getType() == SimpleQuery.Type.kProductType) &&
           lSimpleQuery.hasIndex() &&
           !lSimpleQuery.isNegation()) {
         aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // include indexed attribute/keyword queries first

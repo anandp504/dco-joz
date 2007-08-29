@@ -16,7 +16,7 @@ import com.tumri.cma.domain.TSpec;
 import com.tumri.joz.Query.AttributeQuery;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.Query.KeywordQuery;
-import com.tumri.joz.Query.ProductSetIntersector;
+import com.tumri.joz.Query.ProductTypeQuery;
 import com.tumri.joz.Query.SimpleQuery;
 import com.tumri.joz.campaign.CampaignDataCache;
 import com.tumri.joz.index.DictionaryManager;
@@ -25,12 +25,12 @@ import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.JozData;
 import com.tumri.joz.jozMain.MUPProductObj;
 import com.tumri.joz.jozMain.SelectedProduct;
+import com.tumri.joz.jozMain.AdDataRequest.AdOfferType;
 import com.tumri.joz.jozMain.Enums.MaybeBoolean;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.Product;
 import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.ranks.AttributeWeights;
 import com.tumri.joz.targeting.TSpecTargetingHelper;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
@@ -38,19 +38,20 @@ import com.tumri.utils.sexp.SexpReader;
 import com.tumri.utils.sexp.SexpSymbol;
 
 /**
- * Processes the product selection request, and creates the result set
+ * Processes the get-ad-data request, and creates the result set
  * @author nipun
  *
  */
 public class ProductRequestProcessor {
 
-	private ProductSetIntersector m_prodSetIntersector = null;
-	private boolean m_SearchTSpecOnly = true;
 	private static Logger log = Logger.getLogger (ProductRequestProcessor.class);
+
+	private CNFQuery m_tSpecQuery = null;
+	private OSpec m_currOSpec = null;
 	private Integer m_NumProducts = null;
 	private Integer m_currentPage = null;
 	private Integer m_pageSize = null;
-	private boolean m_scavengeUrls = false;
+	private boolean m_clonedQuery = false;
 	
 	/**
 	 * Default constructor
@@ -62,14 +63,25 @@ public class ProductRequestProcessor {
 	
 	@SuppressWarnings("unchecked")
 	/**
-	 * Select the Campaign --> AdPod --> OSpec based on the request parm, and process the query
+	 * Select the Campaign --> AdPod --> OSpec based on the request parm, and process the query.
+	 * The flow of events is as follows:
+	 * 	 <ul>
+	 * 		<li>1. Determine Max number of products, current page and page size for this request </li>
+	 * 		<li>2. Select Tspec for the request </li>
+	 * 		<li>3. Determine Random vs. Deterministic behaviour </li>
+	 * 		<li>4. Determine backfill of products </li>
+	 * 		<li>5. Determine whether or not to do URL Scavenging </li>
+	 * 		<li>6. Do the Product Selection </li>
+	 * 		<li>7. Add outer disjuncted products if needed </li>
+	 * 		<li>8. Return the right number of results </li>
+	 * 	 </ul>
 	 * @param request
 	 * @return
 	 */
 	public SortedSet<Handle> processRequest(AdDataRequest request) {
 		SortedSet<Handle> rResult = null;
-		CNFQuery _tSpecQuery = null;
 		
+		//1. Max Number of products to be served up
 		m_NumProducts = request.get_num_products ();
 		if (m_NumProducts!=null) {
 			int numProducts = m_NumProducts.intValue();
@@ -80,58 +92,50 @@ public class ProductRequestProcessor {
 				numProducts = 100;
 			m_NumProducts = new Integer(numProducts);
 		}
-		
+
+		//1. if row-size and which-row are non-nil and integers then deterministically return a row/page of results:
 		m_currentPage = request.get_which_row();
 		m_pageSize = request.get_row_size();
-		
-		//if row-size and which-row are non-nil and integers then deterministically return a row/page of results:
-		boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
+
+		//2. Select the TSpec for the request
 		String tSpecName = request.get_t_spec();
-		OSpec oSpec = null;
 		if ((tSpecName!=null) && (!"".equals(tSpecName))) {
-			//Locate TSpec query object
-			_tSpecQuery = CampaignDataCache.getInstance().getCNFQuery(tSpecName);
-			oSpec = CampaignDataCache.getInstance().getOSpec(tSpecName);
+			m_tSpecQuery = CampaignDataCache.getInstance().getCNFQuery(tSpecName);
+			m_currOSpec = CampaignDataCache.getInstance().getOSpec(tSpecName);
 		} else {
-			//Target campaign and select TSpec
 			String oSpecName = TSpecTargetingHelper.doTargeting(request);
 			if (oSpecName != null) {
-				_tSpecQuery = CampaignDataCache.getInstance().getCNFQuery(oSpecName);
+				m_tSpecQuery = CampaignDataCache.getInstance().getCNFQuery(oSpecName);
 			}
-			oSpec = CampaignDataCache.getInstance().getOSpec(oSpecName);
+			m_currOSpec = CampaignDataCache.getInstance().getOSpec(oSpecName);
 		}
 
 		MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
 
-		//Randomize results only when there is no keyword search, and there is no pagination
+		//3. Determine Random vs. Deterministic behaviour: Randomize results only when there is no keyword search, and there is no pagination
 		Handle ref = null;
-		if (((mMineUrls == MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(oSpec)) || ((m_currentPage==null) && (m_pageSize==null))) {
+		if (((mMineUrls == MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(m_currOSpec)) 
+				|| ((m_currentPage==null) && (m_pageSize==null))) {
 			ref = ProductDB.getInstance().genReference ();
 		}
-		m_prodSetIntersector = new ProductSetIntersector(ref);
+		m_tSpecQuery.setReference(ref);
 
-		if (mMineUrls == MaybeBoolean.TRUE) {
-			m_scavengeUrls = true;
-		}
+		//4. Determine backfill of products
 		MaybeBoolean mAllowTooFewProducts = request.get_allow_too_few_products();
+		boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
 
-		if ((mAllowTooFewProducts == MaybeBoolean.FALSE)||(!revertToDefaultRealm)) {
-			m_prodSetIntersector.setStrict(true);
+		if ((mAllowTooFewProducts == MaybeBoolean.TRUE)||(!revertToDefaultRealm)) {
+			m_tSpecQuery.getQueries().get(0).setStrict(true);
 		} else {
-			m_prodSetIntersector.setStrict(false);
+			m_tSpecQuery.getQueries().get(0).setStrict(false);
 		}
-		
-		if (_tSpecQuery != null) {
-			//See if there is a script Keyword
-			String scriptKeywords = request.get_script_keywords();
-			if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords))) {
-				//TODO get the tspec object and get the flag value - after Bhupen adds the flag to OSpec
-				m_SearchTSpecOnly = true;
-			}
-			rResult = doProductSelection(request, _tSpecQuery);
+
+		if (m_tSpecQuery != null) {
+			//6. Product selection
+			rResult = doProductSelection(request);
 			
-			//Do Outer Disjunction
-			List<Handle> disjunctedProds = getIncludedProducts(oSpec);
+			//7. Do Outer Disjunction
+			List<Handle> disjunctedProds = getIncludedProducts(m_currOSpec);
 			
 			if (disjunctedProds!=null){
 				//Append to the top of the results
@@ -141,7 +145,7 @@ public class ProductRequestProcessor {
 				rResult = sortedResult;
 			}
 			
-			//Cull the result to get the right page
+			//8. Cull the result to get the right page
 			if ((rResult!=null) && (m_NumProducts!=null)){
 				ArrayList<Handle> results = new ArrayList<Handle>();
 				//Cull the results further by num products
@@ -169,96 +173,99 @@ public class ProductRequestProcessor {
 	
 	@SuppressWarnings("unchecked")
 	/**
-	 * Process the request and perform the product selection
+	 * Process the request and perform the product selection. 
+	 * Here are the steps of the Product selection:
+	 * <ul>
+	 * 		<li> 1. Request Keywords search, if yes then do Keyword query against MUP and return </li>
+	 * 	    <li> 2. Script keywords, if present determine scope. If against MUP - return results sorted by Lucene score </li> 
+	 * 		<li> 3. URL keywords, if present determine scope. If against MUP - return results sorted by Lucene score</li>
+	 * 		<li> 4. Set pagination bound for TSpec squery</li>
+	 * 		<li> 5. Include request category into TSpec query</li>
+	 * 		<li> 6. Include Product Type request into TSpec query</li>
+	 * 		<li> 7. Excecute TSpec query</li>
+	 * 		<li> 8. If keywordResult present - then intersect with the TSpec results</li>
+	 * 		<li> 9. Return the result in the sorted order of score</li>
+	 * </ul>
 	 * @param request
 	 * @param tSpecQuery
 	 * @return
 	 */
-	private SortedSet<Handle> doProductSelection(AdDataRequest request, CNFQuery _tSpecQuery) {
+	private SortedSet<Handle> doProductSelection(AdDataRequest request) {
 		SortedSet<Handle> qResult = null;
 
-		//Keywords
-		String requestKeyWords = request.get_keywords();
-		
-		KeywordQuery rKwQuery = null;
-		KeywordQuery sKwQuery = null;
-		
-		if ((requestKeyWords!=null)&&(!"".equals(requestKeyWords))) {
-			if ((m_pageSize!=null) && (m_currentPage !=null)) {
-				rKwQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
-			}
-			rKwQuery = new KeywordQuery(requestKeyWords);
-			qResult = rKwQuery.exec();
+		//1. Request Keywords
+		qResult = doWidgetKeywordSearch(request);
+		if (qResult!=null) {
+			//This is against the MUP always
 			return qResult;
 		}
 
-		String scriptKeywords = request.get_script_keywords();
-		if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords))) {
-			sKwQuery = new KeywordQuery(scriptKeywords);
+		//2. Script keywords, if present determine scope
+		SortedSet<Handle> skeywordQueryResult = doScriptKeywordSearch(request);
+		if (skeywordQueryResult!=null) {
+			//FIXME: Use the script keyword flag from OSpec
+			//if (!m_currOSpec.isScriptKeywordsWithinOSpec()) {
+				return skeywordQueryResult;
+			//}
 		}
-
-		if (!m_SearchTSpecOnly) {
-			//Go against the whole MUP
-			if ((m_pageSize!=null) && (m_currentPage !=null)) {
-				sKwQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue());
-			}
-			sKwQuery.setLuceneSortOrder(true);
-			qResult = sKwQuery.exec();
-			return qResult;
-		} else {
-			if ((m_pageSize!=null) && (m_currentPage !=null)) {
-				_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
-			}
-			m_prodSetIntersector.include(_tSpecQuery.exec(), AttributeWeights.getWeight(IProduct.Attribute.kNone));
-			
-			SortedSet<Handle> keywordQueryResult = null;
-			if (sKwQuery != null) {
-				if ((m_pageSize!=null) && (m_pageSize !=null)) {
-					sKwQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue());
-				}
-				sKwQuery.setLuceneSortOrder(true);
-				keywordQueryResult = sKwQuery.exec();
-			}
-
-			//Category
-			String requestCategory = request.get_category();
-			if ((requestCategory!=null)&&(!"".equals(requestCategory))) {
-				addCategoryIntersect(requestCategory);
-			}
-
-			qResult = m_prodSetIntersector.intersect();
-			
-			//URL scavenging
-			if (m_scavengeUrls) {
-				addURLKeywordIntersect(request);
-			}
-			
-			//If there was a keyword query result, then return the top "n" matches with the tSpec query 
-			if (keywordQueryResult!=null) {
-				int numResults = 100; //Setting the limit to 100
-				if (m_NumProducts!=null) {
-					numResults = m_NumProducts.intValue();
-				}
-				ArrayList<Handle> finalResult = new ArrayList<Handle>(numResults);
-				int count = 0;
-				for (Handle handle : keywordQueryResult) {
-					if (count>numResults) {
-						break;
-					}
-					//Check if this is present in the tspec query result
-					if (qResult.contains(handle)) {
-						finalResult.add(handle);
-					}
-					count++;
-				}
-				qResult = new SortedArraySet<Handle>(finalResult,false);
+		
+		//3. URL keywords
+		SortedSet<Handle> ukeywordQueryResult = doURLKeywordSearch(request);
+		if (ukeywordQueryResult!=null) {
+			if (!m_currOSpec.isPublishUrlKeywordsWithinOSpec()) {
+				return ukeywordQueryResult;
 			} else {
-				//Sort by the score
-				SortedSet<Handle> sortedResult = new SortedArraySet<Handle>(ProductDB.getInstance().genReference());
-				sortedResult.addAll(qResult);
-				qResult = sortedResult;
+				//Merge with the Script keywords results
+				if (skeywordQueryResult!=null) {
+					skeywordQueryResult.addAll(ukeywordQueryResult);
+				} else {
+					skeywordQueryResult = ukeywordQueryResult;
+				}
 			}
+		}
 
+		//4. Set pagination bounds for TSpec Query
+		if ((m_pageSize!=null) && (m_currentPage !=null)) {
+			doCloneTSpecQuery();
+			m_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
+		}
+
+		//5. Request Category
+		String requestCategory = request.get_category();
+		if ((requestCategory!=null)&&(!"".equals(requestCategory))) {
+			addRequestCategoryQuery(requestCategory);
+		}
+		
+		//6. Product Type
+		addProductTypeQuery(request);
+		
+		//7. Exec TSpec query
+		qResult = m_tSpecQuery.exec();
+		
+		//8. If there was a keyword query result, then return the top "n" matches with the tSpec query 
+		if (skeywordQueryResult!=null) {
+			int numResults = 100; //Setting the limit to 100
+			if (m_NumProducts!=null) {
+				numResults = m_NumProducts.intValue();
+			}
+			ArrayList<Handle> finalResult = new ArrayList<Handle>(numResults);
+			int count = 0;
+			for (Handle handle : skeywordQueryResult) {
+				if (count>numResults) {
+					break;
+				}
+				//Check if this is present in the tspec query result
+				if (qResult.contains(handle)) {
+					finalResult.add(handle);
+				}
+				count++;
+			}
+			qResult = new SortedArraySet<Handle>(finalResult,false);
+		} else {
+			//9. Sort by the score
+			SortedSet<Handle> sortedResult = new SortedArraySet<Handle>(ProductDB.getInstance().genReference());
+			sortedResult.addAll(qResult);
+			qResult = sortedResult;
 		}
 		
 		return qResult;
@@ -272,26 +279,108 @@ public class ProductRequestProcessor {
 	 * @param requestCategory
 	 * @return
 	 */
-	private void addCategoryIntersect(String requestCategory) {
+	private void addRequestCategoryQuery(String requestCategory) {
 		ArrayList<Integer> catList = new ArrayList<Integer>(); 
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer catId = dm.getId (IProduct.Attribute.kCategory, requestCategory);
 		catList.add(catId);
 		SimpleQuery catQuery = new AttributeQuery (IProduct.Attribute.kCategory, catList);
-		m_prodSetIntersector.include(catQuery.exec(), catQuery.getWeight());
+		CNFQuery copytSpecQuery = (CNFQuery)m_tSpecQuery.clone();
+		copytSpecQuery.getQueries().get(0).addQuery(catQuery);
+		m_tSpecQuery = null;
+		m_tSpecQuery = copytSpecQuery;
+	}
+
+	/**
+	 * Add intersect for the Product Type
+	 * @param request
+	 */
+	private void addProductTypeQuery(AdDataRequest request) {
+		AdOfferType offerType = request.get_ad_offer_type();
+		if (offerType == null) {
+			offerType = AdOfferType.PRODUCT_ONLY;
+		}
+		DictionaryManager dm = DictionaryManager.getInstance ();
+		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
+		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
+		doCloneTSpecQuery();
+		if (offerType==AdOfferType.LEADGEN_ONLY) {
+			m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
+		} else if (offerType==AdOfferType.PRODUCT_ONLY){
+			ptQuery.setNegation(true);
+			m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
+		} else if (offerType==AdOfferType.PRODUCT_LEADGEN) {
+			//TODO: Add logic for both
+			return;
+		}
 	}
 	
 	/**
-	 * 
+	 * Clone the query if not already cloned
 	 *
 	 */
-	private void addURLKeywordIntersect(AdDataRequest request) {
-		String urlKeywords = URLScavenger.mineKeywords(request);
-		KeywordQuery pKwQuery = null;
-		if ((urlKeywords!=null)&&(!"".equals(urlKeywords))) {
-			pKwQuery = new KeywordQuery(urlKeywords);
-			m_prodSetIntersector.include(pKwQuery.exec(), pKwQuery.getWeight());
+	private void doCloneTSpecQuery() {
+		if (!m_clonedQuery) {
+			CNFQuery copytSpecQuery = (CNFQuery)m_tSpecQuery.clone();
+			m_tSpecQuery = null;
+			m_tSpecQuery = copytSpecQuery;
+			m_clonedQuery = true;
 		}
+	}
+	
+	/**
+	 * Perform the widget search
+	 * @param request
+	 * @return
+	 */
+	private SortedSet<Handle> doWidgetKeywordSearch(AdDataRequest request) {
+		String requestKeyWords = request.get_keywords();
+		return doKeywordSearch(request, requestKeyWords);
+	}
+
+	
+	/**
+	 * Performs the URL scavenging and runs the query
+	 *
+	 */
+	private SortedSet<Handle> doURLKeywordSearch(AdDataRequest request) {
+		SortedSet<Handle> results = null;
+		MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
+		if (mMineUrls == MaybeBoolean.TRUE) {
+			String urlKeywords = URLScavenger.mineKeywords(request);
+			results = doKeywordSearch(request, urlKeywords);
+		}
+		return results;
+	}
+
+	/**
+	 * Perform the Script keywords search query
+	 * @param request
+	 * @return
+	 */
+	private SortedSet<Handle> doScriptKeywordSearch(AdDataRequest request) {
+		String scriptKeywords = request.get_script_keywords();
+		return doKeywordSearch(request, scriptKeywords);
+	}
+	
+	/**
+	 * Perform the keyword search
+	 * @param request
+	 * @param keywords
+	 * @return
+	 */
+	private SortedSet<Handle> doKeywordSearch(AdDataRequest request, String keywords) {
+		KeywordQuery sKwQuery = null;
+		SortedSet<Handle> kResults = null;
+		if ((keywords!=null)&&(!"".equals(keywords))) {
+			sKwQuery = new KeywordQuery(keywords);
+			if ((m_pageSize!=null) && (m_currentPage !=null)) {
+				sKwQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue());
+			}
+			sKwQuery.setLuceneSortOrder(true);			
+			kResults = sKwQuery.exec();
+		}
+		return kResults;
 	}
 	
 	/**
@@ -339,11 +428,61 @@ public class ProductRequestProcessor {
 	public void testProductRequestProcessor() {
 		//Temp init called due to dependancy on JozData
 		JozData.init ();
-		ProductRequestProcessor prodRequest = new ProductRequestProcessor();
-//		Reader r = new StringReader ("(get-ad-data :theme \"http://www.photography.com/\" :which-row 2 :row-size 12)");
-//		Reader r = new StringReader ("(get-ad-data :theme \"http://www.photography.com/\")");
-		Reader r = new StringReader ("(get-ad-data :theme \"http://www.consumersearch.com/\")");
 
+		//Perform tests
+		try {
+			
+//			//1. TSpec with all results
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\")";
+			testProcessRequest(queryStr);
+			
+			//2. TSpec with num products
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :num-products 30)";
+			testProcessRequest(queryStr);
+			
+			//3. TSpec with Pagination
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :which-row 2 :row-size 12)";
+			testProcessRequest(queryStr);
+			
+			//4. Test for Allow too Few Products
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :allow-too-few-products t)";
+			testProcessRequest(queryStr);
+			
+			//5. Test for Revert to Default Realm = false
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :revert-to-default-realm nil)";
+			testProcessRequest(queryStr);
+			
+			//6. Test for Leadgen Only
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :leadgen-only :revert-to-default-realm nil)";
+			testProcessRequest(queryStr);
+			
+			//7. Test for Product Only
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm nil)";
+			testProcessRequest(queryStr);
+			
+			//8. Test for Keyword search
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :keywords \"nikon\" :revert-to-default-realm nil)";
+			testProcessRequest(queryStr);
+
+			//9. Test for Script Keywords
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :script-keywords \"nikon\" :revert-to-default-realm nil)";
+			testProcessRequest(queryStr);
+
+			//10. Test for Included Categories
+			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14337\" :revert-to-default-realm nil)";
+			testProcessRequest(queryStr);
+			
+		} catch (Exception e) {
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+
+	}
+	
+	private SortedSet<Handle> testProcessRequest(String getAdDataCommandStr) throws Exception {
+		ProductRequestProcessor prodRequest = new ProductRequestProcessor();
+		Reader r = new StringReader (getAdDataCommandStr);
+		SortedSet<Handle> results = null;
 		SexpReader lr = new SexpReader (r);
 		try {
 			Sexp e = lr.read ();
@@ -359,7 +498,7 @@ public class ProductRequestProcessor {
 
 			if (cmd_name.equals ("get-ad-data")) {
 				AdDataRequest rqst = new AdDataRequest (e);
-				SortedSet<Handle> results = prodRequest.processRequest(rqst);
+				results = prodRequest.processRequest(rqst);
 				//Inspect the results
 				log.info("Number of results returned are : " + results.size());
 				Assert.assertTrue(results!=null);
@@ -373,7 +512,7 @@ public class ProductRequestProcessor {
 					IProduct ip = pdb.get (id);
 					MUPProductObj p = new MUPProductObj (ip);
 					selProducts.add (new SelectedProduct (p));
-					log.info(p.get_name() + "     " + p.get_description());
+					log.info(id + "     " + p.get_name() + "    " + p.get_description());
 				}
 				
 			} else {
@@ -381,9 +520,10 @@ public class ProductRequestProcessor {
 				Assert.assertTrue(false);
 			}
 		} catch(Exception e) {
-			log.error("Exception caught during test run");
-			e.printStackTrace();
+			throw e;
 		}
+		
+		return results;
 
 	}
 }

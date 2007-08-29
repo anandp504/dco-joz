@@ -21,7 +21,7 @@ public class ProductDB {
   // table of all filters associated with attributes
   private Hashtable<IProduct.Attribute, Filter<Handle>> m_filters = new Hashtable<IProduct.Attribute, Filter<Handle>>();
 
-  private static Random g_random = new Random();
+  private static Random g_random = new Random(System.currentTimeMillis());
 
   public static ProductDB getInstance() {
     if (g_DB == null) {
@@ -57,6 +57,10 @@ public class ProductDB {
 
     pdb.addIndex(IProduct.Attribute.kPrice,new PriceIndex());
     pdb.registerFilter(IProduct.Attribute.kPrice,new PriceRangeFilter());
+
+    pdb.addIndex(IProduct.Attribute.kProductType,new ProductTypeIndex());
+    pdb.registerFilter(IProduct.Attribute.kProductType,new ProductTypeFilter());
+
   }
 
   private ProductDB() {

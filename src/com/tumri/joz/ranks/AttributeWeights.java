@@ -17,7 +17,9 @@ abstract public class AttributeWeights implements IWeight<Handle> {
   private static double kCPC = 1.2;
   private static double kCPO = 1.2;
   private static double kKeywords = 3.0;
+  private static double kProductType = 1.2;
   private static double kNone = 1.0;
+
 
 
   public int match(Handle h) {
@@ -38,6 +40,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kCPC: return CPCWeight.getInstance();
       case kCPO: return CPOWeight.getInstance();
       case kKeywords: return KeywordsWeight.getInstance();
+      case kProductType: return ProductTypeWeight.getInstance();
       case kNone:
       default: return NeutralWeight.getInstance();
     }
@@ -53,6 +56,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kCPC: return kCPC;
       case kCPO: return kCPO;
       case kKeywords: return kKeywords;
+      case kProductType: return kProductType;
       case kNone: return kNone;
       default:
     }

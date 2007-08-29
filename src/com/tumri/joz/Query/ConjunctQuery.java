@@ -11,7 +11,7 @@ import java.util.SortedSet;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class ConjunctQuery implements Query {
+public class ConjunctQuery implements Query, Cloneable {
   private QueryProcessor m_queryProcessor;
   private ArrayList<SimpleQuery> m_queries = new ArrayList<SimpleQuery>();
   private SortedSet<Handle> m_results;
@@ -111,7 +111,26 @@ public class ConjunctQuery implements Query {
     return m_results;
   }
 
-
+  public Object clone() {
+	  ConjunctQuery copyQuery = null;
+      try {
+    	  copyQuery = (ConjunctQuery) super.clone();
+      }
+      catch (CloneNotSupportedException e) {
+          // this should never happen
+          throw new InternalError(e.toString());
+      }
+      if (m_queries !=null) {
+    	  ArrayList<SimpleQuery> copyQueries = new ArrayList<SimpleQuery>(m_queries.size());
+    	  for (int i=0;i<m_queries.size();i++) {
+    		  SimpleQuery copySimple = (SimpleQuery)m_queries.get(i).clone();
+    		  copyQueries.add(copySimple);
+    	  }
+    	  copyQuery.m_queries = copyQueries;
+      }
+      return copyQuery;
+  }
+  
   /**
    * Not bo be used by external clients, use ConjunctQuery(QueryProcessor qp) instead
    */

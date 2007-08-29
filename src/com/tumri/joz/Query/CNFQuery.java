@@ -11,7 +11,7 @@ import com.tumri.joz.products.Handle;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class CNFQuery implements Query {
+public class CNFQuery implements Query, Cloneable {
   private ArrayList<ConjunctQuery> m_queries = new ArrayList<ConjunctQuery>();
   private Handle m_reference;
   private int m_pagesize = 12;
@@ -84,6 +84,26 @@ public class CNFQuery implements Query {
 	bPaginate = true;
     m_pagesize = pagesize;
     m_currentPage = currentPage;
+  }
+  
+  public Object clone() {
+      CNFQuery copyCNF = null;
+      try {
+    	  copyCNF = (CNFQuery) super.clone();
+      }
+      catch (CloneNotSupportedException e) {
+          // this should never happen
+          throw new InternalError(e.toString());
+      }
+      if (m_queries !=null) {
+    	  ArrayList<ConjunctQuery> copyQueries = new ArrayList<ConjunctQuery>(m_queries.size());
+    	  for (int i=0;i<m_queries.size();i++) {
+    		  ConjunctQuery copyConjunct = (ConjunctQuery)m_queries.get(i).clone();
+    		  copyQueries.add(copyConjunct);
+    	  }
+    	  copyCNF.m_queries = copyQueries;
+      }
+      return copyCNF;
   }
 
 }

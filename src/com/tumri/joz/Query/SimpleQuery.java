@@ -13,11 +13,11 @@ import java.util.TreeSet;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public abstract class SimpleQuery implements Query, Comparable {
+public abstract class SimpleQuery implements Query, Comparable, Cloneable {
   protected final int kMax = 0x7FFFFFFF;
 
   public enum Type {
-    kAttribute, kRange, kKeyword
+    kAttribute, kRange, kKeyword, kProductType
   }
 
   private boolean m_negation; // used to express !=, not in range queries
@@ -79,5 +79,14 @@ public abstract class SimpleQuery implements Query, Comparable {
   // Clear the internal results of last computation
   public void clear() {
     m_results = null;
+  }
+  
+  public Object clone() {
+      try {
+          return super.clone();
+      }
+      catch (CloneNotSupportedException e) {
+          throw new InternalError(e.toString());
+      }
   }
 }
