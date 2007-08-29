@@ -29,6 +29,11 @@ public class TestGetCompleteTaxonomy
 	    SexpIFASLReader r = new SexpIFASLReader (is);
 
 	    Sexp s = r.read ();
+	    if (JozTestsuite.error_p (s))
+	    {
+		log.fail (me, s.toString ());
+		return;
+	    }
 	    if (! validate_taxonomy (s))
 	    {
 		log.fail (me, "not a valid taxonomy");
@@ -66,7 +71,7 @@ public class TestGetCompleteTaxonomy
     {
 	if (! s.isSexpList ())
 	{
-	    log.info ("taxonomy not a list");
+	    log.info ("taxonomy is not a list");
 	    return false;
 	}
 
@@ -74,7 +79,7 @@ public class TestGetCompleteTaxonomy
 
 	if (tax.size () != 2)
 	{
-	    log.info ("taxonomy list not two elements");
+	    log.info ("taxonomy list is not two elements long");
 	    return false;
 	}
 
@@ -83,13 +88,13 @@ public class TestGetCompleteTaxonomy
 
 	if (! elm0.isSexpList ())
 	{
-	    log.info ("elm0 not a list");
+	    log.info ("elm0 is not a list");
 	    return false;
 	}
 
 	if (! elm1.isSexpList ())
 	{
-	    log.info ("elm1 not a list");
+	    log.info ("elm1 is not a list");
 	    return false;
 	}
 

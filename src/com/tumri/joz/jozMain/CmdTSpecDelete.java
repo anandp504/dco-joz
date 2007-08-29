@@ -34,7 +34,7 @@ public class CmdTSpecDelete extends CommandDeferWriting
 	{
 	    if (! expr.isSexpSymbol ())
 		return SexpReader.readFromStringNoex ("(:error \"expected t-spec name\")");
-	    e = JozData.mup_db.get_counts (expr.toString ());
+	    e = new SexpList (); // FIXME: wip
 	}
 	catch (Exception ex)
 	{

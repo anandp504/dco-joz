@@ -164,8 +164,10 @@ public class JozData
     // Merchant administrivia.
     public static MerchantDB merchant_db = null;
 
+/*
     // The MUP.
     public static MUPDB mup_db = null;
+*/
 
     // T-Specs.
     public static TSpecDB tspec_db = null;

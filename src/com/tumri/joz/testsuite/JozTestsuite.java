@@ -7,6 +7,8 @@ import java.io.InputStream;
 
 import org.apache.log4j.Logger;
 
+import com.tumri.utils.sexp.*;
+
 public class JozTestsuite
 {
     private static final String JOZ_PROP_FILE = "src/conf/testsuite.properties";
@@ -94,6 +96,8 @@ public class JozTestsuite
 	{
 	    System.out.println ("Try " + tries);
 
+	    // NOTE: soz3 isn't expected or required to understand (ready?).
+	    // This is just a command to provoke a response.
 	    InputStream is = jc.execute ("(ready?)");
 	    if (is != null)
 		return true;
@@ -110,6 +114,23 @@ public class JozTestsuite
 	    }
 	}
 
+	return false;
+    }
+
+    // Utility to look for (:error ...) responses from soz3.
+
+    public static boolean
+    error_p (Sexp s)
+    {
+	if (! s.isSexpList ())
+	    return false;
+	SexpList l = s.toSexpList ();
+	if (l.size () >= 1
+	    && l.get (0).isSexpKeyword ())
+	{
+	    SexpKeyword k = l.get (0).toSexpKeyword ();
+	    return k.equalsStringIgnoreCase (":error");
+	}
 	return false;
     }
 

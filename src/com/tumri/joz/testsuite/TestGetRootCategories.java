@@ -1,4 +1,6 @@
 // Test the get-root-categories command.
+// NOTE: This command is not implemented as it appears no one uses it anymore.
+// All we test for is that we get some kind of response back from soz3.
 
 package com.tumri.joz.testsuite;
 
@@ -29,6 +31,18 @@ public class TestGetRootCategories
 	    SexpIFASLReader r = new SexpIFASLReader (is);
 
 	    Sexp s = r.read ();
+	    if (false // ??? Not implemented so error is expected.
+		&& JozTestsuite.error_p (s))
+	    {
+		log.fail (me, s.toString ());
+		return;
+	    }
+
+	    if (r.read () != null)
+	    {
+		log.fail (me, "should be only one sexp in result");
+		return;
+	    }
 	}
 	catch (IOException e)
 	{

@@ -29,6 +29,16 @@ public class TestTSpecDelete
 	    SexpIFASLReader r = new SexpIFASLReader (is);
 
 	    Sexp s = r.read ();
+
+	    // We should get a null-result (not an empty list, rather no
+	    // response at all.  If there is an error we'll get (:error ...).
+	    if (s != null)
+	    {
+		log.fail (me,
+			  "expected no response for successful command, got: "
+			  + s.toString ());
+		return;
+	    }
 	}
 	catch (IOException e)
 	{

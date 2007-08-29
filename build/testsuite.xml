@@ -101,7 +101,7 @@
 
     <property name="run1.test" value="get-complete-taxonomy"/>
 
-    <target name="run1-test">
+    <target name="run1-test" depends="build-tests">
 
 	<java classpathref="testsuite.libs"
 	      classpath="${dist.dir}/testsuite.jar"

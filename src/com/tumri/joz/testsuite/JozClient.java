@@ -68,6 +68,9 @@ public class JozClient
 		log.info ("Got " + new String (response));
 	    }
 
+	    // Return null if there was an error, otherwise return the response
+	    // as an InputStream.
+
 	    if (status_code != HttpStatus.SC_OK)
 	    {
 		log.error ("http request failed: " + _get_method.getStatusLine ());

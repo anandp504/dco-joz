@@ -29,6 +29,22 @@ public class TestGetProviders
 	    SexpIFASLReader r = new SexpIFASLReader (is);
 
 	    Sexp s = r.read ();
+	    if (JozTestsuite.error_p (s))
+	    {
+		log.fail (me, s.toString ());
+		return;
+	    }
+	    if (! validate_providers (s))
+	    {
+		log.fail (me, "not a valid " + me + " result");
+		return;
+	    }
+
+	    if (r.read () != null)
+	    {
+		log.fail (me, "should be only one sexp in result");
+		return;
+	    }
 	}
 	catch (IOException e)
 	{
@@ -42,6 +58,24 @@ public class TestGetProviders
 	}
 
 	log.pass (me);
+    }
+
+    // Validate response.
+    // Result is true if {s} is valid.
+    //
+    // NOTE: This could do more validation.  Maybe over time it will,
+    // depending on what bugs occur.
+
+    private static boolean
+    validate_providers (Sexp s)
+    {
+	if (! s.isSexpList ())
+	{
+	    log.info (me + " result is not a list");
+	    return false;
+	}
+
+	return true;
     }
 
     // implementation details -------------------------------------------------

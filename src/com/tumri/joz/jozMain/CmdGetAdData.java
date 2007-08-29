@@ -67,7 +67,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	catch (IOException e)
 	{
 	    // Blech, may be in middle of transmission.
-	    // FIXME: what to do?  drop the connection and rely on client
+	    // FIXME: What to do?  drop the connection and rely on client
 	    // to detect dropped connection as an error indicator and
 	    // reconnect?
 	    log.error (e);
@@ -75,9 +75,17 @@ public class CmdGetAdData extends CommandOwnWriting
 	catch (Exception e)
 	{
 	    log.error (e);
-	    // FIXME: could still be in the middle of transmission
+	    // FIXME: What to do?  We should be written such that we cannot
+	    // get here in the middle of transmitting a response.  Sending the
+	    // default realm may be reasonable except that there are other
+	    // failure modes for which we might also want to show the default
+	    // realm; it would be preferable to handle as many of them as
+	    // possible in one place, and it's not yet clear this is that
+	    // place.
+/*
 	    Sexp sexp = JozData.mup_db.get_default_realm_response ();
 	    SexpIFASLWriter.writeOne (out, sexp);
+*/
 	}
     }
 
