@@ -260,7 +260,12 @@ public abstract class Index<Key, Value> implements IIndex<Key, Value> {
     } finally {
       m_map.readerUnlock();
     }
-    return set;
+    Iterator<Value> iter = set.iterator();
+    ArrayList<Value> list = new ArrayList<Value>();
+    while(iter.hasNext()) {
+      list.add(iter.next());
+    }
+    return new SortedArraySet<Value>(list);
   }
 
   /**

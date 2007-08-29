@@ -15,7 +15,7 @@ public class ProductDB {
   // Map m_map maintains map from product id -> Product
   private RWLockedTreeMap<Integer, IProduct> m_map = new RWLockedTreeMap<Integer, IProduct>();
   // Map m_allproducts maintains set of all product handles
-  private RWLockedTreeSet<Handle> m_allProducts = new RWLockedTreeSet<Handle>();
+  private RWLockedSortedArraySet<Handle> m_allProducts = new RWLockedSortedArraySet<Handle>();
   // All indices are maintained in the class in a hashtable
   private Hashtable<IProduct.Attribute,Index<?,Handle>> m_indices = new Hashtable<IProduct.Attribute, Index<?,Handle>>();
   // table of all filters associated with attributes
@@ -247,8 +247,6 @@ public class ProductDB {
       m_map.readerUnlock();
     }
   }
-
-  public Iterator<Handle> getAllProducts () { return m_allProducts.iterator (); }
 
   /**
    * Get IProduct without checking a lock, reader should call readerLock()

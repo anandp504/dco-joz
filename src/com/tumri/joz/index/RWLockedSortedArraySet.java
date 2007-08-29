@@ -16,23 +16,23 @@ import java.util.Collection;
 public class RWLockedSortedArraySet<V> extends SortedArraySet<V> implements RWLockedSortedSet<V> {
   private ReadWriteLock m_rwlock = new ReentrantReadWriteLock();
 
-  RWLockedSortedArraySet() {
+  public RWLockedSortedArraySet() {
     super();
   }
 
-  RWLockedSortedArraySet(Comparator<? super V> aComparator) {
+  public RWLockedSortedArraySet(Comparator<? super V> aComparator) {
     super(aComparator);
   }
 
-  RWLockedSortedArraySet(ArrayList<V> aList) {
+  public RWLockedSortedArraySet(ArrayList<V> aList) {
     super(aList);
   }
 
-  RWLockedSortedArraySet(ArrayList<V> aList, boolean presorted) {
+  public RWLockedSortedArraySet(ArrayList<V> aList, boolean presorted) {
     super(aList, presorted);
   }
 
-  RWLockedSortedArraySet(Collection<V> aList) {
+  public RWLockedSortedArraySet(Collection<V> aList) {
     super(aList);
   }
 
