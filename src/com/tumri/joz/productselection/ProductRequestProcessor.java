@@ -86,6 +86,9 @@ public class ProductRequestProcessor {
 		if (m_NumProducts!=null) {
 			int numProducts = m_NumProducts.intValue();
 
+			// FIXME: This code was just throw away code while
+			// trying to get something working.  Something better
+			// is warranted.
 			if (numProducts < 12)
 				numProducts = 12;
 			if (numProducts > 100)
