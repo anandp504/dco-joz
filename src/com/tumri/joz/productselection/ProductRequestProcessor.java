@@ -8,6 +8,7 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.tumri.cma.domain.OSpec;
@@ -427,61 +428,131 @@ public class ProductRequestProcessor {
 		return prodList;
 	}
 
-	@Test
-	public void testProductRequestProcessor() {
-		//Temp init called due to dependancy on JozData
+	@BeforeClass
+	public static void initiatize() {
 		JozData.init ();
-
-		//Perform tests
+	}
+	
+	@Test
+	public void testVanillaGetAdData() {
 		try {
-			
-//			//1. TSpec with all results
 			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\")";
-			testProcessRequest(queryStr);
-			
-			//2. TSpec with num products
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :num-products 30)";
-			testProcessRequest(queryStr);
-			
-			//3. TSpec with Pagination
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :which-row 2 :row-size 12)";
-			testProcessRequest(queryStr);
-			
-			//4. Test for Allow too Few Products
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :allow-too-few-products t)";
-			testProcessRequest(queryStr);
-			
-			//5. Test for Revert to Default Realm = false
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :revert-to-default-realm nil)";
-			testProcessRequest(queryStr);
-			
-			//6. Test for Leadgen Only
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :leadgen-only :revert-to-default-realm nil)";
-			testProcessRequest(queryStr);
-			
-			//7. Test for Product Only
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm nil)";
-			testProcessRequest(queryStr);
-			
-			//8. Test for Keyword search
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :keywords \"nikon\" :revert-to-default-realm nil)";
-			testProcessRequest(queryStr);
-
-			//9. Test for Script Keywords
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :script-keywords \"nikon\" :revert-to-default-realm nil)";
-			testProcessRequest(queryStr);
-
-			//10. Test for Included Categories
-			queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14337\" :revert-to-default-realm nil)";
-			testProcessRequest(queryStr);
-			
-		} catch (Exception e) {
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
 			log.error("Exception caught during test run");
 			e.printStackTrace();
 		}
-
 	}
 	
+	@Test
+	public void testNumProducts() {
+		try {
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :num-products 30)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testPagination() {
+		try {
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :which-row 2 :row-size 12)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testAllowTooFewProducts() {
+		try {
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :allow-too-few-products t)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testRevertToDefaultRealm() {
+		try {
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :revert-to-default-realm nil)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testLeadgenOnly() {
+		try {
+			String queryStr =  "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :leadgen-only :revert-to-default-realm nil)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testProductOnly() {
+		try {
+			String queryStr =  "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm nil)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testKeywordSearch() {
+		try {
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :keywords \"nikon\" :revert-to-default-realm nil)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testScriptKeywordSearch() {
+		try {
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :script-keywords \"nikon\" :revert-to-default-realm nil)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testIncludedCategories() {
+		try {
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14337\" :revert-to-default-realm nil)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+		
 	private SortedSet<Handle> testProcessRequest(String getAdDataCommandStr) throws Exception {
 		ProductRequestProcessor prodRequest = new ProductRequestProcessor();
 		Reader r = new StringReader (getAdDataCommandStr);
