@@ -1,8 +1,10 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.products.IProduct;
-
 import java.util.Hashtable;
+
+import com.tumri.joz.products.IProduct;
+import com.tumri.utils.dictionary.Dictionary;
+import com.tumri.utils.dictionary.IDictionary;
 
 /**
  * Created by IntelliJ IDEA.

@@ -1,5 +1,7 @@
 package com.tumri.joz.index;
 
+import com.tumri.utils.dictionary.IDictionary;
+
 /**
  * Created by IntelliJ IDEA.
  * User: snawathe
