@@ -144,7 +144,7 @@ public class CampaignDataCache {
 	   * This is used when creating a tSpec from the consoles. This tSpec does not become part of the Campaign Cache
 	   * @param str
 	   */
-	  public void doTSpecAdd(SexpList tSpecAddSpec)
+	  public void doTSpecAdd(SexpList tSpecAddSpec) {
 		SexpList l = tSpecAddSpec;
 		Sexp cmd_expr = l.getFirst ();
 		if (! cmd_expr.isSexpSymbol ())
@@ -156,7 +156,7 @@ public class CampaignDataCache {
 			OSpec theOSpec = TSpecLispFileParser.readTSpecDetailsFromSExp(l.iterator());
 			m_oSpecHashtable.put(theOSpec.getName(), theOSpec);
 		} else {
-			log.error("Unexpected command received : " + tSpecAddStr);
+			log.error("Unexpected command received : " + cmd_expr);
 		}
 	  }
 	  

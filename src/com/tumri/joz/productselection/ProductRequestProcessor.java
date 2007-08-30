@@ -347,7 +347,7 @@ public class ProductRequestProcessor {
 		SortedSet<Handle> results = null;
 		MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
 		if (mMineUrls == MaybeBoolean.TRUE) {
-			String urlKeywords = URLScavenger.mineKeywords(request);
+			String urlKeywords = URLScavenger.mineKeywords(request, null);
 			results = doKeywordSearch(request, urlKeywords);
 		}
 		return results;
