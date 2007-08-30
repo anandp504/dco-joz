@@ -1,12 +1,17 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.filter.Filter;
-import com.tumri.joz.index.RWLocked;
-import com.tumri.joz.index.SortedArraySet;
-import com.tumri.joz.index.SortedSplitSet;
-import com.tumri.joz.ranks.IWeight;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.SortedSet;
 
-import java.util.*;
+import com.tumri.joz.filter.Filter;
+import com.tumri.joz.ranks.IWeight;
+import com.tumri.utils.data.RWLocked;
+import com.tumri.utils.data.SortedArraySet;
+import com.tumri.utils.data.SortedSplitSet;
 
 /**
  * Created by IntelliJ IDEA.

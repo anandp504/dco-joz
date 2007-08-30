@@ -1,9 +1,11 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.index.MultiSortedSet;
-import com.tumri.joz.index.SortedArraySet;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.SortedSet;
 
-import java.util.*;
+import com.tumri.utils.data.MultiSortedSet;
+import com.tumri.utils.data.SortedArraySet;
 
 /**
  * Created by IntelliJ IDEA.

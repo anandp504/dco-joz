@@ -1,10 +1,16 @@
 package com.tumri.joz.index;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.JOZTaxonomy;
-
-import java.util.*;
+import com.tumri.utils.data.MultiSortedSet;
+import com.tumri.utils.data.RWLockedSortedSet;
 
 /**
  * Created by IntelliJ IDEA.

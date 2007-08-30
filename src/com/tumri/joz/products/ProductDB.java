@@ -1,9 +1,33 @@
 package com.tumri.joz.products;
 
-import com.tumri.joz.index.*;
-import com.tumri.joz.filter.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
-import java.util.*;
+import com.tumri.joz.filter.BrandFilter;
+import com.tumri.joz.filter.CPCRangeFilter;
+import com.tumri.joz.filter.CPORangeFilter;
+import com.tumri.joz.filter.CategoryFilter;
+import com.tumri.joz.filter.Filter;
+import com.tumri.joz.filter.PriceRangeFilter;
+import com.tumri.joz.filter.ProductTypeFilter;
+import com.tumri.joz.filter.ProviderFilter;
+import com.tumri.joz.filter.SupplierFilter;
+import com.tumri.joz.index.BrandIndex;
+import com.tumri.joz.index.CPCIndex;
+import com.tumri.joz.index.CPOIndex;
+import com.tumri.joz.index.CategoryIndex;
+import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.index.PriceIndex;
+import com.tumri.joz.index.ProductAttributeIndex;
+import com.tumri.joz.index.ProductTypeIndex;
+import com.tumri.joz.index.ProviderIndex;
+import com.tumri.joz.index.SupplierIndex;
+import com.tumri.utils.data.RWLockedSortedArraySet;
+import com.tumri.utils.data.RWLockedTreeMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -301,7 +325,7 @@ public class ProductDB {
     }
   }
 
-  public Index getIndex(IProduct.Attribute aAttribute) {
+  public ProductAttributeIndex getIndex(IProduct.Attribute aAttribute) {
     return m_indices.get(aAttribute);
   }
 

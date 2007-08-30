@@ -4,10 +4,10 @@ import java.util.SortedSet;
 
 import com.tumri.joz.filter.Filter;
 import com.tumri.joz.index.DictionaryManager;
-import com.tumri.joz.index.Index;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.utils.index.Index;
 
 /**
  * Implementation of the ProductTypeQuery

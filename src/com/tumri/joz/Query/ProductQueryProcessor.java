@@ -1,14 +1,14 @@
 package com.tumri.joz.Query;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+
+import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.AttributeWeights;
-import com.tumri.joz.index.MultiSortedSet;
-
-import java.util.SortedSet;
-import java.util.List;
-import java.util.ArrayList;
+import com.tumri.utils.data.MultiSortedSet;
 
 /**
  * Created by IntelliJ IDEA.
