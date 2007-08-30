@@ -144,28 +144,20 @@ public class CampaignDataCache {
 	   * This is used when creating a tSpec from the consoles. This tSpec does not become part of the Campaign Cache
 	   * @param str
 	   */
-	  public void doTSpecAdd(String tSpecAddStr) throws BadSexpException {
-		  Reader expReader = new StringReader(tSpecAddStr);
-		  SexpReader lr = new SexpReader(expReader);
-			try {
-				Sexp e = lr.read ();
-				SexpList l = e.toSexpList ();
-			 	Sexp cmd_expr = l.getFirst ();
-				if (! cmd_expr.isSexpSymbol ())
-					log.error("command name not a symbol: " + cmd_expr.toString ());
+	  public void doTSpecAdd(SexpList tSpecAddSpec)
+		SexpList l = tSpecAddSpec;
+		Sexp cmd_expr = l.getFirst ();
+		if (! cmd_expr.isSexpSymbol ())
+			log.error("command name not a symbol: " + cmd_expr.toString ());
 
-				SexpSymbol sym = cmd_expr.toSexpSymbol ();
-				String cmd_name = sym.toString ();
-				if (cmd_name.equalsIgnoreCase("t-spec-add")) {
-					OSpec theOSpec = TSpecLispFileParser.readTSpecDetailsFromSExp(l.iterator());
-					m_oSpecHashtable.put(theOSpec.getName(), theOSpec);
-				} else {
-					log.error("Unexpected command received : " + tSpecAddStr);
-				}
-			} catch (Exception e) {
-				throw new BadSexpException("Could not parse and add the tspec into the cache");
-			}
-
+		SexpSymbol sym = cmd_expr.toSexpSymbol ();
+		String cmd_name = sym.toString ();
+		if (cmd_name.equalsIgnoreCase("t-spec-add")) {
+			OSpec theOSpec = TSpecLispFileParser.readTSpecDetailsFromSExp(l.iterator());
+			m_oSpecHashtable.put(theOSpec.getName(), theOSpec);
+		} else {
+			log.error("Unexpected command received : " + tSpecAddStr);
+		}
 	  }
 	  
 	  /**
