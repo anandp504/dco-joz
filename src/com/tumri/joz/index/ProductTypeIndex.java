@@ -8,7 +8,7 @@ import com.tumri.joz.products.IProduct;
  * @author nipun
  */
 
-public class ProductTypeIndex extends Index<Integer, Handle>  {
+public class ProductTypeIndex extends ProductAttributeIndex<Integer, Handle>  {
   public ProductTypeIndex() {
   }
 

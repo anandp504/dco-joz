@@ -8,7 +8,7 @@ import com.tumri.joz.products.IProduct;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class PriceIndex extends Index<Double, Handle>  {
+public class PriceIndex extends ProductAttributeIndex<Double, Handle>  {
   public PriceIndex() {
   }
 

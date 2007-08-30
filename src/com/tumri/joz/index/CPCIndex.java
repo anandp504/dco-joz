@@ -8,7 +8,7 @@ import com.tumri.joz.products.IProduct;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class CPCIndex extends Index<Double, Handle>  {
+public class CPCIndex extends ProductAttributeIndex<Double, Handle>  {
   public CPCIndex() {
   }
 

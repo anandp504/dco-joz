@@ -17,7 +17,7 @@ public class ProductDB {
   // Map m_allproducts maintains set of all product handles
   private RWLockedSortedArraySet<Handle> m_allProducts = new RWLockedSortedArraySet<Handle>();
   // All indices are maintained in the class in a hashtable
-  private Hashtable<IProduct.Attribute,Index<?,Handle>> m_indices = new Hashtable<IProduct.Attribute, Index<?,Handle>>();
+  private Hashtable<IProduct.Attribute,ProductAttributeIndex<?,Handle>> m_indices = new Hashtable<IProduct.Attribute, ProductAttributeIndex<?,Handle>>();
   // table of all filters associated with attributes
   private Hashtable<IProduct.Attribute, Filter<Handle>> m_filters = new Hashtable<IProduct.Attribute, Filter<Handle>>();
 
@@ -90,9 +90,9 @@ public class ProductDB {
       m_map.writerUnlock();
     }
     // Step 4.
-    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
+    Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
-      Index<?,Handle> lIndex = iter.next();
+      ProductAttributeIndex<?,Handle> lIndex = iter.next();
       lIndex.addProduct(p);
     }
     return h;
@@ -122,9 +122,9 @@ public class ProductDB {
       m_map.writerUnlock();
     }
     // Step 4.
-    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
+    Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
-      Index<?,Handle> lIndex = iter.next();
+      ProductAttributeIndex<?,Handle> lIndex = iter.next();
       lIndex.addProduct(products);
     }
     return handles;
@@ -172,9 +172,9 @@ public class ProductDB {
   public Handle deleteProduct(IProduct p) {
     Handle h = p.getHandle();
     // Step 1.
-    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
+    Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
-      Index<?,Handle> lIndex = iter.next();
+      ProductAttributeIndex<?,Handle> lIndex = iter.next();
       lIndex.deleteProduct(p);
     }
     // Step 2.
@@ -201,9 +201,9 @@ public class ProductDB {
     for (int i = 0; i < products.size(); i++) {
       handles.add(products.get(i).getHandle());
     }
-    Iterator<Index<?,Handle>> iter = m_indices.values().iterator();
+    Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
-      Index<?,Handle> lIndex = iter.next();
+      ProductAttributeIndex<?,Handle> lIndex = iter.next();
       lIndex.deleteProduct(products);
     }
     // Step 2.
@@ -275,7 +275,7 @@ public class ProductDB {
     return m_allProducts;
   }
 
-  public void addIndex(IProduct.Attribute aAttribute, Index<?,Handle> index) {
+  public void addIndex(IProduct.Attribute aAttribute, ProductAttributeIndex<?,Handle> index) {
     m_indices.put(aAttribute,index);
     reindex(aAttribute);
   }
@@ -285,7 +285,7 @@ public class ProductDB {
   }
 
   public void reindex(IProduct.Attribute aAttribute) {
-    Index index = m_indices.get(aAttribute);
+    ProductAttributeIndex index = m_indices.get(aAttribute);
     if (index != null) {
       index.clear();
       try {

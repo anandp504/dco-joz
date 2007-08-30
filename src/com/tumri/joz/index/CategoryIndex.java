@@ -11,7 +11,7 @@ import java.util.*;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class CategoryIndex extends Index<Integer, Handle> {
+public class CategoryIndex extends ProductAttributeIndex<Integer, Handle> {
   public CategoryIndex() {
   }
 
