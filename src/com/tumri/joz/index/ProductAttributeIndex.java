@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.TreeMap;
 
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.IProduct.Attribute;
 
 /**
  *
@@ -31,10 +30,17 @@ import com.tumri.joz.products.IProduct.Attribute;
  */
 public abstract class ProductAttributeIndex<Key, Value> extends Index<Key, Value> {
     
+    public abstract IProduct.Attribute getType();
+
+    public abstract Key getKey(IProduct p);
+
+    public abstract Value getValue(IProduct p);
+
     public ProductAttributeIndex() {
         super();
     }
     
+
     /**
      * Adds a product to the index, uses getKey method to get key
      * @param p, the product to be added

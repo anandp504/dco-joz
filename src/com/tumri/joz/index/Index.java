@@ -1,7 +1,5 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.products.IProduct;
-
 import java.util.*;
 
 /**
@@ -11,12 +9,6 @@ import java.util.*;
  */
 public abstract class Index<Key, Value> implements IIndex<Key, Value> {
   protected RWLockedTreeMap<Key, RWLockedSortedSet<Value>> m_map;
-
-  public abstract IProduct.Attribute getType();
-
-  public abstract Key getKey(IProduct p);
-
-  public abstract Value getValue(IProduct p);
 
   /**
    * Constructs an empty index
