@@ -18,6 +18,8 @@ import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.*;
 
+import com.tumri.joz.campaign.CampaignDataCache;
+
 public class CmdTSpecDelete extends CommandDeferWriting
 {
     public CmdTSpecDelete (Sexp e)
@@ -62,7 +64,8 @@ public class CmdTSpecDelete extends CommandDeferWriting
 	}
 	SexpSymbol name = rqst.get (1).toSexpSymbol ();
 
-	// FIXME: wip
+	CampaignDataCache c = CampaignDataCache.getInstance ();
+	c.doTSpecDelete (rqst);
 
 	// FIXME: not sure what the "success" result is
 	return new SexpList ();
