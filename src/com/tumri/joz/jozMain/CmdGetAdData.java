@@ -5,27 +5,6 @@
 /*
    See https://secure.tumri.com/twiki/bin/view/Engineering/JozPublicAPI
    for the format of get-ad-data requests.
-
-get-ad-data steps
------------------
-- if given seed, restore random state
-- begin timing
-- process arguments, converting nil's to a usable value, etc.
-- split arguments into two pieces: psp, h-p
-  (product selection parameters, http payload)
-- assign t-spec, realm
-  - if t-spec given, use it, otherwise choose one with
-    mux-choose-t-spec
-  - if t-spec given,
-      if url given, realm = mux-choose-best-realm-for-uri,
-        or default realm if that fails,
-      otherwise realm = t-spec
-    otherwise realm = mux-choose-t-spec
-- if t-spec is non-nil,
-    - (products num-prods t-spec-name realm) = (ad-request ...)
-    - send result back to client
-  otherwise error "null t-spec, most likely no default realm"
-
 */
 
 package com.tumri.joz.jozMain;
@@ -36,6 +15,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.SortedSet;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,6 +25,12 @@ import org.apache.log4j.Logger;
 import com.tumri.utils.sexp.*;
 import com.tumri.utils.strings.EString;
 import com.tumri.utils.strings.RFC1630Encoder;
+
+import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.productselection.ProductRequestProcessor;
 
 public class CmdGetAdData extends CommandOwnWriting
 {
@@ -102,181 +88,41 @@ public class CmdGetAdData extends CommandOwnWriting
     choose_and_write_products (AdDataRequest rqst, OutputStream out)
 	throws IOException, Exception
     {
-	TSpecAndRealm tsar = choose_t_spec_and_realm (rqst);
-	TSpec t_spec = tsar._t_spec;
-	Realm realm = tsar._realm;
 	Integer seed = rqst.get_seed (); // FIXME: wip
 	if (seed == null)
 	    seed = new Integer (42); // FIXME: wip
 	Features features = new Features (seed);
-	boolean private_label_p = t_spec.private_label_p ();
+	boolean private_label_p = false; // FIXME: t_spec.private_label_p ();
 
 	// This does the real work of selecting a set of products.
 	long start_time = System.nanoTime ();
-	List<SelectedProduct> products =
-	    SelectProducts.select_products (rqst, t_spec, realm);
+	ProductRequestProcessor prp = new ProductRequestProcessor ();
+	SortedSet<Handle> product_handles = prp.processRequest (rqst);
 	long end_time = System.nanoTime ();
 	long elapsed_time = end_time - start_time;
 
 	// Send the result back to the client.
-	write_result (rqst, t_spec, realm,
+	write_result (rqst, null /*FIXME:wip*/, null /*FIXME:wip*/,
 		      private_label_p, features, elapsed_time,
-		      products,
+		      product_handles,
 		      out);
 
 	// Log the result for debugging.
+	// FIXME: need flag to control this
 	String dump_file = "/tmp/soz3-" + dump_seq + ".dump";
 	++dump_seq;
 	try
 	{
 	    FileOutputStream f = new FileOutputStream (dump_file);
-	    write_result (rqst, t_spec, realm,
+	    write_result (rqst, null /*FIXME:wip*/, null /*FIXME:wip*/,
 			  private_label_p, features, elapsed_time,
-			  products,
+			  product_handles,
 			  f);
 	}
 	catch (Exception e)
 	{
 	    log.error ("Unable to dump result: " + e.toString ());
 	}
-    }
-
-    // If a t-spec is provided, use it.
-    // Otherwise pick one based on the parameters, trying these until
-    // a suitable t-spec is found: store-id, theme, url.
-    // If that fails use the default realm as the t-spec.
-    //
-    // The realm returned is the realm used to map into the t-spec, if we
-    // choose the t-spec based on a URL.  Otherwise ???.
-
-    private TSpecAndRealm
-    choose_t_spec_and_realm (AdDataRequest rqst)
-    {
-	String t_spec_name; // not initialized on purpose
-	Realm realm; // not initialized on purpose
-	String store_id = null;
-	String theme = null;
-	JozURI uri; // not initialized on purpose
-
-	String t_spec_param = rqst.get_t_spec ();
-
-	if (t_spec_param != null) // FIXME: todo: (and name-is-t-spec-p)
-	{
-	    t_spec_name = t_spec_param;
-	    String url = rqst.get_url ();
-	    if (url != null)
-	    {
-		realm = choose_best_realm_for_uri (JozURI.build_lax_uri (url));
-		if (realm == null)
-		    realm = new Realm (JozURI.build_lax_uri (JozData.tspec_db.get_default_realm_url ()));
-	    }
-	    else
-	    {
-		realm = new Realm (t_spec_name);
-	    }
-	}
-	else if ((store_id = rqst.get_store_id ()) != null
-		 && (t_spec_name = choose_t_spec_for_store_id (store_id)) != null)
-	{
-	    // got it
-	    realm = new Realm (store_id);
-	}
-	else if ((theme = rqst.get_theme ()) != null
-		 && (t_spec_name = choose_t_spec_for_theme (theme)) != null)
-	{
-	    // got it
-	    realm = new Realm (theme);
-	}
-	// NOTE: We're picking up {theme} set in the previous test.
-	else if (theme != null
-		 && (uri = JozURI.build_lax_uri (theme)) != null
-		 && (t_spec_name = choose_t_spec_for_uri (uri)) != null)
-	{
-	    // got it
-	    realm = new Realm (uri);
-	}
-	else if (rqst.get_url () != null
-		 && (uri = JozURI.build_lax_uri (rqst.get_url ())) != null
-		 && (t_spec_name = choose_t_spec_for_uri (uri)) != null)
-	{
-	    // got it
-	    realm = new Realm (uri);
-	}
-	else
-	{
-	    String default_realm_url = JozData.tspec_db.get_default_realm_url ();
-	    JozURI default_realm_uri = JozURI.build_lax_uri (default_realm_url);
-	    t_spec_name = choose_t_spec_for_realm (default_realm_uri);
-	    realm = new Realm (default_realm_uri);
-	}
-
-	TSpec t_spec = JozData.tspec_db.get (t_spec_name);
-	TSpecAndRealm tasr = new TSpecAndRealm (t_spec, realm);
-	return tasr;
-    }
-
-    private Realm
-    choose_best_realm_for_uri (JozURI uri)
-    {
-	// FIXME: for now
-	MappingObjList mol = JozData.mapping_db.get_url_t_specs (uri);
-	if (mol == null || mol.size () == 0)
-	    return null;
-	List<MappingObj> lmo = mol.get_list ();
-	MappingObj mo = lmo.get (0);
-	return new Realm (mo.get_t_spec ());
-    }
-
-    // If there are multiple strategies for this theme then pick one randomly.
-    // If nothing matches, return nil.  Returns the NAME of the t-spec, not the
-    // t-spec itself.
-
-    private String
-    choose_t_spec_for_store_id (String store_id)
-    {
-	// FIXME: for now
-	MappingObjList mol = JozData.mapping_db.get_store_id_t_specs (store_id);
-	if (mol == null || mol.size () == 0)
-	    return null;
-	List<MappingObj> lmo = mol.get_list ();
-	MappingObj mo = lmo.get (0);
-	return mo.get_t_spec ();
-    }
-
-    private String
-    choose_t_spec_for_theme (String theme)
-    {
-	// FIXME: for now
-	MappingObjList mol = JozData.mapping_db.get_theme_t_specs (theme);
-	if (mol == null || mol.size () == 0)
-	    return null;
-	List<MappingObj> lmo = mol.get_list ();
-	MappingObj mo = lmo.get (0);
-	return mo.get_t_spec ();
-    }
-
-    private String
-    choose_t_spec_for_uri (JozURI uri)
-    {
-	// FIXME: for now
-	MappingObjList mol = JozData.mapping_db.get_url_t_specs (uri);
-	if (mol == null || mol.size () == 0)
-	    return null;
-	List<MappingObj> lmo = mol.get_list ();
-	MappingObj mo = lmo.get (0);
-	return mo.get_t_spec ();
-    }
-
-    private String
-    choose_t_spec_for_realm (JozURI realm_uri)
-    {
-	// FIXME: for now
-	MappingObjList mol = JozData.mapping_db.get_url_t_specs (realm_uri);
-	if (mol == null || mol.size () == 0)
-	    return null;
-	List<MappingObj> lmo = mol.get_list ();
-	MappingObj mo = lmo.get (0);
-	return mo.get_t_spec ();
     }
 
     // Write the chosen product list back to the client.
@@ -303,11 +149,11 @@ public class CmdGetAdData extends CommandOwnWriting
 
     private void
     write_result (AdDataRequest rqst,
-		  TSpec t_spec, Realm realm,
+		  TSpec t_spec, Realm realm, // FIXME: wip
 		  boolean private_label_p,
 		  Features features,
 		  long elapsed_time,
-		  List<SelectedProduct> products,
+		  SortedSet<Handle> product_handles,
 		  OutputStream out)
 	throws IOException, Exception
     {
@@ -325,21 +171,23 @@ public class CmdGetAdData extends CommandOwnWriting
 	// This is a big part of the result, write directly.
 	w.startList (2);
 	w.writeString8 ("PRODUCTS");
-	write_products (w, products);
+	write_products (w, product_handles);
 	w.endList ();
 
-	String product_ids = products_to_id_list (products);
+	// PERF: pdb.get (id) called twice
+
+	String product_ids = products_to_id_list (product_handles);
 	write_elm (w, "PROD-IDS", product_ids);
 
-	List<String> cat_list = products_to_cat_list (products);
+	List<String> cat_list = products_to_cat_list (product_handles);
 	String categories = cat_list_to_result_categories (cat_list);
 	write_elm (w, "CATEGORIES", categories);
 	String cat_names = cat_list_to_result_cat_names (cat_list);
 	write_elm (w, "CAT-NAMES", cat_names);
 
-	write_elm (w, "REALM", realm.toString ());
+	write_elm (w, "REALM", "foo"); // FIXME: wip
 
-	write_elm (w, "STRATEGY", t_spec.get_name ());
+	write_elm (w, "STRATEGY", "bar"); // FIXME: wip
 
 	write_elm (w, "IS-PRIVATE-LABEL-P", (private_label_p ? "T" : "NIL"));
 
@@ -359,10 +207,10 @@ public class CmdGetAdData extends CommandOwnWriting
     // string containing all the products.
 
     private void
-    write_products (SexpIFASLWriter w, List<SelectedProduct> products)
+    write_products (SexpIFASLWriter w, SortedSet<Handle> product_handles)
 	throws IOException
     {
-	Iterator<SelectedProduct> iter = products.iterator ();
+	Iterator<Handle> iter = product_handles.iterator ();
 	StringBuilder b = new StringBuilder ();
 
 	// Ahh!!!  The IFASL format requires a leading length of the
@@ -376,8 +224,8 @@ public class CmdGetAdData extends CommandOwnWriting
 	{
 	    if (done1)
 		b.append (",");
-	    SelectedProduct p = iter.next ();
-	    b.append (p.toAdDataResultString ());
+	    Handle h = iter.next ();
+	    b.append (toAdDataResultString (h));
 	    done1 = true;
 	}
 
@@ -390,6 +238,103 @@ public class CmdGetAdData extends CommandOwnWriting
 	    log.debug ("Product string: " + s);
 
 	w.writeString8 (s);
+    }
+
+    // Subroutine of {write_products} to simplify it.
+    // Return a string suitable for passing back to the client.
+    // See soz-product-selector.lisp:morph-product-list-into-sexpr-js-friendly.
+    //
+    // NOTE: If there is any RFC1630-like encoding that is needed, do it here.
+    // Not everything needs to be encoded, and some things may need to be
+    // encoded differently.
+
+    public String
+    toAdDataResultString (Handle h)
+    {
+	DictionaryManager dm = DictionaryManager.getInstance ();
+	ProductDB pdb = ProductDB.getInstance ();
+	int id = h.getOid ();
+	IProduct p = pdb.get (id);
+	StringBuilder b = new StringBuilder ();
+
+	b.append ("{");
+
+	// FIXME: wip
+	// FIXME: The casts are unfortunate.
+
+	b.append ("id:\"");
+	b.append (encode (p.getGId ()));
+	b.append ("\",display_category_name:\"");
+	// Use the first parent as the category.
+	b.append (encode ((String) dm.getValue (IProduct.Attribute.kCategory, p.getCategory ())));
+	b.append ("\",price:\"");
+	b.append (encode_price (p.getPrice ()));
+	b.append ("\",discount_price:\"");
+	b.append (encode_price (p.getDiscountPrice ()));
+	b.append ("\",brand:\"");
+	b.append (encode ((String) dm.getValue (IProduct.Attribute.kBrand, p.getBrand ())));
+	b.append ("\",merchant_id:\"");
+	b.append (encode ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ())));
+	b.append ("\",provider:\"");
+	b.append (encode ((String) dm.getValue (IProduct.Attribute.kSupplier, p.getSupplier ())));
+	b.append ("\",merchantlogo:\"");
+	b.append (encode (JozData.merchant_db.get_logo_url ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
+	b.append ("\",ship_promo:\"");
+	b.append (encode (JozData.merchant_db.get_shipping_promo ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
+	b.append ("\",description:\"");
+	// FIXME: soz has code to limit size of description passed back
+	b.append (encode (p.getDescription ()));
+	b.append ("\",thumbnailraw:\"");
+	b.append (encode (p.getThumbnail ()));
+	b.append ("\",product_url:\"");
+	b.append (encode (p.getPurchaseUrl ()));
+	b.append ("\",picture_url:\"");
+	b.append (encode (p.getImageUrl ()));
+	b.append ("\",c_code:\"");
+	b.append (encode ((String) dm.getValue (IProduct.Attribute.kCurrency, p.getCurrency ())));
+	b.append ("\",offer_type:\"");
+	b.append (encode ((String) dm.getValue (IProduct.Attribute.kProductType, p.getProductType ())));
+	b.append ("\"");
+
+	b.append ("}");
+
+	return b.toString ();
+    }
+
+    private String
+    encode (EString es)
+    {
+	// FIXME: wip
+	if (es == null)
+	    return "nil";
+	return es.toString ();
+    }
+
+    private String
+    encode (String s)
+    {
+	// FIXME: wip
+	if (s == null)
+	    return "nil";
+	return s;
+    }
+
+    private String
+    encode_price (Float f)
+    {
+	// FIXME: wip
+	if (f == null)
+	    return "nil";
+	return String.format ("%.2f", f);
+    }
+
+    private String
+    encode_price (Double d)
+    {
+	// FIXME: wip
+	if (d == null)
+	    return "nil";
+	return String.format ("%.2f", d);
     }
 
     // Write an element of the result.
@@ -424,35 +369,40 @@ public class CmdGetAdData extends CommandOwnWriting
     }
 
     private static String
-    products_to_id_list (List<SelectedProduct> products)
+    products_to_id_list (SortedSet<Handle> product_handles)
     {
+	ProductDB pdb = ProductDB.getInstance ();
 	StringBuilder b = new StringBuilder ();
 	boolean done_one = false;
 
-	for (SelectedProduct sp : products)
+	for (Handle h : product_handles)
 	{
 	    if (done_one)
 		b.append (",");
-	    String id = sp.get_product_id ();
-	    b.append (id);
+	    int id = h.getOid ();
+	    IProduct p = pdb.get (id);
+	    b.append (p.getGId ());
 	    done_one = true;
 	}
 
 	return b.toString ();
     }
 
-    // Return uniqified list of all categories in {products}.
+    // Return uniqified list of all categories in {product_handles}.
 
     private static List<String>
-    products_to_cat_list (List<SelectedProduct> products)
+    products_to_cat_list (SortedSet<Handle> product_handles)
     {
+	DictionaryManager dm = DictionaryManager.getInstance ();
+	ProductDB pdb = ProductDB.getInstance ();
 	HashSet<String> categories = new HashSet<String> ();
 
-	for (SelectedProduct sp : products)
+	for (Handle h : product_handles)
 	{
-	    List<String> parents = sp.get_parents ();
-	    for (String p : parents)
-		categories.add (p);
+	    int id = h.getOid ();
+	    IProduct p = pdb.get (id);
+	    // FIXME: Don't think this records _all_ parents.
+	    categories.add ((String) dm.getValue (IProduct.Attribute.kCategory, p.getCategory ()));
 	}
 
 	List<String> l = new ArrayList<String> ();

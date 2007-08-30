@@ -32,9 +32,9 @@ public class CmdTSpecDelete extends CommandDeferWriting
 
 	try
 	{
-	    if (! expr.isSexpSymbol ())
-		return SexpReader.readFromStringNoex ("(:error \"expected t-spec name\")");
-	    e = new SexpList (); // FIXME: wip
+	    if (! expr.isSexpList ())
+		return SexpReader.readFromStringNoex ("(:error \"expected (t-spec-delete name)\")");
+	    e = delete_tspec (expr.toSexpList ());
 	}
 	catch (Exception ex)
 	{
@@ -50,4 +50,21 @@ public class CmdTSpecDelete extends CommandDeferWriting
     // implementation details -------------------------------------------------
 
     private static Logger log = Logger.getLogger (CmdTSpecDelete.class);
+
+    private Sexp
+    delete_tspec (SexpList rqst)
+	throws BadCommandException
+    {
+	if (rqst.size () != 2
+	    || ! rqst.get (1).isSexpSymbol ())
+	{
+	    throw new BadCommandException ("expected (tspec-delete name)");
+	}
+	SexpSymbol name = rqst.get (1).toSexpSymbol ();
+
+	// FIXME: wip
+
+	// FIXME: not sure what the "success" result is
+	return new SexpList ();
+    }
 }

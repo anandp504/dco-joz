@@ -57,6 +57,8 @@ import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.*;
 
+import com.tumri.joz.campaign.CampaignDataCache;
+
 public class CmdTSpecAdd extends CommandDeferWriting
 {
     public CmdTSpecAdd (Sexp e)
@@ -71,9 +73,9 @@ public class CmdTSpecAdd extends CommandDeferWriting
 
 	try
 	{
-	    if (! expr.isSexpSymbol ())
-		return SexpReader.readFromStringNoex ("(:error \"expected t-spec name\")");
-	    e = new SexpList (); // FIXME: wip
+	    if (! expr.isSexpList ())
+		return SexpReader.readFromStringNoex ("(:error \"expected (t-spec-add ...)\")");
+	    e = add_tspec (expr.toSexpList ());
 	}
 	catch (Exception ex)
 	{
@@ -89,4 +91,13 @@ public class CmdTSpecAdd extends CommandDeferWriting
     // implementation details -------------------------------------------------
 
     private static Logger log = Logger.getLogger (CmdTSpecAdd.class);
+
+    private Sexp
+    add_tspec (SexpList rqst)
+    {
+	CampaignDataCache c = CampaignDataCache.getInstance ();
+	c.doTSpecAdd (rqst);
+	// FIXME: not sure what the "success" result is
+	return new SexpList ();
+    }
 }

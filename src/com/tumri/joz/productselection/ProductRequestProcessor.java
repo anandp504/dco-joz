@@ -23,8 +23,6 @@ import com.tumri.joz.campaign.CampaignDataCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.JozData;
-import com.tumri.joz.jozMain.MUPProductObj;
-import com.tumri.joz.jozMain.SelectedProduct;
 import com.tumri.joz.jozMain.AdDataRequest.AdOfferType;
 import com.tumri.joz.jozMain.Enums.MaybeBoolean;
 import com.tumri.joz.products.Handle;
@@ -576,17 +574,16 @@ public class ProductRequestProcessor {
 				//Inspect the results
 				log.info("Number of results returned are : " + results.size());
 				Assert.assertTrue(results!=null);
-				
-				List<SelectedProduct> selProducts = new ArrayList<SelectedProduct>(results.size());
+
 				ProductDB pdb = ProductDB.getInstance ();
 
 				for (Handle res : results)
 				{
 					int id = res.getOid ();
 					IProduct ip = pdb.get (id);
-					MUPProductObj p = new MUPProductObj (ip);
-					selProducts.add (new SelectedProduct (p));
-					log.info(id + "     " + p.get_name() + "    " + p.get_description());
+					String name = ip.getProductName ();
+					String desc = ip.getDescription ();
+					log.info(id + "     " + name + "    " + desc);
 				}
 				
 			} else {

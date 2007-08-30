@@ -9,10 +9,13 @@ package com.tumri.joz.jozMain;
 //import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.*;
+
+import com.tumri.joz.products.Handle;
 
 public class CmdGetProviders extends CommandDeferWriting
 {
@@ -29,12 +32,15 @@ public class CmdGetProviders extends CommandDeferWriting
 	try
 	{
 	    HashSet<String> providers = new HashSet<String> ();
-	    Iterator<SelectedProduct> products = SelectProducts.get_entire_mup ();
+	    // FIXME: stubbed out until db support is ready
+	    Iterator<Handle> product_handles = new ArrayList<Handle> ().iterator ();
 
-	    while (products.hasNext ())
+	    while (product_handles.hasNext ())
 	    {
-		SelectedProduct p = products.next ();
+/*
+		Handle h = product_handles.next ();
 		providers.add (p.get_merchant ());
+*/
 	    }
 
 	    SexpList l = new SexpList ();

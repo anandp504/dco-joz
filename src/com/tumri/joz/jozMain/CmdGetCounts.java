@@ -126,7 +126,7 @@ public class CmdGetCounts extends CommandDeferWriting
 	    new HashMap<String, Counter> ();
 	HashMap<String, Counter> merchant_counts =
 	    new HashMap<String, Counter> ();
-	Iterator<SelectedProduct> products;
+	Iterator<Handle> product_handles;
 	JOZTaxonomy tax = JOZTaxonomy.getInstance ();
 
 	if (! tspec_name.equals ("nil"))
@@ -134,16 +134,19 @@ public class CmdGetCounts extends CommandDeferWriting
 	    TSpec tspec = JozData.tspec_db.get (tspec_name);
 	    if (tspec == null)
 		throw new RuntimeException ("bad tspec name: " + tspec_name);
-	    products = SelectProducts.get_products_for_tspec (tspec);
+	    // FIXME: stubbed out for now
+	    product_handles = new ArrayList<Handle> ().iterator ();
 	}
 	else // search entire mup
 	{
-	    products = SelectProducts.get_entire_mup ();
+	    // FIXME: stubbed out until db support is ready
+	    product_handles = new ArrayList<Handle> ().iterator ();
 	}
 
-	while (products.hasNext ())
+/*
+	while (product_handles.hasNext ())
 	{
-	    SelectedProduct p = products.next ();
+	    Handle h = product_handles.next ();
 	    Counter ctr;
 
 	    List<String> parents = p.get_parents ();
@@ -171,6 +174,7 @@ public class CmdGetCounts extends CommandDeferWriting
 	    else
 		ctr.inc ();
 	}
+*/
 
 	SexpList category_list = new SexpList ();
 	Set<Map.Entry<String, Counter>> cat_counts = category_counts.entrySet ();
