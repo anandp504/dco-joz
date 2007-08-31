@@ -27,7 +27,6 @@ import com.tumri.joz.jozMain.AdDataRequest.AdOfferType;
 import com.tumri.joz.jozMain.Enums.MaybeBoolean;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.Product;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.targeting.TSpecTargetingHelper;
 import com.tumri.utils.data.SortedArraySet;
@@ -77,7 +76,8 @@ public class ProductRequestProcessor {
 	 * @param request
 	 * @return
 	 */
-	public SortedSet<Handle> processRequest(AdDataRequest request) {
+	public ProductSelectionResults processRequest(AdDataRequest request) {
+		ProductSelectionResults pResults = new ProductSelectionResults();
 		SortedSet<Handle> rResult = null;
 		
 		//1. Max Number of products to be served up
@@ -168,9 +168,9 @@ public class ProductRequestProcessor {
 			//This shouldnt happen since we always will get back the TSpec out of targeting
 			throw new RuntimeException("Could not locate the TSpec to use for the given request");
 		}
-		
-		
-		return rResult;
+		pResults.setResults(rResult);
+		pResults.setTargetedOSpec(m_currOSpec);
+		return pResults;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -402,7 +402,7 @@ public class ProductRequestProcessor {
 	
 	
 	/**
-	 * returns true if the oSpec has included products
+	 * Returns the included products if the oSpec has included products
 	 * @param ospec
 	 * @return
 	 */
@@ -411,17 +411,8 @@ public class ProductRequestProcessor {
 		List<Handle> prodList = null;
 		for (TSpec tspec : tspeclist) {
 			List<ProductInfo> prodInfoList = tspec.getIncludedProducts();
-			if (prodInfoList != null) {
-				prodList = new ArrayList<Handle>();
-				for (ProductInfo info : prodInfoList) {
-					String productId = info.getName();
-					Product p = new Product();
-					p.setProductName(productId);
-					Handle pHandle = ProductDB.getInstance().get(p);
-					prodList.add(pHandle);
-				}				
-			}
-
+			//TODO: Construct the list of product handles from the product names.
+			//This needs to be supported by the ProductDB
 		}
 		return prodList;
 	}
@@ -570,13 +561,13 @@ public class ProductRequestProcessor {
 
 			if (cmd_name.equals ("get-ad-data")) {
 				AdDataRequest rqst = new AdDataRequest (e);
-				results = prodRequest.processRequest(rqst);
+				ProductSelectionResults presults = prodRequest.processRequest(rqst);
 				//Inspect the results
 				log.info("Number of results returned are : " + results.size());
-				Assert.assertTrue(results!=null);
+				Assert.assertTrue(presults!=null);
 
 				ProductDB pdb = ProductDB.getInstance ();
-
+				results = presults.getResults();
 				for (Handle res : results)
 				{
 					int id = res.getOid ();
