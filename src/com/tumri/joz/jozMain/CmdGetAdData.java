@@ -31,6 +31,7 @@ import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.productselection.ProductRequestProcessor;
+import com.tumri.joz.productselection.ProductSelectionResults;
 
 public class CmdGetAdData extends CommandOwnWriting
 {
@@ -97,7 +98,8 @@ public class CmdGetAdData extends CommandOwnWriting
 	// This does the real work of selecting a set of products.
 	long start_time = System.nanoTime ();
 	ProductRequestProcessor prp = new ProductRequestProcessor ();
-	SortedSet<Handle> product_handles = prp.processRequest (rqst);
+	ProductSelectionResults prs = prp.processRequest (rqst);
+	SortedSet<Handle> product_handles = prs.getResults();
 	long end_time = System.nanoTime ();
 	long elapsed_time = end_time - start_time;
 
