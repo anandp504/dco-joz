@@ -96,12 +96,13 @@ public class CampaignDataCache {
 			log.info("Going to load the campaign data");
 			//TODO: Change this to the CMA factory instantiation (Once Bhupen makes the change to CMAFactory)
 			CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(_lispSourceFilePath);
-			Iterator<Campaign> campaignIter = lispDeltaProvider.getNewDeltas();
+			Iterator<Campaign> campaignIter = lispDeltaProvider.getCampaigns("USA");
 			if (campaignIter != null) {
 				while (campaignIter.hasNext()) {
 					Campaign theCampaign = campaignIter.next();
 					for (int i=0;i<theCampaign.getAdPods().size();i++){
 						//TODO: Build the indices for the Campaign lookup
+						//Build the mapping cache.
 						AdPod theAdPod = theCampaign.getAdPods().get(i);
 						OSpec theOSpec = theAdPod.getOspec();
 						addToOSpecCache(theOSpec);  
