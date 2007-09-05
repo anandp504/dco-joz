@@ -10,28 +10,29 @@
 package com.tumri.joz.jozMain;
 
 //import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.SortedSet;
-import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.sexp.*;
-import com.tumri.utils.strings.EString;
-import com.tumri.utils.strings.RFC1630Encoder;
-
+import com.tumri.content.data.MerchantData;
 import com.tumri.joz.index.DictionaryManager;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.productselection.ProductRequestProcessor;
 import com.tumri.joz.productselection.ProductSelectionResults;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpIFASLWriter;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpString;
+import com.tumri.utils.strings.EString;
 
 public class CmdGetAdData extends CommandOwnWriting
 {
@@ -57,11 +58,11 @@ public class CmdGetAdData extends CommandOwnWriting
 	    // FIXME: What to do?  drop the connection and rely on client
 	    // to detect dropped connection as an error indicator and
 	    // reconnect?
-	    log.error (e);
+	    log.error ("Unknown IOException found", e);
 	}
 	catch (Exception e)
 	{
-	    log.error (e);
+	    log.error ("Unknown Exception", e);
 	    // FIXME: What to do?  We should be written such that we cannot
 	    // get here in the middle of transmitting a response.  Sending the
 	    // default realm may be reasonable except that there are other
@@ -279,10 +280,13 @@ public class CmdGetAdData extends CommandOwnWriting
 	b.append (encode ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ())));
 	b.append ("\",provider:\"");
 	b.append (encode ((String) dm.getValue (IProduct.Attribute.kSupplier, p.getSupplier ())));
+	MerchantData md = MerchantDB.getInstance().getMerchantData().getMerchant(p.getProviderStr());
 	b.append ("\",merchantlogo:\"");
-	b.append (encode (JozData.merchant_db.get_logo_url ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
+	b.append (encode (md.getLogoUrl() == null?"nil":md.getLogoUrl()));
+	// b.append (encode (JozData.merchant_db.get_logo_url ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
 	b.append ("\",ship_promo:\"");
-	b.append (encode (JozData.merchant_db.get_shipping_promo ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
+	b.append (encode (md.getShippingPromotionText() == null?"nil":md.getShippingPromotionText()));
+	// b.append (encode (JozData.merchant_db.get_shipping_promo ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
 	b.append ("\",description:\"");
 	// FIXME: soz has code to limit size of description passed back
 	b.append (encode (p.getDescription ()));

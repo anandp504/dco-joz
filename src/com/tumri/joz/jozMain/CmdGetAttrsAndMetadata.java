@@ -18,7 +18,7 @@ public class CmdGetAttrsAndMetadata extends CommandDeferWriting
     public Sexp
     process ()
     {
-	Sexp e = JozData.merchant_db.get_attributes_and_metadata ();
+	Sexp e = MerchantDB.getInstance().getAttributesAndMetadata();
 	return e;
     }
 

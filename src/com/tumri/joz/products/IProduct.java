@@ -1,5 +1,7 @@
 package com.tumri.joz.products;
 
+import com.tumri.content.data.Product;
+
 /**
  * Created by IntelliJ IDEA.
  * User: snawathe
@@ -9,61 +11,8 @@ package com.tumri.joz.products;
 /**
  * Defines the interface object called IProduct
  */
-public interface IProduct {
-  public ProductHandle getHandle();
-  public String getGId();
-  public int getId();
-  public Integer getCatalog();
-  public Integer getCategory();
-  public String getCategoryStr();
-  public Double getPrice();
-  public Double getDiscountPrice();
-  public Integer getBrand();
-  public String getBrandStr();
-  public Integer getSupplier();
-  public Integer getProvider();
-  public String getProductName();
-  public String getDescription();
-  public int    getRank();
-  public String getThumbnail();
-  public String getPurchaseUrl();
-  public String getImageUrl();
-  public int getImageWidth();
-  public int getImageHeight();
-  public Double getCPC();
-  public Integer getCurrency();
-  public Integer getDiscountPriceCurrency();
-  public Integer getBlackWhiteListStatus();
-  public Integer getProductType();
-  public Double getCPO();
-  public String getBaseProductNumber();
+public interface IProduct extends Product, Comparable<IProduct> {
+    
+    public Handle getHandle();
 
-  enum Attribute {
-    kGId,
-    kId,
-    kCatalog,
-    kCategory,
-    kPrice,
-    kDiscountPrice,
-    kBrand,
-    kSupplier,
-    kProvider,
-    kProductName,
-    kDescription,
-    kRank,
-    kThumbnail,
-    kPurchaseUrl,
-    kImageUrl,
-    kImageWidth,
-    kImageHeight,
-    kCPC,
-    kCurrency,
-    kDiscountPriceCurrency,
-    kBlackWhiteListStatus,
-    kProductType,
-    kCPO,
-    kBaseProductNumber,
-    kKeywords,
-    kNone
-  };
 }

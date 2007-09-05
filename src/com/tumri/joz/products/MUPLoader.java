@@ -34,14 +34,15 @@ import java.util.StringTokenizer;
 public class MUPLoader {
   File m_file;
 
-  public MUPLoader() {
+  private MUPLoader() {
     this(new File("MUP-USpub0012_MUP_US0050-US-DEFAULT_.utf8"));
   }
 
-  public MUPLoader(File f) {
+  private MUPLoader(File f) {
     m_file = f;
   }
 
+  /*
   public void loadProducts() throws IOException {
     ProductDB pdb = ProductDB.getInstance();
 
@@ -139,12 +140,14 @@ public class MUPLoader {
     }
     return p;
   }
+   */
 
+  /* This class is not going to be used. Commenting out test
   @Test public void test() {
-    try {
-      loadProducts();
+    // try {
+      // loadProducts();
       QueryProcessor qp = new ProductQueryProcessor();
-      TaxonomyLoader tl = new TaxonomyLoader();
+      // TaxonomyLoader tl = new TaxonomyLoader();
       DictionaryManager dm = DictionaryManager.getInstance();
       ProductDB.getInstance();
       new TSpecLoader(true);
@@ -162,12 +165,14 @@ public class MUPLoader {
         q.exec();
       }
       System.out.println("Time is " + (System.currentTimeMillis() - start));
-    } catch (IOException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-    }
+    // } catch (IOException e) {
+    //  e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    // }
   }
+*/
 }
 
+/*
 class TaxonomyLoader {
   Document m_document = null;
 
@@ -179,8 +184,9 @@ class TaxonomyLoader {
     catIndex.update(jtax);
   }
 }
-// Temp class for testing purposes
-
+ */
+/*
+//Temp class for testing purposes
 class TSpecLoader {
   Document m_document = null;
   ArrayList<TSpec> m_tspecs = new ArrayList<TSpec>();
@@ -401,3 +407,4 @@ class TSpec {
 
 
 }
+*/

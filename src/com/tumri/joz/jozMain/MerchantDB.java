@@ -5,27 +5,135 @@
 
 package com.tumri.joz.jozMain;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.log4j.Logger;
-
-import com.tumri.utils.strings.EString;
-import com.tumri.utils.sexp.*;
+import com.tumri.content.MerchantDataProvider;
+import com.tumri.content.data.MerchantData;
+import com.tumri.utils.sexp.BadSexpException;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpReader;
 
 public class MerchantDB
 {
+    
+    protected static MerchantDB instance=null;
+    
+    protected static Sexp attributesAndMetadata = null;
+    
+    static {
+        try {
+            attributesAndMetadata = SexpReader.readFromString("(((merchantid \"Merchant ID\") (merchantname \"Merchant Name\") (hascatalogname \"Catalog Name\") (merchantrating \"Merchant Rating\") (logourl \"Logo URL\") (homepageurl \"Home Page URL\") (suppliescategory \"Category\") (collectstax \"Collects Taxes?\") (catalogfilename \"Catalog File\") (catalogproductcount \"Product Count\") (reviewinfo \"Review Info\") (contactinfo \"Contact Info\") (shippingpromotiontext \"Shipping Promotion\") (returnpolicytext \"Return Policy\")) (merchantid merchantname) (merchantid merchantname hascatalogname merchantrating logourl homepageurl suppliescategory collectstax catalogfilename catalogproductcount reviewinfo contactinfo shippingpromotiontext returnpolicytext) (merchantid merchantname hascatalogname merchantrating logourl homepageurl suppliescategory collectstax catalogfilename catalogproductcount reviewinfo contactinfo shippingpromotiontext returnpolicytext) ((merchantid merchant string yes no (listof)) (merchantname merchant string yes no (listof)) (hascatalogname merchant string yes no (listof)) (merchantrating merchant string yes no (listof)) (logourl merchant string yes no (listof)) (homepageurl merchant string yes no (listof)) (suppliescategory merchant class yes no (listof)) (collectstax merchant boolean yes no (listof)) (catalogfilename merchant string yes no (listof)) (catalogproductcount merchant number yes no (listof)) (reviewinfo merchant string yes no (listof)) (contactinfo merchant string yes no (listof)) (shippingpromotiontext merchant string yes no (listof)) (returnpolicytext merchant string yes no (listof))))");
+        } catch (IOException e) {
+            // Not gonna happen.
+        } catch (BadSexpException e) {
+            // Not gonna happen.
+        }
+    }
+    
+    public static MerchantDB getInstance() {
+        if (instance == null) {
+            synchronized(MerchantDB.class) {
+              if (instance == null) {
+                instance = new MerchantDB();
+              }
+            }
+          }
+          return instance;
+    }
+    
+    AtomicReference<MerchantDataProvider> data = new AtomicReference<MerchantDataProvider>(); 
+    
+    public MerchantDataProvider getMerchantData() {
+        return data.get();
+    }
+    
+    public void setMerchantData(MerchantDataProvider md) {
+        data.set(md);
+    }
+
+    protected void appendMerchantAttribute(StringBuilder retString, String s, boolean required) {
+        if (s == null) {
+            if (!required) {
+                retString.append("NIL ");
+            } else {
+                retString.append("((NIL NIL)) ");
+            }
+        } else {
+            retString.append("((\"" + s + "\" \"" + s + "\")) ");
+        }
+    }
+
+    // This is not an ideal implementation.
+    public SexpList getTabulatedSearchResults() {
+        StringBuilder retString = new StringBuilder();
+        
+        List<MerchantData> md = getMerchantData().getAll();
+        
+        // Begin Sexp
+        retString.append("(");
+        // Counts
+        retString.append("(1 " + md.size() + " " + md.size() + " )" );
+        // Pagination
+        retString.append(" NIL "); 
+        // Headers
+        retString.append("(\"Merchant ID\" \"Merchant Name\" \"Catalog Name\" \"Merchant Rating\" \"Logo URL\" \"Home Page URL\" \"Category\" \"Collects Taxes?\" \"Catalog File\" \"Product Count\" \"Review Info\" \"Contact Info\" \"Shipping Promotion\" \"Return Policy\")");
+        // Merchants
+        retString.append("(");
+        for (MerchantData m: md) {
+            retString.append("(|");
+            retString.append(m.getMerchant());
+            retString.append("|");
+            retString.append(" ");
+            
+            appendMerchantAttribute(retString, m.getMerchantId(), false);
+            appendMerchantAttribute(retString, m.getMerchantName(), false);
+            appendMerchantAttribute(retString, m.getHasCatalogName(), false);
+            appendMerchantAttribute(retString, m.getMerchantRating(), false);
+            appendMerchantAttribute(retString, m.getLogoUrl(), false);
+            appendMerchantAttribute(retString, m.getHomePageUrl(), false);
+            appendMerchantAttribute(retString, m.getSuppliesCategory(), false);
+            appendMerchantAttribute(retString, m.getCollectsTax(), false);
+            appendMerchantAttribute(retString, m.getCatalogFilename(), false);
+            appendMerchantAttribute(retString, ((m.getCatalogProductCount()!=null)?Long.toString(m.getCatalogProductCount()):null), false);
+            appendMerchantAttribute(retString, m.getReviewInfo(), false);
+            appendMerchantAttribute(retString, m.getContactInfo(), false);
+            appendMerchantAttribute(retString, m.getShippingPromotionText(), false);
+            appendMerchantAttribute(retString, m.getReturnPolicyText(), true);
+            retString.append(")");
+            
+        }
+        retString.append(" )"); // End Merchants
+        retString.append(" )"); // End Sexp
+        Sexp s;
+        try {
+            s = SexpReader.readFromString(retString.toString());
+        } catch (IOException e) {
+            return null;
+        } catch (BadSexpException e) {
+            return null;
+        }
+        if (!s.isSexpList()) {
+            return null;
+        }
+        return s.toSexpList();
+    }
+    
+    public Sexp getAttributesAndMetadata() {
+        return attributesAndMetadata;
+    }
+    
+
+    /*
     MerchantDB (String attributes_and_metadata_path,
 		String tabulated_search_results_path)
 	throws FileNotFoundException, IOException, BadMerchantDataException
     {
-	init (attributes_and_metadata_path,
-	      tabulated_search_results_path);
+	// init (attributes_and_metadata_path,tabulated_search_results_path);
     }
+    
 
     public Sexp
     get_attributes_and_metadata ()
@@ -252,4 +360,5 @@ public class MerchantDB
 		       + ", got: " + e.toString ());
 	return e.toStringValue ();
     }
+    */
 }

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
+import com.tumri.content.data.Category;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.JOZTaxonomy;
@@ -68,7 +68,7 @@ public class CategoryIndex extends ProductAttributeIndex<Integer, Handle> {
   public void update(JOZTaxonomy taxonomy) {
     try {
       m_map.writerLock();
-      Integer root = taxonomy.getRoot();
+      Integer root = taxonomy.getTaxonomy().getRootCategory().getId();
       if (root != null) {
         update(taxonomy,root);
       }
@@ -98,15 +98,14 @@ public class CategoryIndex extends ProductAttributeIndex<Integer, Handle> {
    * @param pid
    */
   private void update(JOZTaxonomy tax, Integer pid) {
-    TreeSet<Integer> children = tax.getChildren(pid);
+    Category[] children = tax.getTaxonomy().getCategory(pid).getChildren();
     if (children != null) {
       SortedSet<Handle> parentSet = get(pid);
       if (parentSet == null) parentSet = createSet();
       List<SortedSet<Handle>> nlist = new ArrayList<SortedSet<Handle>>();
       nlist.add(parentSet instanceof MultiSortedSet ? ((MultiSortedSet<Handle>)parentSet).getList().get(0) : parentSet);
-      Iterator<Integer> iter = children.iterator();
-      while (iter.hasNext()) {
-        Integer child = iter.next();
+      for (Category c: children) {
+        Integer child = c.getId();
         update(tax,child);
         SortedSet<Handle> childSet = getChildSet(child);
         if (childSet instanceof MultiSortedSet) {

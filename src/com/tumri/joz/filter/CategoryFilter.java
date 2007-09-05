@@ -1,5 +1,6 @@
 package com.tumri.joz.filter;
 
+import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
@@ -22,12 +23,13 @@ public class CategoryFilter extends Filter<Handle> {
   public boolean accept(Handle h) {
     IProduct p = ProductDB.getInstance().get(h);
     JOZTaxonomy tax = JOZTaxonomy.getInstance();
+    Taxonomy t = tax.getTaxonomy();
     if (p != null) {
       Integer ancestor = p.getCategory();
       boolean match = false;
       while(!match && ancestor != null) {
         match = isMatch(ancestor);
-        ancestor = tax.getParent(ancestor);
+        ancestor = t.getCategory(ancestor).getParent().getId();
       }
       return (match ^ isNegation());
     }

@@ -84,7 +84,7 @@ public class ProductDB {
 
     pdb.addIndex(IProduct.Attribute.kProductType,new ProductTypeIndex());
     pdb.registerFilter(IProduct.Attribute.kProductType,new ProductTypeFilter());
-
+    
   }
 
   private ProductDB() {

@@ -1,0 +1,222 @@
+/* 
+ * ContentHelper.java
+ * 
+ * COPYRIGHT (C) 2007 TUMRI INC.  ALL RIGHTS RESERVED. TUMRI AND LOGO ARE 
+ * EITHER TRADEMARKS OR REGISTERED TRADEMARKS OF TUMRI.  ALL OTHER COMPANY, 
+ * PRODUCTS, AND BRAND NAMES ARE TRADEMARKS OF THEIR RESPECTIVE OWNERS. ALL MATERIAL
+ * CONTAINED IN THIS FILE (INCLUDING, BUT NOT LIMITED TO, TEXT, IMAGES, GRAPHICS,
+ * HTML, PROGRAMMING CODE AND SCRIPTS) CONSTITUTE PROPRIETARY AND CONFIDENTIAL 
+ * INFORMATION PROTECTED BY COPYRIGHT LAWS, TRADE SECRET AND OTHER LAWS. NO PART 
+ * OF THIS SOFTWARE MAY BE COPIED, REPRODUCED, MODIFIED OR DISTRIBUTED IN ANY FORM 
+ * OR BY ANY MEANS, OR STORED IN A DATABASE OR RETRIEVAL SYSTEM WITHOUT THE PRIOR 
+ * WRITTEN PERMISSION OF TUMRI INC.
+ * 
+ * @author Bhavin Doshi (bdoshi@tumri.com)
+ * @version 1.0     Aug 30, 2007
+ * 
+ */
+package com.tumri.joz.products;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
+
+import com.tumri.content.ContentListener;
+import com.tumri.content.ContentProvider;
+import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.InvalidConfigException;
+import com.tumri.content.ProductProvider;
+import com.tumri.content.data.Content;
+import com.tumri.content.data.ContentProviderStatus;
+import com.tumri.joz.jozMain.MerchantDB;
+import com.tumri.utils.data.SortedArraySet;
+
+/**
+ *
+ * Created by Bhavin Doshi (bdoshi@tumri.com) on Aug 30, 2007
+ * Company: Tumri Inc.
+ */
+public class ContentHelper implements ContentListener {
+    
+    public static void init(String file) {
+        load(file);
+    }
+    
+    public static void load(String file) {
+        try {
+            ContentProviderFactory f = null;
+            // Filename or Properties ???
+            if (file != null) {
+                f = ContentProviderFactory.getInstance();
+                f.init(file);
+            } else {
+                f = ContentProviderFactory.getDefaultInitializedInstance();
+            }
+            
+            ContentProvider p = f.getContentProvider();
+            ContentProviderStatus st = p.getStatus();
+            Content data = p.getContent();
+
+            if (!st.merchantDataDisabled) {
+                initMerchantDataDatabase(data);
+            }
+
+            if (!st.taxonomyDisabled) {
+                initTaxonomyDatabase(data);
+            }
+
+            if (!st.mupDisabled) {
+                initProductsDatabase(data);
+            }
+            
+            ContentHelper h = new ContentHelper(p);
+            p.addContentListener(h);
+            
+        } catch (InvalidConfigException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
+    protected static void initProductsDatabase(Content p) {
+        ProductDB pdb = ProductDB.getInstance();
+            if (p != null &&  p.getProducts() != null) {
+                ProductProvider pp = p.getProducts();
+                List<com.tumri.content.data.Product> all = pp.getAll();
+                Iterator<com.tumri.content.data.Product> it = all.iterator();
+                ArrayList<IProduct> allProds = new ArrayList<IProduct>(all.size());
+                while (it.hasNext()) {
+                    ProductWrapper pw = new ProductWrapper(it.next());
+                    allProds.add(pw);
+                }
+                // Create Deltas. Return value is an array of 3 ArrayList.
+                // Index 0: New Products
+                // Index 1: Update Products
+                // Index 2: Delete Products
+                ArrayList<IProduct>[] deltas = createDeltas(pdb, allProds);
+                
+                // Apply Deltas
+                pdb.addProduct(deltas[0]);
+                pdb.addProduct(deltas[1]); // Update is also done through Add.
+                pdb.deleteProduct(deltas[2]);
+            }
+    }
+    
+    /**
+     * 
+     * @param pdb Current Database
+     * @param allProds
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected static ArrayList<IProduct>[] createDeltas(ProductDB pdb, ArrayList<IProduct> allProds) {
+        // Creating the array causes warnings.
+        ArrayList[] retValArray = new ArrayList[3];
+        ArrayList<IProduct>[] retVal = retValArray;
+        retVal[0] = new ArrayList<IProduct>();
+        retVal[1] = new ArrayList<IProduct>();
+        retVal[2] = new ArrayList<IProduct>();
+        
+        if (pdb == null) {
+            retVal[0].addAll(allProds);
+            return retVal;
+        }
+        
+        SortedSet<Handle> currProdsSet = pdb.getAll();        
+        Iterator<Handle> currProdsIt = null;
+        if (currProdsSet == null) {
+            retVal[0].addAll(allProds);
+            return retVal;
+        } else {
+            currProdsIt = currProdsSet.iterator();
+        }
+
+        SortedSet<IProduct> allProdsSet = new SortedArraySet<IProduct>(allProds);
+        Iterator<IProduct> allProdsIt = allProdsSet.iterator();
+                
+        boolean end = false;
+        IProduct prod = null;
+        IProduct currProduct = null;
+        int compare = 0;
+        while (!end) {
+            if (!allProdsIt.hasNext()) {
+                if (currProduct != null) {
+                    retVal[2].add(currProduct);
+                    currProduct = null;
+                }                
+                while (currProdsIt.hasNext()) {
+                    retVal[2].add(pdb.get(currProdsIt.next()));
+                }
+                end = true;
+                continue;
+            }
+            if (!currProdsIt.hasNext()) {
+                if (prod != null) {
+                    retVal[0].add(prod);
+                    prod = null;
+                }                
+                while (allProdsIt.hasNext()) {
+                    retVal[0].add(allProdsIt.next());
+                }
+                end = true;
+                continue;
+            }
+            if (prod == null) {
+                prod = allProdsIt.next();
+            }
+            if (currProduct == null) {
+                currProduct = pdb.get(currProdsIt.next());
+            }
+            compare = prod.compareTo(currProduct); 
+            if ( compare == 0) {
+                retVal[1].add(prod);
+                prod = null;
+                currProduct = null;
+            } else if (compare < 0) {
+                retVal[0].add(prod);
+                prod = null;
+            } else {
+                retVal[2].add(currProduct);
+                currProduct = null;
+            }
+        }
+        
+        return retVal;
+    }
+    
+    protected static void initTaxonomyDatabase(Content p) {
+        JOZTaxonomy tax = JOZTaxonomy.getInstance();
+        tax.setTaxonomy(p.getTaxonomy().getTaxonomy());
+    }
+    
+    protected static void initMerchantDataDatabase(Content p) {
+        MerchantDB db = MerchantDB.getInstance();
+        db.setMerchantData(p.getMerchantData());
+    }
+    
+    protected ContentProvider provider = null;
+    
+    private ContentHelper(ContentProvider p) {
+        super();
+        provider = p; 
+    }
+    
+    public void contentUpdated() {
+        
+        if (provider == null) {
+            return;
+        }
+        try {
+            Content data = provider.getContent();
+            initMerchantDataDatabase(data);
+            initTaxonomyDatabase(data);
+            initProductsDatabase(data);
+        } catch (InvalidConfigException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    
+}

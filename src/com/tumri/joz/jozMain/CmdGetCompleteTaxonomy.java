@@ -19,16 +19,18 @@
 package com.tumri.joz.jozMain;
 
 //import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.TreeSet;
-
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.sexp.*;
-
+import com.tumri.content.data.Category;
+import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.index.DictionaryManager;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpReader;
+import com.tumri.utils.sexp.SexpString;
+import com.tumri.utils.sexp.SexpSymbol;
 
 public class CmdGetCompleteTaxonomy extends CommandDeferWriting
 {
@@ -46,7 +48,8 @@ public class CmdGetCompleteTaxonomy extends CommandDeferWriting
 	{
 	    DictionaryManager dm = DictionaryManager.getInstance ();
 	    JOZTaxonomy tax = JOZTaxonomy.getInstance ();
-	    e = get_taxonomy (dm, tax, tax.getRoot ());
+	    Taxonomy t = tax.getTaxonomy();
+	    e = get_taxonomy (dm, t, t.getRootCategory());
 	}
 	catch (Exception ex)
 	{
@@ -66,13 +69,10 @@ public class CmdGetCompleteTaxonomy extends CommandDeferWriting
     // Return the taxonomy tree for {category_id} and its children.
 
     private static SexpList
-    get_taxonomy (DictionaryManager dm, JOZTaxonomy tax, Integer category_id)
+    get_taxonomy (DictionaryManager dm, Taxonomy tax, Category category)
     {
-	Object v = dm.getValue (IProduct.Attribute.kCategory,
-				category_id.intValue ());
-	String name = (String) v;
-	// FIXME: This should be (GLASSVIEW.TUMRI_nnnnn "pretty name")
-	// but the current taxonomy database doesn't record both.
+        // This id is the GlassView.... pretty name.
+	String name = category.getIdStr();
 	SexpList this_nodes_name =
 	    new SexpList (new SexpSymbol (name),
 			  new SexpString (name));
@@ -81,11 +81,11 @@ public class CmdGetCompleteTaxonomy extends CommandDeferWriting
 	result.addLast (this_nodes_name);
 
 	SexpList children = new SexpList ();
-	TreeSet<Integer> children_ids = tax.getChildren (category_id);
+	Category[] childrens = category.getChildren();
 
-	if (children_ids != null)
+	if (childrens != null)
 	{
-	    for (Integer child_id : children_ids)
+	    for (Category child_id : childrens)
 	    {
 		children.addLast (get_taxonomy (dm, tax, child_id));
 	    }

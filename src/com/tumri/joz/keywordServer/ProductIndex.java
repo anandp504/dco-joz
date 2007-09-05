@@ -1,5 +1,8 @@
 package com.tumri.joz.keywordServer;
 
+import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.InvalidConfigException;
+import com.tumri.content.data.Product;
 import com.tumri.joz.products.*;
 import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
@@ -338,7 +341,20 @@ public class ProductIndex {
   }
 
   private ArrayList<IProduct> getAllProducts(File file) throws IOException {
-    return new MUPLoader(file).getAll();
+      ContentProviderFactory f;
+      try {
+          f = ContentProviderFactory.getInstance();
+          // FIMXE: For now hardcoding it to joz.properties
+          f.init("joz.properties");
+          List<Product> prods = f.getContentProvider().getContent().getProducts().getAll();
+          ArrayList<IProduct> retVal = new ArrayList<IProduct>(prods.size());
+          for (Product p: prods) {
+              retVal.add(new ProductWrapper(p));
+          }
+          return retVal;
+      } catch (InvalidConfigException e) {
+          throw new IOException("Unable to get products:" + ((e.getCause() == null)?e.getMessage():e.getCause().getMessage()));
+      }
   }
 
   /**

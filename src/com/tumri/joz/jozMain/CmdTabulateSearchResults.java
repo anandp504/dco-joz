@@ -18,7 +18,7 @@ public class CmdTabulateSearchResults extends CommandDeferWriting
     public Sexp
     process ()
     {
-	Sexp e = JozData.merchant_db.get_tabulated_search_results ();
+	Sexp e = MerchantDB.getInstance().getTabulatedSearchResults();
 	return e;
     }
 

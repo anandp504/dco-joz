@@ -18,20 +18,28 @@
 package com.tumri.joz.jozMain;
 
 //import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.sexp.*;
-
-import com.tumri.joz.products.*;
+import com.tumri.content.data.Category;
+import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpInteger;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpReader;
+import com.tumri.utils.sexp.SexpString;
+import com.tumri.utils.sexp.SexpSymbol;
 
 public class CmdGetCounts extends CommandDeferWriting
 {
@@ -90,28 +98,24 @@ public class CmdGetCounts extends CommandDeferWriting
     get_all_categories (List<String> cats)
     {
 	JOZTaxonomy tax = JOZTaxonomy.getInstance ();
-	DictionaryManager dm = DictionaryManager.getInstance ();
-	HashSet<Integer> cat_set = new HashSet<Integer> ();
-	for (String c : cats)
-	{
-	    Integer id = dm.getId (IProduct.Attribute.kCategory, c);
-	    cat_set.add (id);
-	    Integer pid = id;
+	Taxonomy t = tax.getTaxonomy();
+	List<String> result = new ArrayList<String>();
+	HashSet<Integer> idSet = new HashSet<Integer>();
+	for (String c: cats) {
+	    result.add(c);
+	    Category c1 = t.getCategory(c);
+        idSet.add(c1.getId());
+	    Category p = null;
 	    do {
-		pid = tax.getParent (pid);
-		if (pid != null)
-		    cat_set.add (pid);
-	    } while (pid != null);
-	}
-	List<String> result = new ArrayList<String> ();
-	for (Integer i : cat_set)
-	{
-	    // FIXME: ignore root category
-	    Object v = dm.getValue (IProduct.Attribute.kCategory, i.intValue ());
-	    String s = (String) v;
-	    result.add (s);
+	        p = c1.getParent();
+	        if (idSet.contains(p.getId())) {
+	            break;
+	        }
+	        result.add(c1.getParent().getIdStr());
+	    } while (p != null);
 	}
 	return result;
+	
     }
 
     // See docs for the get-counts external API call for a description

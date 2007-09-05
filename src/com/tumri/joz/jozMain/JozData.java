@@ -2,32 +2,26 @@
 
 package com.tumri.joz.jozMain;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.LineNumberReader;
-
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-import com.tumri.zini.transport.FASLType;
-import com.tumri.zini.transport.FASLReader;
-
-import com.tumri.utils.sexp.*;
-import com.tumri.utils.ifasl.IFASLUtils;
-
-import com.tumri.joz.keywordServer.LuceneDB;
-
-import com.tumri.joz.Query.*;
-import com.tumri.joz.index.DictionaryManager;
+import com.tumri.content.data.Product;
+import com.tumri.content.data.impl.ProductImpl;
 import com.tumri.joz.index.CategoryIndex;
-import com.tumri.joz.utils.DOMUtils;
-import com.tumri.joz.utils.Result;
-import com.tumri.joz.products.*;
+import com.tumri.joz.keywordServer.LuceneDB;
+import com.tumri.joz.products.ContentHelper;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.ProductWrapper;
+import com.tumri.utils.ifasl.IFASLUtils;
+import com.tumri.zini.transport.FASLReader;
+import com.tumri.zini.transport.FASLType;
 
 public class JozData
 {
@@ -36,6 +30,7 @@ public class JozData
     {
     
     String data_path = "../data/joz";
+    /*
 	try
 	{
 	    String merchant_path = data_path + "/MD";
@@ -67,6 +62,10 @@ public class JozData
 	{
 	    log.error ("Unable to load taxonomy: " + e);
 	}
+	*/
+	
+	// FIXME: For now hard-coding it to joz.properties
+	loadContent("joz.properties");
 
 	try
 	{
@@ -181,7 +180,12 @@ public class JozData
     // implementation details -------------------------------------------------
 
     private static Logger log = Logger.getLogger (JozData.class);
+    
+    protected static void loadContent(String file) {
+        ContentHelper.init(file);
+    }
 
+    /*
     @SuppressWarnings("unchecked")
     private static void
     load_products (String dir)
@@ -214,7 +218,7 @@ public class JozData
 		// don't have to.
 		Iterator<FASLType> iter = t.iterator ();
 
-		Product p = null;
+		IProduct p = null;
 		try
 		{
 		    p = read_product (t, iter);
@@ -241,7 +245,7 @@ public class JozData
 	}
     }
 
-    private static Product
+    private static IProduct
     read_product (FASLType t, Iterator<FASLType> iter)
 	throws Exception
     {
@@ -257,12 +261,12 @@ public class JozData
 	String merchant = IFASLUtils.toString (iter.next (), "merchant");
 	String name = IFASLUtils.toString (iter.next (), "name");
 	String description = IFASLUtils.toString (iter.next (), "description");
-/* FIXME: rank type seems to be real
-	Integer rank = IFASLUtils.toInteger (iter.next (), "rank");
-*/
+// FIXME: rank type seems to be real
+//	Integer rank = IFASLUtils.toInteger (iter.next (), "rank");
+
 	iter.next (); // swallow rank
 	Integer rank = new Integer (0);
-/* end rank temp hack */
+// end rank temp hack 
 	String thumbnail_url = IFASLUtils.toString (iter.next (), "thumbnail url");
 	String purchase_url = IFASLUtils.toString (iter.next (), "purchase url");
 	String image_url = IFASLUtils.toString (iter.next (), "image url");
@@ -277,38 +281,38 @@ public class JozData
 	String base_product_number = IFASLUtils.toString (iter.next (), "base product number");
 	// soz reads "long-description" here, but ignores it
 
-	Product p = new Product ();
+	ProductImpl p = new ProductImpl ();
 
 	// E.g. _1296.US3660122 -> 3660122
 	String gid = product_id.substring (product_id.indexOf ('.'));
 	while (gid.charAt (0) < '0' || gid.charAt (0) > '9')
 	    gid = gid.substring (1);
 
-	p.setGId (gid);
-	p.setCatalog (catalog);
-	p.setCategory (parents.get (0));
-	p.setPrice (price != null ? price.toString () : "nil");
-	p.setDiscountPrice (discount_price != null ? discount_price.toString () : "nil");
-	p.setBrand (brand);
-	p.setSupplier (retailer);
-	p.setProvider (merchant);
-	p.setProductName (name);
-	p.setDescription (description);
-	p.setRank (rank != null ? rank.toString () : "nil");
-	p.setThumbnail (thumbnail_url);
-	p.setPurchaseUrl (purchase_url);
-	p.setImageUrl (image_url);
-	p.setImageWidth (image_width != null ? image_width.toString () : "nil");
-	p.setImageHeight (image_height != null ? image_height.toString () : "nil");
-	p.setCPC (cpc != null ? cpc.toString () : "nil");
-	p.setCurrency (currency);
-	p.setDiscountPriceCurrency (discount_currency);
-	p.setBlackWhiteListStatus (black_white_list_status != null ? black_white_list_status.toString () : "nil");
-	p.setProductType (product_type);
-	p.setCPO (cpo_cpa != null ? cpo_cpa.toString () : "nil");
-	p.setBaseProductNumber (base_product_number);
+	p.setGId(gid);
+	p.setCatalogStr(catalog);
+	p.setCategoryStr(parents.get (0));
+	p.setPriceStr(price != null ? price.toString () : null);
+	p.setDiscountPriceStr(discount_price != null ? discount_price.toString () : null);
+	p.setBrandStr(brand);
+	p.setSupplierStr(retailer);
+	p.setProviderStr(merchant);
+	p.setProductName(name);
+	p.setDescription(description);
+	p.setRank(rank);
+	p.setThumbnail(thumbnail_url);
+	p.setPurchaseUrl(purchase_url);
+	p.setImageUrl(image_url);
+	p.setImageWidth(image_width);
+	p.setImageHeight(image_height);
+	p.setCPCStr(cpc != null ? cpc.toString () : null);
+	p.setCurrencyStr(currency);
+	p.setDiscountPriceCurrencyStr (discount_currency);
+	p.setBlackWhiteListStatus (black_white_list_status);
+	p.setProductTypeStr(product_type);
+	p.setCPOStr(cpo_cpa != null ? cpo_cpa.toString () : null);
+	p.setBaseProductNumber(base_product_number);
 
-	return p;
+	return new ProductWrapper(p);
     }
 
     private static void
@@ -352,4 +356,5 @@ public class JozData
 	CategoryIndex catIndex = (CategoryIndex) ProductDB.getInstance ().getIndex (IProduct.Attribute.kCategory);
 	catIndex.update (tax);
     }
+    */
 }
