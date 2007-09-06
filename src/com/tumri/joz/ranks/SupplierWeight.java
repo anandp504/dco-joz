@@ -28,7 +28,4 @@ public class SupplierWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kSupplier);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kSupplier);
-  }
 }

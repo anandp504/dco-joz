@@ -28,7 +28,4 @@ public class CPOWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCPO);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCPO);
-  }
 }

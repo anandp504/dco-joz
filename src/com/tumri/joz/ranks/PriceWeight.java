@@ -28,7 +28,4 @@ public class PriceWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kPrice);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kPrice);
-  }
 }

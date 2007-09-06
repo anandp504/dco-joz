@@ -28,7 +28,4 @@ public class ProviderWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kProvider);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kProvider);
-  }
 }

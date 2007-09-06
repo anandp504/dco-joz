@@ -28,7 +28,4 @@ public class CPCWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCPC);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCPC);
-  }  
 }

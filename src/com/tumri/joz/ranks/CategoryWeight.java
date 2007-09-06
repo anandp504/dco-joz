@@ -29,7 +29,4 @@ public class CategoryWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCategory);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCategory);
-  }
 }

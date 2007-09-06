@@ -28,7 +28,4 @@ public class ProductTypeWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kProductType);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kProductType);
-  }
 }

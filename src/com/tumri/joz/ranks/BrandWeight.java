@@ -28,7 +28,4 @@ public class BrandWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kBrand);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kBrand);
-  }
 }

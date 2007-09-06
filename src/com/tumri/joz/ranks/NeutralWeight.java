@@ -28,15 +28,7 @@ public class NeutralWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kNone);
   }
 
-  public double getWeight(Integer pid) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kNone);
-  }
-
   public int match(Handle v) {
-    return 0;
-  }
-
-  public int match(Integer pid) {
     return 0;
   }
 

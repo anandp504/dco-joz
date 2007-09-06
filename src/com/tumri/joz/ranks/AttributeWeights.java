@@ -26,10 +26,6 @@ abstract public class AttributeWeights implements IWeight<Handle> {
     return 1;
   }
 
-  public int match(Integer pid) {
-    return 1;
-  }
-
   public static IWeight<Handle> getWeight(IProduct.Attribute attr) {
     switch(attr) {
       case kCategory: return CategoryWeight.getInstance();

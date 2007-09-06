@@ -7,7 +7,5 @@ package com.tumri.joz.ranks;
  */
 public interface IWeight<Value> {
   public double getWeight(Value v);
-  public double getWeight(Integer pid);
   public int match(Value v);
-  public int match(Integer pid);
 }
