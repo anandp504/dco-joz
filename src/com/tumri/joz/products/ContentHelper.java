@@ -20,7 +20,10 @@ package com.tumri.joz.products;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.SortedSet;
+
+import org.apache.log4j.Logger;
 
 import com.tumri.content.ContentListener;
 import com.tumri.content.ContentProvider;
@@ -30,6 +33,7 @@ import com.tumri.content.ProductProvider;
 import com.tumri.content.data.Content;
 import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.joz.jozMain.MerchantDB;
+import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.utils.data.SortedArraySet;
 
 /**
@@ -39,22 +43,37 @@ import com.tumri.utils.data.SortedArraySet;
  */
 public class ContentHelper implements ContentListener {
     
-    public static void init(String file) {
-        load(file);
+    protected static Logger log = Logger.getLogger(ContentHelper.class); 
+    
+    public static void init() {
+        initLucene();
+        try {
+            load(getContentProvider());
+        } catch (InvalidConfigException e) {
+            log.error("Error during initialization of content",e);
+        }
     }
     
-    public static void load(String file) {
+    public static void init(String file) {
+        initLucene();
         try {
-            ContentProviderFactory f = null;
-            // Filename or Properties ???
-            if (file != null) {
-                f = ContentProviderFactory.getInstance();
-                f.init(file);
-            } else {
-                f = ContentProviderFactory.getDefaultInitializedInstance();
-            }
-            
-            ContentProvider p = f.getContentProvider();
+            load(getContentProvider(file));
+        } catch (InvalidConfigException e) {
+            log.error("Error during initialization of content",e);
+        }
+    }
+    
+    public static void init(Properties props) {
+        initLucene();
+        try {
+            load(getContentProvider(props));
+        } catch (InvalidConfigException e) {
+            log.error("Error during initialization of content",e);
+        }
+    }
+    
+    protected static void load(ContentProvider p) {
+        try {
             ContentProviderStatus st = p.getStatus();
             Content data = p.getContent();
 
@@ -79,6 +98,40 @@ public class ContentHelper implements ContentListener {
         
     }
     
+    protected static ContentProvider getContentProvider() throws InvalidConfigException {
+        ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
+        return f.getContentProvider();
+    }
+    
+    
+    protected static ContentProvider getContentProvider(String file) throws InvalidConfigException {
+        ContentProviderFactory f = null;
+        if (file != null) {
+            f = ContentProviderFactory.getInstance();
+            f.init(file);
+            return f.getContentProvider();
+        } else {
+            return getContentProvider();
+        }
+        
+    }
+    
+    protected static ContentProvider getContentProvider(Properties props) throws InvalidConfigException {
+        ContentProviderFactory f = null;
+        // Filename or Properties ???
+        if (props != null) {
+            f = ContentProviderFactory.getInstance();
+            f.init(props);
+            return f.getContentProvider();
+        } else {
+            return getContentProvider();
+        }
+    }
+    
+    protected static void initLucene() {
+        ProductIndex.init();
+    }
+
     protected static void initProductsDatabase(Content p) {
         ProductDB pdb = ProductDB.getInstance();
             if (p != null &&  p.getProducts() != null) {
@@ -99,6 +152,10 @@ public class ContentHelper implements ContentListener {
                 // Apply Deltas
                 pdb.addProduct(deltas[0]);
                 pdb.addProduct(deltas[1]); // Update is also done through Add.
+                
+                // Need to update the lucene index before deleting old products.
+                initLucene();
+                
                 pdb.deleteProduct(deltas[2]);
             }
     }

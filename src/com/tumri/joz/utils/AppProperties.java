@@ -41,6 +41,10 @@ public class AppProperties {
   public String getProperty(String attr, String def) {
     return m_properties.getProperty(attr, def);
   }
+  
+  public Properties getProperties() {
+      return m_properties;
+  }
 
   /**
    * This method can be called to read the property file again

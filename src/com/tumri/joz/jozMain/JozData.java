@@ -2,9 +2,10 @@
 
 package com.tumri.joz.jozMain;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 
-import com.tumri.joz.keywordServer.LuceneDB;
 import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.utils.AppProperties;
 
@@ -23,42 +24,7 @@ public class JozData
 		data_path = "../data/joz";
 	} 
 	
-    /*
-	try
-	{
-	    String merchant_path = data_path + "/MD";
-	    merchant_db = new MerchantDB (merchant_path + "/attributes-and-metadata.lisp",
-					  merchant_path + "/tabulated-search-results.lisp");
-	}
-	catch (Exception e)
-	{
-	    log.error ("Unable to initialize Merchant DB: "
-		       + e.toString ());
-	}
-
-	try
-	{
-	    log.info ("Loading products ...");
-	    load_products (data_path);
-	}
-	catch (Exception e)
-	{
-	    log.error ("Unable to load product db: " + e);
-	}
-
-	try
-	{
-	    log.info ("Loading taxonomy ...");
-	    load_taxonomy (data_path);
-	}
-	catch (Exception e)
-	{
-	    log.error ("Unable to load taxonomy: " + e);
-	}
-	*/
-	
-	// FIXME: For now hard-coding it to joz.properties
-	loadContent("joz.properties");
+	loadContent(props.getProperties());
 
 	try
 	{
@@ -153,29 +119,18 @@ public class JozData
     }
 */
 
-    // Merchant administrivia.
-    public static MerchantDB merchant_db = null;
-
-/*
-    // The MUP.
-    public static MUPDB mup_db = null;
-*/
-
     // T-Specs.
     public static TSpecDB tspec_db = null;
 
     // Mapping DB.
     public static MappingDB mapping_db = null;
 
-    // The Lucene database.
-    public static LuceneDB lucene_db = null;
-
     // implementation details -------------------------------------------------
 
     private static Logger log = Logger.getLogger (JozData.class);
     
-    protected static void loadContent(String file) {
-        ContentHelper.init(file);
+    protected static void loadContent(Properties props) {
+        ContentHelper.init(props);
     }
 
     /*

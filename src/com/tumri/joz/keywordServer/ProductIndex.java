@@ -1,17 +1,25 @@
 package com.tumri.joz.keywordServer;
 
-import com.tumri.content.ContentProviderFactory;
-import com.tumri.content.InvalidConfigException;
-import com.tumri.content.data.Product;
-import com.tumri.joz.products.*;
-import com.tumri.joz.utils.AppProperties;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.IndexModifier;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.index.memory.AnalyzerUtil;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
@@ -21,9 +29,17 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.InvalidConfigException;
+import com.tumri.content.data.Product;
+import com.tumri.content.impl.file.FileContentConfigValues;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.ProductHandle;
+import com.tumri.joz.products.ProductWrapper;
+import com.tumri.joz.products.Taxonomy;
+import com.tumri.joz.utils.AppProperties;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,7 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ProductIndex {
   static Logger log = Logger.getLogger(ProductIndex.class);
-  private static final String LUCENEDIR = "lucene";
+  private static final String LUCENEDIR = "com.tumri.content.luceneDir";
   private static AtomicReference<ProductIndex> g_Instance = new AtomicReference<ProductIndex>();
 
   private boolean debug = false;
@@ -59,31 +75,60 @@ public class ProductIndex {
     if (pi == null) {
       synchronized(ProductIndex.class) {
         if (g_Instance.get() == null) {
-          init();
+          init(null);
           pi = g_Instance.get();
         }
       }
     }
     return pi;
   }
+  
+  public static void init() {
+      init(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR));
+  }
+  
+  public static void init(String dir) {
+    if (dir == null || "".equals(dir.trim())) {
+        dir = "./";
+    }
+    File f = findProductIndex(dir);
+    if (f != null) {
+      ProductIndex pi = new ProductIndex(f);
+      g_Instance.set(pi);
+    }
+  }
+  
+  private static File findProductIndex(String dir) {
+    File f = new File(dir);
+    if (!f.exists()) {
+      log.error("Directory doesn't exist: " + dir);
+      return null;          
+    }
+    String cannonicalPath = null;
+    try {
+      cannonicalPath = f.getCanonicalPath();
+    } catch (IOException e) {
+      // Shouldn't happen.
+      log.error("Directory doesn't exist: " + dir);
+      return null;
+    }
+    String luceneSubDir = AppProperties.getInstance().getProperty(LUCENEDIR);
+    String luceneDir = cannonicalPath + (cannonicalPath.endsWith("/")?"":"/") + ((luceneSubDir == null)?"":luceneSubDir); 
+    f = new File(luceneDir);
+    if (!f.exists()) {
+      log.error("Lucene index dir doesn't exist: "+ luceneDir);
+      return null;          
+    }
+    return f;
+  }
+
 
   /**
    * The public method for constructor should not be used
    * Use getInstance() to get an instance of the class
    */
-  public ProductIndex() {
-  }
-
-  public static void main(String[] args) {
-    new ProductIndex().index(args);
-  }
-
-  public static void init() {
-    File f = findProductIndex();
-    if (f != null) {
-      ProductIndex pi = new ProductIndex(f);
-      g_Instance.set(pi);
-    }
+  private ProductIndex() {
+      super();
   }
 
   private ProductIndex(File f) {
@@ -133,48 +178,117 @@ public class ProductIndex {
     return alist;
   }
 
-  public void addProducts(ArrayList<IProduct> products) {
-    IndexModifier index_modifier = null;
+  private Query createQuery(String str) {
+    QueryParser qp = new QueryParser("description", getAnalyzer(false));
     try {
-      index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
-      for (int i = 0; i < products.size(); i++) {
-        IProduct p = products.get(i);
-        Document doc = getDocument(p);
-        index_modifier.addDocument(doc,getAnalyzer(false));
-      }
-      index_modifier.close();
-      m_searcher.get().close();
-      m_searcher.set(new IndexSearcher(new RAMDirectory(m_index_dir)));
-    } catch (IOException e) {
-      log.error("Exception while adding products",e);
-    } finally {
-      try {
-        if (index_modifier != null) index_modifier.close();
-      } catch (IOException e) {
-      }
+      return qp.parse(str);
+    } catch (ParseException e) {
+      return null;
     }
+  }
+  
+  
+  /*
+   * The following code is used to generate lucene index.
+   */
+  
+  private Set<String> loadDeboostCategories(String file) throws IOException {
+      Set<String> deboostSet = new HashSet<String>();
+      List<String> lines = readTxtFile(file);
+
+      for (int i = 0; i < lines.size(); ++i) {
+        // Find the first non-blank char.
+        int j = 0;
+        // ??? This is slow for lists in general, but we
+        // assume we have an ArrayList.
+        String l = lines.get(i);
+        while (j < l.length()
+            && Character.isWhitespace(l.charAt(j)))
+          ++j;
+
+        // Skip blank lines.
+        if (j == l.length())
+          continue;
+
+        if (l.charAt(j) == FILE_COMMENT_CHAR)
+          continue;
+
+        // If there's whitespace at the end of the line the category
+        // will be ignored and it's really hard to debug.  So remove it.
+        int k = l.length() - 1;
+        while (k > j
+            && Character.isWhitespace(l.charAt(k)))
+          --k;
+
+        String category = l.substring(j, k + 1);
+        if (debug)
+          System.out.println("Deboosting " + category);
+        deboostSet.add(category.toLowerCase());
+      }
+
+      return deboostSet;
+    }
+
+    // Read in a text file and return a string list, one entry per line.
+    private List<String> readTxtFile(String path) throws IOException {
+      ArrayList<String> lines = new ArrayList<String>();
+
+      InputStreamReader isr = new InputStreamReader(new FileInputStream(path), "utf-8");
+      BufferedReader br = new BufferedReader(isr);
+      String line = null;
+
+      while ((line = br.readLine()) != null) {
+        lines.add(line);
+      }
+
+      return lines;
+    }
+
+    private void add_field(Document doc, String name, String value, Field.Store store, Field.Index index) {
+      Field f = new Field(name, value, store, index);
+      Float boost = fieldBoosts.get(name);
+      if (boost != null)
+        f.setBoost(boost);
+      doc.add(f);
+    }
+  
+  private Document getDocument(IProduct p) {
+      Taxonomy tax = Taxonomy.getInstance();
+      Document doc = new Document();
+      Taxonomy.Node n = tax.getNode(p.getCategoryStr());
+      String cat = (n == null ? "" : n.getName());
+      StringBuilder sb = new StringBuilder();
+      sb.append(cat).append(" ").append(p.getBrandStr()).append(" ").append(p.getProductName()).append(" ");
+      sb.append(p.getDescription());
+      add_field(doc, "category", cat , Field.Store.YES, Field.Index.UN_TOKENIZED);
+      add_field(doc, "brand", p.getBrandStr() , Field.Store.YES, Field.Index.TOKENIZED);
+      add_field(doc, "name", p.getProductName() , Field.Store.YES, Field.Index.TOKENIZED);
+      add_field(doc, "description", sb.toString() , Field.Store.NO, Field.Index.TOKENIZED);
+      add_field(doc, "id", p.getGId() , Field.Store.YES, Field.Index.UN_TOKENIZED);
+      return doc;
+    }
+  
+  private ArrayList<IProduct> getAllProducts(File file) throws IOException {
+      ContentProviderFactory f;
+      Properties props = new Properties();
+      props.setProperty(FileContentConfigValues.CONFIG_PRODUCTS_DIR, file.getCanonicalPath());
+      props.setProperty(FileContentConfigValues.CONFIG_DISABLE_TAXONOMY,"true");
+      props.setProperty(FileContentConfigValues.CONFIG_DISABLE_MERCHANT_DATA,"true");
+      try {
+          f = ContentProviderFactory.getInstance();
+          f.init(props);
+          List<Product> prods = f.getContentProvider().getContent().getProducts().getAll();
+          ArrayList<IProduct> retVal = new ArrayList<IProduct>(prods.size());
+          for (Product p: prods) {
+              retVal.add(new ProductWrapper(p));
+          }
+          return retVal;
+      } catch (InvalidConfigException e) {
+          throw new IOException("Unable to get products:" + ((e.getCause() == null)?e.getMessage():e.getCause().getMessage()));
+      }
   }
 
-  public void deleteProducts(ArrayList<IProduct> products) {
-    IndexModifier index_modifier = null;
-    try {
-      index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
-      for (int i = 0; i < products.size(); i++) {
-        IProduct p = products.get(i);
-        index_modifier.deleteDocuments(new Term("id",p.getGId()));
-      }
-      index_modifier.close();
-      m_searcher.get().close();
-      m_searcher.set(new IndexSearcher(new RAMDirectory(m_index_dir)));
-    } catch (IOException e) {
-      log.error("Exception while deleting products",e);
-    } finally {
-      try {
-        if (index_modifier != null) index_modifier.close();
-      } catch (IOException e) {
-      }
-    }
-  }
+
   /**
    * This should be called by both the indexer & the searcher so that we
    * can be sure that they're using the same analyzer.
@@ -187,6 +301,22 @@ public class ProductIndex {
       return AnalyzerUtil.getLoggingAnalyzer(a, System.err, "dump");
     else
       return a;
+  }
+
+  /**
+   * Index each of the products from the MUP file. MUP file is read using the MUP Loader
+   * Each of the IProduct is treated as a document and indexed
+   * @param writer
+   * @param file
+   * @throws IOException
+   */
+   private void indexDocs(IndexWriter writer, File file) throws IOException {
+    ArrayList<IProduct> products = getAllProducts(file);
+    for (int i = 0; i < products.size(); i++) {
+      IProduct p = products.get(i);
+      Document doc = getDocument(p);
+      writer.addDocument(doc);
+    }
   }
 
   /**
@@ -278,137 +408,10 @@ public class ProductIndex {
       System.exit(1);
     }
   }
-
-  private Set<String> loadDeboostCategories(String file) throws IOException {
-    Set<String> deboostSet = new HashSet<String>();
-    List<String> lines = readTxtFile(file);
-
-    for (int i = 0; i < lines.size(); ++i) {
-      // Find the first non-blank char.
-      int j = 0;
-      // ??? This is slow for lists in general, but we
-      // assume we have an ArrayList.
-      String l = lines.get(i);
-      while (j < l.length()
-          && Character.isWhitespace(l.charAt(j)))
-        ++j;
-
-      // Skip blank lines.
-      if (j == l.length())
-        continue;
-
-      if (l.charAt(j) == FILE_COMMENT_CHAR)
-        continue;
-
-      // If there's whitespace at the end of the line the category
-      // will be ignored and it's really hard to debug.  So remove it.
-      int k = l.length() - 1;
-      while (k > j
-          && Character.isWhitespace(l.charAt(k)))
-        --k;
-
-      String category = l.substring(j, k + 1);
-      if (debug)
-        System.out.println("Deboosting " + category);
-      deboostSet.add(category.toLowerCase());
+  
+  public static void main(String[] args) {
+      new ProductIndex().index(args);
     }
-
-    return deboostSet;
-  }
-
-  // Read in a text file and return a string list, one entry per line.
-
-  private List<String> readTxtFile(String path) throws IOException {
-    ArrayList<String> lines = new ArrayList<String>();
-
-    InputStreamReader isr = new InputStreamReader(new FileInputStream(path), "utf-8");
-    BufferedReader br = new BufferedReader(isr);
-    String line = null;
-
-    while ((line = br.readLine()) != null) {
-      lines.add(line);
-    }
-
-    return lines;
-  }
-
-  private void add_field(Document doc, String name, String value, Field.Store store, Field.Index index) {
-    Field f = new Field(name, value, store, index);
-    Float boost = fieldBoosts.get(name);
-    if (boost != null)
-      f.setBoost(boost);
-    doc.add(f);
-  }
-
-  private ArrayList<IProduct> getAllProducts(File file) throws IOException {
-      ContentProviderFactory f;
-      try {
-          f = ContentProviderFactory.getInstance();
-          // FIMXE: For now hardcoding it to joz.properties
-          f.init("joz.properties");
-          List<Product> prods = f.getContentProvider().getContent().getProducts().getAll();
-          ArrayList<IProduct> retVal = new ArrayList<IProduct>(prods.size());
-          for (Product p: prods) {
-              retVal.add(new ProductWrapper(p));
-          }
-          return retVal;
-      } catch (InvalidConfigException e) {
-          throw new IOException("Unable to get products:" + ((e.getCause() == null)?e.getMessage():e.getCause().getMessage()));
-      }
-  }
-
-  /**
-   * Index each of the products from the MUP file. MUP file is read using the MUP Loader
-   * Each of the IProduct is treated as a document and indexed
-   * @param writer
-   * @param file
-   * @throws IOException
-   */
-   private void indexDocs(IndexWriter writer, File file) throws IOException {
-    ArrayList<IProduct> products = getAllProducts(file);
-    for (int i = 0; i < products.size(); i++) {
-      IProduct p = products.get(i);
-      Document doc = getDocument(p);
-      writer.addDocument(doc);
-    }
-  }
-
-  private Document getDocument(IProduct p) {
-    Taxonomy tax = Taxonomy.getInstance();
-    Document doc = new Document();
-    Taxonomy.Node n = tax.getNode(p.getCategoryStr());
-    String cat = (n == null ? "" : n.getName());
-    StringBuilder sb = new StringBuilder();
-    sb.append(cat).append(" ").append(p.getBrandStr()).append(" ").append(p.getProductName()).append(" ");
-    sb.append(p.getDescription());
-    add_field(doc, "category", cat , Field.Store.YES, Field.Index.UN_TOKENIZED);
-    add_field(doc, "brand", p.getBrandStr() , Field.Store.YES, Field.Index.TOKENIZED);
-    add_field(doc, "name", p.getProductName() , Field.Store.YES, Field.Index.TOKENIZED);
-    add_field(doc, "description", sb.toString() , Field.Store.NO, Field.Index.TOKENIZED);
-    add_field(doc, "id", p.getGId() , Field.Store.YES, Field.Index.UN_TOKENIZED);
-    return doc;
-  }
-
-  private static File findProductIndex() {
-    String l = AppProperties.getInstance().getProperty(LUCENEDIR);
-    if (l == null) l = LUCENEDIR;
-    File f = new File(l);
-    if (!f.exists()) {
-      log.error("Lucene DB dir doesn't exist: "+l);
-      return null;
-    }
-    return f;
-  }
-
-  private Query createQuery(String str) {
-    QueryParser qp = new QueryParser("description", getAnalyzer(false));
-    try {
-      return qp.parse(str);
-    } catch (ParseException e) {
-      return null;
-    }
-  }
-
 
   @Test
   public void test() {
@@ -422,4 +425,52 @@ public class ProductIndex {
     }
     System.out.println("Time is "+(System.currentTimeMillis()-start));
   }
+  
+  
+  /* - Code not being used.
+  public void addProducts(ArrayList<IProduct> products) {
+    IndexModifier index_modifier = null;
+    try {
+      index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
+      for (int i = 0; i < products.size(); i++) {
+        IProduct p = products.get(i);
+        Document doc = getDocument(p);
+        index_modifier.addDocument(doc,getAnalyzer(false));
+      }
+      index_modifier.close();
+      m_searcher.get().close();
+      m_searcher.set(new IndexSearcher(new RAMDirectory(m_index_dir)));
+    } catch (IOException e) {
+      log.error("Exception while adding products",e);
+    } finally {
+      try {
+        if (index_modifier != null) index_modifier.close();
+      } catch (IOException e) {
+      }
+    }
+  }
+
+  public void deleteProducts(ArrayList<IProduct> products) {
+    IndexModifier index_modifier = null;
+    try {
+      index_modifier = new IndexModifier(m_index_dir,getAnalyzer(false),false);
+      for (int i = 0; i < products.size(); i++) {
+        IProduct p = products.get(i);
+        index_modifier.deleteDocuments(new Term("id",p.getGId()));
+      }
+      index_modifier.close();
+      m_searcher.get().close();
+      m_searcher.set(new IndexSearcher(new RAMDirectory(m_index_dir)));
+    } catch (IOException e) {
+      log.error("Exception while deleting products",e);
+    } finally {
+      try {
+        if (index_modifier != null) index_modifier.close();
+      } catch (IOException e) {
+      }
+    }
+  }
+  */
+
+  
 }
