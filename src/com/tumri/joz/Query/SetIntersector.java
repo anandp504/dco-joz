@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 
-import com.tumri.joz.filter.Filter;
+import com.tumri.joz.filter.IFilter;
 import com.tumri.joz.ranks.IWeight;
 import com.tumri.utils.data.RWLocked;
 import com.tumri.utils.data.SortedArraySet;
@@ -32,7 +32,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   private boolean m_strict = false;
   private ArrayList<SortedSet<Value>> m_includes;
   private ArrayList<IWeight<Value>> m_includesWeight;
-  private ArrayList<Filter<Value>> m_filters;
+  private ArrayList<IFilter<Value>> m_filters;
   private ArrayList<IWeight<Value>> m_filtersWeight;
   private ArrayList<SortedSet<Value>> m_excludes;
   private ArrayList<IWeight<Value>> m_excludesWeight;
@@ -74,7 +74,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   public SetIntersector() {
     m_includes = new ArrayList<SortedSet<Value>>();
     m_includesWeight = new ArrayList<IWeight<Value>>();
-    m_filters = new ArrayList<Filter<Value>>();
+    m_filters = new ArrayList<IFilter<Value>>();
     m_filtersWeight = new ArrayList<IWeight<Value>>();
     m_excludes = new ArrayList<SortedSet<Value>>();
     m_excludesWeight = new ArrayList<IWeight<Value>>();
@@ -159,7 +159,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
    * @param aFilter filter used for accepting matches
    * @param weight of a Value is computed using weight object
    */
-  public void addFilter(Filter<Value> aFilter, IWeight<Value> weight) {
+  public void addFilter(IFilter<Value> aFilter, IWeight<Value> weight) {
     m_filters.add(aFilter);
     m_filtersWeight.add(weight);
     m_filterSize = m_filters.size();

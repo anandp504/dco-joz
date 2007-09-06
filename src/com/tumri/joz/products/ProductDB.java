@@ -1,11 +1,7 @@
 package com.tumri.joz.products;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.SortedMap;
-import java.util.SortedSet;
+import com.tumri.joz.index.*;
+import com.tumri.joz.index.RWLockedSortedArraySet;
 
 import com.tumri.joz.filter.BrandFilter;
 import com.tumri.joz.filter.CPCRangeFilter;
@@ -28,6 +24,8 @@ import com.tumri.joz.index.ProviderIndex;
 import com.tumri.joz.index.SupplierIndex;
 import com.tumri.utils.data.RWLockedSortedArraySet;
 import com.tumri.utils.data.RWLockedTreeMap;
+
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -84,10 +82,18 @@ public class ProductDB {
 
     pdb.addIndex(IProduct.Attribute.kProductType,new ProductTypeIndex());
     pdb.registerFilter(IProduct.Attribute.kProductType,new ProductTypeFilter());
-    
+
   }
 
   private ProductDB() {
+  }
+
+  public Handle addProduct(IProduct p) {
+    Handle h = p.getHandle();
+    ArrayList<IProduct> list = new ArrayList<IProduct>();
+    list.add(p);
+    addProduct(list);
+    return h;
   }
 
   // Add sequence is follows:
@@ -95,33 +101,6 @@ public class ProductDB {
   // Step 2. Add Handle to set of all products
   // Step 3. Add Id->IProduct mapping to m_map
   // Step 4. Update all indices in a sequence
-  public Handle addProduct(IProduct p) {
-    checkUpdate(p);
-
-    Handle h = p.getHandle();
-    // Step 2.
-    m_allProducts.writerLock();
-    try {
-      m_allProducts.add(h);
-    } finally {
-      m_allProducts.writerUnlock();
-    }
-    // Step 3.
-    m_map.writerLock();
-    try {
-      m_map.put(p.getId(),p);
-    } finally {
-      m_map.writerUnlock();
-    }
-    // Step 4.
-    Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
-    while (iter.hasNext()) {
-      ProductAttributeIndex<?,Handle> lIndex = iter.next();
-      lIndex.addProduct(p);
-    }
-    return h;
-  }
-
   public ArrayList<Handle> addProduct(ArrayList<IProduct> products) {
     checkUpdate(products);
     ArrayList<Handle> handles = new ArrayList<Handle>();
@@ -149,23 +128,11 @@ public class ProductDB {
     Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
       ProductAttributeIndex<?,Handle> lIndex = iter.next();
-      lIndex.addProduct(products);
+      lIndex.add(products);
     }
     return handles;
   }
 
-  private void checkUpdate(IProduct p) {
-    IProduct op = null;
-    try {
-      m_map.readerLock();
-      op = m_map.get(p.getId());
-    } finally {
-      m_map.readerUnlock();
-    }
-    if (op != null) {
-      deleteProduct(op);
-    }
-  }
   private void checkUpdate(ArrayList<IProduct> products) {
     ArrayList<IProduct> ops = new ArrayList<IProduct>();
     try {
@@ -184,42 +151,23 @@ public class ProductDB {
     }
   }
 
+  public Handle deleteProduct(IProduct p) {
+    Handle h = p.getHandle();
+    ArrayList<IProduct> products = new ArrayList<IProduct>();
+    products.add(p);
+    deleteProduct(products);
+    return h;
+  }
+
   /**
    * Delete sequence is as follows:
    * step 1. Remove from all indices in a sequence
    * step 2. Remove from m_map
    * Step 3. remove from allProducts set
    * Step 4. remove from kId dictionary
-   * @param p
+   * @param products
    * @return
    */
-  public Handle deleteProduct(IProduct p) {
-    Handle h = p.getHandle();
-    // Step 1.
-    Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
-    while (iter.hasNext()) {
-      ProductAttributeIndex<?,Handle> lIndex = iter.next();
-      lIndex.deleteProduct(p);
-    }
-    // Step 2.
-    m_map.writerLock();
-    try {
-      m_map.remove(p.getId());
-    } finally {
-      m_map.writerUnlock();
-    }
-    // Step 3.
-    m_allProducts.writerLock();
-    try {
-      m_allProducts.remove(h);
-    } finally {
-      m_allProducts.writerUnlock();
-    }
-    // step 4
-    DictionaryManager.getInstance().remove(IProduct.Attribute.kId,h.getOid());
-    return h;
-  }
-
   public ArrayList<Handle> deleteProduct(ArrayList<IProduct> products) {
     ArrayList<Handle> handles = new ArrayList<Handle>();
     for (int i = 0; i < products.size(); i++) {
@@ -228,7 +176,7 @@ public class ProductDB {
     Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
     while (iter.hasNext()) {
       ProductAttributeIndex<?,Handle> lIndex = iter.next();
-      lIndex.deleteProduct(products);
+      lIndex.delete(products);
     }
     // Step 2.
     m_map.writerLock();
@@ -243,10 +191,7 @@ public class ProductDB {
     // Step 3.
     m_allProducts.writerLock();
     try {
-      for (int i = 0; i < handles.size(); i++) {
-        Handle h = handles.get(i);
-        m_allProducts.remove(h);
-      }
+      m_allProducts.removeAll(handles);
     } finally {
       m_allProducts.writerUnlock();
     }
@@ -275,8 +220,6 @@ public class ProductDB {
       m_map.readerUnlock();
     }
   }
-
-  public Iterator<Handle> getAllProducts () { return m_allProducts.iterator (); }
 
   /**
    * Get IProduct without checking a lock, reader should call readerLock()
@@ -308,19 +251,22 @@ public class ProductDB {
     m_indices.remove(aAttribute);
   }
 
+  @SuppressWarnings("unchecked")
   public void reindex(IProduct.Attribute aAttribute) {
     ProductAttributeIndex index = m_indices.get(aAttribute);
     if (index != null) {
       index.clear();
       try {
-        m_map.readerLock();
+        m_map.writerLock();
         Iterator<IProduct> iter = m_map.values().iterator();
+        ArrayList<IProduct> list = new ArrayList<IProduct>();
         while (iter.hasNext()) {
-          IProduct lIProduct = iter.next();
-          index.addProduct(lIProduct);
+          list.add(iter.next());
         }
+        // this stmt has a warning
+        index.add(list);
       } finally {
-        m_map.readerUnlock();
+        m_map.writerUnlock();
       }
     }
   }

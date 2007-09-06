@@ -225,6 +225,7 @@ class TSpecLoader {
       cjq.setStrict(true);
       cjq.setReference(ref);
       SortedSet<Handle> results = cjq.exec();
+      cjq.test();
       if (m_validate) {
         cjq.clear();
         cjq.setScan(true);
