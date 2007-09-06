@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */ 
-public abstract class Filter<Value> {
+public abstract class Filter<Value> implements IFilter<Value> {
   private boolean m_negation;
   private ArrayList<Integer> m_values = new ArrayList<Integer>();
   private double m_min;
@@ -18,7 +18,6 @@ public abstract class Filter<Value> {
    * @param v
    * @return
    */
-  public abstract boolean accept(Value v);
   public abstract Filter<Value> clone();
 
   protected Filter() {
