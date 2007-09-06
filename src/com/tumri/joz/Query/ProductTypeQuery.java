@@ -1,13 +1,13 @@
 package com.tumri.joz.Query;
 
-import java.util.SortedSet;
-
 import com.tumri.joz.filter.Filter;
 import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
-import com.tumri.utils.index.Index;
+
+import java.util.SortedSet;
 
 /**
  * Implementation of the ProductTypeQuery
@@ -42,7 +42,7 @@ public class ProductTypeQuery extends MUPQuery {
   public int getCount() {
     if (m_count == kMax) {
       @SuppressWarnings("unchecked")
-      Index<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
+      ProductAttributeIndex<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       if (index != null) {
         m_count = index.getCount(m_productType);
       }
@@ -53,7 +53,7 @@ public class ProductTypeQuery extends MUPQuery {
   @SuppressWarnings("unchecked")
   public SortedSet<Handle> exec() {
     if (m_results == null) {
-      Index<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
+      ProductAttributeIndex<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       if (m_productType.equals(m_productTypeLeadgen)) {
           m_results = (index != null) ? index.get(m_productTypeLeadgen) : tableScan();
       } else if (m_productType.equals(m_productTypeProd)) {

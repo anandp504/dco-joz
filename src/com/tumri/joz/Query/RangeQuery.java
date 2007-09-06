@@ -1,13 +1,13 @@
 package com.tumri.joz.Query;
 
-import java.util.SortedSet;
-
 import com.tumri.joz.filter.Filter;
+import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.utils.index.IIndex;
-import com.tumri.utils.index.Index;
+
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -65,7 +65,7 @@ public class RangeQuery extends MUPQuery {
   public SortedSet<Handle> exec() {
     if (m_results == null) {
       // ??? This gets an "unchecked conversion" warning.
-      Index<Double, Handle> index = ProductDB.getInstance().getIndex(getAttribute());
+      ProductAttributeIndex<Double, Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       m_results = (index != null) ? index.get(m_min, m_max) : tableScan();
     }
     return m_results;

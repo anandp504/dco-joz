@@ -1,7 +1,6 @@
 package com.tumri.joz.products;
 
 import com.tumri.joz.index.*;
-import com.tumri.joz.index.RWLockedSortedArraySet;
 
 import com.tumri.joz.filter.BrandFilter;
 import com.tumri.joz.filter.CPCRangeFilter;
