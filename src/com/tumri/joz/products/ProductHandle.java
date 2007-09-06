@@ -1,13 +1,11 @@
 package com.tumri.joz.products;
 
-import java.util.Comparator;
-
 /**
  * Created by IntelliJ IDEA.
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class ProductHandle implements Handle<ProductHandle> {
+public class ProductHandle implements Handle {
   private IProduct m_product;
   private double m_score;
   private int m_oid;
@@ -20,7 +18,8 @@ public class ProductHandle implements Handle<ProductHandle> {
   }
 
   public int getOid() {
-    return m_oid;  }
+    return m_oid;
+  }
 
   public double getScore() {
     return m_score;
@@ -31,9 +30,9 @@ public class ProductHandle implements Handle<ProductHandle> {
     return m_product;
   }
 
-  public int compareTo(ProductHandle handle) {
-    return (m_oid < handle.m_oid ? -1 :
-            m_oid == handle.m_oid ? 0 : 1);
+  public int compareTo(Handle handle) {
+    return (getOid() < handle.getOid() ? -1 :
+            getOid() == handle.getOid() ? 0 : 1);
   }
 
 
@@ -53,11 +52,11 @@ public class ProductHandle implements Handle<ProductHandle> {
   }
 
 
-  public int compare(ProductHandle handle1, ProductHandle handle2) {
-    if (handle1.m_score > handle2.m_score) return -1;
-    if (handle1.m_score < handle2.m_score) return 1;
-    if (handle1.m_oid < handle2.m_oid) return -1;
-    if (handle1.m_oid > handle2.m_oid) return 1;
+  public int compare(Handle handle1, Handle handle2) {
+    if (handle1.getScore() > handle2.getScore()) return -1;
+    if (handle1.getScore() < handle2.getScore()) return 1;
+    if (handle1.getOid() < handle2.getOid()) return -1;
+    if (handle1.getOid() > handle2.getOid()) return 1;
     return 0;
   }
 

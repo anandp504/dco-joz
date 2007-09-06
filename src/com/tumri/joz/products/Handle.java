@@ -7,7 +7,7 @@ import java.util.Comparator;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public interface Handle<V> extends Comparable<V>, Comparator<ProductHandle> {
+public interface Handle extends Comparable<Handle>, Comparator<Handle> {
   /**
    * Returns the underlying object id to this handle
    * @return

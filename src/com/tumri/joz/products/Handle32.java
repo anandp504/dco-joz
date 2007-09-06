@@ -7,7 +7,7 @@ import java.util.Random;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class Handle32 implements Handle<Handle32> {
+public class Handle32 implements Handle {
   private static Random g_random = new Random();
   private static int k_RANK =23;
   private static int k_RANKMASK = 0x7f800000;
@@ -38,7 +38,8 @@ public class Handle32 implements Handle<Handle32> {
     return m_data;
   }
 
-  public int compareTo(Handle32 lHandle) {
+  public int compareTo(Handle handle) {
+    Handle32 lHandle = (Handle32)handle;
     return (m_data < lHandle.m_data ? -1 :
             m_data == lHandle.m_data ? 0 : 1);
   }
@@ -83,7 +84,7 @@ public class Handle32 implements Handle<Handle32> {
   }
 
 
-  public int compare(ProductHandle aProductHandle, ProductHandle aProductHandle1) {
-    return aProductHandle.compareTo(aProductHandle1); // @todo
+  public int compare(Handle handle, Handle handle1) {
+    return handle.compareTo(handle1); // @todo
   }
 }
