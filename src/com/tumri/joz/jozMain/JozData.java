@@ -2,34 +2,27 @@
 
 package com.tumri.joz.jozMain;
 
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.LineNumberReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.apache.log4j.Logger;
 
-import com.tumri.content.data.Product;
-import com.tumri.content.data.impl.ProductImpl;
-import com.tumri.joz.index.CategoryIndex;
 import com.tumri.joz.keywordServer.LuceneDB;
 import com.tumri.joz.products.ContentHelper;
-import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.JOZTaxonomy;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.ProductWrapper;
-import com.tumri.utils.ifasl.IFASLUtils;
-import com.tumri.zini.transport.FASLReader;
-import com.tumri.zini.transport.FASLType;
+import com.tumri.joz.utils.AppProperties;
 
 public class JozData
 {
-    public static void
+    private static final String CAMPAIGN_SOURCE_DIR_PATH_PROPERTY = "com.tumri.campaign.file.sourceDir";
+    
+	public static void
     init ()
     {
-    
-    String data_path = "../data/joz";
+    //Read the datapath from the joz.properties file
+	AppProperties props = AppProperties.getInstance();
+	String data_path = props.getProperty(CAMPAIGN_SOURCE_DIR_PATH_PROPERTY);
+	
+	if (data_path == null) {
+		data_path = "../data/joz";
+	} 
+	
     /*
 	try
 	{

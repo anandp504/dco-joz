@@ -59,11 +59,12 @@ public class CampaignDataCache {
 	private HashMap<String, OSpec> m_oSpecHashtable = null;
 	private LinkedHashMap<String, CNFQuery> m_oSpecQueryCache = null;
 
+    private static final String CAMPAIGN_SOURCE_DIR_PATH_PROPERTY = "com.tumri.campaign.file.sourceDir";
 	private static String _lispSourceFilePath = "..";
 
 	public CampaignDataCache() {
 		AppProperties props = AppProperties.getInstance();
-		String srcPath = props.getProperty("TSPEC_MAPPINGS_SOURCE_DIR_PATH");
+		String srcPath = props.getProperty(CAMPAIGN_SOURCE_DIR_PATH_PROPERTY);
 		if (srcPath != null) {
 			_lispSourceFilePath = srcPath;
 		}

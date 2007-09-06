@@ -50,15 +50,16 @@ public class ProductRequestProcessor {
 	private Integer m_currentPage = null;
 	private Integer m_pageSize = null;
 	private boolean m_clonedQuery = false;
-	
+	private boolean m_productLeadgenRequest = false;
+
 	/**
 	 * Default constructor
 	 *
 	 */
 	public ProductRequestProcessor() {
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	/**
 	 * Select the Campaign --> AdPod --> OSpec based on the request parm, and process the query.
@@ -79,7 +80,7 @@ public class ProductRequestProcessor {
 	public ProductSelectionResults processRequest(AdDataRequest request) {
 		ProductSelectionResults pResults = new ProductSelectionResults();
 		SortedSet<Handle> rResult = null;
-		
+
 		//1. Max Number of products to be served up
 		m_NumProducts = request.get_num_products ();
 		if (m_NumProducts!=null) {
@@ -135,18 +136,10 @@ public class ProductRequestProcessor {
 		if (m_tSpecQuery != null) {
 			//6. Product selection
 			rResult = doProductSelection(request);
-			
+
 			//7. Do Outer Disjunction
-			List<Handle> disjunctedProds = getIncludedProducts(m_currOSpec);
-			
-			if (disjunctedProds!=null){
-				//Append to the top of the results
-				disjunctedProds.addAll(rResult);
-				SortedSet<Handle> sortedResult = new SortedArraySet<Handle>(ProductDB.getInstance().genReference());
-				sortedResult.addAll(disjunctedProds);
-				rResult = sortedResult;
-			}
-			
+			ArrayList<Handle> disjunctedProds = getIncludedProducts(m_currOSpec);
+
 			//8. Cull the result to get the right page
 			if ((rResult!=null) && (m_NumProducts!=null)){
 				ArrayList<Handle> results = new ArrayList<Handle>();
@@ -163,7 +156,24 @@ public class ProductRequestProcessor {
 				//sort by the score
 				rResult = new SortedArraySet(results);
 			} 
-			
+
+
+			if (disjunctedProds!=null){
+				disjunctedProds.addAll(rResult);
+				rResult = new SortedArraySet<Handle>(disjunctedProds, false);
+			}
+
+			//Do Hybrid AdPod
+			if (m_productLeadgenRequest) {
+				ArrayList<Handle> leadGenProds = getLeadGenProducts();
+				if (leadGenProds!=null){
+					//Append to the top of the results
+					leadGenProds.addAll(rResult);
+					rResult =  new SortedArraySet<Handle>(leadGenProds, false);
+				}
+			}
+
+
 		} else {
 			//This shouldnt happen since we always will get back the TSpec out of targeting
 			throw new RuntimeException("Could not locate the TSpec to use for the given request");
@@ -172,7 +182,7 @@ public class ProductRequestProcessor {
 		pResults.setTargetedOSpec(m_currOSpec);
 		return pResults;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	/**
 	 * Process the request and perform the product selection. 
@@ -207,10 +217,10 @@ public class ProductRequestProcessor {
 		if (skeywordQueryResult!=null) {
 			//FIXME: Use the script keyword flag from OSpec
 			//if (!m_currOSpec.isScriptKeywordsWithinOSpec()) {
-				return skeywordQueryResult;
+			return skeywordQueryResult;
 			//}
 		}
-		
+
 		//3. URL keywords
 		SortedSet<Handle> ukeywordQueryResult = doURLKeywordSearch(request);
 		if (ukeywordQueryResult!=null) {
@@ -237,13 +247,13 @@ public class ProductRequestProcessor {
 		if ((requestCategory!=null)&&(!"".equals(requestCategory))) {
 			addRequestCategoryQuery(requestCategory);
 		}
-		
+
 		//6. Product Type
 		addProductTypeQuery(request);
-		
+
 		//7. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
-		
+
 		//8. If there was a keyword query result, then return the top "n" matches with the tSpec query 
 		if (skeywordQueryResult!=null) {
 			int numResults = 100; //Setting the limit to 100
@@ -269,10 +279,10 @@ public class ProductRequestProcessor {
 			sortedResult.addAll(qResult);
 			qResult = sortedResult;
 		}
-		
+
 		return qResult;
 	}
-	
+
 
 	/**
 	 * Category may be passed in from the request. If this is the case we always intersect with the TSpec results
@@ -312,11 +322,12 @@ public class ProductRequestProcessor {
 			ptQuery.setNegation(true);
 			m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
 		} else if (offerType==AdOfferType.PRODUCT_LEADGEN) {
-			//TODO: Add logic for both
-			return;
+			m_productLeadgenRequest = true;
+			ptQuery.setNegation(true);
+			m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
 		}
 	}
-	
+
 	/**
 	 * Clone the query if not already cloned
 	 *
@@ -329,7 +340,7 @@ public class ProductRequestProcessor {
 			m_clonedQuery = true;
 		}
 	}
-	
+
 	/**
 	 * Perform the widget search
 	 * @param request
@@ -340,7 +351,7 @@ public class ProductRequestProcessor {
 		return doKeywordSearch(request, requestKeyWords);
 	}
 
-	
+
 	/**
 	 * Performs the URL scavenging and runs the query
 	 *
@@ -364,7 +375,7 @@ public class ProductRequestProcessor {
 		String scriptKeywords = request.get_script_keywords();
 		return doKeywordSearch(request, scriptKeywords);
 	}
-	
+
 	/**
 	 * Perform the keyword search
 	 * @param request
@@ -384,7 +395,7 @@ public class ProductRequestProcessor {
 		}
 		return kResults;
 	}
-	
+
 	/**
 	 * returns true if the oSpec has included keywords
 	 * @param ospec
@@ -399,20 +410,50 @@ public class ProductRequestProcessor {
 		}
 		return false;
 	}
-	
-	
+
+	/**
+	 * Returns an arraylist of the LeadGen products that need to be appended to the result set for a hybrid ad pod request
+	 * @return
+	 */
+	private ArrayList<Handle> getLeadGenProducts() {
+		ArrayList<Handle> leadGenProds = new ArrayList<Handle>();
+		DictionaryManager dm = DictionaryManager.getInstance ();
+		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
+		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
+		doCloneTSpecQuery();
+		m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
+		SortedSet<Handle> qResult = m_tSpecQuery.exec();
+		if (qResult != null)
+			leadGenProds.add(qResult.first());
+		return leadGenProds;
+	}
+
 	/**
 	 * Returns the included products if the oSpec has included products
 	 * @param ospec
 	 * @return
 	 */
-	private List<Handle> getIncludedProducts(OSpec ospec) {
+	private ArrayList<Handle> getIncludedProducts(OSpec ospec) {
 		List<TSpec> tspeclist = ospec.getTspecs();
-		List<Handle> prodList = null;
+		ArrayList<Handle> prodList = null;
 		for (TSpec tspec : tspeclist) {
 			List<ProductInfo> prodInfoList = tspec.getIncludedProducts();
-			//TODO: Construct the list of product handles from the product names.
-			//This needs to be supported by the ProductDB
+			if (prodInfoList!=null) {
+				for (ProductInfo info : prodInfoList) {
+					try {
+						String productId = info.getName();
+						if (productId != null) {
+							productId = productId.substring(productId.indexOf("."), productId.length());
+							Handle prodHandle = ProductDB.getInstance().get(new Integer(productId).intValue()).getHandle();
+							if (prodHandle!=null){
+								prodList.add(prodHandle);
+							}
+						}
+					} catch(Exception e) {
+						log.error("Could not get the product info from the Product DB");
+					}
+				}
+			}
 		}
 		return prodList;
 	}
@@ -421,7 +462,7 @@ public class ProductRequestProcessor {
 	public static void initiatize() {
 		JozData.init ();
 	}
-	
+
 	@Test
 	public void testVanillaGetAdData() {
 		try {
@@ -433,7 +474,7 @@ public class ProductRequestProcessor {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testNumProducts() {
 		try {
@@ -445,7 +486,7 @@ public class ProductRequestProcessor {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testPagination() {
 		try {
@@ -517,7 +558,7 @@ public class ProductRequestProcessor {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testScriptKeywordSearch() {
 		try {
@@ -529,7 +570,7 @@ public class ProductRequestProcessor {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testIncludedCategories() {
 		try {
@@ -541,7 +582,7 @@ public class ProductRequestProcessor {
 			e.printStackTrace();
 		}
 	}
-		
+
 	private SortedSet<Handle> testProcessRequest(String getAdDataCommandStr) throws Exception {
 		ProductRequestProcessor prodRequest = new ProductRequestProcessor();
 		Reader r = new StringReader (getAdDataCommandStr);
@@ -550,7 +591,7 @@ public class ProductRequestProcessor {
 		try {
 			Sexp e = lr.read ();
 			SexpList l = e.toSexpList ();
-		 	Sexp cmd_expr = l.getFirst ();
+			Sexp cmd_expr = l.getFirst ();
 			if (! cmd_expr.isSexpSymbol ())
 				log.error("command name not a symbol: " + cmd_expr.toString ());
 
@@ -563,6 +604,7 @@ public class ProductRequestProcessor {
 				AdDataRequest rqst = new AdDataRequest (e);
 				ProductSelectionResults presults = prodRequest.processRequest(rqst);
 				//Inspect the results
+				results = presults.getResults();
 				log.info("Number of results returned are : " + results.size());
 				Assert.assertTrue(presults!=null);
 
@@ -576,7 +618,7 @@ public class ProductRequestProcessor {
 					String desc = ip.getDescription ();
 					log.info(id + "     " + name + "    " + desc);
 				}
-				
+
 			} else {
 				log.error("The request could not be parsed correctly");
 				Assert.assertTrue(false);
@@ -584,7 +626,7 @@ public class ProductRequestProcessor {
 		} catch(Exception e) {
 			throw e;
 		}
-		
+
 		return results;
 
 	}
