@@ -1,13 +1,15 @@
 package com.tumri.joz.utils;
 
 import java.util.Comparator;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class Pair<A extends Comparable<A>, B extends Comparable<B>> implements Comparable<Pair <A, B>>, Comparator<Pair<A, B>> {
+public class Pair<A extends Comparable<A>, B extends Comparable<B>>
+    implements Comparable<Pair <A, B>>, Comparator<Pair<A, B>>, Map.Entry<A,B> {
   private A m_first;
   private B m_second;
 
@@ -80,5 +82,20 @@ public class Pair<A extends Comparable<A>, B extends Comparable<B>> implements C
     if (aPair.m_first == null && aPair1.m_first != null) return -1;
     if (aPair.m_first != null && aPair1.m_first == null) return 1;
     return (aPair.m_first != null ? aPair.m_first.compareTo(aPair1.m_first) : 0);
+  }
+
+
+  public A getKey() {
+    return getFirst();
+  }
+
+  public B getValue() {
+    return getSecond();
+  }
+
+  public B setValue(B aB) {
+    B old = getSecond();
+    setSecond(aB);
+    return old;
   }
 }
