@@ -1,6 +1,7 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
+import com.tumri.joz.filter.IFilter;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.IWeight;
 
@@ -17,7 +18,8 @@ public abstract class SimpleQuery implements Query, Comparable, Cloneable {
   protected final int kMax = 0x7FFFFFFF;
 
   public enum Type {
-    kAttribute, kRange, kKeyword, kProductType
+    kAttribute, kRange, kKeyword, kProductType,
+    kSite, kGeo
   }
 
   private boolean m_negation; // used to express !=, not in range queries
@@ -28,7 +30,7 @@ public abstract class SimpleQuery implements Query, Comparable, Cloneable {
   public abstract int getCount();
   public abstract double getCost();
   public abstract SortedSet<Handle> exec();
-  public abstract Filter<Handle> getFilter();
+  public abstract IFilter<Handle> getFilter();
   public abstract IWeight<Handle> getWeight();
 
   /**
@@ -63,7 +65,7 @@ public abstract class SimpleQuery implements Query, Comparable, Cloneable {
   }
 
   protected SortedSet<Handle> tableScan() {
-    Filter<Handle> lFilter = getFilter();
+    IFilter<Handle> lFilter = getFilter();
     SortedSet<Handle> set = new TreeSet<Handle>();
     if (lFilter != null) {
       Iterator<Handle> iter = getAll().iterator();

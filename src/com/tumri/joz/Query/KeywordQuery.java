@@ -1,13 +1,13 @@
 package com.tumri.joz.Query;
 
-import java.util.ArrayList;
-import java.util.SortedSet;
-
 import com.tumri.joz.filter.Filter;
 import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.utils.data.SortedArraySet;
+
+import java.util.ArrayList;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
