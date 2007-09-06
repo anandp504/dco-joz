@@ -116,24 +116,25 @@ public class ProductRequestProcessor {
 		MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
 
 		//3. Determine Random vs. Deterministic behaviour: Randomize results only when there is no keyword search, and there is no pagination
-		Handle ref = null;
-		if (((mMineUrls == MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(m_currOSpec)) 
-				|| ((m_currentPage==null) && (m_pageSize==null))) {
-			ref = ProductDB.getInstance().genReference ();
-		}
-		m_tSpecQuery.setReference(ref);
-
-		//4. Determine backfill of products
-		MaybeBoolean mAllowTooFewProducts = request.get_allow_too_few_products();
-		boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
-
-		if ((mAllowTooFewProducts == MaybeBoolean.TRUE)||(!revertToDefaultRealm)) {
-			m_tSpecQuery.getQueries().get(0).setStrict(true);
-		} else {
-			m_tSpecQuery.getQueries().get(0).setStrict(false);
-		}
-
 		if (m_tSpecQuery != null) {
+
+			Handle ref = null;
+			if (((mMineUrls == MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(m_currOSpec)) 
+					|| ((m_currentPage==null) && (m_pageSize==null))) {
+				ref = ProductDB.getInstance().genReference ();
+			}
+			m_tSpecQuery.setReference(ref);
+
+			//4. Determine backfill of products
+			MaybeBoolean mAllowTooFewProducts = request.get_allow_too_few_products();
+			boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
+
+			if ((mAllowTooFewProducts == MaybeBoolean.TRUE)||(!revertToDefaultRealm)) {
+				m_tSpecQuery.getQueries().get(0).setStrict(true);
+			} else {
+				m_tSpecQuery.getQueries().get(0).setStrict(false);
+			}
+
 			//6. Product selection
 			rResult = doProductSelection(request);
 
