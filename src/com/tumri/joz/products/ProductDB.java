@@ -194,11 +194,13 @@ public class ProductDB {
     } finally {
       m_allProducts.writerUnlock();
     }
+    /* Commenting it out as we are not adding the kId value to Dictionary ever.
     // step 4
     for (int i = 0; i < handles.size(); i++) {
       Handle h = handles.get(i);
       DictionaryManager.getInstance().remove(IProduct.Attribute.kId,h.getOid());
     }
+    */
     return handles;
   }
 

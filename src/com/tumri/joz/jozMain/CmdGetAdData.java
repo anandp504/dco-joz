@@ -269,23 +269,23 @@ public class CmdGetAdData extends CommandOwnWriting
 	b.append (encode (p.getGId ()));
 	b.append ("\",display_category_name:\"");
 	// Use the first parent as the category.
-	b.append (encode ((String) dm.getValue (IProduct.Attribute.kCategory, p.getCategory ())));
+	b.append (encode (p.getCategoryStr()));
 	b.append ("\",price:\"");
 	b.append (encode_price (p.getPrice ()));
 	b.append ("\",discount_price:\"");
 	b.append (encode_price (p.getDiscountPrice ()));
 	b.append ("\",brand:\"");
-	b.append (encode ((String) dm.getValue (IProduct.Attribute.kBrand, p.getBrand ())));
+	b.append (encode (p.getBrandStr()));
 	b.append ("\",merchant_id:\"");
-	b.append (encode ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ())));
+	b.append (encode (p.getProviderStr()));
 	b.append ("\",provider:\"");
-	b.append (encode ((String) dm.getValue (IProduct.Attribute.kSupplier, p.getSupplier ())));
+	b.append (encode (p.getSupplierStr()));
 	MerchantData md = MerchantDB.getInstance().getMerchantData().getMerchant(p.getProviderStr());
 	b.append ("\",merchantlogo:\"");
-	b.append (encode (md.getLogoUrl() == null?"nil":md.getLogoUrl()));
+	b.append (encode (md.getLogoUrl()));
 	// b.append (encode (JozData.merchant_db.get_logo_url ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
 	b.append ("\",ship_promo:\"");
-	b.append (encode (md.getShippingPromotionText() == null?"nil":md.getShippingPromotionText()));
+	b.append (encode (md.getShippingPromotionText()));
 	// b.append (encode (JozData.merchant_db.get_shipping_promo ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
 	b.append ("\",description:\"");
 	// FIXME: soz has code to limit size of description passed back
@@ -297,9 +297,9 @@ public class CmdGetAdData extends CommandOwnWriting
 	b.append ("\",picture_url:\"");
 	b.append (encode (p.getImageUrl ()));
 	b.append ("\",c_code:\"");
-	b.append (encode ((String) dm.getValue (IProduct.Attribute.kCurrency, p.getCurrency ())));
+	b.append (encode (p.getCurrencyStr()));
 	b.append ("\",offer_type:\"");
-	b.append (encode ((String) dm.getValue (IProduct.Attribute.kProductType, p.getProductType ())));
+	b.append (encode (p.getProductTypeStr()));
 	b.append ("\"");
 
 	b.append ("}");

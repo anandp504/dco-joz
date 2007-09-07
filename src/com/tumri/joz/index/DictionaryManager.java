@@ -2,6 +2,8 @@ package com.tumri.joz.index;
 
 import java.util.Hashtable;
 
+import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.InvalidConfigException;
 import com.tumri.joz.products.IProduct;
 import com.tumri.utils.dictionary.Dictionary;
 import com.tumri.utils.dictionary.IDictionary;
@@ -15,18 +17,9 @@ public class DictionaryManager {
   private static DictionaryManager g_Instance = null;
   Hashtable<IProduct.Attribute, IDictionary> m_table = new Hashtable<IProduct.Attribute, IDictionary>();
   static {
+    // Hopefully by now, we have initialized the content provider factory.
     DictionaryManager dm = getInstance();
     dm.addType(IProduct.Attribute.kId, new ProductDictionary());
-    dm.addType(IProduct.Attribute.kCategory, new Dictionary());
-    dm.addType(IProduct.Attribute.kProvider, new Dictionary());
-    dm.addType(IProduct.Attribute.kRank, new Dictionary());
-    dm.addType(IProduct.Attribute.kSupplier, new Dictionary());
-    dm.addType(IProduct.Attribute.kBrand, new Dictionary());
-    dm.addType(IProduct.Attribute.kCatalog, new Dictionary());
-    dm.addType(IProduct.Attribute.kCurrency, new Dictionary());
-    dm.addType(IProduct.Attribute.kDiscountPriceCurrency, new Dictionary());
-    dm.addType(IProduct.Attribute.kBlackWhiteListStatus, new Dictionary());
-    dm.addType(IProduct.Attribute.kProductType, new Dictionary());
   }
 
   public static final DictionaryManager getInstance() {
@@ -43,8 +36,13 @@ public class DictionaryManager {
   protected final IDictionary getDictionary(IProduct.Attribute aAttribute) {
     if (m_table.containsKey(aAttribute)) {
       return m_table.get(aAttribute);
+    } 
+    // For now start caching the dictionary. Do we need to cache it ?
+    IDictionary d = ContentProviderFactory.getDictionary(aAttribute);
+    if (d != null) {
+        m_table.put(aAttribute, d);
     }
-    return null;
+    return d;
   }
 
   @SuppressWarnings("unchecked")
@@ -58,22 +56,24 @@ public class DictionaryManager {
   }
 
   public final Object getValue(IProduct.Attribute aAttribute, int index) {
-    if (m_table.containsKey(aAttribute)) {
-      IDictionary dict = m_table.get(aAttribute);
+    IDictionary dict = m_table.get(aAttribute);
+    if (dict != null) {
       return dict.getValue(index);
     }
     return null;
   }
 
   public int maxId(IProduct.Attribute aAttribute) {
-    if (m_table.containsKey(aAttribute)) {
-      return m_table.get(aAttribute).maxId();
+      IDictionary dict = m_table.get(aAttribute);
+      if (dict != null) {
+      return dict.maxId();
     }
     return 0;
   }
   public int minId(IProduct.Attribute aAttribute) {
-    if (m_table.containsKey(aAttribute)) {
-      return m_table.get(aAttribute).minId();
+      IDictionary dict = m_table.get(aAttribute);
+      if (dict != null) {
+      return dict.minId();
     }
     return 0;
   }
