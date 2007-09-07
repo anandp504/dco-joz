@@ -67,7 +67,7 @@ public class AppProperties {
   }
 
   private static InputStream getInputStream() {
-    InputStream is =  ClassLoader.getSystemResourceAsStream(g_AppPropertyFile);
+    InputStream is =  AppProperties.class.getResourceAsStream(g_AppPropertyFile);
     if (is == null)
       log.error("Could not locate the resource file "+g_AppPropertyFile);
     return is;
