@@ -31,14 +31,15 @@ import org.junit.Test;
 
 import com.tumri.content.ContentProviderFactory;
 import com.tumri.content.InvalidConfigException;
+import com.tumri.content.data.Category;
 import com.tumri.content.data.Product;
 import com.tumri.content.impl.file.FileContentConfigValues;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.products.ProductWrapper;
-import com.tumri.joz.products.Taxonomy;
 import com.tumri.joz.utils.AppProperties;
 
 /**
@@ -253,10 +254,15 @@ public class ProductIndex {
     }
   
   private Document getDocument(IProduct p) {
-      Taxonomy tax = Taxonomy.getInstance();
       Document doc = new Document();
-      Taxonomy.Node n = tax.getNode(p.getCategoryStr());
-      String cat = (n == null ? "" : n.getName());
+      String cat = "";
+      com.tumri.content.data.Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
+      if (t != null) {
+          Category c  = t.getCategory(p.getCategoryStr());
+          if (c != null) {
+              cat = c.getName();
+          }
+      }
       StringBuilder sb = new StringBuilder();
       sb.append(cat).append(" ").append(p.getBrandStr()).append(" ").append(p.getProductName()).append(" ");
       sb.append(p.getDescription());
@@ -272,7 +278,7 @@ public class ProductIndex {
       ContentProviderFactory f;
       Properties props = new Properties();
       props.setProperty(FileContentConfigValues.CONFIG_PRODUCTS_DIR, file.getCanonicalPath());
-      props.setProperty(FileContentConfigValues.CONFIG_DISABLE_TAXONOMY,"true");
+      props.setProperty(FileContentConfigValues.CONFIG_TAXONOMY_DIR, file.getCanonicalPath());
       props.setProperty(FileContentConfigValues.CONFIG_DISABLE_MERCHANT_DATA,"true");
       try {
           f = ContentProviderFactory.getInstance();
