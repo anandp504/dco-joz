@@ -89,15 +89,18 @@ public class JAdPod {
   }
 
   public List<Url> getUrls() {
-    return m_adpod.getUrls();
+    //return m_adpod.getUrls();
+      return null;
   }
 
   public List<Theme> getThemes() {
-    return m_adpod.getThemes();
+    //return m_adpod.getThemes();
+      return null;
   }
 
   public List<Location> getLocations() {
-    return m_adpod.getLocations();
+    //return m_adpod.getLocations();
+      return null;
   }
 
   public Geocode getGeocode() {
