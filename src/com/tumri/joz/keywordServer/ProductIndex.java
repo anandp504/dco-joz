@@ -330,7 +330,7 @@ public class ProductIndex {
    */
   private void index(String[] args) {
     boolean dumpTokens = false;
-    String usage = "java -jar ProductIndex.jar [-h] [-debug] [-dumpTokens] [-deboostCategoryFile XXX] [-docDir XXX] [-indexDir XXX] [-mergeFactor nnn] [-boostField name value]";
+    String usage = "java -jar joz.jar [-h] [-debug] [-dumpTokens] [-deboostCategoryFile XXX] [-docDir XXX] [-indexDir XXX] [-mergeFactor nnn] [-boostField name value]";
 
     // boost these by default
     fieldBoosts.put("name", new Float(2.0));

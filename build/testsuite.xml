@@ -7,6 +7,8 @@
     <path id="testsuite.libs">
 	<fileset dir="${ext.lib.dir}" includes="*.jar" />
 	<fileset dir="${utils.lib.dir}" includes="*.jar" />
+    <fileset dir="${cma.lib.dir}" includes="*.jar" />
+    <fileset dir="${caa.lib.dir}" includes="*.jar" />
 	<fileset dir="${zini.lib.dir}" includes="*.jar" />
     </path>
 

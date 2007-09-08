@@ -2,14 +2,13 @@
 
 package com.tumri.joz.jozMain;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -21,20 +20,14 @@ public class InitServlet extends HttpServlet
     static
     {
 	String filename = "../conf/jozLog4j.xml";
-	try
-	{
-	    // hack to check for file-not-found
-            FileInputStream fis = new FileInputStream (filename);
-	    try { fis.close (); } catch (Exception e) { }
-	    System.out.println ("Loading log4j properties from " + filename);
-	    DOMConfigurator.configure (filename);
+	    File f = new File(filename);
+	    if (f.exists()) {
+	        DOMConfigurator.configure (filename);
+	    }
 	    log = Logger.getLogger (InitServlet.class);
-	}
-	catch (FileNotFoundException e)
-	{
-	    log = Logger.getLogger (InitServlet.class);
-	    log.error ("File not found: " + filename);
-	}
+	    if (!f.exists()) {
+	        log.error("Log4j configuration file " + filename + " missing.");
+	    }
     }
 
     public void

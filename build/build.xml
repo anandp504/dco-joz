@@ -22,7 +22,6 @@
     <property file="${root.dir}/build/build.properties"/>
 
     <import file="joz.xml"/>
-    <import file="lucene.xml"/>
     <import file="testsuite.xml"/>
 
     <path id="project.class.path">
@@ -49,7 +48,9 @@
     <!-- ****************************************************************** -->
 
     <target name="init">
+    	<mkdir dir="${stage.dir}"/>
         <mkdir dir="${classes.dir}"/>
+    	<mkdir dir="${dist.dir}"/>
     </target>
 
     <!-- ****************************************************************** -->
@@ -57,6 +58,7 @@
     <target name="clean"
             description="Remove all build objects from the tree.">
         <delete dir="${dist.dir}"/>
+    	<delete dir="${stage.dir}"/>
     </target>
 
     <!-- ****************************************************************** -->
@@ -76,7 +78,7 @@
     <!-- ****************************************************************** -->
 
     <target name="build"
-            depends="build-IndexProducts-jar,build-KeywordServer-jar,build-Joz-war,copy-non-java-files"
+            depends="build-Joz-war,copy-non-java-files"
             description="Build everything.">
     </target>
 

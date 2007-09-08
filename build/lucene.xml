@@ -5,7 +5,7 @@
          It is not intended to work standalone.  -->
 
     <!-- ****************************************************************** -->
-
+	
     <target name="build-KeywordServer-jar" depends="init">
 
         <javac destdir="${classes.dir}"
@@ -18,24 +18,24 @@
               <compilerarg value="-Xlint:deprecation"/-->
         </javac>
 
-        <delete dir="${dist.dir}/KeywordServer"/>
-        <mkdir dir="${dist.dir}/KeywordServer"/>
+        <delete dir="${stage.dir}/KeywordServer"/>
+        <mkdir dir="${stage.dir}/KeywordServer"/>
 
         <!-- copy so it gets put into our jar -->
         <copy file="${src.dir}/log4j.properties"
-              todir="${dist.dir}/KeywordServer"/>
+              todir="${stage.dir}/KeywordServer"/>
 
         <!-- copy all our 3rd party libs into our jar -->
         <unjar src="${ext.lib.dir}/log4j-1.2.6.jar"
-               dest="${dist.dir}/KeywordServer"/>
+               dest="${stage.dir}/KeywordServer"/>
         <unjar src="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"
-               dest="${dist.dir}/KeywordServer"/>
+               dest="${stage.dir}/KeywordServer"/>
         <unjar src="${ext.lib.dir}/lucene-core-2.1.0.jar"
-               dest="${dist.dir}/KeywordServer"/>
+               dest="${stage.dir}/KeywordServer"/>
 
         <jar destfile="${dist.dir}/KeywordServer.jar">
             <fileset dir="${classes.dir}" includes="com/tumri/joz/keywordServer/*.class"/>
-            <fileset dir="${dist.dir}/KeywordServer"/>
+            <fileset dir="${stage.dir}/KeywordServer"/>
         </jar>
 
     </target>
@@ -46,20 +46,20 @@
 
     <target name="build-IndexProducts-jar" depends="build-KeywordServer-jar">
 
-        <delete dir="${dist.dir}/IndexProducts"/>
-        <mkdir dir="${dist.dir}/IndexProducts"/>
+        <delete dir="${stage.dir}/IndexProducts"/>
+        <mkdir dir="${stage.dir}/IndexProducts"/>
 
         <!-- copy so it gets put into our jar -->
         <copy file="${src.dir}/log4j.properties"
-              todir="${dist.dir}/IndexProducts"/>
+              todir="${stage.dir}/IndexProducts"/>
 
         <!-- copy all our 3rd party libs into our jar -->
         <unjar src="${ext.lib.dir}/log4j-1.2.6.jar"
-               dest="${dist.dir}/IndexProducts"/>
+               dest="${stage.dir}/IndexProducts"/>
         <unjar src="${ext.lib.dir}/lucene-core-2.1.0.jar"
-               dest="${dist.dir}/IndexProducts"/>
+               dest="${stage.dir}/IndexProducts"/>
         <unjar src="${ext.lib.dir}/lucene-memory-2.1.0.jar"
-               dest="${dist.dir}/IndexProducts"/>
+               dest="${stage.dir}/IndexProducts"/>
 
         <jar destfile="${dist.dir}/IndexProducts.jar">
             <!-- WARNING: We want the keywordServer class files to appear in
@@ -70,7 +70,7 @@
             <fileset dir="${classes.dir}" includes="com/tumri/joz/keywordServer/PorterStemAnalyzer.class"/>
             <fileset dir="${classes.dir}" includes="com/tumri/joz/keywordServer/LargeStopWordList.class"/>
             <fileset dir="${classes.dir}" includes="com/tumri/joz/keywordServer/LowerAlnumTokenizer.class"/>
-            <fileset dir="${dist.dir}/IndexProducts"/>
+            <fileset dir="${stage.dir}/IndexProducts"/>
             <manifest>
                 <attribute name="Main-Class" value="com.tumri.joz.keywordServer.IndexProducts"/>
             </manifest>

@@ -6,7 +6,7 @@
 
     <!-- ****************************************************************** -->
 
-    <target name="build-Joz-jar" depends="init,build-KeywordServer-jar">
+    <target name="build-Joz-jar" depends="init">
 
         <javac destdir="${classes.dir}"
                debug="on"
@@ -19,46 +19,23 @@
 	    <compilerarg value="-Xlint:deprecation"/>
         </javac>
 
-        <delete dir="${dist.dir}/Joz"/>
-        <mkdir dir="${dist.dir}/Joz"/>
+        <delete dir="${stage.dir}/Joz"/>
+        <mkdir dir="${stage.dir}/Joz"/>
 
         <!-- copy so it gets put into our jar -->
         <copy file="${src.dir}/log4j.properties"
-              todir="${dist.dir}/Joz"/>
+              todir="${stage.dir}/Joz"/>
 
-        <!-- copy all our 3rd party libs into our jar -->
-        <unjar src="${ext.lib.dir}/log4j-1.2.6.jar"
-               dest="${dist.dir}/Joz"/>
-        <unjar src="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"
-               dest="${dist.dir}/Joz"/>
-        <unjar src="${ext.lib.dir}/lucene-core-2.1.0.jar"
-               dest="${dist.dir}/Joz"/>
-        <unjar src="${ext.lib.dir}/junit-4.4.jar"
-               dest="${dist.dir}/Joz"/>
 
-	<!-- copy all internal libs into our jar -->
-	<unjar src="${zini.lib.dir}/zini.catalog.api.jar"
-	       dest="${dist.dir}/Joz"/>
-	<unjar src="${utils.lib.dir}/utils.jar"
-	       dest="${dist.dir}/Joz"/>
-	<unjar src="${dist.dir}/KeywordServer.jar"
-	       dest="${dist.dir}/Joz"/>
-
-        <jar destfile="${dist.dir}/Joz.jar">
+        <jar destfile="${dist.dir}/joz.jar">
             <fileset dir="${classes.dir}"
 		     includes="com/tumri/joz/*/*.class"
 		     excludes="com/tumri/joz/testsuite/*.class"/>
-            <fileset dir="${dist.dir}/Joz"/>
+            <fileset dir="${stage.dir}/Joz"/>
             <manifest>
-                <attribute name="Main-Class" value="com.tumri.joz.jozMain.JozMain"/>
+                <attribute name="Main-Class" value="com.tumri.joz.keywordServer.ProductIndex"/>
             </manifest>
         </jar>
-
-<!--
-        <jar destfile="${classes.dir}/Joz.jar">
-            <fileset dir="${classes.dir}" includes="com/tumri/joz/jozMain/JozServlet.class"/>
-        </jar>
--->
 
     </target>
 
@@ -66,11 +43,17 @@
 
     <target name="build-Joz-war" depends="build-Joz-jar">
 
-	<war destfile="${dist.dir}/Joz.war"
-	     webxml="${src.dir}/webresources/WEB-INF/web.xml">
-	    <lib dir="${dist.dir}">
-		<include name="*.jar"/>
+	<war destfile="${dist.dir}/joz.war" 
+		webxml="${src.dir}/webresources/WEB-INF/web.xml">
+	    <lib dir="${dist.dir}" includes="joz.jar"/>
+	    <lib dir="${ext.lib.dir}" includes="*.jar">
+	    	<exclude name="log4j*.jar"/>
+	    	<exclude name="servlet-api.jar"/>
 	    </lib>
+	    <lib dir="${zini.lib.dir}" includes="zini.catalog.api.jar"/>
+	    <lib dir="${utils.lib.dir}" includes="utils.jar"/>
+	    <lib dir="${cma.lib.dir}" includes="cma.jar"/>
+	    <lib dir="${caa.lib.dir}" includes="caa.jar"/>
 	</war>
 
     </target>
