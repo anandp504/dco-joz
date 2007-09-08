@@ -1,6 +1,5 @@
 package com.tumri.joz.utils;
 
-import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -8,8 +7,7 @@ import java.util.Map;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public class Pair<A extends Comparable<A>, B extends Comparable<B>>
-    implements Comparable<Pair <A, B>>, Comparator<Pair<A, B>>, Map.Entry<A,B> {
+public class Pair<A, B> implements Map.Entry<A,B> {
   private A m_first;
   private B m_second;
 
@@ -55,35 +53,6 @@ public class Pair<A extends Comparable<A>, B extends Comparable<B>>
     lresult = 31 * lresult + (m_second != null ? m_second.hashCode() : 0);
     return lresult;
   }
-
-  public int compareTo(Pair<A, B> aPair) {
-    if (this == aPair) return 0;
-    if (aPair == null) return 1;
-    if (m_first == null && aPair.m_first != null) return -1;
-    if (m_first != null && aPair.m_first == null) return 1;
-    if (m_first != null) {
-      int cmp = m_first.compareTo(aPair.m_first);
-      if (cmp != 0) return cmp;
-    }
-    if (m_second == null && aPair.m_second != null) return -1;
-    if (m_second != null && aPair.m_second == null) return 1;
-    return (m_second != null ? m_second.compareTo(aPair.m_second) : 0);
-  }
-
-  public int compare(Pair<A, B> aPair, Pair<A, B> aPair1) {
-    if (aPair == aPair1) return 0;
-    if (aPair1 == null) return 1;
-    if (aPair.m_second == null && aPair1.m_second != null) return -1;
-    if (aPair.m_second != null && aPair1.m_second == null) return 1;
-    if (aPair.m_second != null) {
-      int cmp = aPair.m_second.compareTo(aPair1.m_second);
-      if (cmp != 0) return cmp;
-    }
-    if (aPair.m_first == null && aPair1.m_first != null) return -1;
-    if (aPair.m_first != null && aPair1.m_first == null) return 1;
-    return (aPair.m_first != null ? aPair.m_first.compareTo(aPair1.m_first) : 0);
-  }
-
 
   public A getKey() {
     return getFirst();

@@ -18,22 +18,26 @@
 package com.tumri.joz.index;
 
 import com.tumri.joz.products.IProduct;
+import com.tumri.joz.utils.Pair;
+import com.tumri.utils.index.AbstractIndex;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * Created by Bhavin Doshi (bdoshi@tumri.com) on Aug 29, 2007
  * Company: Tumri Inc.
  */
-public abstract class ProductAttributeIndex<Key, Value> extends com.tumri.utils.index.AbstractIndex<IProduct, IProduct.Attribute,  Key, Value> {
+public abstract class ProductAttributeIndex<Key, Value> extends AbstractIndex<IProduct, IProduct.Attribute,  Key, Value> {
 
   public abstract Key getKey(IProduct p);
+  public abstract Value getValue(IProduct p);
 
-  public List<Key> getKeys(IProduct p) {
-    List<Key> keys = new ArrayList<Key>();
-    keys.add(getKey(p));
+  public List<Map.Entry<Key,Value>> getEntries(IProduct p) {
+    List<Map.Entry<Key,Value>> keys = new ArrayList<Map.Entry<Key,Value>>();
+    keys.add(new Pair<Key,Value>(getKey(p),getValue(p)));
     return keys;
    }
 }
