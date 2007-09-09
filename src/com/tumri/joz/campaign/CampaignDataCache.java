@@ -22,7 +22,6 @@ import com.tumri.cma.domain.Campaign;
 import com.tumri.cma.domain.CategoryInfo;
 import com.tumri.cma.domain.MerchantInfo;
 import com.tumri.cma.domain.OSpec;
-import com.tumri.cma.domain.ProductInfo;
 import com.tumri.cma.domain.ProviderInfo;
 import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.misc.TSpecLispFileParser;
@@ -163,8 +162,8 @@ public class CampaignDataCache {
 		SexpSymbol sym = cmd_expr.toSexpSymbol ();
 		String cmd_name = sym.toString ();
 		if (cmd_name.equalsIgnoreCase("t-spec-add")) {
-			Iterator iter = l.iterator();
-			iter.next(); //ignore the t-spec-add
+			Iterator<Sexp> iter = l.iterator();
+			iter.next(); //ignore the t-spec-add keyword
 			OSpec theOSpec = TSpecLispFileParser.readTSpecDetailsFromSExp(iter);
 			m_oSpecHashtable.put(theOSpec.getName(), theOSpec);
 		} else {
@@ -344,20 +343,6 @@ public class CampaignDataCache {
 				_cjquery.addQuery(sq);				  
 			}
 
-			//Included Products
-			List<ProductInfo> inProducts = theTSpec.getIncludedProducts();
-			if (inProducts != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductName, inProducts, false);
-				_cjquery.addQuery(sq);				  
-			}	
-
-			//Excluded products
-			List<ProductInfo> exProducts = theTSpec.getExcludedProducts();
-			if (exProducts != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductName, exProducts, true);
-				_cjquery.addQuery(sq);				  
-			}	
-
 			//Included Providers
 			List<ProviderInfo> inProviders = theTSpec.getIncludedProviders();
 			if (inProviders != null) {
@@ -417,10 +402,7 @@ public class CampaignDataCache {
 				} else if (type.equals(IProduct.Attribute.kSupplier)) {
 					MerchantInfo mInfo = (MerchantInfo)values.get(i);
 					valueStrList.add(mInfo.getName());
-				} else if (type.equals(IProduct.Attribute.kProductName)) {
-					ProductInfo pInfo = (ProductInfo)values.get(i);
-					valueStrList.add(pInfo.getName());
-				}
+				} 
 			}
 			for (int i=0;i<valueStrList.size();i++){
 				String valueStr = valueStrList.get(i);
