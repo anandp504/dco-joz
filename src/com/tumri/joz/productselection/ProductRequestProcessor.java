@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -85,14 +86,6 @@ public class ProductRequestProcessor {
 		m_NumProducts = request.get_num_products ();
 		if (m_NumProducts!=null) {
 			int numProducts = m_NumProducts.intValue();
-
-			// FIXME: This code was just throw away code while
-			// trying to get something working.  Something better
-			// is warranted.
-			if (numProducts < 12)
-				numProducts = 12;
-			if (numProducts > 100)
-				numProducts = 100;
 			m_NumProducts = new Integer(numProducts);
 		}
 
@@ -361,7 +354,33 @@ public class ProductRequestProcessor {
 		SortedSet<Handle> results = null;
 		MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
 		if (mMineUrls == MaybeBoolean.TRUE) {
-			String urlKeywords = URLScavenger.mineKeywords(request, null);
+			ArrayList<String> stopWordsAL = null;
+			ArrayList<String> queryNamesAL = null;
+			//Get the queryNames and Stopwords
+			List<TSpec> tSpecList = m_currOSpec.getTspecs();
+			for (TSpec spec : tSpecList) {
+				String queryNames = spec.getPublicURLQueryNames();
+				String stopWords = spec.getPublicUrlStopWords();
+				if (queryNames!=null){
+					StringTokenizer tokenizer = new StringTokenizer(queryNames, " ");
+					if (queryNamesAL==null) {
+						queryNamesAL = new ArrayList<String>();
+					}
+					while (tokenizer.hasMoreTokens()){
+						queryNamesAL.add(tokenizer.nextToken());
+					}
+				}
+				if (stopWords!=null){
+					if (stopWordsAL==null) {
+						stopWordsAL = new ArrayList<String>();
+					}
+					StringTokenizer tokenizer = new StringTokenizer(stopWords, " ");
+					while (tokenizer.hasMoreTokens()){
+						stopWordsAL.add(tokenizer.nextToken());
+					}
+				}
+			}
+			String urlKeywords = URLScavenger.mineKeywords(request, stopWordsAL, queryNamesAL);
 			results = doKeywordSearch(request, urlKeywords);
 		}
 		return results;
@@ -421,10 +440,10 @@ public class ProductRequestProcessor {
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
 		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
-		doCloneTSpecQuery();
-		m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
-		SortedSet<Handle> qResult = m_tSpecQuery.exec();
-		if (qResult != null)
+		CNFQuery clonedTSpecQuery = (CNFQuery)CampaignDataCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
+		clonedTSpecQuery.getQueries().get(0).addQuery(ptQuery);
+		SortedSet<Handle> qResult = clonedTSpecQuery.exec();
+		if (qResult != null && qResult.size() > 0)
 			leadGenProds.add(qResult.first());
 		return leadGenProds;
 	}
@@ -548,6 +567,19 @@ public class ProductRequestProcessor {
 		}
 	}
 
+
+	@Test
+	public void testHybrid() {
+		try {
+			String queryStr =  "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :product-leadgen :revert-to-default-realm nil)";
+			SortedSet<Handle> result = testProcessRequest(queryStr);
+			Assert.assertTrue(result!=null);
+		} catch(Exception e){
+			log.error("Exception caught during test run");
+			e.printStackTrace();
+		}
+	}
+	
 	@Test
 	public void testKeywordSearch() {
 		try {
@@ -575,7 +607,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testIncludedCategories() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14337\" :revert-to-default-realm nil)";
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
 			SortedSet<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){

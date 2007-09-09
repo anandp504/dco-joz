@@ -24,11 +24,11 @@ import com.tumri.utils.sexp.SexpSymbol;
  */
 public class URLScavenger {
 
-	private static ArrayList<String> stopWordsAL = new ArrayList<String>();
+	private ArrayList<String> stopWordsAL = new ArrayList<String>();
 	private static Logger log = Logger.getLogger (URLScavenger.class);
 	
-	//Internal Stop words - todo make this configurable?
-	static {
+	public URLScavenger() {
+		//Internal Stop words
 		stopWordsAL.add("http");
 		stopWordsAL.add("www");
 		stopWordsAL.add("com");
@@ -39,7 +39,7 @@ public class URLScavenger {
 		stopWordsAL.add("jsp");
 		stopWordsAL.add("https");
 	}
-
+	
 	/**
 	 * Returns the list of keywords for a given urls
 	 * @param request - the Ad data request object
@@ -47,9 +47,13 @@ public class URLScavenger {
 	 * @param req
 	 * @return
 	 */
-	public static String mineKeywords(AdDataRequest request, ArrayList<String>reqStopWords) {
+	public static String mineKeywords(AdDataRequest request, ArrayList<String> reqStopWords, ArrayList<String> reqQueryNames) {
+		URLScavenger tmpScavenger = new URLScavenger();
 		if (reqStopWords!=null) {
-			stopWordsAL.addAll(reqStopWords);
+			tmpScavenger.stopWordsAL.addAll(reqStopWords);
+		}
+		if (reqQueryNames != null) {
+			return tmpScavenger.buildKeywordsUsingQueryNames(request, reqQueryNames);
 		}
 		StringBuilder builtUpKeywords = new StringBuilder();
 		try {
@@ -69,9 +73,9 @@ public class URLScavenger {
 					case StreamTokenizer.TT_WORD:
 						// A word was found; the value is in sval
 						String word = st.sval;
-						if (!stopWordsAL.contains(word)) {
+						if (!tmpScavenger.stopWordsAL.contains(word)) {
 							builtUpKeywords.append(word);
-							stopWordsAL.add(word); //avoid dups
+							tmpScavenger.stopWordsAL.add(word); //avoid dups
 						}
 						break;
 					case '=':
@@ -111,7 +115,7 @@ public class URLScavenger {
 						break;
 					}
 				}
-				System.out.println("The keywords are : " + builtUpKeywords.toString());
+				log.debug("The keywords are : " + builtUpKeywords.toString());
 			}
 		} catch (IOException e) {
 			//
@@ -119,12 +123,107 @@ public class URLScavenger {
 		return builtUpKeywords.toString();
 	}
 	
+	/**
+	 * returns a string of the keywords built by looking up the query name values in the string
+	 * @param request
+	 * @param requestQueryNames
+	 * @return
+	 */
+	private String buildKeywordsUsingQueryNames(AdDataRequest request, ArrayList<String> reqQueryNames) {
+		String publisherUrl = request.get_url();
+		StringBuilder builtUpKeywords = new StringBuilder();
+		if (reqQueryNames != null) {
+			//Select the keywords using the querynames - we can ignore everything until the first '?'
+			publisherUrl = publisherUrl.substring(publisherUrl.indexOf("?"), publisherUrl.length());
+			try {
+				if (publisherUrl!=null) {
+					StreamTokenizer st = new StreamTokenizer(new BufferedReader(new StringReader(publisherUrl)));
+					st.ordinaryChar('/');
+					st.ordinaryChar('.');
+					st.ordinaryChar(',');
+					st.ordinaryChar('?');
+					st.eolIsSignificant(true);
+					st.lowerCaseMode(true);
+					int token = st.nextToken();
+					boolean bQueryNameValue = false;
+					while (token != StreamTokenizer.TT_EOF) {
+						token = st.nextToken();
+						switch (token) {
+						case StreamTokenizer.TT_WORD:
+							// A word was found; the value is in sval
+							if (bQueryNameValue) {
+								String word = st.sval;
+								bQueryNameValue = false;
+								if (!stopWordsAL.contains(word)) {
+									builtUpKeywords.append(word);
+									stopWordsAL.add(word); //avoid dups
+								}
+							} else {
+								//This might be a queryname
+								String word = st.sval;
+								if (reqQueryNames.contains(word)) {
+									bQueryNameValue = true;				
+								} else {
+									bQueryNameValue = false;	
+								}
+							}
+							break;
+						case '=':
+							builtUpKeywords.append(' ');
+							break;    
+						case '?':
+							break;    
+						case '&':
+							break;    	
+						case ',':
+							builtUpKeywords.append(' ');
+							break;    
+						case '/':
+							builtUpKeywords.append(' ');
+							break;    
+						case '.':
+							builtUpKeywords.append(' ');
+							break;    
+						case StreamTokenizer.TT_NUMBER:
+							break;
+						case ':':
+							break;
+						case '"':
+							break;
+						case '\'':
+							break;
+						case '#':
+							break;
+						case StreamTokenizer.TT_EOL:
+							// End of line character found
+							break;
+						case StreamTokenizer.TT_EOF:
+							// End of file has been reached
+							break;
+						default:
+							// A regular character was found; the value is the token itself
+							char ch = (char)st.ttype;
+							builtUpKeywords.append(ch);
+							break;
+						}
+					}
+					log.debug("The keywords are : " + builtUpKeywords.toString());
+				}
+			} catch (IOException e) {
+				//
+			}
+		}
+
+		return builtUpKeywords.toString();
+	}
+	
+	
 	@Test
 	public void testURLScavenging() {
 		String queryStr = "(get-ad-data :url \"http://www.photography.com/camera/nikon\")";
 		try {
 			AdDataRequest rqst = createRequestFromCommandString(queryStr);
-			String keywords = mineKeywords(rqst, null);
+			String keywords = mineKeywords(rqst, null, null);
 			Assert.assertTrue(keywords!=null);
 			log.info("The mined keywords are : " + keywords);
 		} catch(Exception e) {
@@ -141,9 +240,27 @@ public class URLScavenger {
 			AdDataRequest rqst = createRequestFromCommandString(queryStr);
 			ArrayList<String> requestStopWordsAl = new ArrayList<String>();
 			requestStopWordsAl.add("canon");
-			String keywords = mineKeywords(rqst, requestStopWordsAl);
+			String keywords = mineKeywords(rqst, requestStopWordsAl, null);
 			Assert.assertTrue((keywords!=null)&&(keywords.indexOf("canon")==-1));
 			log.info("The mined keywords are : " + keywords);
+		} catch(Exception e) {
+			log.error("Could not parse the request and mine the url");
+			e.printStackTrace();
+		}	
+	}
+	
+	@Test
+	public void testRequestQueryNames() {
+		String queryStr = "(get-ad-data :url \"http://www.photography.com/camera/canon/nikon/test?nipun=test,camera=nikon&testquery=blah\")";
+		try {
+			AdDataRequest rqst = createRequestFromCommandString(queryStr);
+			ArrayList<String> requestQueryNamesAl = new ArrayList<String>();
+			requestQueryNamesAl.add("camera");
+			requestQueryNamesAl.add("testquery");
+			requestQueryNamesAl.add("nipun");
+			String keywords = mineKeywords(rqst, null, requestQueryNamesAl);
+			log.info("The mined keywords using query names are : " + keywords);
+			Assert.assertTrue((keywords!=null)&&(keywords.indexOf("nikon")!=-1));
 		} catch(Exception e) {
 			log.error("Could not parse the request and mine the url");
 			e.printStackTrace();
