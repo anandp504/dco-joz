@@ -159,7 +159,8 @@ public class ProductRequestProcessor {
 
 			//Do Hybrid AdPod
 			if (m_productLeadgenRequest) {
-				ArrayList<Handle> leadGenProds = getLeadGenProducts();
+				Integer numLeadGenProds = request.get_min_num_leadgens();
+				ArrayList<Handle> leadGenProds = getLeadGenProducts(numLeadGenProds);
 				if (leadGenProds!=null){
 					//Append to the top of the results
 					leadGenProds.addAll(rResult);
@@ -209,10 +210,9 @@ public class ProductRequestProcessor {
 		//2. Script keywords, if present determine scope
 		SortedSet<Handle> skeywordQueryResult = doScriptKeywordSearch(request);
 		if (skeywordQueryResult!=null) {
-			//FIXME: Use the script keyword flag from OSpec
-			//if (!m_currOSpec.isScriptKeywordsWithinOSpec()) {
-			return skeywordQueryResult;
-			//}
+			if (!m_currOSpec.isScriptKeywordsWithinOSpec()) {
+				return skeywordQueryResult;
+			}
 		}
 
 		//3. URL keywords
@@ -353,6 +353,12 @@ public class ProductRequestProcessor {
 	private SortedSet<Handle> doURLKeywordSearch(AdDataRequest request) {
 		SortedSet<Handle> results = null;
 		MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
+		if (mMineUrls == null) {
+			//TODO: Check for the Tspec value
+//			if (m_currOSpec.isMinePubUrl()) {
+//				mMineUrls = MaybeBoolean.TRUE;
+//			}
+		}
 		if (mMineUrls == MaybeBoolean.TRUE) {
 			ArrayList<String> stopWordsAL = null;
 			ArrayList<String> queryNamesAL = null;
@@ -435,7 +441,7 @@ public class ProductRequestProcessor {
 	 * Returns an arraylist of the LeadGen products that need to be appended to the result set for a hybrid ad pod request
 	 * @return
 	 */
-	private ArrayList<Handle> getLeadGenProducts() {
+	private ArrayList<Handle> getLeadGenProducts(Integer minNumLeadGenProds) {
 		ArrayList<Handle> leadGenProds = new ArrayList<Handle>();
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
@@ -443,8 +449,23 @@ public class ProductRequestProcessor {
 		CNFQuery clonedTSpecQuery = (CNFQuery)CampaignDataCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
 		clonedTSpecQuery.getQueries().get(0).addQuery(ptQuery);
 		SortedSet<Handle> qResult = clonedTSpecQuery.exec();
-		if (qResult != null && qResult.size() > 0)
-			leadGenProds.add(qResult.first());
+		int numLeadGens = 1;
+		if (minNumLeadGenProds!=null){
+			numLeadGens = minNumLeadGenProds.intValue();
+		}
+		if (qResult == null || qResult.size() < numLeadGens) {
+			//Look for leadgens against whole mup
+			qResult = ptQuery.exec();
+		}
+		int count = 0;
+		for (Handle handle : qResult) {
+			if (count < numLeadGens) {
+				leadGenProds.add(handle);
+				count++;
+			} else {
+				break;
+			}
+		}
 		return leadGenProds;
 	}
 

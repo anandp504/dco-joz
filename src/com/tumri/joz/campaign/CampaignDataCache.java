@@ -365,6 +365,15 @@ public class CampaignDataCache {
 				_cjquery.addQuery(sq);
 			}
 
+			//CPO Range
+			double highCPO = theTSpec.getHighCPO();
+			double lowCPO = theTSpec.getLowCPO();
+			if ((highCPO > 0) || ( lowCPO > 0)) {
+				SimpleQuery sq = new RangeQuery (IProduct.Attribute.kCPO,lowCPO, highCPO);
+				_cjquery.addQuery(sq);
+			}
+
+			
 			//Price Range
 			double highPrice = theTSpec.getHighCPC();
 			double lowPrice = theTSpec.getLowCPC();

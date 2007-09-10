@@ -50,7 +50,19 @@ public class URLScavenger {
 	public static String mineKeywords(AdDataRequest request, ArrayList<String> reqStopWords, ArrayList<String> reqQueryNames) {
 		URLScavenger tmpScavenger = new URLScavenger();
 		if (reqStopWords!=null) {
-			tmpScavenger.stopWordsAL.addAll(reqStopWords);
+			//Stopwords always have a + or - preceding them indicating whether to add or delete them from the global stop word list
+			for (int i=0;i< reqStopWords.size();i++){
+				String oprType = reqStopWords.get(i).substring(0, 1);
+				String theStopWord = reqStopWords.get(i).substring(1);
+				if (oprType.equals("+")) {
+					tmpScavenger.stopWordsAL.add(theStopWord);
+				} else if (oprType.equals("-")) {
+					tmpScavenger.stopWordsAL.remove(theStopWord);
+				} else {
+					//Bad format of stop word - ignoring
+					log.warn("Ignoring the stop word since it does not have the operation type");
+				}
+			}
 		}
 		if (reqQueryNames != null) {
 			return tmpScavenger.buildKeywordsUsingQueryNames(request, reqQueryNames);
@@ -239,7 +251,7 @@ public class URLScavenger {
 		try {
 			AdDataRequest rqst = createRequestFromCommandString(queryStr);
 			ArrayList<String> requestStopWordsAl = new ArrayList<String>();
-			requestStopWordsAl.add("canon");
+			requestStopWordsAl.add("+canon");
 			String keywords = mineKeywords(rqst, requestStopWordsAl, null);
 			Assert.assertTrue((keywords!=null)&&(keywords.indexOf("canon")==-1));
 			log.info("The mined keywords are : " + keywords);
