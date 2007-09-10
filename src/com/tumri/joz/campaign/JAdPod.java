@@ -16,7 +16,7 @@ public class JAdPod {
 
   public JAdPod(AdPod adpod) {
     m_adpod = adpod;
-    m_handle = new AdPodHandle(this,1.0);
+    //m_handle = new AdPodHandle(this,1.0);
   }
 
   public AdPodHandle getHandle() {
@@ -24,7 +24,7 @@ public class JAdPod {
   }
 
   public AdPodHandle getHandle(int rank) {
-    return new AdPodHandle(this,1.0,rank);
+    return null; //new AdPodHandle(this,1.0,rank);
   }
 
 

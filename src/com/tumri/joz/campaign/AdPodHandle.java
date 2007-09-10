@@ -1,48 +1,55 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.joz.products.Handle;
+import com.tumri.cma.domain.AdPod;
 
 /**
- * Created by IntelliJ IDEA.
- * User: snawathe
- * To change this template use File | Settings | File Templates.
+ * AdPodHandle for use by Indices
+ * 
+ * @author snawathe, bpatel
  */
 public class AdPodHandle implements Handle {
-  private JAdPod m_adpod;
-  private double m_score;
-  private int m_rank = 1;
+  private AdPod  adpod;
+  private double score;
+  private int    weight = 1;
+  private int    oid;
 
-  public AdPodHandle(JAdPod aAdpod, double aScore) {
-    m_adpod = aAdpod;
-    m_score = aScore;
+  public static final double locationScore = 1.0;
+  public static final double urlScore = 0.9;
+  public static final double themeScore = 0.8;
+
+
+
+  public AdPodHandle(AdPod aAdpod, double aScore) {
+    this.adpod = aAdpod;
+    this.score = aScore;
   }
 
-  public AdPodHandle(JAdPod aAdpod, double aScore, int rank) {
-    m_adpod = aAdpod;
-    m_score = aScore;
-    m_rank = rank;
+  public AdPodHandle(AdPod aAdpod, double aScore, int weight) {
+      this.adpod = aAdpod;
+      this.score = aScore;
+      this.weight = weight;
   }
 
-  public JAdPod getAdpod() {
-    return m_adpod;
+  public AdPod getAdpod() {
+    return adpod;
   }
 
   public int getOid() {
-    return m_adpod.getId();
+    return adpod.getId();
   }
 
   public double getScore() {
-    return m_score;
+    return score;
   }
 
-  public int getRank() {
-    return m_rank;
+  public int getWeight() {
+    return weight;
   }
 
   public Handle createHandle(double score) {
-    return (score != m_score ? new AdPodHandle(m_adpod,score) : this);
+    return (score != this.score ? new AdPodHandle(adpod, score) : this);
   }
-
 
   public boolean equals(Object o) {
     if (this == o) return true;
