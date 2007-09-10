@@ -18,7 +18,7 @@
 package com.tumri.joz.index;
 
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.utils.Pair;
+import com.tumri.utils.Pair;
 import com.tumri.utils.index.AbstractIndex;
 
 import java.util.ArrayList;
