@@ -90,8 +90,8 @@
 	     war over the newly installed one.  -->
 	<delete dir="${war.install.dir}/Joz"/>
 	<!-- This used to copy *.war with a fileset but no error is signalled
-	     if Joz.war doesn't exist.  -->
-	<copy file="${dist.dir}/Joz.war" todir="${war.install.dir}"/>
+	     if joz.war doesn't exist.  -->
+	<copy file="${dist.dir}/joz.war" todir="${war.install.dir}"/>
 	<copy todir="${conf.install.dir}">
 	    <fileset dir="${dist.dir}/conf">
 		<include name="*.properties"/>
