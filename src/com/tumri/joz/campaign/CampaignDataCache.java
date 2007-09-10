@@ -358,16 +358,16 @@ public class CampaignDataCache {
 			}	
 
 			//CPC Range
-			int highCPC = theTSpec.getHighCPC();
-			int lowCPC = theTSpec.getLowCPC();
+			double highCPC = theTSpec.getHighCPC();
+			double lowCPC = theTSpec.getLowCPC();
 			if ((highCPC > 0) || ( lowCPC > 0)) {
 				SimpleQuery sq = new RangeQuery (IProduct.Attribute.kCPC,lowCPC, highCPC);
 				_cjquery.addQuery(sq);
 			}
 
 			//Price Range
-			int highPrice = theTSpec.getHighCPC();
-			int lowPrice = theTSpec.getLowCPC();
+			double highPrice = theTSpec.getHighCPC();
+			double lowPrice = theTSpec.getLowCPC();
 			if ((highPrice > 0) || ( lowPrice > 0)) {
 				SimpleQuery sq = new RangeQuery (IProduct.Attribute.kPrice,lowPrice, highPrice);
 				_cjquery.addQuery(sq);
