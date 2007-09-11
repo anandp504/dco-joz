@@ -21,10 +21,14 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.tumri.cma.domain.OSpec;
+import com.tumri.content.data.Category;
 import com.tumri.content.data.MerchantData;
+import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.productselection.ProductRequestProcessor;
 import com.tumri.joz.productselection.ProductSelectionResults;
@@ -101,11 +105,12 @@ public class CmdGetAdData extends CommandOwnWriting
 	ProductRequestProcessor prp = new ProductRequestProcessor ();
 	ProductSelectionResults prs = prp.processRequest (rqst);
 	SortedSet<Handle> product_handles = prs.getResults();
+	OSpec targetedOSpec = prs.getTargetedOSpec();
 	long end_time = System.nanoTime ();
 	long elapsed_time = end_time - start_time;
 
 	// Send the result back to the client.
-	write_result (rqst, null /*FIXME:wip*/, null /*FIXME:wip*/,
+	write_result (rqst, targetedOSpec, null /*FIXME:wip*/,
 		      private_label_p, features, elapsed_time,
 		      product_handles,
 		      out);
@@ -152,7 +157,7 @@ public class CmdGetAdData extends CommandOwnWriting
 
     private void
     write_result (AdDataRequest rqst,
-		  TSpec t_spec, Realm realm, // FIXME: wip
+		  OSpec ospec, Realm realm, // FIXME: wip
 		  boolean private_label_p,
 		  Features features,
 		  long elapsed_time,
@@ -182,15 +187,20 @@ public class CmdGetAdData extends CommandOwnWriting
 	String product_ids = products_to_id_list (product_handles);
 	write_elm (w, "PROD-IDS", product_ids);
 
-	List<String> cat_list = products_to_cat_list (product_handles);
+	List<Category> cat_list = products_to_cat_list (product_handles);
 	String categories = cat_list_to_result_categories (cat_list);
 	write_elm (w, "CATEGORIES", categories);
 	String cat_names = cat_list_to_result_cat_names (cat_list);
 	write_elm (w, "CAT-NAMES", cat_names);
 
-	write_elm (w, "REALM", "foo"); // FIXME: wip
-
-	write_elm (w, "STRATEGY", "bar"); // FIXME: wip
+	String targetedOSpecName = "";
+	String targetedRealm = "";
+	if (ospec!=null) {
+		targetedOSpecName = ospec.getName();
+	}
+	
+	write_elm (w, "REALM", targetedRealm); // FIXME: wip
+	write_elm (w, "STRATEGY", targetedOSpecName); // FIXME: wip
 
 	write_elm (w, "IS-PRIVATE-LABEL-P", (private_label_p ? "T" : "NIL"));
 
@@ -269,7 +279,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	b.append (encode (p.getGId ()));
 	b.append ("\",display_category_name:\"");
 	// Use the first parent as the category.
-	b.append (encode (p.getCategoryStr()));
+	b.append (encode (JOZTaxonomy.getInstance().getTaxonomy().getCategory(p.getCategory ()).getName()));
 	b.append ("\",price:\"");
 	b.append (encode_price (p.getPrice ()));
 	b.append ("\",discount_price:\"");
@@ -398,47 +408,47 @@ public class CmdGetAdData extends CommandOwnWriting
 
     // Return uniqified list of all categories in {product_handles}.
 
-    private static List<String>
+    private static List<Category>
     products_to_cat_list (SortedSet<Handle> product_handles)
     {
-	DictionaryManager dm = DictionaryManager.getInstance ();
 	ProductDB pdb = ProductDB.getInstance ();
-	HashSet<String> categories = new HashSet<String> ();
+	HashSet<Category> categories = new HashSet<Category> ();
 
 	for (Handle h : product_handles)
 	{
 	    int id = h.getOid ();
 	    IProduct p = pdb.get (id);
 	    // FIXME: Don't think this records _all_ parents.
-	    categories.add ((String) dm.getValue (IProduct.Attribute.kCategory, p.getCategory ()));
+	    Category cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(p.getCategory ());
+	    if (cat != null) {
+		    categories.add (cat);
+	    }
 	}
 
-	List<String> l = new ArrayList<String> ();
+	List<Category> l = new ArrayList<Category> ();
 
-	for (String c : categories)
+	for (Category c : categories)
 	    l.add (c);
 
 	return l;
     }
 
     private static String
-    cat_list_to_result_categories (List<String> cats)
+    cat_list_to_result_categories (List<Category> cats)
     {
 	StringBuilder sb = new StringBuilder ();
 
 	sb.append ("[");
 	boolean done_one = false;
 
-	for (String c : cats)
+	for (Category c : cats)
 	{
 	    if (done_one)
 		sb.append (",");
 	    sb.append ("{categoryName:\"");
-	    sb.append ("GLASSVIEW.TUMRI_");
-	    sb.append (c);
+	    sb.append (c.getIdStr());
 	    sb.append ("\",categoryDisplayName:\"");
-	    // FIXME: See soz-taxonomy.lisp:print-name, what's this about?
-	    sb.append (c);
+	    sb.append (c.getName());
 	    sb.append ("\"}");
 	    done_one = true;
 	}
@@ -449,18 +459,18 @@ public class CmdGetAdData extends CommandOwnWriting
     }
 
     private static String
-    cat_list_to_result_cat_names (List<String> cats)
+    cat_list_to_result_cat_names (List<Category> cats)
     {
 	StringBuilder sb = new StringBuilder ();
 
 	boolean done_one = false;
 
-	for (String c : cats)
+	for (Category c : cats)
 	{
 	    if (done_one)
 		sb.append ("||");
 	    // FIXME: See soz-taxonomy.lisp:print-name, what's this about?
-	    sb.append (c);
+	    sb.append (c.getName());
 	    done_one = true;
 	}
 
