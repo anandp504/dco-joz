@@ -16,26 +16,30 @@ import java.util.SortedSet;
  */
 public class KeywordQuery extends MUPQuery {
   private String m_keywords;
-  private boolean m_luceneSort = false;   
-  private int m_currentPage = 0;
-  private int m_pagesize = 0;
-  private boolean bPaginate = false;
-  
+  private SortedSet<Handle> m_rawResults; // Maintains the raw results from search engine, sorted by score
+  private boolean m_internal;
+
   public Type getType() {
     return Type.kKeyword;
   }
 
-  public KeywordQuery(String aKeywords) {
+  /**
+   * Construct a keyword query with a keyword string.
+   * @param aKeywords the keyword string to be parsed by lucene
+   * @param internal the boolean value should be true if the keywords are embeded in the T-Spec query
+   */
+  public KeywordQuery(String aKeywords, boolean internal) {
     super(IProduct.Attribute.kKeywords);
     m_keywords = aKeywords;
-  }
-
-  public void setKeywords(String aKeywords) {
-    m_keywords = aKeywords;
+    m_internal = internal;
   }
 
   public String getKeywords() {
     return m_keywords;
+  }
+
+  public boolean isInternal() {
+    return m_internal;
   }
 
   public int getCount() {
@@ -50,50 +54,27 @@ public class KeywordQuery extends MUPQuery {
     return true;
   }
 
-  @SuppressWarnings("unchecked")
   public SortedSet<Handle> exec() {
     if (m_results == null) {
       ArrayList<Handle> res = ProductIndex.getInstance().search(m_keywords,0.0,2000);
-      m_results = new SortedArraySet(res, m_luceneSort);
+      m_rawResults = new SortedArraySet<Handle>(res, true);
+      m_results = new SortedArraySet<Handle>(res, false);
     }
-    //Paginate
-    if (bPaginate) {
-    	ArrayList<Handle> pageResults = new ArrayList<Handle>(m_pagesize);
-    	int start = (m_currentPage*m_pagesize)+1;
-    	int end = start+m_pagesize;
-    	int i=0;
-    	for (Handle handle : m_results) {
-    		i++;
-    		if (i < start) {
-    			continue;
-    		} else if ((i>=start) && (i<end)){
-    			pageResults.add(handle);
-    		} else {
-    			break;
-    		}
-    	}
-    	m_results = new SortedArraySet<Handle>(pageResults);
-    }
-    
     return m_results;
+  }
+
+  public SortedSet<Handle> rawResults() {
+    if (m_results == null) {
+      ArrayList<Handle> res = ProductIndex.getInstance().search(m_keywords,0.0,2000);
+      m_rawResults = new SortedArraySet<Handle>(res, true);
+      m_results = new SortedArraySet<Handle>(res, false);
+    }
+    return m_rawResults;
   }
 
   public Filter<Handle> getFilter() {
     return null;
   }
-  
-  public void setLuceneSortOrder(boolean luceneSortOrder) {
-	  if (luceneSortOrder) {
-		  m_luceneSort = false;
-	  } else {
-		  m_luceneSort = true;
-	  }
-  }
 
- public void setBounds(int currentPage, int pageSize){
-	 bPaginate = true;
-	 m_currentPage = currentPage;
-	 m_pagesize = pageSize;
- }
-  
 }
+

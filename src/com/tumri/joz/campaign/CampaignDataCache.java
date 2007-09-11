@@ -105,7 +105,7 @@ public class CampaignDataCache {
 						//Build the mapping cache.
 						AdPod theAdPod = theCampaign.getAdPods().get(i);
 						OSpec theOSpec = theAdPod.getOspec();
-						addToOSpecCache(theOSpec);  
+						addToOSpecCache(theOSpec);
 						//Materialize the query
 						addToOSpecQueryCache(theOSpec.getName(),getQuery(theOSpec));
 					}
@@ -149,9 +149,9 @@ public class CampaignDataCache {
 	}
 
 	/**
-	 * Parses the tspec-add directive and adds an Ospec to the cache. 
+	 * Parses the tspec-add directive and adds an Ospec to the cache.
 	 * This is used when creating a tSpec from the consoles. This tSpec does not become part of the Campaign Cache
-	 * @param SexpList - the string expression that contains the tspec add command
+	 * @param tSpecAddSpec - the string expression that contains the tspec add command
 	 */
 	public void doTSpecAdd(SexpList tSpecAddSpec) {
 		SexpList l = tSpecAddSpec;
@@ -217,7 +217,7 @@ public class CampaignDataCache {
 
 	/**
 	 * Update the TSpec mapping on the fly
-	 * @param mappingDeltas
+	 * @param updtMappingCommands
 	 */
 	public void doUpdateTSpecMapping(SexpList updtMappingCommands){
 		Sexp cmd_expr = updtMappingCommands.getFirst ();
@@ -262,15 +262,15 @@ public class CampaignDataCache {
 								if (":realm".equals(opLookupDataType)) {
 									//Add the realm mapping to the TSpec
 								} else if (":store-ID".endsWith(opLookupDataType)) {
-									
-								}						
+
+								}
 							}
 						} else if (":delete".equals(tmpOpType.toSexpKeyword().toSexpString())) {
 								if (":realm".equals(opLookupDataType)) {
 									//Delete the realm mapping to the TSpec
 								} else if (":store-ID".endsWith(opLookupDataType)) {
 									//Delete the storeid mapping to the TSpec
-								}						
+								}
 						}
 
 					}
@@ -281,7 +281,7 @@ public class CampaignDataCache {
 			log.error("Unexpected command received : " + cmd_expr);
 		}
 	}
-	
+
 	/**
 	 * Walk thru the OSpec details and create the Query
 	 * @param oSpec
@@ -297,7 +297,7 @@ public class CampaignDataCache {
 			//Keyword
 			String keywordExp = theTSpec.getLoadTimeKeywordExpression();
 			if (keywordExp != null){
-				KeywordQuery kwQuery = new KeywordQuery(keywordExp);
+				KeywordQuery kwQuery = new KeywordQuery(keywordExp,true);
 				_cjquery.addQuery(kwQuery);
 			}
 
@@ -373,7 +373,7 @@ public class CampaignDataCache {
 				_cjquery.addQuery(sq);
 			}
 
-			
+
 			//Price Range
 			double highPrice = theTSpec.getHighCPC();
 			double lowPrice = theTSpec.getLowCPC();
@@ -411,7 +411,7 @@ public class CampaignDataCache {
 				} else if (type.equals(IProduct.Attribute.kSupplier)) {
 					MerchantInfo mInfo = (MerchantInfo)values.get(i);
 					valueStrList.add(mInfo.getName());
-				} 
+				}
 			}
 			for (int i=0;i<valueStrList.size();i++){
 				String valueStr = valueStrList.get(i);

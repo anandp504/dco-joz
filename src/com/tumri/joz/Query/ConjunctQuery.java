@@ -1,11 +1,9 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.products.Handle;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.SortedSet;
 
 /**
@@ -16,10 +14,12 @@ import java.util.SortedSet;
 public class ConjunctQuery implements Query, Cloneable {
   private QueryProcessor m_queryProcessor;
   private ArrayList<SimpleQuery> m_queries = new ArrayList<SimpleQuery>();
-  private SortedSet<Handle> m_results;
   private boolean m_strict = false; // If true Strict match only no rel. ranking
   private boolean m_scan = false; // Forces a table scan approach
   private Handle  m_reference;
+  private int m_pagesize;
+  private int m_currentPage;
+
 
   /**
    * Construct a Conjunct Query passing a QueryProcessor
@@ -91,40 +91,23 @@ public class ConjunctQuery implements Query, Cloneable {
    * evaluation of the Query using exec() will cause computation to happen
    */
   public void clear() {
-    for (int i = 0; i < m_queries.size(); i++) {
-      m_queries.get(i).clear();
+    for (SimpleQuery query : m_queries) {
+      query.clear();
     }
-    m_results = null;
     m_reference = null;
   }
 
   @SuppressWarnings("unchecked")
   public SortedSet<Handle> exec() {
-    if (m_results != null) return m_results;
     // ??? This gets an "unchecked method invocation" warning.
     Collections.sort(m_queries);
     SetIntersector<Handle> intersector =
     (isScan() ?  m_queryProcessor.buildTableScanner(m_queries, m_reference) : m_queryProcessor.buildIntersector(m_queries, m_reference));
     intersector.setStrict(isStrict());
-    long start = System.nanoTime();
-    m_results = intersector.intersect();
-    System.out.println("Time is " + (System.nanoTime() - start));
-    return m_results;
+    intersector.setMax(getMax());
+    return intersector;
   }
 
-  public void test() {
-    SetIntersector<Handle> intersector =
-    (isScan() ?  m_queryProcessor.buildTableScanner(m_queries, m_reference) : m_queryProcessor.buildIntersector(m_queries, m_reference));
-    intersector.setStrict(isStrict());
-    Iterator<Handle> iter = m_results.iterator();
-    Iterator<Handle> iter1 = intersector.iterator();
-    int count = 0;
-    while (iter.hasNext() && iter1.hasNext()) {
-      count++;
-      Assert.assertEquals(iter.next().getOid(),iter1.next().getOid());
-    }
-    Assert.assertTrue((count == intersector.getMax()) || (iter.hasNext() == iter1.hasNext()));
-  }
   public Object clone() {
 	  ConjunctQuery copyQuery = null;
       try {
@@ -135,16 +118,24 @@ public class ConjunctQuery implements Query, Cloneable {
           throw new InternalError(e.toString());
       }
       if (m_queries !=null) {
-    	  ArrayList<SimpleQuery> copyQueries = new ArrayList<SimpleQuery>(m_queries.size());
-    	  for (int i=0;i<m_queries.size();i++) {
-    		  SimpleQuery copySimple = (SimpleQuery)m_queries.get(i).clone();
-    		  copyQueries.add(copySimple);
-    	  }
-    	  copyQuery.m_queries = copyQueries;
+    	ArrayList<SimpleQuery> copyQueries = new ArrayList<SimpleQuery>(m_queries.size()+2); // some space for additional queries
+        for (SimpleQuery m_query : m_queries) {
+          copyQueries.add(m_query);
+        }
+        copyQuery.m_queries = copyQueries;
       }
       return copyQuery;
   }
-  
+
+  public void setBounds(int pagesize, int currentPage) {
+    m_pagesize = pagesize;
+    m_currentPage = currentPage;
+  }
+
+  private int getMax() {
+    return ((m_pagesize > 0) ? (m_currentPage + 1) * m_pagesize:0);
+  }
+
   /**
    * Not bo be used by external clients, use ConjunctQuery(QueryProcessor qp) instead
    */

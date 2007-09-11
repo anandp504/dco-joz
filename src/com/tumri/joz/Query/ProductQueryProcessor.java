@@ -1,14 +1,14 @@
 package com.tumri.joz.Query;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.ranks.AttributeWeights;
 import com.tumri.utils.data.MultiSortedSet;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,21 +25,22 @@ public class ProductQueryProcessor extends QueryProcessor {
 
   public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference) {
     ProductSetIntersector aIntersector = new ProductSetIntersector();
-    for (int i = 0; i < aQueries.size(); i++) {
-      MUPQuery lSimpleQuery = (MUPQuery)aQueries.get(i);
-      if (lSimpleQuery.getAttribute() == IProduct.Attribute.kKeywords)
-        aIntersector.include(lSimpleQuery.exec(), AttributeWeights.getWeight(IProduct.Attribute.kKeywords));
+    for (SimpleQuery aQuery : aQueries) {
+      MUPQuery mq = (MUPQuery) aQuery;
+      if (mq.getAttribute() == IProduct.Attribute.kKeywords)
+        aIntersector.includeRankedSet(((KeywordQuery)mq).rawResults(), AttributeWeights.getWeight(IProduct.Attribute.kKeywords));
       else
-        aIntersector.addFilter(lSimpleQuery.getFilter(),lSimpleQuery.getWeight());
+      aIntersector.addFilter(mq.getFilter(), mq.getWeight());
     }
-    if (!aIntersector.hasIncludes())
+    if (!aIntersector.hasIncludes() && aIntersector.getRankedSet() == null)
       aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     aIntersector.setReference(reference);
     return aIntersector;
   }
   /**
    * Order of walking through the query set
-   * 1. Look for Attribute/kdeyword + indexed + positive (include: indexed)
+   * 0. Handle internal and external keyword queries
+   * 1. Look for Attribute          + indexed + positive (include: indexed)
    * 2.          Range              + indexed + positive (include: indexed if efficient)
    * 3.          Range              + indexed + positive (filter: if atleast one included)
    * 4.          all                + non indexed + positive (include: if no indexed yet)
@@ -50,11 +51,10 @@ public class ProductQueryProcessor extends QueryProcessor {
    */
   public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference) {
     ProductSetIntersector aIntersector = new ProductSetIntersector();
-    for (int i = 0; i < aQueries.size(); i++) { // Step 1
-      SimpleQuery lSimpleQuery = aQueries.get(i);
+    handleKeywordQueries(aQueries,aIntersector); // step 0, take care of all keyword queries
+    for (SimpleQuery lSimpleQuery : aQueries) { // Step 1
       if ((lSimpleQuery.getType() == SimpleQuery.Type.kAttribute ||
-           lSimpleQuery.getType() == SimpleQuery.Type.kKeyword ||
-           lSimpleQuery.getType() == SimpleQuery.Type.kProductType) &&
+          lSimpleQuery.getType() == SimpleQuery.Type.kProductType) &&
           lSimpleQuery.hasIndex() &&
           !lSimpleQuery.isNegation()) {
         aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // include indexed attribute/keyword queries first
@@ -72,8 +72,7 @@ public class ProductQueryProcessor extends QueryProcessor {
         }
       }
     }
-    for (int i = 0; i < aQueries.size(); i++) {
-      SimpleQuery lSimpleQuery = aQueries.get(i);
+    for (SimpleQuery lSimpleQuery : aQueries) {
       if (!lSimpleQuery.hasIndex() && !lSimpleQuery.isNegation()) {
         if (!aIntersector.hasIncludes())
           aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 4. non indexed table scan query
@@ -81,18 +80,51 @@ public class ProductQueryProcessor extends QueryProcessor {
           aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 5 else range queries are filters
       }
     }
-    if (!aIntersector.hasIncludes()) { // Step 6. this means we have closed world negation query
+    if (!aIntersector.hasIncludes() && aIntersector.getRankedSet() == null) { // Step 6. this means we have closed world negation query
       aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     }
     boolean excludeCategory = categoryExclusion(aIntersector, aQueries);
-    for (int i = 0; i < aQueries.size(); i++) {
-      MUPQuery lSimpleQuery = (MUPQuery)aQueries.get(i);
-      if (lSimpleQuery.isNegation() && (!excludeCategory || lSimpleQuery.getAttribute() != IProduct.Attribute.kCategory)) {
-        aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step 7. Add filter for all negations
+    for (SimpleQuery aQuery : aQueries) {
+      MUPQuery mupQuery = (MUPQuery) aQuery;
+      if (mupQuery.isNegation() && (!excludeCategory || mupQuery.getAttribute() != IProduct.Attribute.kCategory)) {
+        aIntersector.addFilter(mupQuery.getFilter(), mupQuery.getWeight()); // Step 7. Add filter for all negations
       }
     }
     aIntersector.setReference(reference);
     return aIntersector;
+  }
+
+  /**
+   * Handles keyword queries as follows:
+   * Looks for one or two queries in the list.
+   * If one query is present then uses the ranked include with rawResults of query
+   * If two queries are present then internal query is included in Handle order while the external query is included ranked with rawResults
+   * @param queries
+   * @param aIntersector
+   */
+  private void handleKeywordQueries(List<SimpleQuery> queries, ProductSetIntersector aIntersector) {
+    KeywordQuery kq0=null, kq1=null;
+    for (SimpleQuery q : queries) {
+      if (q.getType() == SimpleQuery.Type.kKeyword) {
+        if (kq0 == null)
+          kq0 = (KeywordQuery)q;
+        else if (kq1 == null)
+          kq1 = (KeywordQuery)q;
+      }
+    }
+    if (kq0 == null && kq1 == null)
+      return;
+    if (kq1 == null) {
+      aIntersector.includeRankedSet(kq0.rawResults(),kq0.getWeight());
+    } else {
+      if (kq0.isInternal()) {
+        aIntersector.include(kq0.exec(),kq0.getWeight());
+        aIntersector.includeRankedSet(kq1.rawResults(),kq1.getWeight());
+      } else {
+        aIntersector.includeRankedSet(kq0.rawResults(),kq0.getWeight());
+        aIntersector.include(kq1.exec(),kq1.getWeight());
+      }
+    }
   }
   /**
    * Computes the set differences of exclude category if include category yields a MultiSortedSet.
@@ -102,8 +134,8 @@ public class ProductQueryProcessor extends QueryProcessor {
   private boolean categoryExclusion(ProductSetIntersector intersector, ArrayList<SimpleQuery> aQueries) {
     SimpleQuery lCatPlus = null;
     SimpleQuery lCatMinus = null;
-    for (int i = 0; i < aQueries.size(); i++) {
-      MUPQuery lSimpleQuery = (MUPQuery)aQueries.get(i);
+    for (SimpleQuery aQuery : aQueries) {
+      MUPQuery lSimpleQuery = (MUPQuery) aQuery;
       if (lSimpleQuery.getAttribute() == IProduct.Attribute.kCategory) {
         if (lSimpleQuery.isNegation())
           lCatMinus = lSimpleQuery;
@@ -137,5 +169,4 @@ public class ProductQueryProcessor extends QueryProcessor {
     }
     return false;
   }
-
 }

@@ -113,7 +113,7 @@ public class ProductRequestProcessor {
 		if (m_tSpecQuery != null) {
 
 			Handle ref = null;
-			if (((mMineUrls == MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(m_currOSpec)) 
+			if (((mMineUrls == MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(m_currOSpec))
 					|| ((m_currentPage==null) && (m_pageSize==null))) {
 				ref = ProductDB.getInstance().genReference ();
 			}
@@ -168,7 +168,7 @@ public class ProductRequestProcessor {
 					i++;
 				}
 				rResult = new SortedArraySet(results, false);
-			} 
+			}
 
 		} else {
 			//This shouldnt happen since we always will get back the TSpec out of targeting
@@ -181,11 +181,11 @@ public class ProductRequestProcessor {
 
 	@SuppressWarnings("unchecked")
 	/**
-	 * Process the request and perform the product selection. 
+	 * Process the request and perform the product selection.
 	 * Here are the steps of the Product selection:
 	 * <ul>
 	 * 		<li> 1. Request Keywords search, if yes then do Keyword query against MUP and return </li>
-	 * 	    <li> 2. Script keywords, if present determine scope. If against MUP - return results sorted by Lucene score </li> 
+	 * 	    <li> 2. Script keywords, if present determine scope. If against MUP - return results sorted by Lucene score </li>
 	 * 		<li> 3. URL keywords, if present determine scope. If against MUP - return results sorted by Lucene score</li>
 	 * 		<li> 4. Set pagination bound for TSpec squery</li>
 	 * 		<li> 5. Include request category into TSpec query</li>
@@ -249,7 +249,7 @@ public class ProductRequestProcessor {
 		//7. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
 
-		//8. If there was a keyword query result, then return the top "n" matches with the tSpec query 
+		//8. If there was a keyword query result, then return the top "n" matches with the tSpec query
 		if (skeywordQueryResult!=null) {
 			int numResults = 100; //Setting the limit to 100
 			if (m_NumProducts!=null) {
@@ -282,12 +282,10 @@ public class ProductRequestProcessor {
 	/**
 	 * Category may be passed in from the request. If this is the case we always intersect with the TSpec results
 	 * Assumption is that the Category is a "included" condition and not excluded condition
-	 * @param ospec
 	 * @param requestCategory
-	 * @return
 	 */
 	private void addRequestCategoryQuery(String requestCategory) {
-		ArrayList<Integer> catList = new ArrayList<Integer>(); 
+		ArrayList<Integer> catList = new ArrayList<Integer>();
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer catId = dm.getId (IProduct.Attribute.kCategory, requestCategory);
 		catList.add(catId);
@@ -413,12 +411,11 @@ public class ProductRequestProcessor {
 		KeywordQuery sKwQuery = null;
 		SortedSet<Handle> kResults = null;
 		if ((keywords!=null)&&(!"".equals(keywords))) {
-			sKwQuery = new KeywordQuery(keywords);
+			sKwQuery = new KeywordQuery(keywords,false);
 			if ((m_pageSize!=null) && (m_currentPage !=null)) {
-				sKwQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue());
+				// @todo sKwQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue());
 			}
-			sKwQuery.setLuceneSortOrder(true);			
-			kResults = sKwQuery.exec();
+			kResults = sKwQuery.rawResults();
 		}
 		return kResults;
 	}
@@ -601,7 +598,7 @@ public class ProductRequestProcessor {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testKeywordSearch() {
 		try {
