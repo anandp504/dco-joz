@@ -225,7 +225,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	boolean done1 = false;
 	while (iter.hasNext ())
 	{
-	    if (done1)
+		if (done1)
 		b.append (",");
 	    Handle h = iter.next ();
 	    b.append (toAdDataResultString (h));
@@ -282,10 +282,12 @@ public class CmdGetAdData extends CommandOwnWriting
 	b.append (encode (p.getSupplierStr()));
 	MerchantData md = MerchantDB.getInstance().getMerchantData().getMerchant(p.getProviderStr());
 	b.append ("\",merchantlogo:\"");
-	b.append (encode (md.getLogoUrl()));
+	if (md!=null)
+		b.append (encode (md.getLogoUrl()));
 	// b.append (encode (JozData.merchant_db.get_logo_url ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
 	b.append ("\",ship_promo:\"");
-	b.append (encode (md.getShippingPromotionText()));
+	if (md!=null)
+		b.append (encode (md.getShippingPromotionText()));
 	// b.append (encode (JozData.merchant_db.get_shipping_promo ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
 	b.append ("\",description:\"");
 	// FIXME: soz has code to limit size of description passed back

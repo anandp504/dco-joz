@@ -73,7 +73,8 @@ public class ProductRequestProcessor {
 	 * 		<li>5. Determine whether or not to do URL Scavenging </li>
 	 * 		<li>6. Do the Product Selection </li>
 	 * 		<li>7. Add outer disjuncted products if needed </li>
-	 * 		<li>8. Return the right number of results </li>
+	 * 		<li>8. Add leadgen products if needed </li>
+	 * 		<li>9. Return the right number of results </li>
 	 * 	 </ul>
 	 * @param request
 	 * @return
@@ -131,33 +132,19 @@ public class ProductRequestProcessor {
 			//6. Product selection
 			rResult = doProductSelection(request);
 
+
 			//7. Do Outer Disjunction
 			ArrayList<Handle> disjunctedProds = getIncludedProducts(m_currOSpec);
-
-			//8. Cull the result to get the right page
-			if ((rResult!=null) && (m_NumProducts!=null)){
-				ArrayList<Handle> results = new ArrayList<Handle>();
-				//Cull the results further by num products
-				int i = 0;
-				for (Handle handle : rResult) {
-					if (i<m_NumProducts.intValue()){
-						results.add(handle);
-					} else {
-						break;
-					}
-					i++;
-				}
-				//sort by the score
-				rResult = new SortedArraySet(results);
-			} 
-
 
 			if (disjunctedProds!=null){
 				disjunctedProds.addAll(rResult);
 				rResult = new SortedArraySet<Handle>(disjunctedProds, false);
 			}
 
-			//Do Hybrid AdPod
+			//sort by the score
+			rResult = new SortedArraySet(rResult);
+
+			//8.Add leadgens if needed
 			if (m_productLeadgenRequest) {
 				Integer numLeadGenProds = request.get_min_num_leadgens();
 				ArrayList<Handle> leadGenProds = getLeadGenProducts(numLeadGenProds);
@@ -168,6 +155,20 @@ public class ProductRequestProcessor {
 				}
 			}
 
+			//9. Cull the result by num products
+			if ((rResult!=null) && (m_NumProducts!=null)){
+				ArrayList<Handle> results = new ArrayList<Handle>();
+				int i = 0;
+				for (Handle handle : rResult) {
+					if (i<m_NumProducts.intValue()){
+						results.add(handle);
+					} else {
+						break;
+					}
+					i++;
+				}
+				rResult = new SortedArraySet(results, false);
+			} 
 
 		} else {
 			//This shouldnt happen since we always will get back the TSpec out of targeting
@@ -448,22 +449,22 @@ public class ProductRequestProcessor {
 		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
 		CNFQuery clonedTSpecQuery = (CNFQuery)CampaignDataCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
 		clonedTSpecQuery.getQueries().get(0).addQuery(ptQuery);
+		clonedTSpecQuery.getQueries().get(0).setStrict(true);
 		SortedSet<Handle> qResult = clonedTSpecQuery.exec();
 		int numLeadGens = 1;
 		if (minNumLeadGenProds!=null){
 			numLeadGens = minNumLeadGenProds.intValue();
 		}
-		if (qResult == null || qResult.size() < numLeadGens) {
-			//Look for leadgens against whole mup
-			qResult = ptQuery.exec();
-		}
-		int count = 0;
-		for (Handle handle : qResult) {
-			if (count < numLeadGens) {
-				leadGenProds.add(handle);
-				count++;
-			} else {
-				break;
+		//Only return leadgens if there are any in the tSpec
+		if (qResult != null || qResult.size() < numLeadGens) {
+			int count = 0;
+			for (Handle handle : qResult) {
+				if (count < numLeadGens) {
+					leadGenProds.add(handle);
+					count++;
+				} else {
+					break;
+				}
 			}
 		}
 		return leadGenProds;
