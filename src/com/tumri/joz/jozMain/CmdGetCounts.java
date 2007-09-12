@@ -68,10 +68,12 @@ public class CmdGetCounts extends CommandDeferWriting
 	}
 	catch (Exception ex)
 	{
-	    e = SexpReader.readFromStringNoex ("(:error \""
-					       // FIXME: need to escape "s
-					       + ex.toString ()
-					       + "\")");
+	    // Convert {ex} to SexpString first so we can use its toString()
+	    // method to escape "s.
+	    SexpString ex_string = new SexpString (ex.toString ());
+	    e = SexpReader.readFromStringNoex ("(:error "
+					       + ex_string.toString ()
+					       + ")");
 	}
 
 	return e;
