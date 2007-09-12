@@ -53,6 +53,8 @@ public class ProductRequestProcessor {
 	private Integer m_pageSize = null;
 	private boolean m_productLeadgenRequest = false;
 
+	private static final int DEFAULT_PAGE_SIZE = 200;
+	
 	/**
 	 * Default constructor
 	 *
@@ -206,7 +208,7 @@ public class ProductRequestProcessor {
 			m_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
 		} else {
 			//Default
-			m_tSpecQuery.setBounds(0,0);
+			m_tSpecQuery.setBounds(DEFAULT_PAGE_SIZE,0);
 		}
 
 		//5. Request Category
