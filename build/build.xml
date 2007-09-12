@@ -88,7 +88,7 @@
             description="Install joz.">
 	<!-- FIXME: Aahhh!  tomcat prefers the unzipped copy of the previous
 	     war over the newly installed one.  -->
-	<delete dir="${war.install.dir}/Joz"/>
+	<delete dir="${war.install.dir}/joz"/>
 	<!-- This used to copy *.war with a fileset but no error is signalled
 	     if joz.war doesn't exist.  -->
 	<copy file="${dist.dir}/joz.war" todir="${war.install.dir}"/>
