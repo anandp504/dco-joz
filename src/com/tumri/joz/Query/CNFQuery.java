@@ -115,4 +115,9 @@ public class CNFQuery implements Query, Cloneable {
 	}
   }
 
+  public void addSimpleQuery(SimpleQuery sQuery) {
+	for (ConjunctQuery conjunctQuery : m_queries) {
+		conjunctQuery.addQuery(sQuery);
+	}
+  }
 }

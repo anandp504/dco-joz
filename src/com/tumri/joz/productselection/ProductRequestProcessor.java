@@ -240,7 +240,7 @@ public class ProductRequestProcessor {
 		catList.add(catId);
 		SimpleQuery catQuery = new AttributeQuery (IProduct.Attribute.kCategory, catList);
 		CNFQuery copytSpecQuery = (CNFQuery)m_tSpecQuery.clone();
-		copytSpecQuery.getQueries().get(0).addQuery(catQuery);
+		copytSpecQuery.addSimpleQuery(catQuery);
 		m_tSpecQuery = null;
 		m_tSpecQuery = copytSpecQuery;
 	}
@@ -252,7 +252,7 @@ public class ProductRequestProcessor {
 	private void addProductTypeQuery(AdDataRequest request) {
 		AdOfferType offerType = request.get_ad_offer_type();
 		if (offerType == null) {
-			offerType = AdOfferType.PRODUCT_ONLY;
+			offerType = AdOfferType.PRODUCT_LEADGEN;
 		}
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
@@ -262,20 +262,20 @@ public class ProductRequestProcessor {
 			Integer adWidth = request.get_ad_width();
 			if (adHeight!=null) {
 				AttributeQuery adHeightQuery = new AttributeQuery(Product.Attribute.kImageHeight, adHeight);
-				m_tSpecQuery.getQueries().get(0).addQuery(adHeightQuery);
+				m_tSpecQuery.addSimpleQuery(adHeightQuery);
 			}
 			if (adWidth!=null) {
 				AttributeQuery adWidthQuery = new AttributeQuery(Product.Attribute.kImageWidth, adWidth);
-				m_tSpecQuery.getQueries().get(0).addQuery(adWidthQuery);
+				m_tSpecQuery.addSimpleQuery(adWidthQuery);
 			}
-			m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
+			m_tSpecQuery.addSimpleQuery(ptQuery);
 		} else if (offerType==AdOfferType.PRODUCT_ONLY){
 			ptQuery.setNegation(true);
-			m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
+			m_tSpecQuery.addSimpleQuery(ptQuery);
 		} else if (offerType==AdOfferType.PRODUCT_LEADGEN) {
 			m_productLeadgenRequest = true;
 			ptQuery.setNegation(true);
-			m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
+			m_tSpecQuery.addSimpleQuery(ptQuery);
 		}
 	}
 
@@ -360,7 +360,7 @@ public class ProductRequestProcessor {
 				m_tSpecQuery.addQuery(new ConjunctQuery(new ProductQueryProcessor()));
 			}
 			//TODO: Add a addQuery method to the CNFquery to avoid this get(0)
-			m_tSpecQuery.getQueries().get(0).addQuery(sKwQuery);
+			m_tSpecQuery.addSimpleQuery(sKwQuery);
 		}
 	}
 
@@ -389,15 +389,15 @@ public class ProductRequestProcessor {
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
 		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
 		CNFQuery clonedTSpecQuery = (CNFQuery)CampaignDataCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
-		clonedTSpecQuery.getQueries().get(0).addQuery(ptQuery);
+		clonedTSpecQuery.addSimpleQuery(ptQuery);
 		clonedTSpecQuery.getQueries().get(0).setStrict(true);
 		if (adHeight!=null) {
 			AttributeQuery adHeightQuery = new AttributeQuery(Product.Attribute.kImageHeight, adHeight);
-			clonedTSpecQuery.getQueries().get(0).addQuery(adHeightQuery);
+			clonedTSpecQuery.addSimpleQuery(adHeightQuery);
 		}
 		if (adWidth!=null) {
 			AttributeQuery adWidthQuery = new AttributeQuery(Product.Attribute.kImageWidth, adWidth);
-			clonedTSpecQuery.getQueries().get(0).addQuery(adWidthQuery);
+			clonedTSpecQuery.addSimpleQuery(adWidthQuery);
 		}
 		int numLeadGens = 1;
 		if (minNumLeadGenProds!=null){
@@ -483,7 +483,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testAllowTooFewProducts() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :allow-too-few-products t)";
+			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :leadgen-only :allow-too-few-products t)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -507,7 +507,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testLeadgenOnly() {
 		try {
-			String queryStr =  "(get-ad-data :theme \"http://www.photography.com/\" :ad-height 300 :ad-width 500 :ad-offer-type :leadgen-only :revert-to-default-realm nil)";
+			String queryStr = "(get-ad-data :t-spec \"T-SPEC-NBC Lead Gen\" :ad-offer-type :leadgen-only :ad-height 600 :ad-width 120)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
