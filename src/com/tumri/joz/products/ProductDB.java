@@ -1,12 +1,19 @@
 package com.tumri.joz.products;
 
-import com.tumri.joz.index.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import com.tumri.joz.filter.BrandFilter;
 import com.tumri.joz.filter.CPCRangeFilter;
 import com.tumri.joz.filter.CPORangeFilter;
 import com.tumri.joz.filter.CategoryFilter;
 import com.tumri.joz.filter.Filter;
+import com.tumri.joz.filter.ImageHeightFilter;
+import com.tumri.joz.filter.ImageWidthFilter;
 import com.tumri.joz.filter.PriceRangeFilter;
 import com.tumri.joz.filter.ProductTypeFilter;
 import com.tumri.joz.filter.ProviderFilter;
@@ -16,6 +23,8 @@ import com.tumri.joz.index.CPCIndex;
 import com.tumri.joz.index.CPOIndex;
 import com.tumri.joz.index.CategoryIndex;
 import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.index.ImageHeightIndex;
+import com.tumri.joz.index.ImageWidthIndex;
 import com.tumri.joz.index.PriceIndex;
 import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.index.ProductTypeIndex;
@@ -23,8 +32,6 @@ import com.tumri.joz.index.ProviderIndex;
 import com.tumri.joz.index.SupplierIndex;
 import com.tumri.utils.data.RWLockedSortedArraySet;
 import com.tumri.utils.data.RWLockedTreeMap;
-
-import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -82,6 +89,11 @@ public class ProductDB {
     pdb.addIndex(IProduct.Attribute.kProductType,new ProductTypeIndex());
     pdb.registerFilter(IProduct.Attribute.kProductType,new ProductTypeFilter());
 
+    pdb.addIndex(IProduct.Attribute.kImageWidth,new ImageWidthIndex());
+    pdb.registerFilter(IProduct.Attribute.kImageWidth,new ImageWidthFilter());
+
+    pdb.addIndex(IProduct.Attribute.kImageHeight,new ImageHeightIndex());
+    pdb.registerFilter(IProduct.Attribute.kImageHeight,new ImageHeightFilter());
   }
 
   private ProductDB() {

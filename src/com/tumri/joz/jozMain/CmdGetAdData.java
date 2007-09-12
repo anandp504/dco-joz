@@ -164,7 +164,8 @@ public class CmdGetAdData extends CommandOwnWriting
 	throws IOException, Exception
     {
 	SexpIFASLWriter w = new SexpIFASLWriter (out);
-
+	Integer maxDescLength = rqst.get_max_prod_desc_len();
+	
 	w.writeVersion ();
 
 	w.startDocument ();
@@ -177,7 +178,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	// This is a big part of the result, write directly.
 	w.startList (2);
 	w.writeString8 ("PRODUCTS");
-	write_products (w, product_handles);
+	write_products (w, product_handles, (maxDescLength!=null)?maxDescLength.intValue():0);
 	w.endList ();
 
 	// PERF: pdb.get (id) called twice
@@ -218,7 +219,7 @@ public class CmdGetAdData extends CommandOwnWriting
     // string containing all the products.
 
     private void
-    write_products (SexpIFASLWriter w, ArrayList<Handle> product_handles)
+    write_products (SexpIFASLWriter w, ArrayList<Handle> product_handles, int maxDescLength)
 	throws IOException
     {
 	Iterator<Handle> iter = product_handles.iterator ();
@@ -236,7 +237,7 @@ public class CmdGetAdData extends CommandOwnWriting
 		if (done1)
 		b.append (",");
 	    Handle h = iter.next ();
-	    b.append (toAdDataResultString (h));
+	    b.append (toAdDataResultString (h, maxDescLength));
 	    done1 = true;
 	}
 
@@ -260,7 +261,7 @@ public class CmdGetAdData extends CommandOwnWriting
     // encoded differently.
 
     public String
-    toAdDataResultString (Handle h)
+    toAdDataResultString (Handle h, int maxProdDescLength)
     {
 	DictionaryManager dm = DictionaryManager.getInstance ();
 	ProductDB pdb = ProductDB.getInstance ();
@@ -298,8 +299,14 @@ public class CmdGetAdData extends CommandOwnWriting
 		b.append (encode (md.getShippingPromotionText()));
 	// b.append (encode (JozData.merchant_db.get_shipping_promo ((String) dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
 	b.append ("\",description:\"");
-	// FIXME: soz has code to limit size of description passed back
-	b.append (encode (p.getDescription ()));
+	String desc = p.getDescription();
+	if (maxProdDescLength > 0) {
+		if (desc.length() < maxProdDescLength) {
+			maxProdDescLength = desc.length();
+		}
+		desc = desc.substring(0, maxProdDescLength);
+	}
+	b.append (encode(desc));
 	b.append ("\",thumbnailraw:\"");
 	b.append (encode (p.getThumbnail ()));
 	b.append ("\",product_url:\"");

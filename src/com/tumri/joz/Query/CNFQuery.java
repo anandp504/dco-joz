@@ -1,11 +1,11 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.Handle;
-import com.tumri.utils.data.SortedArraySet;
-import com.tumri.utils.data.MultiSortedSet;
-
 import java.util.ArrayList;
 import java.util.SortedSet;
+
+import com.tumri.joz.products.Handle;
+import com.tumri.utils.data.MultiSortedSet;
+import com.tumri.utils.data.SortedArraySet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -80,6 +80,9 @@ public class CNFQuery implements Query, Cloneable {
 
   public void setBounds(int pagesize, int currentPage) {
     bPaginate = true;
+    if (pagesize ==0) {
+    	bPaginate = false;
+    }
     m_pagesize = pagesize;
     m_currentPage = currentPage;
     for (ConjunctQuery cjq : m_queries) {

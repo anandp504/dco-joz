@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.ProductInfo;
 import com.tumri.cma.domain.TSpec;
+import com.tumri.content.data.Product;
 import com.tumri.joz.Query.AttributeQuery;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.Query.ConjunctQuery;
@@ -53,8 +54,6 @@ public class ProductRequestProcessor {
 	private Integer m_pageSize = null;
 	private boolean m_productLeadgenRequest = false;
 
-	private static final int DEFAULT_PAGE_SIZE = 200;
-	
 	/**
 	 * Default constructor
 	 *
@@ -143,7 +142,9 @@ public class ProductRequestProcessor {
 			//7.Add leadgens if needed
 			if (m_productLeadgenRequest) {
 				Integer numLeadGenProds = request.get_min_num_leadgens();
-				ArrayList<Handle> leadGenAL = getLeadGenProducts(numLeadGenProds);
+				Integer adHeight = request.get_ad_height();
+				Integer adWeight = request.get_ad_width();
+				ArrayList<Handle> leadGenAL = getLeadGenProducts(numLeadGenProds, adHeight, adWeight);
 				//Append to the top of the results
 				resultAL.addAll(leadGenAL);
 			}
@@ -208,7 +209,7 @@ public class ProductRequestProcessor {
 			m_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
 		} else {
 			//Default
-			m_tSpecQuery.setBounds(DEFAULT_PAGE_SIZE,0);
+			m_tSpecQuery.setBounds(0,0);
 		}
 
 		//5. Request Category
@@ -257,6 +258,16 @@ public class ProductRequestProcessor {
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
 		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
 		if (offerType==AdOfferType.LEADGEN_ONLY) {
+			Integer adHeight = request.get_ad_height();
+			Integer adWidth = request.get_ad_width();
+			if (adHeight!=null) {
+				AttributeQuery adHeightQuery = new AttributeQuery(Product.Attribute.kImageHeight, adHeight);
+				m_tSpecQuery.getQueries().get(0).addQuery(adHeightQuery);
+			}
+			if (adWidth!=null) {
+				AttributeQuery adWidthQuery = new AttributeQuery(Product.Attribute.kImageWidth, adWidth);
+				m_tSpecQuery.getQueries().get(0).addQuery(adWidthQuery);
+			}
 			m_tSpecQuery.getQueries().get(0).addQuery(ptQuery);
 		} else if (offerType==AdOfferType.PRODUCT_ONLY){
 			ptQuery.setNegation(true);
@@ -372,7 +383,7 @@ public class ProductRequestProcessor {
 	 * Returns an arraylist of the LeadGen products that need to be appended to the result set for a hybrid ad pod request
 	 * @return
 	 */
-	private ArrayList<Handle> getLeadGenProducts(Integer minNumLeadGenProds) {
+	private ArrayList<Handle> getLeadGenProducts(Integer minNumLeadGenProds, Integer adHeight, Integer adWidth) {
 		ArrayList<Handle> leadGenProds = new ArrayList<Handle>();
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
@@ -380,6 +391,14 @@ public class ProductRequestProcessor {
 		CNFQuery clonedTSpecQuery = (CNFQuery)CampaignDataCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
 		clonedTSpecQuery.getQueries().get(0).addQuery(ptQuery);
 		clonedTSpecQuery.getQueries().get(0).setStrict(true);
+		if (adHeight!=null) {
+			AttributeQuery adHeightQuery = new AttributeQuery(Product.Attribute.kImageHeight, adHeight);
+			clonedTSpecQuery.getQueries().get(0).addQuery(adHeightQuery);
+		}
+		if (adWidth!=null) {
+			AttributeQuery adWidthQuery = new AttributeQuery(Product.Attribute.kImageWidth, adWidth);
+			clonedTSpecQuery.getQueries().get(0).addQuery(adWidthQuery);
+		}
 		int numLeadGens = 1;
 		if (minNumLeadGenProds!=null){
 			numLeadGens = minNumLeadGenProds.intValue();
@@ -488,7 +507,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testLeadgenOnly() {
 		try {
-			String queryStr =  "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :leadgen-only :revert-to-default-realm nil)";
+			String queryStr =  "(get-ad-data :theme \"http://www.photography.com/\" :ad-height 300 :ad-width 500 :ad-offer-type :leadgen-only :revert-to-default-realm nil)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
