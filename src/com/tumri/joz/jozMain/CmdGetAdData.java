@@ -17,14 +17,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
 import com.tumri.cma.domain.OSpec;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.MerchantData;
-import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
@@ -104,7 +102,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	long start_time = System.nanoTime ();
 	ProductRequestProcessor prp = new ProductRequestProcessor ();
 	ProductSelectionResults prs = prp.processRequest (rqst);
-	SortedSet<Handle> product_handles = prs.getResults();
+	ArrayList<Handle> product_handles = prs.getResults();
 	OSpec targetedOSpec = prs.getTargetedOSpec();
 	long end_time = System.nanoTime ();
 	long elapsed_time = end_time - start_time;
@@ -161,7 +159,7 @@ public class CmdGetAdData extends CommandOwnWriting
 		  boolean private_label_p,
 		  Features features,
 		  long elapsed_time,
-		  SortedSet<Handle> product_handles,
+		  ArrayList<Handle> product_handles,
 		  OutputStream out)
 	throws IOException, Exception
     {
@@ -220,7 +218,7 @@ public class CmdGetAdData extends CommandOwnWriting
     // string containing all the products.
 
     private void
-    write_products (SexpIFASLWriter w, SortedSet<Handle> product_handles)
+    write_products (SexpIFASLWriter w, ArrayList<Handle> product_handles)
 	throws IOException
     {
 	Iterator<Handle> iter = product_handles.iterator ();
@@ -387,7 +385,7 @@ public class CmdGetAdData extends CommandOwnWriting
     }
 
     private static String
-    products_to_id_list (SortedSet<Handle> product_handles)
+    products_to_id_list (ArrayList<Handle> product_handles)
     {
 	ProductDB pdb = ProductDB.getInstance ();
 	StringBuilder b = new StringBuilder ();
@@ -409,7 +407,7 @@ public class CmdGetAdData extends CommandOwnWriting
     // Return uniqified list of all categories in {product_handles}.
 
     private static List<Category>
-    products_to_cat_list (SortedSet<Handle> product_handles)
+    products_to_cat_list (ArrayList<Handle> product_handles)
     {
 	ProductDB pdb = ProductDB.getInstance ();
 	HashSet<Category> categories = new HashSet<Category> ();

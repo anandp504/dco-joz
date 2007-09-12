@@ -119,8 +119,8 @@ public class ConjunctQuery implements Query, Cloneable {
       }
       if (m_queries !=null) {
     	ArrayList<SimpleQuery> copyQueries = new ArrayList<SimpleQuery>(m_queries.size()+2); // some space for additional queries
-        for (SimpleQuery m_query : m_queries) {
-          copyQueries.add(m_query);
+        for (SimpleQuery _query : m_queries) {
+          copyQueries.add(_query);
         }
         copyQuery.m_queries = copyQueries;
       }

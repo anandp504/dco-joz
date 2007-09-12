@@ -53,8 +53,9 @@ public class CNFQuery implements Query, Cloneable {
       unionizer.add(cjquery.exec());
     }
     //Paginate
+    ArrayList<Handle> pageResults = null;
     if (bPaginate) {
-      ArrayList<Handle> pageResults = new ArrayList<Handle>(m_pagesize);
+      pageResults = new ArrayList<Handle>(m_pagesize);
       int start = (m_currentPage * m_pagesize) + 1;
       int end = start + m_pagesize;
       int i = 0;
@@ -68,10 +69,13 @@ public class CNFQuery implements Query, Cloneable {
           break;
         }
       }
-      return new SortedArraySet<Handle>(pageResults);
+    } else {
+        pageResults = new ArrayList<Handle>(m_pagesize);
+        for (Handle handle : unionizer) {
+            pageResults.add(handle);
+        }
     }
-
-    return unionizer;
+    return new SortedArraySet<Handle>(pageResults, true);
   }
 
   public void setBounds(int pagesize, int currentPage) {
@@ -100,6 +104,12 @@ public class CNFQuery implements Query, Cloneable {
       copyCNF.m_queries = copyQueries;
     }
     return copyCNF;
+  }
+  
+  public void setStrict(boolean aStrict) {
+	for (ConjunctQuery conjunctQuery : m_queries) {
+		conjunctQuery.setStrict(aStrict);
+	}
   }
 
 }
