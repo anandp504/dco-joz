@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.utils.AppProperties;
 
@@ -25,6 +26,8 @@ public class JozData
 	} 
 	
 	loadContent(props.getProperties());
+	
+	loadCampaignData();
 
 	try
 	{
@@ -131,6 +134,23 @@ public class JozData
     
     protected static void loadContent(Properties props) {
         ContentHelper.init(props);
+    }
+    
+    /**
+     * Load the campaign data
+     *
+     */
+    protected static void loadCampaignData() {
+    	//Initialize the campaign content poller, which will also take care loading the campaign db.
+    	try {
+    		CMAContentPoller.getInstance().init();
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		log.error("Exception caught during the campaign data load");
+    	} catch (Throwable t) {
+    		t.printStackTrace();
+    		log.error("Unexpected runtime exception during the campaign data load");
+    	}
     }
 
     /*
