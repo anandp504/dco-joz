@@ -22,6 +22,7 @@ public class CampaignDB {
     private RWLockedTreeMap<Integer,OSpec>    ospecMap      = new RWLockedTreeMap<Integer, OSpec>();
     private RWLockedTreeMap<Integer,Geocode>  geocodeMap    = new RWLockedTreeMap<Integer, Geocode>();
     private RWLockedTreeMap<Integer,Url>      urlMap        = new RWLockedTreeMap<Integer, Url>();
+    @SuppressWarnings({"deprecation"})
     private RWLockedTreeMap<Integer,Theme>    themeMap      = new RWLockedTreeMap<Integer, Theme>();
     private RWLockedTreeMap<Integer,Location> locationMap   = new RWLockedTreeMap<Integer, Location>();
 
@@ -178,10 +179,9 @@ public class CampaignDB {
 
     private void addToMap(List<String> list, Map<String, List<Handle>> map, Handle handle) {
         if(list != null && list.size() > 0) {
-            for(int i=0; i<list.size(); i++) {
-                String str = list.get(i);
+            for (String str : list) {
                 List<Handle> handleList = map.get(str);
-                if(handleList == null) {
+                if (handleList == null) {
                     handleList = new ArrayList<Handle>();
                 }
                 handleList.add(handle);
@@ -215,6 +215,7 @@ public class CampaignDB {
         }
     }
 
+    @SuppressWarnings({"deprecation"})
     public void loadThemes(Iterator<Theme> iterator) {
         if(iterator == null) {
             return;
@@ -242,14 +243,16 @@ public class CampaignDB {
         Map<String,List<Handle>> urlAdPodMap      = new HashMap<String, List<Handle>>();
         while(iterator.hasNext()) {
             UrlAdPodMapping urlAdPodMapping = iterator.next();
-
-            List<Handle> list = urlAdPodMap.get(urlAdPodMapping.getUrlId());
+            Url url = urlMap.get(urlAdPodMapping.getUrlId());
+            List<Handle> list = null;
+            if(url != null) {
+                list = urlAdPodMap.get(url.getName());
+            }
             if(list == null) {
                 list = new ArrayList<Handle>();
             }
             int oid = urlAdPodMapping.getId();
             list.add(new AdPodHandle(adPodMap.get(urlAdPodMapping.getAdPodId()), oid, AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
-            Url url = urlMap.get(urlAdPodMapping.getUrlId());
             if(url != null) {
                 urlAdPodMap.put(url.getName(), list);
             }
@@ -257,6 +260,7 @@ public class CampaignDB {
         adpodUrlMappingIndex.put(urlAdPodMap);
     }
 
+    @SuppressWarnings({"deprecation"})
     public void loadThemeAdPodMappings(Iterator<ThemeAdPodMapping> iterator) {
         if(iterator == null) {
             return;
@@ -264,14 +268,16 @@ public class CampaignDB {
         Map<String, List<Handle>>    themeAdPodMap    = new HashMap<String, List<Handle>>();
         while(iterator.hasNext()) {
             ThemeAdPodMapping themeAdPodMapping = iterator.next();
-
-            List<Handle> list = themeAdPodMap.get(themeAdPodMapping.getThemeId());
+            Theme theme = themeMap.get(themeAdPodMapping.getThemeId());
+            List<Handle> list = null;
+            if(theme != null) {
+                list = themeAdPodMap.get(theme.getName());
+            }
             if(list == null) {
                 list = new ArrayList<Handle>();
             }
             int oid = themeAdPodMapping.getId();
             list.add(new AdPodHandle(adPodMap.get(themeAdPodMapping.getAdPodId()), oid, AdPodHandle.themeScore, themeAdPodMapping.getWeight()));
-            Theme theme = themeMap.get(themeAdPodMapping.getThemeId());
             if(theme != null) {
                 themeAdPodMap.put(theme.getName(), list);
             }
@@ -292,8 +298,7 @@ public class CampaignDB {
                 list = new ArrayList<Handle>();
             }
             //ToDo: add weight field to LocationAdpodMapping class
-            //ToDo: To improve performance, refactor the code to get unique id from db instead of calculating.
-            int oid = locationAdPodMapping.getLocationId() * 100000 + locationAdPodMapping.getAdPodId();
+            int oid = locationAdPodMapping.getId();
             list.add(new AdPodHandle(adPodMap.get(locationAdPodMapping.getAdPodId()), oid, AdPodHandle.locationScore, 1));
             Location location = locationMap.get(locationAdPodMapping.getLocationId());
             if(location != null) {
