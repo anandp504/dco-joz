@@ -22,7 +22,6 @@ import com.tumri.joz.index.BrandIndex;
 import com.tumri.joz.index.CPCIndex;
 import com.tumri.joz.index.CPOIndex;
 import com.tumri.joz.index.CategoryIndex;
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.index.ImageHeightIndex;
 import com.tumri.joz.index.ImageWidthIndex;
 import com.tumri.joz.index.PriceIndex;
@@ -302,8 +301,10 @@ public class ProductDB {
   }
 
   public Handle genReference() {
-    int max = DictionaryManager.getInstance().maxId(IProduct.Attribute.kId);
-    int min = DictionaryManager.getInstance().minId(IProduct.Attribute.kId);
+	m_allProducts.readerLock();
+    int max = m_allProducts.last().getOid();
+    int min = m_allProducts.first().getOid();
+    m_allProducts.readerUnlock();
     if(max-min > 0) {
       int rand = g_random.nextInt(max-min) + min;
       SortedMap<Integer,IProduct> map = m_map.tailMap(rand);

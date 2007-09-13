@@ -91,12 +91,6 @@ public class ProductRequestProcessor {
 
 		//2.Num products will override the current page, and page size
 		m_NumProducts = request.get_num_products ();
-		if (m_NumProducts!=null) {
-			int numProducts = m_NumProducts.intValue();
-			m_NumProducts = new Integer(numProducts);
-			m_currentPage = new Integer(0);
-			m_pageSize = numProducts;
-		}
 
 		//3. Select the TSpec for the request
 		String tSpecName = request.get_t_spec();
@@ -124,6 +118,13 @@ public class ProductRequestProcessor {
 				ref = ProductDB.getInstance().genReference ();
 			}
 			m_tSpecQuery.setReference(ref);
+
+			//Default the current Page and page Size 
+			if (m_NumProducts!=null) {
+				int numProducts = m_NumProducts.intValue();
+				m_currentPage = new Integer(0);
+				m_pageSize = numProducts;
+			}
 
 			//5. Determine backfill of products
 			MaybeBoolean mAllowTooFewProducts = request.get_allow_too_few_products();
@@ -359,7 +360,6 @@ public class ProductRequestProcessor {
 				m_tSpecQuery = new CNFQuery();
 				m_tSpecQuery.addQuery(new ConjunctQuery(new ProductQueryProcessor()));
 			}
-			//TODO: Add a addQuery method to the CNFquery to avoid this get(0)
 			m_tSpecQuery.addSimpleQuery(sKwQuery);
 		}
 	}
