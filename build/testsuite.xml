@@ -66,7 +66,7 @@
 	<exec executable="/bin/sh"
 	      dir="${joz.install.dir}/temp"
 	      spawn="true">
-	    <env key="JAVA_OPTS" value="-Xms512m -Xmx512m"/>
+	    <env key="JAVA_OPTS" value="-Xms1024m -Xmx1024m"/>
 	    <arg value="../bin/catalina.sh"/>
 	    <arg value="run"/>
 	    <arg value="-config"/>
@@ -93,13 +93,17 @@
 	<exec executable="/bin/sh"
 	      dir="${joz.install.dir}/temp">
 	    <arg value="../bin/shutdown.sh"/>
+	    <arg value="-config"/>
+	    <arg value="conf/server-joz.xml"/>
 	</exec>
 
     </target>
 
     <!-- ****************************************************************** -->
 
-    <!-- Utility target to run one test against an already running joz.  -->
+    <!-- Utility target to run one test against an already running joz.
+         To use, specify -Drun1.test=foo when invoking.
+	 The default is get-complete-taxonomy.  -->
 
     <property name="run1.test" value="get-complete-taxonomy"/>
 
