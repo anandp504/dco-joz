@@ -27,7 +27,7 @@ public abstract class TargetingQuery extends SimpleQuery  implements IFilter<Han
   }
 
   public double getWeight(Handle v) {
-    return 1.0;
+    return v.getScore();
   }
 
   public int match(Handle v) {

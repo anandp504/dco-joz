@@ -48,6 +48,8 @@ package com.tumri.joz.jozMain;
 //import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -108,6 +110,17 @@ public class AdDataRequest
     public Double get_output_order_noise_stddev () { return _output_order_noise_stddev; }
     // null represents "nil" or "unspecified"
     public Integer get_max_prod_desc_len () { return _max_prod_desc_len; }
+
+    public List<String> getCountries() {return _countries; }
+    public List<String> getRegions() {return _regions; }
+    public List<String> getCities() {return _cities; }
+    public List<String> getDmacodes() {return _dmacodes; }
+    public List<String> getZipcodes() {return _zipcodes; }
+    public List<String> getAreacodes() {return _areacodes; }
+
+
+
+
 
     public String
     toString ()
@@ -203,7 +216,8 @@ public class AdDataRequest
 		b.append (" :output-order ").append (_output_order);
 	    if (_output_order_noise_stddev != DEFAULT_OUTPUT_ORDER_NOISE_STDDEV)
 		b.append (" :output-order-noise-stddev ").append (_output_order_noise_stddev);
-	}
+        
+    }
 
 	b.append (")");
 
@@ -241,7 +255,13 @@ public class AdDataRequest
 	OUTPUT_FORMAT,
 	OUTPUT_ORDER,
 	OUTPUT_ORDER_NOISE_STDDEV,
-	MAX_PROD_DESC_LEN
+	MAX_PROD_DESC_LEN,
+    COUNTRIES,
+    REGIONS,
+    CITIES,
+    ZIPCODES,
+    DMACODES,
+    AREACODES
     }
 
     private static HashMap<String, RqstParam> rqst_params =
@@ -277,6 +297,12 @@ public class AdDataRequest
 	rqst_params.put (":output-order", RqstParam.OUTPUT_ORDER);
 	rqst_params.put (":output-order-noise-stddev", RqstParam.OUTPUT_ORDER_NOISE_STDDEV);
 	rqst_params.put (":max-prod-desc-len", RqstParam.MAX_PROD_DESC_LEN);
+    rqst_params.put (":country-name", RqstParam.COUNTRIES);
+    rqst_params.put (":region", RqstParam.REGIONS);
+    rqst_params.put (":cities", RqstParam.ZIPCODES);
+    rqst_params.put (":zip", RqstParam.ZIPCODES);
+    rqst_params.put (":dma", RqstParam.DMACODES);
+    rqst_params.put (":area-code", RqstParam.DMACODES);
     }
 
     // WARNING: If the default value is not null, you're probably doing
@@ -358,6 +384,18 @@ public class AdDataRequest
     // default is 0.1
     Double _output_order_noise_stddev = DEFAULT_OUTPUT_ORDER_NOISE_STDDEV;
     Integer _max_prod_desc_len = DEFAULT_MAX_PROD_DESC_LEN;
+
+    List<String> _countries;
+    List<String> _regions;
+    List<String> _cities;
+    List<String> _zipcodes;
+    List<String> _dmacodes;
+    List<String> _areacodes;
+
+
+
+
+
 
     private void
     parse_request (Sexp expr)
@@ -502,7 +540,30 @@ public class AdDataRequest
 		    this._max_prod_desc_len = get_next_integer_or_nil_null (name, iter);
 		    break;
 
-		default:
+        case COUNTRIES:
+            this._countries = getStrings(name, iter);
+            break;
+
+        case REGIONS:
+            this._countries = getStrings(name, iter);
+            break;
+
+        case CITIES:
+            this._countries = getStrings(name, iter);
+            break;
+
+        case DMACODES:
+            this._countries = getStrings(name, iter);
+            break;
+
+        case ZIPCODES:
+            this._countries = getStrings(name, iter);
+            break;
+
+        case AREACODES:
+            this._areacodes = getStrings(name, iter);
+            break;
+        default:
 		    log.error ("Program error, unrecognized request parameter: " + elm);
 		    continue;
 		}
@@ -512,6 +573,27 @@ public class AdDataRequest
 		throw new BadCommandException (ex.getMessage ());
 	    }
 	}
+    }
+
+
+    private static List<String> getStrings(String param_name, Iterator<Sexp> iterator) throws SexpUtils.BadGetNextException {
+        List<String> result = null;
+        //ToDo: FIXME: The SexpUtils.get_next_list code throws BAdGetNextException work with owner to debug the issue
+        /*
+        SexpList sexpList = SexpUtils.get_next_list(param_name, iterator);
+        if(sexpList != null && sexpList.size() > 0) {
+            result = new ArrayList<String>();
+            Iterator<Sexp> listIterator = sexpList.iterator();
+            while(listIterator.hasNext()) {
+                Sexp sexp = listIterator.next();
+                result.add(sexp.toStringValue());
+            }
+        }
+        */
+        String str = SexpUtils.get_next_string(param_name, iterator);
+        result = new ArrayList<String>();
+        result.add(str);
+        return result;
     }
 
     // Same as SexpUtils.get_next_integer except t -> null.
