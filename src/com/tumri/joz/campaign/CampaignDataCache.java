@@ -217,69 +217,58 @@ public class CampaignDataCache {
 
 	/**
 	 * Update the TSpec mapping on the fly
-	 * @param updtMappingCommands
+	 * @param updtMappingCommands list of mapping commands
 	 */
 	public void doUpdateTSpecMapping(SexpList updtMappingCommands){
-		Sexp cmd_expr = updtMappingCommands.getFirst ();
-		if (! cmd_expr.isSexpSymbol ())
-			log.error("command name not a symbol: " + cmd_expr.toString ());
-
-		SexpSymbol sym = cmd_expr.toSexpSymbol ();
-		String cmd_name = sym.toString ();
-		if (cmd_name.equalsIgnoreCase("incorp-mapping-deltas")) {
-			Sexp updtMappingCommandDetails = updtMappingCommands.get(1);
-			Iterator<Sexp> updtMappingCommandDetailsIter = updtMappingCommandDetails.toSexpList().iterator();
-			while (updtMappingCommandDetailsIter.hasNext()){
-				Sexp updtMappingCommandExp = updtMappingCommandDetailsIter.next();
-				SexpList updtMappingCommand = updtMappingCommandExp.toSexpList();
-				if (updtMappingCommand.size() != 6) {
-					log.error("Invalid syntax for the incorp-mapping-deltas command");
-				} else {
-					Sexp tmpOpType = updtMappingCommand.get(0);
-					Sexp tmpLookupDataType = updtMappingCommand.get(1);
-					Sexp tmpRealmStoreIdVal = updtMappingCommand.get(2);
-					Sexp tmpTSpec = updtMappingCommand.get(3);
-					Sexp tmpweight = updtMappingCommand.get(4);
-					Sexp tmpmodified = updtMappingCommand.get(5);
-
-					String opType = tmpOpType.toSexpKeyword().toStringValue();
-					String opLookupDataType = tmpLookupDataType.toSexpKeyword().toStringValue();
-					String value = tmpRealmStoreIdVal.toStringValue();
-					String tSpecName = tmpTSpec.toStringValue();
-					float weight = 0;
-					if (tmpweight.isSexpReal())
-						weight = new Float(tmpweight.toSexpReal().toNativeReal64()).floatValue();
-					else
-						weight = (float) tmpweight.toSexpInteger().toNativeInteger32();
-					String modTime = tmpmodified.toStringValue();
-					//TODO: Get the mapping and update accordingly
-					OSpec aOSpec = getOSpec(tSpecName);
-					if (aOSpec!=null){
-						if (":add".equals(tmpOpType.toSexpKeyword().toSexpString())) {
-							if (aOSpec == null) {
-								throw new RuntimeException("Could not locate the oSpec in the cache using name : " + tSpecName);
-							} else {
-								if (":realm".equals(opLookupDataType)) {
-									//Add the realm mapping to the TSpec
-								} else if (":store-ID".endsWith(opLookupDataType)) {
-
-								}
-							}
-						} else if (":delete".equals(tmpOpType.toSexpKeyword().toSexpString())) {
-								if (":realm".equals(opLookupDataType)) {
-									//Delete the realm mapping to the TSpec
-								} else if (":store-ID".endsWith(opLookupDataType)) {
-									//Delete the storeid mapping to the TSpec
-								}
-						}
-
-					}
-				}
-
-			}
-		} else {
-			log.error("Unexpected command received : " + cmd_expr);
+	    for (Sexp cmd : updtMappingCommands) {
+		if (! cmd.isSexpList ()) {
+		    log.error("incorp-mapping-deltas command is not a list: " + cmd.toString());
+		    continue;
 		}
+		SexpList updtMappingCommand = cmd.toSexpList();
+		if (updtMappingCommand.size() != 6) {
+		    log.error("Invalid syntax for the incorp-mapping-deltas command: " + updtMappingCommand.toString());
+		    continue;
+		}
+		Sexp tmpOpType = updtMappingCommand.get(0);
+		Sexp tmpLookupDataType = updtMappingCommand.get(1);
+		Sexp tmpRealmStoreIdVal = updtMappingCommand.get(2);
+		Sexp tmpTSpec = updtMappingCommand.get(3);
+		Sexp tmpweight = updtMappingCommand.get(4);
+		Sexp tmpmodified = updtMappingCommand.get(5);
+
+		// FIXME: more error checking is required here
+		String opType = tmpOpType.toStringValue();
+		String opLookupDataType = tmpLookupDataType.toStringValue();
+		String value = tmpRealmStoreIdVal.toStringValue();
+		String tSpecName = tmpTSpec.toStringValue();
+		float weight = 0;
+		if (tmpweight.isSexpReal())
+		    weight = new Float(tmpweight.toSexpReal().toNativeReal64()).floatValue();
+		else
+		    weight = (float) tmpweight.toSexpInteger().toNativeInteger32();
+		String modTime = tmpmodified.toStringValue();
+		//TODO: Get the mapping and update accordingly
+		OSpec aOSpec = getOSpec(tSpecName);
+		if (aOSpec != null) {
+		    if (":add".equals(opType)) {
+			if (aOSpec == null) {
+			    throw new RuntimeException("Could not locate the oSpec in the cache using name : " + tSpecName);
+			} else {
+			    if (":realm".equals(opLookupDataType)) {
+				//Add the realm mapping to the TSpec
+			    } else if (":store-ID".endsWith(opLookupDataType)) {
+			    }
+			}
+		    } else if (":delete".equals(opType)) {
+			if (":realm".equals(opLookupDataType)) {
+			    //Delete the realm mapping to the TSpec
+			} else if (":store-ID".endsWith(opLookupDataType)) {
+			    //Delete the storeid mapping to the TSpec
+			}
+		    }
+		}
+	    }
 	}
 
 	/**
