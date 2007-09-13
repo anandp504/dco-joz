@@ -78,7 +78,7 @@
     <!-- ****************************************************************** -->
 
     <target name="build"
-            depends="build-Joz-war,copy-non-java-files"
+            depends="build-Joz-war,build-indexer-jar,copy-non-java-files"
             description="Build everything.">
     </target>
 
