@@ -37,7 +37,7 @@ public class CmdGetRootCategories extends CommandDeferWriting
 	{
 	    DictionaryManager dm = DictionaryManager.getInstance ();
 	    JOZTaxonomy tax = JOZTaxonomy.getInstance ();
-	    throw new RuntimeException ("get-root-categories not implemented");
+	    throw new RuntimeException ("get-root-categories not implemented (nobody uses it anymore)");
 	}
 	catch (Exception ex)
 	{
