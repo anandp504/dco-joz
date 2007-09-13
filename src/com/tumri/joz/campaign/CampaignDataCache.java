@@ -521,7 +521,7 @@ public class CampaignDataCache {
 	
 	@Test
 	public void testdoUpdateTSpecMapping() {
-		String mappingUpdateStr = "(incorp-mapping-deltas '((:add :realm \"http://www.foo.com\" |T-SPEC-foo| 1.0 345345433545) (:delete :store-ID \"abcd\" |T-SPEC-baz| 1.0 345345433545)))";
+		String mappingUpdateStr = "((:add :realm \"http://www.foo.com\" |T-SPEC-foo| 1.0 345345433545) (:delete :store-ID \"abcd\" |T-SPEC-baz| 1.0 345345433545))";
 		Reader expReader = new StringReader(mappingUpdateStr);
 		SexpReader lr = new SexpReader(expReader);
 		try {
