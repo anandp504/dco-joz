@@ -46,7 +46,6 @@ public class ContentHelper implements ContentListener {
     protected static Logger log = Logger.getLogger(ContentHelper.class); 
     
     public static void init() {
-        initLucene();
         try {
             load(getContentProvider());
         } catch (InvalidConfigException e) {
@@ -55,7 +54,6 @@ public class ContentHelper implements ContentListener {
     }
     
     public static void init(String file) {
-        initLucene();
         try {
             load(getContentProvider(file));
         } catch (InvalidConfigException e) {
@@ -64,7 +62,6 @@ public class ContentHelper implements ContentListener {
     }
     
     public static void init(Properties props) {
-        initLucene();
         try {
             load(getContentProvider(props));
         } catch (InvalidConfigException e) {
@@ -79,7 +76,7 @@ public class ContentHelper implements ContentListener {
 
             if (!st.merchantDataDisabled) {
                 initMerchantDataDatabase(data);
-            }
+            } 
 
             if (!st.taxonomyDisabled) {
                 initTaxonomyDatabase(data);
@@ -87,7 +84,7 @@ public class ContentHelper implements ContentListener {
 
             if (!st.mupDisabled) {
                 initProductsDatabase(data);
-            }
+            } 
             
             ContentHelper h = new ContentHelper(p);
             p.addContentListener(h);
