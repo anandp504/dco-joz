@@ -10,13 +10,28 @@ import com.tumri.utils.ifasl.*;
 
 public class TestTSpecAdd
 {
-    public static final String me = "tspec-add";
+    public static final String me = "t-spec-add";
 
     public static void
     run ()
     {
 	JozClient jc = new JozClient (TestsuiteProps.get_joz_url ());
-	InputStream is = jc.execute ("(" + me + ")");
+	String tspec_name = "T-SPEC-test1add";
+
+	// First try to delete it, just in case it already exists.
+
+	InputStream is = jc.execute ("(" + "t-spec-delete" + " " + tspec_name + ")");
+
+	if (is == null)
+	{
+	    log.fail (me, "protocol error");
+	    return;
+	}
+
+	is = jc.execute ("(" + me
+			 + " :name " + tspec_name
+			 + " :version 1"
+			 + ")");
 
 	if (is == null)
 	{
@@ -30,13 +45,16 @@ public class TestTSpecAdd
 
 	    Sexp s = r.read ();
 
-	    // We should get a null-result (not an empty list, rather no
-	    // response at all.  If there is an error we'll get (:error ...).
-	    if (s != null)
+	    // FIXME: Not sure what the correct response is.
+	    // If there is an error we'll get (:error ...).
+	    // For success we recognize (), the empty list.
+	    if (s == null
+		|| ! s.isSexpList ()
+		|| s.toSexpList ().size () != 0)
 	    {
 		log.fail (me,
-			  "expected no response for successful command, got: "
-			  + s.toString ());
+			  "expected () response for successful command, got: "
+			  + (s == null ? "null" : s.toString ()));
 		return;
 	    }
 	}

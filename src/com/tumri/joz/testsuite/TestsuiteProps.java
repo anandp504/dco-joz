@@ -12,7 +12,7 @@ import java.util.Properties;
 public class TestsuiteProps
 {
     private static final String JOZ_URL = "joz.url";
-    private static final String DEFAULT_JOZ_URL = "http://localhost:18080/Joz/joz";
+    private static final String DEFAULT_JOZ_URL = "http://localhost:18080/joz/joz";
 
     private static Properties props = new Properties ();
 

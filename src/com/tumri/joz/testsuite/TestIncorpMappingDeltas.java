@@ -16,7 +16,7 @@ public class TestIncorpMappingDeltas
     run ()
     {
 	JozClient jc = new JozClient (TestsuiteProps.get_joz_url ());
-	InputStream is = jc.execute ("(" + me + ")");
+	InputStream is = jc.execute ("(" + me + " ((:add :realm \"http://www.foo.com\" |T-SPEC-http://www.shop4flowers.com/| 1.0f 345345433545)))");
 
 	if (is == null)
 	{
@@ -30,13 +30,16 @@ public class TestIncorpMappingDeltas
 
 	    Sexp s = r.read ();
 
-	    // We should get a null-result (not an empty list, rather no
-	    // response at all.  If there is an error we'll get (:error ...).
-	    if (s != null)
+	    // FIXME: Not sure what the correct response is.
+	    // If there is an error we'll get (:error ...).
+	    // For success we recognize (), the empty list.
+	    if (s == null
+		|| ! s.isSexpList ()
+		|| s.toSexpList ().size () != 0)
 	    {
 		log.fail (me,
-			  "expected no response for successful command, got: "
-			  + s.toString ());
+			  "expected () response for successful command, got: "
+			  + (s == null ? "null" : s.toString ()));
 		return;
 	    }
 	}
