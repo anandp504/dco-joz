@@ -73,9 +73,9 @@ public class JozTestsuite
 		TestGetRootCategories.run ();
 	    else if (args[i].equals ("incorp-mapping-deltas"))
 		TestIncorpMappingDeltas.run ();
-	    else if (args[i].equals ("tspec-add"))
+	    else if (args[i].equals ("t-spec-add"))
 		TestTSpecAdd.run ();
-	    else if (args[i].equals ("tspec-delete"))
+	    else if (args[i].equals ("t-spec-delete"))
 		TestTSpecDelete.run ();
 	    else if (args[i].equals ("tabulate-search-results"))
 		TestTabulateSearchResults.run ();
