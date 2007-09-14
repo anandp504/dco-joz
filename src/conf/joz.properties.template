@@ -1,0 +1,17 @@
+#Template file for joz properties
+com.tumri.content.file.refreshInterval=5
+com.tumri.content.file.sourceDir=.
+com.tumri.content.file.dataDir=data
+com.tumri.content.luceneDir=lucene
+#com.tumri.content.file.cacheEnabled=false
+#com.tumri.content.file.cacheFilename=/tmp/ContentData.txt
+#com.tumri.content.file.disableMup=true
+#com.tumri.content.file.disableTaxonomy=true
+#com.tumri.content.file.disableMerchantData=true
+com.tumri.content.file.batchReadSize=5000
+com.tumri.content.file.batchReadInterval=1
+com.tumri.campaign.file.sourceDir=.
+com.tumri.campaign.file.refreshInterval=10
+#com.tumri.contnet.file.mup.dataDir=
+#com.tumri.contnet.file.taxonomy.dataDir=
+#com.tumri.contnet.file.merchant_data.dataDir=
