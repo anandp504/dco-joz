@@ -20,6 +20,8 @@ public class CampaignDB {
     private RWLockedTreeMap<Integer,Campaign> campaignMap   = new RWLockedTreeMap<Integer, Campaign>();
     private RWLockedTreeMap<Integer,AdPod>    adPodMap      = new RWLockedTreeMap<Integer, AdPod>();
     private RWLockedTreeMap<Integer,OSpec>    ospecMap      = new RWLockedTreeMap<Integer, OSpec>();
+    private RWLockedTreeMap<String,OSpec>    ospecNameMap   = new RWLockedTreeMap<String, OSpec>();
+
     private RWLockedTreeMap<Integer,Geocode>  geocodeMap    = new RWLockedTreeMap<Integer, Geocode>();
     private RWLockedTreeMap<Integer,Url>      urlMap        = new RWLockedTreeMap<Integer, Url>();
     @SuppressWarnings({"deprecation"})
@@ -59,6 +61,10 @@ public class CampaignDB {
         int oSpecId = adPodOSpecMap.get(adPodId);
         return ospecMap.get(oSpecId);
 
+    }
+
+    public OSpec getOspec(String name) {
+        return ospecNameMap.get(name);    
     }
 
     public void loadCampaigns(Iterator<Campaign> iterator) {
@@ -119,6 +125,7 @@ public class CampaignDB {
         while(iterator.hasNext()) {
             OSpec oSpec = iterator.next();
             ospecMap.put(oSpec.getId(), oSpec);
+            ospecNameMap.put(oSpec.getName(), oSpec);
         }
     }
 
