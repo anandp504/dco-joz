@@ -301,19 +301,24 @@ public class ProductDB {
   }
 
   public Handle genReference() {
-	m_allProducts.readerLock();
-    int max = m_allProducts.last().getOid();
-    int min = m_allProducts.first().getOid();
-    m_allProducts.readerUnlock();
-    if(max-min > 0) {
-      int rand = g_random.nextInt(max-min) + min;
-      SortedMap<Integer,IProduct> map = m_map.tailMap(rand);
-      if (!map.isEmpty()) {
-        IProduct p = m_map.get(map.firstKey());
-        if (p != null)
-          return p.getHandle();
-      }
-    }
-    return null;
+	  int max = 0;
+	  int min = 0x7fffffff;
+	  m_allProducts.readerLock();
+	  try {
+		  max = m_allProducts.last().getOid();
+		  min = m_allProducts.first().getOid();
+	  } finally {
+		  m_allProducts.readerUnlock();
+	  }
+	  if(max-min > 0) {
+		  int rand = g_random.nextInt(max-min) + min;
+		  SortedMap<Integer,IProduct> map = m_map.tailMap(rand);
+		  if (!map.isEmpty()) {
+			  IProduct p = m_map.get(map.firstKey());
+			  if (p != null)
+				  return p.getHandle();
+		  }
+	  }
+	  return null;
   }
 }
