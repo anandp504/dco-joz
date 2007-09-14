@@ -217,6 +217,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   protected ArrayList<ArrayList<Value>> createLists() {
     ArrayList<ArrayList<Value>> lists = new ArrayList<ArrayList<Value>>();
     int cnt = listSize();
+    if (cnt == 0) // cnt can be zero if only ranked query
+      cnt = 1;
     for (int i = 0; i < cnt; i++) {
       lists.add(new ArrayList<Value>());
     }
@@ -265,11 +267,9 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
         if (cPointer != null && !cPointer.equals(v))
           continue;
         cPointer = null;
-        int match = 0;
-        if ((match = containsInt(v)) > 0) {
-          if (addResult(lists,match-1, v, m_rankedSetWeight.getWeight(v), count)) {
+        int match = containsInt(v); // NB: match can be zero
+        if (addResult(lists,match-1, v, m_rankedSetWeight.getWeight(v), count)) {
             last = true;
-          }
         }
       }
     } finally {

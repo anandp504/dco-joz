@@ -1,11 +1,11 @@
 package com.tumri.joz.Query;
 
-import java.util.ArrayList;
-import java.util.SortedSet;
-
 import com.tumri.joz.products.Handle;
 import com.tumri.utils.data.MultiSortedSet;
 import com.tumri.utils.data.SortedArraySet;
+
+import java.util.ArrayList;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,10 +47,16 @@ public class CNFQuery implements Query, Cloneable {
   }
 
   public SortedSet<Handle> exec() {
-    MultiSortedSet<Handle> unionizer = new MultiSortedSet<Handle>();
-    for (ConjunctQuery cjquery : m_queries) {
-      cjquery.setReference(m_reference);
-      unionizer.add(cjquery.exec());
+    SortedSet<Handle> results;
+    if (m_queries.size() == 1) {
+      results = m_queries.get(0).exec();
+    } else {
+      MultiSortedSet<Handle> unionizer = new MultiSortedSet<Handle>();
+      for (ConjunctQuery cjquery : m_queries) {
+        cjquery.setReference(m_reference);
+        unionizer.add(cjquery.exec(),true);
+      }
+      results = unionizer;
     }
     //Paginate
     ArrayList<Handle> pageResults = null;
@@ -59,7 +65,7 @@ public class CNFQuery implements Query, Cloneable {
       int start = (m_currentPage * m_pagesize) + 1;
       int end = start + m_pagesize;
       int i = 0;
-      for (Handle handle : unionizer) {
+      for (Handle handle : results) {
         i++;
         if (i < start) {
           continue;
@@ -71,7 +77,7 @@ public class CNFQuery implements Query, Cloneable {
       }
     } else {
         pageResults = new ArrayList<Handle>(m_pagesize);
-        for (Handle handle : unionizer) {
+        for (Handle handle : results) {
             pageResults.add(handle);
         }
     }
