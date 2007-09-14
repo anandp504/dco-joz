@@ -66,7 +66,7 @@
 	     works since I switched the server port from 8005 to 18005.
 	     So we need to save the vm pid for shutdown -force.  -->
 	<!-- FIXME: would like to use deleteonexit here but it doesn't
-	     seem to be supported in 1.6.5.  ->
+	     seem to be supported in 1.6.5.  -->
 	<tempfile property="run-tests.pid"
 		  destdir="/tmp"
 		  suffix=".pid"/>
