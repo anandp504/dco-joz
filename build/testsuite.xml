@@ -62,13 +62,23 @@
 
     <target name="run-tests" depends="build-tests">
 
+	<!-- FIXME: -force shouldn't be needed, but a plain shutdown no longer
+	     works since I switched the server port from 8005 to 18005.
+	     So we need to save the vm pid for shutdown -force.  -->
+	<!-- FIXME: would like to use deleteonexit here but it doesn't
+	     seem to be supported in 1.6.5.  ->
+	<tempfile property="run-tests.pid"
+		  destdir="/tmp"
+		  suffix=".pid"/>
+
 	<!-- First start joz.  -->
 	<exec executable="/bin/sh"
 	      dir="${joz.install.dir}/temp"
 	      spawn="true">
 	    <env key="JAVA_OPTS" value="-Xms1024m -Xmx1024m"/>
+	    <env key="CATALINA_PID" value="${run-tests.pid}"/>
 	    <arg value="../bin/catalina.sh"/>
-	    <arg value="run"/>
+	    <arg value="start"/>
 	    <arg value="-config"/>
 	    <arg value="conf/server-joz.xml"/>
 	</exec>
@@ -90,9 +100,13 @@
 	</java>
 
 	<!-- All done, terminate joz.  -->
+	<!-- FIXME: -force shouldn't be needed, but a plain shutdown no longer
+	     works since I switched the server port from 8005 to 18005.  -->
 	<exec executable="/bin/sh"
 	      dir="${joz.install.dir}/temp">
+	    <env key="CATALINA_PID" value="${run-tests.pid}"/>
 	    <arg value="../bin/shutdown.sh"/>
+	    <arg value="-force"/>
 	    <arg value="-config"/>
 	    <arg value="conf/server-joz.xml"/>
 	</exec>
