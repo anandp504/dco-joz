@@ -270,7 +270,8 @@ public class ProductIndex {
       add_field(doc, "brand", p.getBrandStr() , Field.Store.YES, Field.Index.TOKENIZED);
       add_field(doc, "name", p.getProductName() , Field.Store.YES, Field.Index.TOKENIZED);
       add_field(doc, "description", sb.toString() , Field.Store.NO, Field.Index.TOKENIZED);
-      add_field(doc, "id", p.getGId() , Field.Store.YES, Field.Index.UN_TOKENIZED);
+      add_field(doc, "id", Integer.toString(p.getId()) , Field.Store.YES, Field.Index.UN_TOKENIZED);
+
       return doc;
     }
   
