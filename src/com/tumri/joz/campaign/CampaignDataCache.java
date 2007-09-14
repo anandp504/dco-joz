@@ -149,46 +149,11 @@ public class CampaignDataCache {
 
 	/**
 	 * Deletes the reference of the TSpec from JoZ cache
-	 * @param tSpecDeleteSpec - the String expression that contains the delete tspec command
+	 * @param tSpecName - name of the tspec to delete
 	 */
-	public void doTSpecDelete(SexpList tSpecDeleteSpec) {
-		Sexp cmd_expr = tSpecDeleteSpec.getFirst ();
-		if (! cmd_expr.isSexpSymbol ())
-			log.error("command name not a symbol: " + cmd_expr.toString ());
-
-		SexpSymbol sym = cmd_expr.toSexpSymbol ();
-		String cmd_name = sym.toString ();
-		try {
-			if (cmd_name.equalsIgnoreCase("t-spec-delete")) {
-				Iterator<Sexp> delIter = tSpecDeleteSpec.iterator();
-				delIter.next (); // Skip one
-				while (delIter.hasNext ()) {
-					Sexp elm = delIter.next ();
-					if (!elm.isSexpKeyword()) {
-						log.error("Bad String expression for TSpec delete");
-					}
-
-					SexpKeyword k = elm.toSexpKeyword ();
-					String name = k.toStringValue ();
-					if (name.equals(":name")) {
-						String oSpecName;
-						oSpecName = SexpUtils.get_next_symbol (name,delIter);
-						if (oSpecName!=null){
-							m_oSpecHashtable.remove(oSpecName);
-							m_oSpecQueryCache.remove(oSpecName);
-						} else {
-							log.error("Could not get the oSpec name from the supplied string expression");
-						}
-						break;
-					}
-				}
-			} else {
-				log.error("Unexpected command received : " + cmd_expr);
-			}
-		} catch (BadGetNextException e) {
-			log.error("Could not parse the TSpec delete command");
-			e.printStackTrace();
-		}
+	public void doTSpecDelete(String tSpecName) {
+	    m_oSpecHashtable.remove(tSpecName);
+	    m_oSpecQueryCache.remove(tSpecName);
 	}
 
 	/**
@@ -480,21 +445,12 @@ public class CampaignDataCache {
 
 	@Test 
 	public void testTSpecDelete(){
-		String tSpecDeleteStr = "(t-spec-delete :name '|T-SPEC-http://www.consumersearch.com/www/house_and_home/circular-saws-124|)";
-		Reader expReader = new StringReader(tSpecDeleteStr);
-		SexpReader lr = new SexpReader(expReader);
-		try {
-			Sexp e = lr.read ();
-			SexpList l = e.toSexpList ();
-			testcdCache.doTSpecDelete(l);
-			CNFQuery query = testcdCache.getCNFQuery("T-SPEC-http://www.consumersearch.com/www/house_and_home/circular-saws-124");
-			Assert.assertTrue(query==null);
-		} catch (Exception e) {
-			log.error("Could not parse and delete the tspec from cache");
-			Assert.assertTrue(false);
-		}
+		String tSpecDeleteStr = "T-SPEC-http://www.consumersearch.com/www/house_and_home/circular-saws-124";
+		testcdCache.doTSpecDelete(tSpecDeleteStr);
+		CNFQuery query = testcdCache.getCNFQuery("T-SPEC-http://www.consumersearch.com/www/house_and_home/circular-saws-124");
+		Assert.assertTrue(query==null);
 	}
-	
+
 	@Test
 	public void testdoUpdateTSpecMapping() {
 		String mappingUpdateStr = "((:add :realm \"http://www.foo.com\" |T-SPEC-foo| 1.0 345345433545) (:delete :store-ID \"abcd\" |T-SPEC-baz| 1.0 345345433545))";

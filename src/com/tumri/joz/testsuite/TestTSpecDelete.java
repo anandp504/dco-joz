@@ -21,7 +21,7 @@ public class TestTSpecDelete
 	// First add the t-spec so we can later delete it.
 
 	InputStream is = jc.execute ("(" + "t-spec-add"
-				     + " :name " + tspec_name
+				     + " :name |" + tspec_name + "|"
 				     + " :version 1"
 				     + ")");
 
@@ -33,7 +33,7 @@ public class TestTSpecDelete
 
 	// Now delete it.
 
-	is = jc.execute ("(" + me + " " + tspec_name + ")");
+	is = jc.execute ("(" + me + " :name |" + tspec_name + "|)");
 
 	if (is == null)
 	{

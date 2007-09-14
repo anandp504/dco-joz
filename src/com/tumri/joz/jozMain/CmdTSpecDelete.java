@@ -35,7 +35,7 @@ public class CmdTSpecDelete extends CommandDeferWriting
 	try
 	{
 	    if (! expr.isSexpList ())
-		return SexpReader.readFromStringNoex ("(:error \"expected (t-spec-delete name)\")");
+		return SexpReader.readFromStringNoex ("(:error \"expected (t-spec-delete :name name)\")");
 	    e = delete_tspec (expr.toSexpList ());
 	}
 	catch (Exception ex)
@@ -59,15 +59,21 @@ public class CmdTSpecDelete extends CommandDeferWriting
     delete_tspec (SexpList rqst)
 	throws BadCommandException
     {
-	if (rqst.size () != 2
-	    || ! rqst.get (1).isSexpSymbol ())
+	if (rqst.size () != 3
+	    || ! rqst.get (1).isSexpKeyword ()
+	    || ! rqst.get (2).isSexpSymbol ())
 	{
-	    throw new BadCommandException ("expected (tspec-delete name)");
+	    throw new BadCommandException ("expected (tspec-delete :name name)");
 	}
-	SexpSymbol name = rqst.get (1).toSexpSymbol ();
+
+	SexpKeyword name = rqst.get (1).toSexpKeyword ();
+	SexpSymbol tspec_name = rqst.get (2).toSexpSymbol ();
+
+	if (! name.equalsStringIgnoreCase (":name"))
+	    throw new BadCommandException ("expected (tspec-delete :name name)");
 
 	CampaignDataCache c = CampaignDataCache.getInstance ();
-	c.doTSpecDelete (rqst);
+	c.doTSpecDelete (tspec_name.toStringValue ());
 
 	// FIXME: not sure what the "success" result is
 	return new SexpList ();

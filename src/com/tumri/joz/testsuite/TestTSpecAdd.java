@@ -20,7 +20,7 @@ public class TestTSpecAdd
 
 	// First try to delete it, just in case it already exists.
 
-	InputStream is = jc.execute ("(" + "t-spec-delete" + " " + tspec_name + ")");
+	InputStream is = jc.execute ("(" + "t-spec-delete" + " |" + tspec_name + "|)");
 
 	if (is == null)
 	{
@@ -29,7 +29,7 @@ public class TestTSpecAdd
 	}
 
 	is = jc.execute ("(" + me
-			 + " :name " + tspec_name
+			 + " :name |" + tspec_name + "|"
 			 + " :version 1"
 			 + ")");
 
