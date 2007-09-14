@@ -25,7 +25,42 @@ public class MerchantDB
     
     static {
         try {
-            attributesAndMetadata = SexpReader.readFromString("(((merchantid \"Merchant ID\") (merchantname \"Merchant Name\") (hascatalogname \"Catalog Name\") (merchantrating \"Merchant Rating\") (logourl \"Logo URL\") (homepageurl \"Home Page URL\") (suppliescategory \"Category\") (collectstax \"Collects Taxes?\") (catalogfilename \"Catalog File\") (catalogproductcount \"Product Count\") (reviewinfo \"Review Info\") (contactinfo \"Contact Info\") (shippingpromotiontext \"Shipping Promotion\") (returnpolicytext \"Return Policy\")) (merchantid merchantname) (merchantid merchantname hascatalogname merchantrating logourl homepageurl suppliescategory collectstax catalogfilename catalogproductcount reviewinfo contactinfo shippingpromotiontext returnpolicytext) (merchantid merchantname hascatalogname merchantrating logourl homepageurl suppliescategory collectstax catalogfilename catalogproductcount reviewinfo contactinfo shippingpromotiontext returnpolicytext) ((merchantid merchant string yes no (listof)) (merchantname merchant string yes no (listof)) (hascatalogname merchant string yes no (listof)) (merchantrating merchant string yes no (listof)) (logourl merchant string yes no (listof)) (homepageurl merchant string yes no (listof)) (suppliescategory merchant class yes no (listof)) (collectstax merchant boolean yes no (listof)) (catalogfilename merchant string yes no (listof)) (catalogproductcount merchant number yes no (listof)) (reviewinfo merchant string yes no (listof)) (contactinfo merchant string yes no (listof)) (shippingpromotiontext merchant string yes no (listof)) (returnpolicytext merchant string yes no (listof))))");
+	    StringBuilder s = new StringBuilder ();
+	    s.append ("(");
+	    s.append (" (");
+	    s.append ("  (merchantid \"Merchant ID\") (merchantname \"Merchant Name\")");
+	    s.append ("  (hascatalogname \"Catalog Name\") (merchantrating \"Merchant Rating\")");
+	    s.append ("  (logourl \"Logo URL\") (homepageurl \"Home Page URL\")");
+	    s.append ("  (suppliescategory \"Category\")");
+	    s.append ("  (collectstax \"Collects Taxes?\")");
+	    s.append ("  (catalogfilename \"Catalog File\")");
+	    s.append ("  (catalogproductcount \"Product Count\")");
+	    s.append ("  (reviewinfo \"Review Info\")");
+	    s.append ("  (contactinfo \"Contact Info\")");
+	    s.append ("  (shippingpromotiontext \"Shipping Promotion\")");
+	    s.append ("  (returnpolicytext \"Return Policy\")");
+	    s.append (" )");
+	    s.append (" (merchantid merchantname)");
+	    s.append (" (merchantid merchantname hascatalogname merchantrating logourl homepageurl suppliescategory collectstax catalogfilename catalogproductcount reviewinfo contactinfo shippingpromotiontext returnpolicytext)");
+	    s.append (" (merchantid merchantname hascatalogname merchantrating logourl homepageurl suppliescategory collectstax catalogfilename catalogproductcount reviewinfo contactinfo shippingpromotiontext returnpolicytext)");
+	    s.append (" (");
+	    s.append ("  (merchantid merchant string yes no (listof))");
+	    s.append ("  (merchantname merchant string yes no (listof))");
+	    s.append ("  (hascatalogname merchant string yes no (listof))");
+	    s.append ("  (merchantrating merchant string yes no (listof))");
+	    s.append ("  (logourl merchant string yes no (listof))");
+	    s.append ("  (homepageurl merchant string yes no (listof))");
+	    s.append ("  (suppliescategory merchant class yes no (listof))");
+	    s.append ("  (collectstax merchant boolean yes no (listof))");
+	    s.append ("  (catalogfilename merchant string yes no (listof))");
+	    s.append ("  (catalogproductcount merchant number yes no (listof))");
+	    s.append ("  (reviewinfo merchant string yes no (listof))");
+	    s.append ("  (contactinfo merchant string yes no (listof))");
+	    s.append ("  (shippingpromotiontext merchant string yes no (listof))");
+	    s.append ("  (returnpolicytext merchant string yes no (listof))");
+	    s.append (" )");
+	    s.append (")");
+	    attributesAndMetadata = SexpReader.readFromString (s.toString ());
         } catch (IOException e) {
             // Not gonna happen.
         } catch (BadSexpException e) {
