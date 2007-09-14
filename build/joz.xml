@@ -34,7 +34,7 @@
 	    <tarfileset dir="${stage.dir}/IndexCreator">
 		<include name="*.jar"/>
 	    </tarfileset>
-	    <tarfileset dir="${stage.dir}/IndexCreator">
+	    <tarfileset dir="${stage.dir}/IndexCreator" mode="755">
 		<include name="*.sh"/>
 	    </tarfileset>
 	</tar>
