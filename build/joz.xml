@@ -6,44 +6,45 @@
 
     <!-- ****************************************************************** -->
 	
-	<target name="build-indexer-jar" depends="build-Joz-jar">
-        <delete dir="${stage.dir}/IndexCreator"/>
-        <mkdir dir="${stage.dir}/IndexCreator"/>
+    <target name="build-indexer-jar" depends="build-Joz-jar">
 
-		<copy todir="${stage.dir}/IndexCreator" file="${dist.dir}/joz.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-core-2.1.0.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-memory-2.1.0.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${caa.lib.dir}/caa.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/cma.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${utils.lib.dir}/utils.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/log4j-1.2.6.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-codec-1.3.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-logging.jar"/>
-		
-		<touch file="${stage.dir}/IndexCreator/createIndex.sh"/>
-		
-		<echo file="${stage.dir}/IndexCreator/createIndex.sh">#!/bin/sh</echo>
-		<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx1g -classpath joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:caa.jar:cma.jar:utils.jar:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
-		<chmod file="${stage.dir}/IndexCreator/createIndex.sh" perm="a+x"></chmod>
+	<delete dir="${stage.dir}/IndexCreator"/>
+	<mkdir dir="${stage.dir}/IndexCreator"/>
 
-		<delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${dist.dir}/joz.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-core-2.1.0.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-memory-2.1.0.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${caa.lib.dir}/caa.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/cma.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${utils.lib.dir}/utils.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/log4j-1.2.6.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-codec-1.3.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"/>
+	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-logging.jar"/>
+	
+	<touch file="${stage.dir}/IndexCreator/createIndex.sh"/>
 
-		<tar destfile="${stage.dir}/IndexCreator/IndexCreator.tar">
-			<tarfileset dir="${stage.dir}/IndexCreator">
-				<include name="*.jar"/>
-			</tarfileset>
-			<tarfileset dir="${stage.dir}/IndexCreator" filemode="755">
-				<include name="*.sh"/>
-			</tarfileset>
-		</tar>
-		
-		<gzip zipfile="${stage.dir}/IndexCreator/IndexCreator.tgz" src="${stage.dir}/IndexCreator/IndexCreator.tar"/>
-		
-		<delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
-		<move file="${stage.dir}/IndexCreator/IndexCreator.tgz" todir="${dist.dir}"/>
-		
-	</target>
+	<echo file="${stage.dir}/IndexCreator/createIndex.sh">#!/bin/sh</echo>
+	<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx1g -classpath joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:caa.jar:cma.jar:utils.jar:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
+	<chmod file="${stage.dir}/IndexCreator/createIndex.sh" perm="a+x"></chmod>
+
+	<delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
+
+	<tar destfile="${stage.dir}/IndexCreator/IndexCreator.tar">
+	    <tarfileset dir="${stage.dir}/IndexCreator">
+	      <include name="*.jar"/>
+	    </tarfileset>
+	    <tarfileset dir="${stage.dir}/IndexCreator" filemode="755">
+	      <include name="*.sh"/>
+	    </tarfileset>
+	</tar>
+
+	<gzip zipfile="${stage.dir}/IndexCreator/IndexCreator.tgz" src="${stage.dir}/IndexCreator/IndexCreator.tar"/>
+
+	<delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
+	<move file="${stage.dir}/IndexCreator/IndexCreator.tgz" todir="${dist.dir}"/>
+
+    </target>
 
     <!-- ****************************************************************** -->
 
@@ -66,7 +67,6 @@
         <!-- copy so it gets put into our jar -->
         <copy file="${src.dir}/log4j.properties"
               todir="${stage.dir}/Joz"/>
-
 
         <jar destfile="${dist.dir}/joz.jar">
             <fileset dir="${classes.dir}"
