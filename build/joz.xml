@@ -32,10 +32,10 @@
 
 	<tar destfile="${stage.dir}/IndexCreator/IndexCreator.tar">
 	    <tarfileset dir="${stage.dir}/IndexCreator">
-	      <include name="*.jar"/>
+		<include name="*.jar"/>
 	    </tarfileset>
-	    <tarfileset dir="${stage.dir}/IndexCreator" filemode="755">
-	      <include name="*.sh"/>
+	    <tarfileset dir="${stage.dir}/IndexCreator">
+		<include name="*.sh"/>
 	    </tarfileset>
 	</tar>
 
