@@ -315,7 +315,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
           }
           IWeight<Value> w = m_includesWeight.get(i);
           matches++; // += w.match(cPointer);
-          totalWeight *= w.getWeight(cPointer);
+          totalWeight *= w.getWeight(nextPointer);
         }
         for (int i = 0; i < m_filterSize; i++) {
           if (!m_filters.get(i).accept(cPointer))

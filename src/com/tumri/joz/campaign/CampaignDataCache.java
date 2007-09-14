@@ -1,49 +1,25 @@
 package com.tumri.joz.campaign;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.tumri.cma.CMAException;
+import com.tumri.cma.domain.*;
+import com.tumri.cma.misc.TSpecLispFileParser;
+import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
+import com.tumri.joz.Query.*;
+import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.sexp.*;
+import com.tumri.utils.sexp.SexpUtils.BadGetNextException;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.tumri.cma.CMAException;
-import com.tumri.cma.domain.AdPod;
-import com.tumri.cma.domain.BrandInfo;
-import com.tumri.cma.domain.Campaign;
-import com.tumri.cma.domain.CategoryInfo;
-import com.tumri.cma.domain.MerchantInfo;
-import com.tumri.cma.domain.OSpec;
-import com.tumri.cma.domain.ProviderInfo;
-import com.tumri.cma.domain.TSpec;
-import com.tumri.cma.misc.TSpecLispFileParser;
-import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
-import com.tumri.joz.Query.AttributeQuery;
-import com.tumri.joz.Query.CNFQuery;
-import com.tumri.joz.Query.ConjunctQuery;
-import com.tumri.joz.Query.KeywordQuery;
-import com.tumri.joz.Query.ProductQueryProcessor;
-import com.tumri.joz.Query.RangeQuery;
-import com.tumri.joz.Query.SimpleQuery;
-import com.tumri.joz.index.DictionaryManager;
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
-import com.tumri.joz.utils.AppProperties;
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpKeyword;
-import com.tumri.utils.sexp.SexpList;
-import com.tumri.utils.sexp.SexpReader;
-import com.tumri.utils.sexp.SexpSymbol;
-import com.tumri.utils.sexp.SexpUtils;
-import com.tumri.utils.sexp.SexpUtils.BadGetNextException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Class to maintain the cache of the campaign and oSpec data
@@ -276,7 +252,7 @@ public class CampaignDataCache {
 	 * @param oSpec
 	 * @return
 	 */
-	private CNFQuery getQuery(OSpec oSpec) {
+	public CNFQuery getQuery(OSpec oSpec) {
 		CNFQuery _query = new CNFQuery ();
 		ConjunctQuery _cjquery = new ConjunctQuery (new ProductQueryProcessor());
 		List<TSpec> tSpecList = oSpec.getTspecs();
