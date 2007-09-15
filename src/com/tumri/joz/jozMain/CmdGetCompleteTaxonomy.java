@@ -74,9 +74,10 @@ public class CmdGetCompleteTaxonomy extends CommandDeferWriting
     get_taxonomy (DictionaryManager dm, Taxonomy tax, Category category)
     {
         // This id is the GlassView.... pretty name.
-	String name = category.getIdStr();
+	String glassIdStr = category.getGlassIdStr();
+	String name = category.getName();
 	SexpList this_nodes_name =
-	    new SexpList (new SexpSymbol (name),
+	    new SexpList (new SexpSymbol (glassIdStr),
 			  new SexpString (name));
 
 	SexpList result = new SexpList ();

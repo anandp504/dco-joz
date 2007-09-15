@@ -68,7 +68,7 @@ public class CategoryIndex extends ProductAttributeIndex<Integer, Handle> {
   public void update(JOZTaxonomy taxonomy) {
     try {
       m_map.writerLock();
-      Integer root = taxonomy.getTaxonomy().getRootCategory().getId();
+      Integer root = taxonomy.getTaxonomy().getRootCategory().getGlassId();
       if (root != null) {
         update(taxonomy,root);
       }
@@ -105,7 +105,7 @@ public class CategoryIndex extends ProductAttributeIndex<Integer, Handle> {
       List<SortedSet<Handle>> nlist = new ArrayList<SortedSet<Handle>>();
       nlist.add(parentSet instanceof MultiSortedSet ? ((MultiSortedSet<Handle>)parentSet).getList().get(0) : parentSet);
       for (Category c: children) {
-        Integer child = c.getId();
+        Integer child = c.getGlassId();
         update(tax,child);
         SortedSet<Handle> childSet = getChildSet(child);
         if (childSet instanceof MultiSortedSet) {

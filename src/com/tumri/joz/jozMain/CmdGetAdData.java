@@ -451,7 +451,7 @@ public class CmdGetAdData extends CommandOwnWriting
 	    if (done_one)
 		sb.append (",");
 	    sb.append ("{categoryName:\"");
-	    sb.append (c.getIdStr());
+	    sb.append (c.getGlassIdStr());
 	    sb.append ("\",categoryDisplayName:\"");
 	    sb.append (c.getName());
 	    sb.append ("\"}");

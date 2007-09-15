@@ -106,14 +106,14 @@ public class CmdGetCounts extends CommandDeferWriting
 	for (String c: cats) {
 	    result.add(c);
 	    Category c1 = t.getCategory(c);
-        idSet.add(c1.getId());
+        idSet.add(c1.getGlassId());
 	    Category p = null;
 	    do {
 	        p = c1.getParent();
-	        if (idSet.contains(p.getId())) {
+	        if (idSet.contains(p.getGlassId())) {
 	            break;
 	        }
-	        result.add(c1.getParent().getIdStr());
+	        result.add(c1.getParent().getGlassIdStr());
 	    } while (p != null);
 	}
 	return result;

@@ -29,7 +29,7 @@ public class CategoryFilter extends Filter<Handle> {
       Category ancestor=t.getCategory(p.getCategory());
       boolean match = false;
       while(!match && ancestor != null) {
-        match = isMatch(ancestor.getId());
+        match = isMatch(ancestor.getGlassId());
         ancestor = ancestor.getParent();
       }
       return (match ^ isNegation());
