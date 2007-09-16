@@ -55,7 +55,7 @@ public class OSpecQueryCache {
 	 */
 	public CNFQuery getCNFQuery(String oSpecName) {
 		CNFQuery query = null;
-		synchronized (CampaignDataCache.class) {
+		synchronized (OSpecQueryCache.class) {
 			query = lookupOSpecQuery(oSpecName);
 			if (query == null) {
 				OSpec oSpec = lookupOSpec(oSpecName);
@@ -79,13 +79,13 @@ public class OSpecQueryCache {
 	}
 
 	private void addToOSpecQueryCache(String oSpecName, CNFQuery _query) {
-		synchronized (CampaignDataCache.class) {
+		synchronized (OSpecQueryCache.class) {
 			m_oSpecQueryCache.put(oSpecName, _query);
 		}
 	}
 
 	private CNFQuery lookupOSpecQuery(String oSpecName) {
-		synchronized (CampaignDataCache.class) {
+		synchronized (OSpecQueryCache.class) {
 			return m_oSpecQueryCache.get(oSpecName);
 		}	
 	}

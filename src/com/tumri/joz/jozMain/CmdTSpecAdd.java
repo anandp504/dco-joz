@@ -50,15 +50,13 @@
 package com.tumri.joz.jozMain;
 
 //import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Iterator;
-
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.sexp.*;
-
-import com.tumri.joz.campaign.CampaignDataCache;
 import com.tumri.joz.campaign.OSpecHelper;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpReader;
+import com.tumri.utils.sexp.SexpString;
 
 public class CmdTSpecAdd extends CommandDeferWriting
 {
