@@ -1,20 +1,25 @@
 package com.tumri.joz.testsuite;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.SortedSet;
+
+import org.apache.log4j.Logger;
+import org.junit.Test;
+
 import com.tumri.cma.RepositoryException;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.Query.QueryProcessor;
-import com.tumri.joz.campaign.CampaignDataCache;
+import com.tumri.joz.campaign.OSpecQueryCacheHelper;
 import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.AppProperties;
-import org.apache.log4j.Logger;
-import org.junit.Test;
-
-import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,14 +38,12 @@ public class TestProductSelection {
   public void test() {
     try {
       Properties props = AppProperties.getInstance().getProperties();
-      String dir = props.getProperty("com.tumri.campaign.file.sourceDir");
       ContentHelper.init(props);
-      CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(dir);
+      CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(props);
       Iterator<OSpec> iter = lispDeltaProvider.getOspecs("US");
       QueryProcessor qp = new ProductQueryProcessor();
-      CampaignDataCache cdc = CampaignDataCache.getInstance();
       ProductDB.getInstance();
-      List<CNFQuery> cnfQueries = buildCNFQueries(iter,cdc);
+      List<CNFQuery> cnfQueries = buildCNFQueries(iter);
       long start = System.currentTimeMillis();
       for (CNFQuery cnf : cnfQueries) {
         cnf.setStrict(true);
@@ -54,10 +57,10 @@ public class TestProductSelection {
     }
   }
 
-  private List<CNFQuery> buildCNFQueries(Iterator<OSpec> iter, CampaignDataCache cdc) {
+  private List<CNFQuery> buildCNFQueries(Iterator<OSpec> iter) {
     List<CNFQuery> list = new ArrayList<CNFQuery>();
     while (iter.hasNext()) {
-      list.add(cdc.getQuery(iter.next()));
+      list.add(OSpecQueryCacheHelper.getQuery(iter.next()));
     }
     return list;
   }

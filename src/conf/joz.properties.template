@@ -10,8 +10,11 @@ com.tumri.content.luceneDir=lucene
 #com.tumri.content.file.disableMerchantData=true
 com.tumri.content.file.batchReadSize=5000
 com.tumri.content.file.batchReadInterval=1
+#Note that the com.tumri.campaign.file.sourceDir can be set to a comma separated list of directories that are all used to look for the tspec and mapping lisp files. 
 com.tumri.campaign.file.sourceDir=.
 com.tumri.campaign.file.refreshInterval=10
-#com.tumri.contnet.file.mup.dataDir=
-#com.tumri.contnet.file.taxonomy.dataDir=
-#com.tumri.contnet.file.merchant_data.dataDir=
+com.tumri.campaign.file.tspecFileNamePattern=t[-]specs.lisp
+com.tumri.campaign.file.mappingFileNamePattern=mapping.lisp
+#com.tumri.content.file.mup.dataDir=
+#com.tumri.content.file.taxonomy.dataDir=
+#com.tumri.content.file.merchant_data.dataDir=

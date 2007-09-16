@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.tumri.utils.sexp.*;
 
 import com.tumri.joz.campaign.CampaignDataCache;
+import com.tumri.joz.campaign.OSpecHelper;
 
 public class CmdTSpecDelete extends CommandDeferWriting
 {
@@ -72,8 +73,7 @@ public class CmdTSpecDelete extends CommandDeferWriting
 	if (! name.equalsStringIgnoreCase (":name"))
 	    throw new BadCommandException ("expected (tspec-delete :name name)");
 
-	CampaignDataCache c = CampaignDataCache.getInstance ();
-	c.doTSpecDelete (tspec_name.toStringValue ());
+	OSpecHelper.doTSpecDelete (tspec_name.toStringValue ());
 
 	// FIXME: not sure what the "success" result is
 	return new SexpList ();

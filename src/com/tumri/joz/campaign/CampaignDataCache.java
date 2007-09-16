@@ -1,25 +1,46 @@
 package com.tumri.joz.campaign;
 
-import com.tumri.cma.CMAException;
-import com.tumri.cma.domain.*;
-import com.tumri.cma.misc.TSpecLispFileParser;
-import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
-import com.tumri.joz.Query.*;
-import com.tumri.joz.index.DictionaryManager;
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
-import com.tumri.joz.utils.AppProperties;
-import com.tumri.utils.sexp.*;
-import com.tumri.utils.sexp.SexpUtils.BadGetNextException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import com.tumri.cma.CMAException;
+import com.tumri.cma.domain.AdPod;
+import com.tumri.cma.domain.BrandInfo;
+import com.tumri.cma.domain.Campaign;
+import com.tumri.cma.domain.CategoryInfo;
+import com.tumri.cma.domain.MerchantInfo;
+import com.tumri.cma.domain.OSpec;
+import com.tumri.cma.domain.ProviderInfo;
+import com.tumri.cma.domain.TSpec;
+import com.tumri.cma.misc.SexpOSpecHelper;
+import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
+import com.tumri.joz.Query.AttributeQuery;
+import com.tumri.joz.Query.CNFQuery;
+import com.tumri.joz.Query.ConjunctQuery;
+import com.tumri.joz.Query.KeywordQuery;
+import com.tumri.joz.Query.ProductQueryProcessor;
+import com.tumri.joz.Query.RangeQuery;
+import com.tumri.joz.Query.SimpleQuery;
+import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpReader;
+import com.tumri.utils.sexp.SexpSymbol;
 
 /**
  * Class to maintain the cache of the campaign and oSpec data
@@ -71,7 +92,7 @@ public class CampaignDataCache {
 			long startTime = System.currentTimeMillis();
 			log.info("Going to load the campaign data");
 			//TODO: Change this to the CMA factory instantiation (Once Bhupen makes the change to CMAFactory)
-			CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(_lispSourceFilePath);
+			CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(AppProperties.getInstance().getProperties());
 			Iterator<Campaign> campaignIter = lispDeltaProvider.getCampaigns("USA");
 			if (campaignIter != null) {
 				while (campaignIter.hasNext()) {
@@ -140,7 +161,7 @@ public class CampaignDataCache {
 		if (cmd_name.equalsIgnoreCase("t-spec-add")) {
 			Iterator<Sexp> iter = l.iterator();
 			iter.next(); //ignore the t-spec-add keyword
-			OSpec theOSpec = TSpecLispFileParser.readTSpecDetailsFromSExp(iter);
+			OSpec theOSpec = SexpOSpecHelper.readTSpecDetailsFromSExp(iter);
 			m_oSpecHashtable.put(theOSpec.getName(), theOSpec);
 		} else {
 			log.error("Unexpected command received : " + cmd_expr);

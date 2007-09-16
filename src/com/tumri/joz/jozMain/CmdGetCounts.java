@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
+import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
@@ -137,9 +138,9 @@ public class CmdGetCounts extends CommandDeferWriting
 
 	if (! tspec_name.equals ("nil"))
 	{
-	    TSpec tspec = JozData.tspec_db.get (tspec_name);
-	    if (tspec == null)
-		throw new RuntimeException ("bad tspec name: " + tspec_name);
+//	    TSpec tspec = CampaignDB.getInstance().getOspec(tspec_name);
+//	    if (tspec == null)
+//		throw new RuntimeException ("bad tspec name: " + tspec_name);
 	    // FIXME: stubbed out for now
 	    product_handles = new ArrayList<Handle> ().iterator ();
 	}

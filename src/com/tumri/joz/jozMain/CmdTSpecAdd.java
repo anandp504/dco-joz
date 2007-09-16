@@ -58,6 +58,7 @@ import org.apache.log4j.Logger;
 import com.tumri.utils.sexp.*;
 
 import com.tumri.joz.campaign.CampaignDataCache;
+import com.tumri.joz.campaign.OSpecHelper;
 
 public class CmdTSpecAdd extends CommandDeferWriting
 {
@@ -97,8 +98,7 @@ public class CmdTSpecAdd extends CommandDeferWriting
     private Sexp
     add_tspec (SexpList rqst)
     {
-	CampaignDataCache c = CampaignDataCache.getInstance ();
-	c.doTSpecAdd (rqst);
+    OSpecHelper.doTSpecAdd (rqst);
 	// FIXME: not sure what the "success" result is
 	return new SexpList ();
     }

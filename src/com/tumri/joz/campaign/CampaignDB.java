@@ -354,5 +354,11 @@ public class CampaignDB {
     public AdpodIndex<String, Handle> getAdpodGeoZipcodeIndex() {
         return adpodGeoZipcodeIndex;
     }
+    public void addOSpec(OSpec oSpec){
+    	ospecNameMap.put(oSpec.getName(), oSpec);
+    }
+    public void deleteOSpec(String oSpecName){
+    	ospecNameMap.remove(oSpecName);
+    }
 
 }

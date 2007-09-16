@@ -23,7 +23,8 @@ import com.tumri.joz.Query.KeywordQuery;
 import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.Query.ProductTypeQuery;
 import com.tumri.joz.Query.SimpleQuery;
-import com.tumri.joz.campaign.CampaignDataCache;
+import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.JozData;
@@ -95,14 +96,16 @@ public class ProductRequestProcessor {
 		//3. Select the TSpec for the request
 		String tSpecName = request.get_t_spec();
 		if ((tSpecName!=null) && (!"".equals(tSpecName))) {
-			m_tSpecQuery = CampaignDataCache.getInstance().getCNFQuery(tSpecName);
-			m_currOSpec = CampaignDataCache.getInstance().getOSpec(tSpecName);
+			m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(tSpecName);
+			m_currOSpec = CampaignDB.getInstance().getOspec(tSpecName);
 		} else {
+			//m_currOSpec = TargetingRequestProcessor.getInstance().processRequest(request);
+			//m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
 			String oSpecName = TSpecTargetingHelper.doTargeting(request);
-			if (oSpecName != null) {
-				m_tSpecQuery = CampaignDataCache.getInstance().getCNFQuery(oSpecName);
+			if (oSpecName != null){
+				m_currOSpec = CampaignDB.getInstance().getOspec(oSpecName);
+				m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(oSpecName);
 			}
-			m_currOSpec = CampaignDataCache.getInstance().getOSpec(oSpecName);
 		}
 
 		MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
@@ -388,7 +391,7 @@ public class ProductRequestProcessor {
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
 		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
-		CNFQuery clonedTSpecQuery = (CNFQuery)CampaignDataCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
+		CNFQuery clonedTSpecQuery = (CNFQuery)OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
 		clonedTSpecQuery.addSimpleQuery(ptQuery);
 		clonedTSpecQuery.getQueries().get(0).setStrict(true);
 		if (adHeight!=null) {
