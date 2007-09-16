@@ -49,6 +49,7 @@ public class CNFQuery implements Query, Cloneable {
   public SortedSet<Handle> exec() {
     SortedSet<Handle> results;
     if (m_queries.size() == 1) {
+    	m_queries.get(0).setReference(m_reference);
       results = m_queries.get(0).exec();
     } else {
       MultiSortedSet<Handle> unionizer = new MultiSortedSet<Handle>();
