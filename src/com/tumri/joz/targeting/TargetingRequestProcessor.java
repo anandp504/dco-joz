@@ -12,6 +12,7 @@ import com.tumri.joz.campaign.AdPodHandle;
 import com.tumri.joz.campaign.OSpecNotFoundException;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.AdPod;
+import com.tumri.utils.data.SortedArraySet;
 
 import java.util.*;
 
@@ -144,7 +145,8 @@ public class TargetingRequestProcessor {
 
     private List<AdPodHandle> getHighestScoreAdPodHandles(SortedSet<Handle> results) {
         List<AdPodHandle> handles = new ArrayList<AdPodHandle>();
-        Iterator<Handle> iterator = results.iterator();
+        SortedArraySet<Handle> set = new SortedArraySet<Handle>(results, results.first());
+        Iterator<Handle> iterator = set.iterator();
         double score = 0.0;
         if(iterator != null) {
             int i = 0;

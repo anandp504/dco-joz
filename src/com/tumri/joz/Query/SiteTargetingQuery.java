@@ -85,12 +85,16 @@ public class SiteTargetingQuery extends TargetingQuery {
             AtomicAdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
             List<String> urls = UrlNormalizer.getAllPossibleNormalizedUrl(urlName);
             if(urls != null && urls.size() > 0) {
+                //@todo replace this with more appropriate scoring
                 double urlScore = 0.9;
                 double delta    = 0.05;
                 for (String url : urls) {
                     results = index.get(url);
                     SortedSet<Handle> clonedResults = cloneResults(results, urlScore);
-                    urlScore =-delta;
+                    urlScore = urlScore - delta;
+                    if(urlScore < 0.05) {
+                        urlScore = delta;    
+                    }
                     urlsResults.add(clonedResults);
                 }
             }
