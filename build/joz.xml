@@ -16,7 +16,9 @@
 	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-memory-2.1.0.jar"/>
 	<copy todir="${stage.dir}/IndexCreator" file="${caa.lib.dir}/caa.jar"/>
 	<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/cma.jar"/>
-	<copy todir="${stage.dir}/IndexCreator" file="${utils.lib.dir}/utils.jar"/>
+  <copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/jyaml-1.2.jar"/>
+  <copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/ibatis-2.3.0.677.jar"/>
+  <copy todir="${stage.dir}/IndexCreator" file="${utils.lib.dir}/utils.jar"/>
 	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/log4j-1.2.6.jar"/>
 	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-codec-1.3.jar"/>
 	<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"/>
@@ -90,11 +92,14 @@
 	    <lib dir="${ext.lib.dir}" includes="*.jar">
 	    	<exclude name="log4j*.jar"/>
 	    	<exclude name="servlet-api.jar"/>
-	    </lib>
+        <exclude name="mysql-connector-java-3.1.14-bin.jar"/>        
+      </lib>
 	    <lib dir="${zini.lib.dir}" includes="zini.catalog.api.jar"/>
 	    <lib dir="${utils.lib.dir}" includes="utils.jar"/>
 	    <lib dir="${cma.lib.dir}" includes="cma.jar"/>
-	    <lib dir="${caa.lib.dir}" includes="caa.jar"/>
+      <lib dir="${cma.lib.dir}" includes="jyaml-1.2.jar"/>
+      <lib dir="${cma.lib.dir}" includes="ibatis-2.3.0.677.jar"/>
+      <lib dir="${caa.lib.dir}" includes="caa.jar"/>
 	</war>
 
     </target>
