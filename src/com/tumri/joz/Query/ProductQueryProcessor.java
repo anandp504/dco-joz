@@ -45,49 +45,54 @@ public class ProductQueryProcessor extends QueryProcessor {
    * 3.          Range              + indexed + positive (filter: if atleast one included)
    * 4.          all                + non indexed + positive (include: if no indexed yet)
    * 5.          all                + non indexed + positive (filter)
-   * 6.          World                                    (include: for closed world negation if no includes yet)
-   * 7.          all                              + negative (add as filters)
+   * 6.          all                              + negative (add as filters)
+   * 7.          World                                    (include: for closed world negation if no includes yet)
    *
    */
   public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference) {
     ProductSetIntersector aIntersector = new ProductSetIntersector();
-    handleKeywordQueries(aQueries,aIntersector); // step 0, take care of all keyword queries
-    for (SimpleQuery lSimpleQuery : aQueries) { // Step 1
-      if ((lSimpleQuery.getType() == SimpleQuery.Type.kAttribute ||
-          lSimpleQuery.getType() == SimpleQuery.Type.kProductType) &&
-          lSimpleQuery.hasIndex() &&
-          !lSimpleQuery.isNegation()) {
-        aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // include indexed attribute/keyword queries first
-      }
-    }
-    for (int i = 0; i < aQueries.size(); i++) {
-      SimpleQuery lSimpleQuery = aQueries.get(i);
-      if (lSimpleQuery.getType() == SimpleQuery.Type.kRange &&
-          lSimpleQuery.hasIndex() &&
-          !lSimpleQuery.isNegation()) {
-        if (!aIntersector.hasIncludes() || i == 0) {
-          aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 2. include indexed range query if efficient
-        } else {
-          aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 3 else range queries are filters
+    if (aQueries.size() == 0){
+      aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
+    } else {
+      handleKeywordQueries(aQueries,aIntersector); // step 0, take care of all keyword queries
+      for (SimpleQuery lSimpleQuery : aQueries) { // Step 1
+        if ((lSimpleQuery.getType() == SimpleQuery.Type.kAttribute ||
+            lSimpleQuery.getType() == SimpleQuery.Type.kProductType) &&
+            lSimpleQuery.hasIndex() &&
+            !lSimpleQuery.isNegation()) {
+          aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // include indexed attribute/keyword queries first
         }
       }
-    }
-    for (SimpleQuery lSimpleQuery : aQueries) {
-      if (!lSimpleQuery.hasIndex() && !lSimpleQuery.isNegation()) {
-        if (!aIntersector.hasIncludes())
-          aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 4. non indexed table scan query
-        else
-          aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 5 else range queries are filters
+      for (int i = 0; i < aQueries.size(); i++) {
+        SimpleQuery lSimpleQuery = aQueries.get(i);
+        if (lSimpleQuery.getType() == SimpleQuery.Type.kRange &&
+            lSimpleQuery.hasIndex() &&
+            !lSimpleQuery.isNegation()) {
+          if (!aIntersector.hasIncludes() || i == 0) {
+            aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 2. include indexed range query if efficient
+          } else {
+            aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 3 else range queries are filters
+          }
+        }
       }
-    }
-    if (!aIntersector.hasIncludes() && aIntersector.getRankedSet() == null) { // Step 6. this means we have closed world negation query
-      aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
-    }
-    boolean excludeCategory = categoryExclusion(aIntersector, aQueries);
-    for (SimpleQuery aQuery : aQueries) {
-      MUPQuery mupQuery = (MUPQuery) aQuery;
-      if (mupQuery.isNegation() && (!excludeCategory || mupQuery.getAttribute() != IProduct.Attribute.kCategory)) {
-        aIntersector.addFilter(mupQuery.getFilter(), mupQuery.getWeight()); // Step 7. Add filter for all negations
+      for (SimpleQuery lSimpleQuery : aQueries) {
+        if (!lSimpleQuery.hasIndex() && !lSimpleQuery.isNegation()) {
+          if (!aIntersector.hasIncludes())
+            aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 4. non indexed table scan query
+          else
+            aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 5 else range queries are filters
+        }
+      }
+      boolean excludeCategory = categoryExclusion(aIntersector, aQueries);
+      for (SimpleQuery aQuery : aQueries) {
+        MUPQuery mupQuery = (MUPQuery) aQuery;
+        if (mupQuery.isNegation() && (!excludeCategory || mupQuery.getAttribute() != IProduct.Attribute.kCategory)) {
+          aIntersector.addFilter(mupQuery.getFilter(), mupQuery.getWeight()); // Step 6. Add filter for all negations
+        }
+      }
+      if (!aIntersector.hasIncludes() && aIntersector.getRankedSet() == null &&
+          (aIntersector.hasFilters() || aIntersector.hasExcludes())) { // Step 7. this means we have closed world negation query
+        aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
       }
     }
     aIntersector.setReference(reference);

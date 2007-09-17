@@ -1,24 +1,13 @@
 package com.tumri.joz.campaign;
 
+import com.tumri.cma.domain.*;
+import com.tumri.joz.Query.*;
+import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.products.IProduct;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.tumri.cma.domain.BrandInfo;
-import com.tumri.cma.domain.CategoryInfo;
-import com.tumri.cma.domain.MerchantInfo;
-import com.tumri.cma.domain.OSpec;
-import com.tumri.cma.domain.ProviderInfo;
-import com.tumri.cma.domain.TSpec;
-import com.tumri.joz.Query.AttributeQuery;
-import com.tumri.joz.Query.CNFQuery;
-import com.tumri.joz.Query.ConjunctQuery;
-import com.tumri.joz.Query.KeywordQuery;
-import com.tumri.joz.Query.ProductQueryProcessor;
-import com.tumri.joz.Query.RangeQuery;
-import com.tumri.joz.Query.SimpleQuery;
-import com.tumri.joz.index.DictionaryManager;
-import com.tumri.joz.products.IProduct;
 
 public class OSpecQueryCacheHelper {
 
@@ -117,8 +106,8 @@ public class OSpecQueryCacheHelper {
 
 
                 //Price Range
-                double highPrice = theTSpec.getHighCPC();
-                double lowPrice = theTSpec.getLowCPC();
+                double highPrice = theTSpec.getHighPrice();
+                double lowPrice = theTSpec.getLowPrice();
                 if ((highPrice > 0) || ( lowPrice > 0)) {
                     SimpleQuery sq = new RangeQuery (IProduct.Attribute.kPrice,lowPrice, highPrice);
                     _cjquery.addQuery(sq);

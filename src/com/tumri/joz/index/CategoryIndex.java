@@ -1,16 +1,16 @@
 package com.tumri.joz.index;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.SortedSet;
-
 import com.tumri.content.data.Category;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.utils.data.MultiSortedSet;
 import com.tumri.utils.data.RWLockedSortedSet;
+import com.tumri.utils.data.MergeSortedSets;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,19 +43,18 @@ public class CategoryIndex extends ProductAttributeIndex<Integer, Handle> {
       return get(keys.get(0));
     } else {
       MultiSortedSet<Handle> set = new MultiSortedSet<Handle>();
-      for (int i = 0; i < keys.size(); i++) {
-        SortedSet<Handle> s = get(keys.get(i));
+      for (Integer key : keys) {
+        SortedSet<Handle> s = get(key);
         if (s instanceof MultiSortedSet) {
-          List<SortedSet<Handle>> slist = ((MultiSortedSet<Handle>)s).getList();
-          for (int j = 0; j < slist.size(); j++) {
-            SortedSet<Handle> lHandles = slist.get(j);
+          List<SortedSet<Handle>> slist = ((MultiSortedSet<Handle>) s).getList();
+          for (SortedSet<Handle> lHandles : slist) {
             set.add(lHandles);
           }
         } else {
           set.add(s);
         }
       }
-      return set;
+      return (set.getList().size() > 10 ? MergeSortedSets.merge(set.getList()) : set);
     }
 
   }

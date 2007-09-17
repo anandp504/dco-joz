@@ -1,20 +1,12 @@
 package com.tumri.joz.keywordServer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.InvalidConfigException;
+import com.tumri.content.data.Category;
+import com.tumri.content.data.Product;
+import com.tumri.content.impl.file.FileContentConfigValues;
+import com.tumri.joz.products.*;
+import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -29,18 +21,9 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
-import com.tumri.content.ContentProviderFactory;
-import com.tumri.content.InvalidConfigException;
-import com.tumri.content.data.Category;
-import com.tumri.content.data.Product;
-import com.tumri.content.impl.file.FileContentConfigValues;
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.JOZTaxonomy;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.ProductHandle;
-import com.tumri.joz.products.ProductWrapper;
-import com.tumri.joz.utils.AppProperties;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by IntelliJ IDEA.
@@ -175,7 +158,7 @@ public class ProductIndex {
       log.error("Exception",e);
     } finally {
     }
-    System.out.println("returned "+alist.size() + " products");
+    //System.out.println("returned "+alist.size() + " products");
     return alist;
   }
 

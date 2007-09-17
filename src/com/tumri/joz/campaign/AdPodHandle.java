@@ -1,7 +1,7 @@
 package com.tumri.joz.campaign;
 
-import com.tumri.joz.products.Handle;
 import com.tumri.cma.domain.AdPod;
+import com.tumri.joz.products.Handle;
 
 /**
  * AdPodHandle for use by Indices
@@ -81,17 +81,20 @@ public class AdPodHandle implements Handle {
   }
 
 
-  public int compareTo(Handle handle) {
-    return (getOid() < handle.getOid() ? -1 :
-            getOid() == handle.getOid() ? 0 : 1);
+  public int compareTo(Object handle) {
+    int loid = ((AdPodHandle)handle).getOid();
+    return (oid < loid ? -1 :
+            oid == loid ? 0 : 1);
   }
 
 
-  public int compare(Handle handle1, Handle handle2) {
-    if (handle1.getScore() > handle2.getScore()) return -1;
-    if (handle1.getScore() < handle2.getScore()) return 1;
-    if (handle1.getOid() < handle2.getOid()) return -1;
-    if (handle1.getOid() > handle2.getOid()) return 1;
+  public int compare(Object h1, Object h2) {
+    AdPodHandle handle1 = (AdPodHandle)h1;
+    AdPodHandle handle2 = (AdPodHandle)h2;
+    if (handle1.score > handle2.score) return -1;
+    if (handle1.score < handle2.score) return 1;
+    if (handle1.oid < handle2.oid) return -1;
+    if (handle1.oid > handle2.oid) return 1;
     return 0;
   }
 }

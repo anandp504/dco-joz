@@ -43,7 +43,9 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   private int m_incSize;
   private int m_filterSize;
   private int m_excSize;
-  private int m_zeroSize = 0; // Incremented whenever include() or exclude() sees zero size set
+  private int m_iZeroSize = 0; // Incremented whenever include() sees zero size set
+  private int m_eZeroSize = 0; // Incremented whenever exclude() sees zero size set
+  private int m_listSize = 0;
 
   /**
    * Given a Value v and a score build the Result object.
@@ -103,7 +105,9 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     m_incSize = other.m_incSize;
     m_filterSize = other.m_filterSize;
     m_excSize = other.m_excSize;
-    m_zeroSize = other.m_zeroSize;
+    m_iZeroSize = other.m_iZeroSize;
+    m_eZeroSize = other.m_eZeroSize;
+    m_listSize = other.m_listSize;
   }
 
   public boolean isStrict() {
@@ -137,9 +141,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
         m_includesWeight.add(weight);
       }
     } else {
-        m_zeroSize++;
+        m_iZeroSize++;
     }
     m_incSize = m_includes.size();
+    setListSize();
   }
 
   public SortedSet<Value> getRankedSet() {
@@ -158,6 +163,12 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   public boolean hasIncludes() {
     return m_includes.size() > 0;
   }
+  public boolean hasExcludes() {
+    return m_excludes.size() > 0;
+  }
+  public boolean hasFilters() {
+    return m_filters.size() > 0;
+  }
 
   
   /**
@@ -171,9 +182,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
       m_excludes.add(set);
       m_excludesWeight.add(weight);
     } else {
-      m_zeroSize++;
+      m_eZeroSize++;
     }
     m_excSize = m_excludes.size();
+    setListSize();
   }
 
   /**
@@ -186,6 +198,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     m_filters.add(aFilter);
     m_filtersWeight.add(weight);
     m_filterSize = m_filters.size();
+    setListSize();
   }
 
   public void setMax(int size) {
@@ -216,7 +229,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
   protected ArrayList<ArrayList<Value>> createLists() {
     ArrayList<ArrayList<Value>> lists = new ArrayList<ArrayList<Value>>();
-    int cnt = listSize();
+    int cnt = m_listSize;
     if (cnt == 0) // cnt can be zero if only ranked query
       cnt = 1;
     for (int i = 0; i < cnt; i++) {
@@ -234,10 +247,16 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
    */
   private boolean addResult(ArrayList<ArrayList<Value>> lists, int matches, Value element,
                             double score, int max) {
-    int index = listSize() - 1 - matches;
+    int index = m_listSize - 1 - matches;
+    // Two cases to consider:
+    // 1. Strict is set, index == 0 AND less than max results filled
+    // 2. Strict is not set AND less than max results filled
     if ((!isStrict() || index == 0) && resultsSize(lists,index) < max)
       lists.get(index).add(getResult(element,score));
-    return (lists.get(0).size() >= max);
+    // We are done in two cases:
+    // 1. the list at m_iZeroSize has exceeded max
+    // 2. Strict was set and at least one of the included set was zero size (m_iZeroSize > 0)
+    return (lists.get(m_iZeroSize).size() >= max || (isStrict() && m_iZeroSize > 0));
   }
 
   private int resultsSize(ArrayList<ArrayList<Value>> lists, int index) {
@@ -294,6 +313,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     }
     if (m_incSize == 0) {
       return null;
+    } else if (m_incSize == 1 && first) {
+      return intersectSimple(lists,cPointer,count);
     }
     try {
       lock();
@@ -339,6 +360,49 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
         if (addResult(lists,matches, v, totalWeight, count)) {
           break;
         }
+        itemVisitCount++;
+      }
+      //System.out.print("visit: "+itemVisitCount + " lookup: "+itemLookupCount+" loopcount: "+loopcount);
+    } finally {
+      unlock();
+    }
+    return cPointer;
+  }
+
+  protected Value intersectSimple(ArrayList<ArrayList<Value>> lists, Value cPointer, int count) {
+    try {
+      lock();
+      int itemVisitCount = 1, itemLookupCount = 0; // Performace indicator for how many items were visited
+      int loopcount=0;
+      SortedSet<Value> single = m_includes.get(0);
+      single = (cPointer == null ? single : single.tailSet(cPointer));
+      boolean done = false;
+      for(Value value : single)  {
+        cPointer = value; // in case we are done then the next pointer is set correctly
+        if (done)
+          break;
+        int matches = 0; // score for the cPointer matches
+        double totalWeight = m_includesWeight.get(0).getWeight(cPointer);
+        loopcount++;
+        for (int i = 0; i < m_filterSize; i++) {
+          if (!m_filters.get(i).accept(cPointer))
+            continue;
+          IWeight<Value> w = m_filtersWeight.get(i);
+          matches++; // += w.match(cPointer);
+          totalWeight *= w.getWeight(cPointer);
+        }
+        for (int i = 0; i < m_excSize; i++) {
+          itemLookupCount++;
+          if (m_excludes.get(i).contains(cPointer))
+            continue;
+          IWeight<Value> w = m_excludesWeight.get(i);
+          matches++; //= w.match(cPointer);
+          totalWeight *= w.getWeight(cPointer);
+        }
+        if (addResult(lists,matches, cPointer, totalWeight, count)) {
+          done = true;
+        }
+        cPointer = null; // will be set right before exit from loop, if this is last element then it should be null
         itemVisitCount++;
       }
       //System.out.print("visit: "+itemVisitCount + " lookup: "+itemLookupCount+" loopcount: "+loopcount);
@@ -562,14 +626,14 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   public boolean contains(Object o) {
     lock();
     try {
-      return (containsInt(o) == listSize());
+      return (containsInt(o) == m_listSize);
     } finally {
       unlock();
     }
   }
 
-  private int listSize() {
-    return m_incSize + m_excSize + m_filterSize + m_zeroSize;
+  private void setListSize() {
+    m_listSize = m_incSize + m_excSize + m_filterSize + m_iZeroSize + m_eZeroSize;
   }
 
   /**
@@ -684,8 +748,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
       if (m_fallback) {
         for (int i = 1; i < m_lists.size(); i++) {
           ArrayList<Value> lv = m_lists.get(i);
-          for (int j = 0; j < lv.size(); j++) {
-            firstList.add(lv.get(j));
+          for (Value v : lv) {
+            firstList.add(v);
           }
         }
       }

@@ -56,18 +56,20 @@ public class KeywordQuery extends MUPQuery {
 
   public SortedSet<Handle> exec() {
     if (m_results == null) {
-      ArrayList<Handle> res = ProductIndex.getInstance().search(m_keywords,0.0,2000);
-      m_rawResults = new SortedArraySet<Handle>(res, true);
-      m_results = new SortedArraySet<Handle>(res, false);
+      SortedSet<Handle> raw = rawResults();
+      ArrayList<Handle> list = new ArrayList<Handle>(raw.size());
+      for (Handle h : raw) {
+        list.add(h);
+      }
+      m_results = new SortedArraySet<Handle>(list, false);
     }
     return m_results;
   }
 
   public SortedSet<Handle> rawResults() {
-    if (m_results == null) {
+    if (m_rawResults == null) {
       ArrayList<Handle> res = ProductIndex.getInstance().search(m_keywords,0.0,2000);
       m_rawResults = new SortedArraySet<Handle>(res, true);
-      m_results = new SortedArraySet<Handle>(res, false);
     }
     return m_rawResults;
   }
