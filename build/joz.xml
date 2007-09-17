@@ -56,7 +56,7 @@
                debug="on"
                optimize="on"
                srcdir="${src.dir}"
-               includes="com/tumri/joz/*/*.java"
+               includes="**/*.java"
 	       excludes="com/tumri/joz/testsuite/*.java">
             <classpath refid="project.class.path"/>
             <compilerarg value="-Xlint:unchecked"/>
@@ -72,7 +72,7 @@
 
         <jar destfile="${dist.dir}/joz.jar">
             <fileset dir="${classes.dir}"
-		     includes="com/tumri/joz/*/*.class"
+		     includes="**/*.class"
 		     excludes="com/tumri/joz/testsuite/*.class"/>
             <fileset dir="${stage.dir}/Joz"/>
             <manifest>
