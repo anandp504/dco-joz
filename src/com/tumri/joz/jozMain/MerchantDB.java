@@ -28,9 +28,12 @@ public class MerchantDB
 	    StringBuilder s = new StringBuilder ();
 	    s.append ("(");
 	    s.append (" (");
-	    s.append ("  (merchantid \"Merchant ID\") (merchantname \"Merchant Name\")");
-	    s.append ("  (hascatalogname \"Catalog Name\") (merchantrating \"Merchant Rating\")");
-	    s.append ("  (logourl \"Logo URL\") (homepageurl \"Home Page URL\")");
+	    s.append ("  (merchantid \"Merchant ID\")");
+	    s.append ("  (merchantname \"Merchant Name\")");
+	    s.append ("  (hascatalogname \"Catalog Name\")");
+	    s.append ("  (merchantrating \"Merchant Rating\")");
+	    s.append ("  (logourl \"Logo URL\")");
+	    s.append ("  (homepageurl \"Home Page URL\")");
 	    s.append ("  (suppliescategory \"Category\")");
 	    s.append ("  (collectstax \"Collects Taxes?\")");
 	    s.append ("  (catalogfilename \"Catalog File\")");
@@ -102,6 +105,7 @@ public class MerchantDB
     }
 
     // This is not an ideal implementation.
+
     public SexpList getTabulatedSearchResults() {
         StringBuilder retString = new StringBuilder();
         
@@ -110,7 +114,7 @@ public class MerchantDB
         // Begin Sexp
         retString.append("(");
         // Counts
-        retString.append("(1 " + md.size() + " " + md.size() + " )" );
+        retString.append("(1 " + md.size() + " " + md.size() + ")");
         // Pagination
         retString.append(" NIL "); 
         // Headers
@@ -140,8 +144,8 @@ public class MerchantDB
             retString.append(")");
             
         }
-        retString.append(" )"); // End Merchants
-        retString.append(" )"); // End Sexp
+        retString.append(")"); // End Merchants
+        retString.append(")"); // End Sexp
         Sexp s;
         try {
             s = SexpReader.readFromString(retString.toString());
