@@ -38,7 +38,7 @@ public class Handle64 implements Handle {
     return (int) (m_data ^ (m_data >>> 32));
   }
 
-  public int compareTo(Handle handle) {
+  public int compareTo(Object handle) {
     Handle64 lHandle = (Handle64)handle;
     return (m_data < lHandle.m_data ? -1 :
             m_data == lHandle.m_data ? 0 : 1);
@@ -83,8 +83,11 @@ public class Handle64 implements Handle {
     return null;  //@Todo change body of implemented methods use File | Settings | File Templates.
   }
 
-  public int compare(Handle handle, Handle handle1) {
-    return handle.compareTo(handle1); // @todo
+  public int compare(Object h1, Object h2) {
+    Handle64 handle1 = (Handle64)h1;
+    Handle64 handle2 = (Handle64)h2;
+
+    return handle1.compareTo(handle2); // @todo
   }
 
 }

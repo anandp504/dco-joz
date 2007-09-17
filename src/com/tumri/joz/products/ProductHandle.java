@@ -30,9 +30,10 @@ public class ProductHandle implements Handle {
     return m_product;
   }
 
-  public int compareTo(Handle handle) {
-    return (getOid() < handle.getOid() ? -1 :
-            getOid() == handle.getOid() ? 0 : 1);
+  public int compareTo(Object handle) {
+    ProductHandle ph = (ProductHandle)handle;
+    return (m_oid < ph.m_oid ? -1 :
+            m_oid == ph.m_oid ? 0 : 1);
   }
 
 
@@ -52,11 +53,13 @@ public class ProductHandle implements Handle {
   }
 
 
-  public int compare(Handle handle1, Handle handle2) {
-    if (handle1.getScore() > handle2.getScore()) return -1;
-    if (handle1.getScore() < handle2.getScore()) return 1;
-    if (handle1.getOid() < handle2.getOid()) return -1;
-    if (handle1.getOid() > handle2.getOid()) return 1;
+  public int compare(Object h1, Object h2) {
+    ProductHandle handle1 = (ProductHandle)h1;
+    ProductHandle handle2 = (ProductHandle)h2;
+    if (handle1.m_score > handle2.m_score) return -1;
+    if (handle1.m_score < handle2.m_score) return 1;
+    if (handle1.m_oid < handle2.m_oid) return -1;
+    if (handle1.m_oid > handle2.m_oid) return 1;
     return 0;
   }
 
