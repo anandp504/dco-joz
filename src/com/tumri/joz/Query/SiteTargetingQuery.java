@@ -2,12 +2,17 @@ package com.tumri.joz.Query;
 
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.AdpodIndex;
+import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.UrlNormalizer;
 import com.tumri.utils.data.MultiSortedSet;
+import com.tumri.utils.data.SortedArraySet;
+import com.tumri.utils.data.RWLocked;
 
 import java.util.SortedSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Targeting Query for Site related data.
@@ -56,7 +61,7 @@ public class SiteTargetingQuery extends TargetingQuery {
     private SortedSet<Handle> execLocationQuery() {
         SortedSet<Handle> results = null;
         if(locationId > 0) {
-            AdpodIndex index = CampaignDB.getInstance().getLocationAdPodMappingIndex();
+            AtomicAdpodIndex index = CampaignDB.getInstance().getLocationAdPodMappingIndex();
             results = index.get(locationId);
         }
         return results;
@@ -66,7 +71,7 @@ public class SiteTargetingQuery extends TargetingQuery {
     private SortedSet<Handle> execThemeQuery() {
         SortedSet<Handle> results = null;
         if(themeName != null && !themeName.equals("")) {
-            AdpodIndex index = CampaignDB.getInstance().getThemeAdPodMappingIndex();
+            AtomicAdpodIndex index = CampaignDB.getInstance().getThemeAdPodMappingIndex();
             results = index.get(themeName);
         }
         return results;
@@ -77,12 +82,16 @@ public class SiteTargetingQuery extends TargetingQuery {
         MultiSortedSet<Handle> urlsResults = new MultiSortedSet<Handle>();
         SortedSet<Handle> results;
         if(urlName != null && !urlName.equals("")) {
-            AdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
-            List<String> urls = parseUrl(urlName);
+            AtomicAdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
+            List<String> urls = UrlNormalizer.getAllPossibleNormalizedUrl(urlName);
             if(urls != null && urls.size() > 0) {
+                double urlScore = 0.9;
+                double delta    = 0.05;
                 for (String url : urls) {
-                    results = index.get(url.intern());
-                    urlsResults.add(results);
+                    results = index.get(url);
+                    SortedSet<Handle> clonedResults = cloneResults(results, urlScore);
+                    urlScore =-delta;
+                    urlsResults.add(clonedResults);
                 }
             }
 
@@ -90,61 +99,82 @@ public class SiteTargetingQuery extends TargetingQuery {
         return urlsResults;
     }
 
+    private SortedSet<Handle> cloneResults(SortedSet<Handle> results, double urlScore) {
+        SortedArraySet<Handle> sortedArraySet = null;
+        ArrayList<Handle> list = null;
+        if(results != null) {
+            if(results instanceof RWLocked) {
+                ((RWLocked)results).readerLock();
+            }
+            try {
+                Iterator<Handle> iterator = results.iterator();
+                if(iterator != null) {
+                    list = new ArrayList<Handle>();
+                    while(iterator.hasNext()) {
+                        Handle handle = iterator.next();
+                        handle = handle.createHandle(urlScore);
+                        list.add(handle);
+                    }
+                    sortedArraySet = new SortedArraySet(list);
+                }
+            }
+            finally {
+                if(results instanceof RWLocked) {
+                    ((RWLocked)results).readerUnlock();
+                }
+            }
+
+        }
+
+        return sortedArraySet;
+    }
+    
     @SuppressWarnings({"unchecked"})
     private SortedSet<Handle> execRunOfNetworkQuery() {
         SortedSet<Handle> results;
-        AdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
+        AtomicAdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
         results = index.get(AdpodIndex.RUN_OF_NETWORK);
         return results;
     }
 
-    public static List<String> parseUrl(String urlName) {
-        List<String> parsedUrls = new ArrayList<String>();
-        if(urlName != null && !"".equals(urlName)) {
-            //check if http:// is present, if yes, move it to prefix
-            String prefix = "";
-            boolean prefixPresent = urlName.regionMatches(true, 0, "http://", 0, 7);
-            if(prefixPresent) {
-                prefix = urlName.substring(0, 7);
-                urlName = urlName.substring(6);
-            }
-            String[] tokens = urlName.split("/");
-            if(tokens != null && tokens.length > 0) {
-                String currentStr = "";
-
-                int i = 0;
-                //if prefix http:// is present, ignore first token
-                if(prefixPresent) {
-                    i = 1;
-                }
-                while (i< tokens.length) {
-                    if("".equals(currentStr)) {
-                        currentStr = tokens[i];
-                    }
-                    else {
-                        currentStr += "/" + tokens[i];
-                    }
-                    if(!"".equals(currentStr)) {
-                        parsedUrls.add(prefix + currentStr);
-                    }
-                    i++;
-                }
-            }
-        }
-
-        return parsedUrls;
-    }
+//    private static List<String> parseUrl(String urlName) {
+//        List<String> parsedUrls = new ArrayList<String>();
+//        if(urlName != null && !"".equals(urlName)) {
+//            //check if http:// is present, if yes, move it to prefix
+//            String prefix = "";
+//            boolean prefixPresent = urlName.regionMatches(true, 0, "http://", 0, 7);
+//            if(prefixPresent) {
+//                prefix = urlName.substring(0, 7);
+//                urlName = urlName.substring(6);
+//            }
+//            String[] tokens = urlName.split("/");
+//            if(tokens != null && tokens.length > 0) {
+//                String currentStr = "";
+//
+//                int i = 0;
+//                //if prefix http:// is present, ignore first token
+//                if(prefixPresent) {
+//                    i = 1;
+//                }
+//                while (i< tokens.length) {
+//                    if("".equals(currentStr)) {
+//                        currentStr = tokens[i];
+//                    }
+//                    else {
+//                        currentStr += "/" + tokens[i];
+//                    }
+//                    if(!"".equals(currentStr)) {
+//                        parsedUrls.add(prefix + currentStr);
+//                    }
+//                    i++;
+//                }
+//            }
+//        }
+//
+//        return parsedUrls;
+//    }
 
     public boolean accept(Handle v) {
         return false;
-    }
-
-    public static void main(String [] args) {
-        List<String> urlSubset = SiteTargetingQuery.parseUrl("http://www.yahoo.com/sports/cricket");
-        if(urlSubset != null) {
-            for (String anUrlSubset : urlSubset) {
-                System.out.println(anUrlSubset);
-            }
-        }
     }
 }

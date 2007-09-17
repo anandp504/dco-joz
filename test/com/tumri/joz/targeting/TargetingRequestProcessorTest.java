@@ -1,11 +1,7 @@
 package com.tumri.joz.targeting;
 
 import static org.junit.Assert.*;
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.jozMain.AdDataRequest;
-import com.tumri.joz.productselection.ProductSelectionResults;
 import com.tumri.joz.campaign.CampaignDBDataLoader;
 import com.tumri.utils.sexp.SexpReader;
 import com.tumri.utils.sexp.Sexp;
@@ -16,7 +12,6 @@ import com.tumri.cma.service.CampaignProvider;
 import com.tumri.cma.CMAFactory;
 import com.tumri.cma.DomainTestDataProvider;
 
-import java.util.SortedSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.Reader;
@@ -25,12 +20,10 @@ import java.io.StringReader;
 import org.junit.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bpatel
- * Date: Sep 8, 2007
- * Time: 10:40:38 PM
- * To change this template use File | Settings | File Templates.
+ * JUnit Test for Targeting request processor
+ * @author bpatel 
  */
+@SuppressWarnings({"deprecation"})
 public class TargetingRequestProcessorTest {
     private static CampaignProvider campaignProvider;
     private static boolean          consoleDebug = true;
@@ -40,19 +33,20 @@ public class TargetingRequestProcessorTest {
     private static int sampleAdPodId4;
     private static int sampleAdPodId5;
     private static int sampleAdPodId6;
+    private static int sampleAdPodId7;
+    private static int sampleAdPodId8;
 
-    private static int sampleThemeId;
+
     private static String sampleThemeName;
-    private static long uniquenessPrefix;
     private static String baseUrlName;
+    private static String base2UrlName;
 
-    private static CampaignDBDataLoader loader;
     @BeforeClass
     public static void initialize() throws Exception {
         loadData();
         loadThemeData();
         loadUrlData();
-        loader = CampaignDBDataLoader.getInstance();
+        CampaignDBDataLoader loader = CampaignDBDataLoader.getInstance();
         loader.loadData();
 
     }
@@ -62,7 +56,7 @@ public class TargetingRequestProcessorTest {
         campaignProvider.createTheme(theme);
         Theme retrievedTheme = campaignProvider.getTheme(theme.getId());
         assertNotNull(retrievedTheme);
-        sampleThemeId = theme.getId();
+        int sampleThemeId = theme.getId();
         sampleThemeName = theme.getName();
         List<ThemeAdPodMapping> adPodIdMappings = new ArrayList<ThemeAdPodMapping>();
         adPodIdMappings.add(new ThemeAdPodMapping(sampleThemeId, sampleAdPodId4, 50));
@@ -75,45 +69,66 @@ public class TargetingRequestProcessorTest {
         campaignProvider = CMAFactory.getInstance().getCampaignProvider();
         Campaign campaign1 = DomainTestDataProvider.getNewShallowCampaign();
         Campaign campaign2 = DomainTestDataProvider.getNewShallowCampaign();
+        Campaign campaign3 = DomainTestDataProvider.getNewShallowCampaign();
+
         OSpec oSpec1       = DomainTestDataProvider.getNewOSpec();
         OSpec oSpec2      = DomainTestDataProvider.getNewOSpec();
         OSpec oSpec3      = DomainTestDataProvider.getNewOSpec();
         OSpec oSpec4      = DomainTestDataProvider.getNewOSpec();
         OSpec oSpec5      = DomainTestDataProvider.getNewOSpec();
         OSpec oSpec6      = DomainTestDataProvider.getNewOSpec();
+        OSpec oSpec7      = DomainTestDataProvider.getNewOSpec();
+        OSpec oSpec8      = DomainTestDataProvider.getNewOSpec();
+
         TSpec tSpec1       = DomainTestDataProvider.getNewTSpec();
         TSpec tSpec2       = DomainTestDataProvider.getNewTSpec();
         TSpec tSpec3       = DomainTestDataProvider.getNewTSpec();
         TSpec tSpec4       = DomainTestDataProvider.getNewTSpec();
         TSpec tSpec5       = DomainTestDataProvider.getNewTSpec();
         TSpec tSpec6       = DomainTestDataProvider.getNewTSpec();
+        TSpec tSpec7       = DomainTestDataProvider.getNewTSpec();
+        TSpec tSpec8       = DomainTestDataProvider.getNewTSpec();
         oSpec1.addTSpec(tSpec1);
         oSpec2.addTSpec(tSpec2);
         oSpec3.addTSpec(tSpec3);
         oSpec4.addTSpec(tSpec4);
         oSpec5.addTSpec(tSpec5);
         oSpec6.addTSpec(tSpec6);
+        oSpec7.addTSpec(tSpec7);
+        oSpec8.addTSpec(tSpec8);
+
         AdPod sampleAdPod1 = DomainTestDataProvider.getNewAdPod();
         AdPod sampleAdPod2 = DomainTestDataProvider.getNewAdPod();
         AdPod sampleAdPod3 = DomainTestDataProvider.getNewAdPod();
         AdPod sampleAdPod4 = DomainTestDataProvider.getNewAdPod();
         AdPod sampleAdPod5 = DomainTestDataProvider.getNewAdPod();
         AdPod sampleAdPod6 = DomainTestDataProvider.getNewAdPod();
+        AdPod sampleAdPod7 = DomainTestDataProvider.getNewAdPod();
+        AdPod sampleAdPod8 = DomainTestDataProvider.getNewAdPod();
+
         sampleAdPod1.setOspec(oSpec1);
         sampleAdPod2.setOspec(oSpec2);
         sampleAdPod3.setOspec(oSpec3);
         sampleAdPod4.setOspec(oSpec4);
         sampleAdPod5.setOspec(oSpec5);
         sampleAdPod6.setOspec(oSpec6);
+        sampleAdPod7.setOspec(oSpec5);
+        sampleAdPod8.setOspec(oSpec6);
+
         campaign1.addAdPod(sampleAdPod1);
         campaign1.addAdPod(sampleAdPod2);
         campaign1.addAdPod(sampleAdPod3);
         campaign2.addAdPod(sampleAdPod4);
         campaign2.addAdPod(sampleAdPod5);
         campaign2.addAdPod(sampleAdPod6);
+        campaign3.addAdPod(sampleAdPod7);
+        campaign3.addAdPod(sampleAdPod8);
+
 
         campaignProvider.createCampaign(campaign1, true);
         campaignProvider.createCampaign(campaign2, true);
+        campaignProvider.createCampaign(campaign3, true);
+
         assertTrue(sampleAdPod1.getId() > 0);
         assertTrue(sampleAdPod2.getId() > 0);
         assertTrue(sampleAdPod5.getId() > 0);
@@ -123,12 +138,16 @@ public class TargetingRequestProcessorTest {
         sampleAdPodId4 = sampleAdPod4.getId();
         sampleAdPodId5 = sampleAdPod5.getId();
         sampleAdPodId6 = sampleAdPod6.getId();
+        sampleAdPodId7 = sampleAdPod7.getId();
+        sampleAdPodId8 = sampleAdPod8.getId();
+
 
     }
 
     private static void loadUrlData() throws Exception {
-        uniquenessPrefix = System.currentTimeMillis();
-        baseUrlName = "http://www.yahoo.com" + uniquenessPrefix;
+        long uniquenessPrefix = System.currentTimeMillis();
+        baseUrlName = "http://www."+ uniquenessPrefix + ".yahoo.com";
+
         {
             Url url = DomainTestDataProvider.getNewShallowUrl();
             url.setName(baseUrlName);
@@ -162,6 +181,39 @@ public class TargetingRequestProcessorTest {
             campaignProvider.createUrlAdPodMappings(adPodIdMappings);
         }
 
+        base2UrlName = "www.sale.com" + "/" + uniquenessPrefix ;
+
+        {
+            Url url = DomainTestDataProvider.getNewShallowUrl();
+            url.setName(base2UrlName);
+            campaignProvider.createURL(url);
+            List<UrlAdPodMapping> adPodIdMappings = new ArrayList<UrlAdPodMapping>();
+            adPodIdMappings.add(new UrlAdPodMapping(url.getId(), sampleAdPodId7, 25));
+            adPodIdMappings.add(new UrlAdPodMapping(url.getId(), sampleAdPodId8, 61));
+            campaignProvider.createUrlAdPodMappings(adPodIdMappings);
+        }
+        {
+            Url url = DomainTestDataProvider.getNewShallowUrl();
+            url.setName(base2UrlName + "/" + "/toys");
+            campaignProvider.createURL(url);
+
+            List<UrlAdPodMapping> adPodIdMappings = new ArrayList<UrlAdPodMapping>();
+            adPodIdMappings.add(new UrlAdPodMapping(url.getId(), sampleAdPodId1, 30));
+            adPodIdMappings.add(new UrlAdPodMapping(url.getId(), sampleAdPodId6, 70));
+            campaignProvider.createUrlAdPodMappings(adPodIdMappings);
+        }
+
+        {
+            Url url = DomainTestDataProvider.getNewShallowUrl();
+            url.setName(base2UrlName  + "/toys/electronics");
+            campaignProvider.createURL(url);
+
+            List<UrlAdPodMapping> adPodIdMappings = new ArrayList<UrlAdPodMapping>();
+            adPodIdMappings.add(new UrlAdPodMapping(url.getId(), sampleAdPodId4, 100));
+            campaignProvider.createUrlAdPodMappings(adPodIdMappings);
+        }
+
+
     }
 
     @AfterClass
@@ -179,9 +231,10 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testUrlCountryGeoGetAdData() {
         try {
-            String queryStr = "(get-ad-data :country-name \"USA\" \"UK\"" + ":url \"" +  baseUrlName + "/sports/cricket\"" + ")";
+            String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"" +  baseUrlName + "/sports/cricket\"" + ")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
             printStackTrace(e);
             fail("Exception caught during test run");
@@ -191,9 +244,75 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testCountryGeoGetAdData() {
         try {
-            String queryStr = "(get-ad-data :country-name \"USA\" \"UK\"" + ":url \"" +  baseUrlName + "/sports/cricket\"" + ")";
+            String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"" +  baseUrlName + "/sports/cricket\"" + ")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+
+    @Test
+    public void testRegionGeoGetAdData() {
+        try {
+            String queryStr = "(get-ad-data :region \"CA\"" + ":url \"" +  base2UrlName + "/toys/electronics/gadgets/\"" + ")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+
+    @Test
+    public void testCityGeoGetAdData() {
+        try {
+            String queryStr = "(get-ad-data :city \"LA\"" + ":url \"" +  base2UrlName + "/toys/electronics/gadgets/\"" + ")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+
+    @Test
+    public void testZipcodeGeoGetAdData() {
+        try {
+            String queryStr = "(get-ad-data :zip-code \"94404\"" + ":url \"" +  base2UrlName + "/books/computers/\"" + ")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+
+    @Test
+    public void testAreacodeGeoGetAdData() {
+        try {
+            String queryStr = "(get-ad-data :area-code \"650\"" + ":url \"" +  base2UrlName + "/toys/educational/\"" + ")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+
+    @Test
+    public void testDmacodeGeoGetAdData() {
+        try {
+            String queryStr = "(get-ad-data :dma \"DMA1\"" + ")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
             printStackTrace(e);
             fail("Exception caught during test run");
@@ -206,6 +325,7 @@ public class TargetingRequestProcessorTest {
             String queryStr = "(get-ad-data :theme \"" + sampleThemeName + "\")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
             printStackTrace(e);
             fail("Exception caught during test run");
@@ -218,6 +338,7 @@ public class TargetingRequestProcessorTest {
             String queryStr = "(get-ad-data :url \"" +  baseUrlName + "/sports/cricket\")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
             printStackTrace(e);
             fail("Exception caught during test run");
@@ -230,6 +351,7 @@ public class TargetingRequestProcessorTest {
             String queryStr = "(get-ad-data :store-ID \"11\")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
             printStackTrace(e);
             fail("Exception caught during test run");
@@ -239,7 +361,6 @@ public class TargetingRequestProcessorTest {
     private OSpec testProcessRequest(String getAdDataCommandStr) throws Exception {
         TargetingRequestProcessor processor = TargetingRequestProcessor.getInstance();
         Reader r = new StringReader(getAdDataCommandStr);
-        SortedSet<Handle> results = null;
         SexpReader lr = new SexpReader (r);
         OSpec oSpec = null;
         try {

@@ -32,100 +32,102 @@ public class OSpecQueryCacheHelper {
 		CNFQuery _query = new CNFQuery ();
 		ConjunctQuery _cjquery = new ConjunctQuery (new ProductQueryProcessor());
 		List<TSpec> tSpecList = oSpec.getTspecs();
-		Iterator<TSpec> tSpecIter = tSpecList.iterator();
-		while (tSpecIter.hasNext()){
-			TSpec theTSpec = tSpecIter.next();
-			//Keyword
-			String keywordExp = theTSpec.getLoadTimeKeywordExpression();
-			if (keywordExp != null){
-				KeywordQuery kwQuery = new KeywordQuery(keywordExp,true);
-				_cjquery.addQuery(kwQuery);
-			}
+        if(tSpecList != null) {
+            Iterator<TSpec> tSpecIter = tSpecList.iterator();
+            while (tSpecIter.hasNext()){
+                TSpec theTSpec = tSpecIter.next();
+                //Keyword
+                String keywordExp = theTSpec.getLoadTimeKeywordExpression();
+                if (keywordExp != null){
+                    KeywordQuery kwQuery = new KeywordQuery(keywordExp,true);
+                    _cjquery.addQuery(kwQuery);
+                }
 
-			//Excluded Brand
-			List<BrandInfo> bixList = theTSpec.getExcludedBrands();
-			if (bixList != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, bixList, true);
-				_cjquery.addQuery(sq);
-			}
+                //Excluded Brand
+                List<BrandInfo> bixList = theTSpec.getExcludedBrands();
+                if (bixList != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, bixList, true);
+                    _cjquery.addQuery(sq);
+                }
 
-			//Included brand
-			List<BrandInfo> binList = theTSpec.getIncludedBrands();
-			if (binList != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, binList, false);
-				_cjquery.addQuery(sq);
-			}			  
+                //Included brand
+                List<BrandInfo> binList = theTSpec.getIncludedBrands();
+                if (binList != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, binList, false);
+                    _cjquery.addQuery(sq);
+                }
 
-			//Include cats
-			List<CategoryInfo> cinList = theTSpec.getIncludedCategories();
-			if (cinList != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cinList, false);
-				_cjquery.addQuery(sq);
-			}
+                //Include cats
+                List<CategoryInfo> cinList = theTSpec.getIncludedCategories();
+                if (cinList != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cinList, false);
+                    _cjquery.addQuery(sq);
+                }
 
-			//Excluded cats
-			List<CategoryInfo> cexList = theTSpec.getExcludedCategories();
-			if (cexList != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cexList, true);
-				_cjquery.addQuery(sq);
-			}
+                //Excluded cats
+                List<CategoryInfo> cexList = theTSpec.getExcludedCategories();
+                if (cexList != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cexList, true);
+                    _cjquery.addQuery(sq);
+                }
 
-			//Included merchants
-			List<MerchantInfo> inMerchants = theTSpec.getIncludedMerchants();
-			if (inMerchants != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kSupplier, inMerchants, false);
-				_cjquery.addQuery(sq);				  
-			}
+                //Included merchants
+                List<MerchantInfo> inMerchants = theTSpec.getIncludedMerchants();
+                if (inMerchants != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kSupplier, inMerchants, false);
+                    _cjquery.addQuery(sq);
+                }
 
-			//Excluded merchants
-			List<MerchantInfo> exMerchants = theTSpec.getExcludedMerchants();
-			if (exMerchants != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kSupplier, exMerchants, true);
-				_cjquery.addQuery(sq);				  
-			}
+                //Excluded merchants
+                List<MerchantInfo> exMerchants = theTSpec.getExcludedMerchants();
+                if (exMerchants != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kSupplier, exMerchants, true);
+                    _cjquery.addQuery(sq);
+                }
 
-			//Included Providers
-			List<ProviderInfo> inProviders = theTSpec.getIncludedProviders();
-			if (inProviders != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProvider, inProviders, false);
-				_cjquery.addQuery(sq);				  
-			}
+                //Included Providers
+                List<ProviderInfo> inProviders = theTSpec.getIncludedProviders();
+                if (inProviders != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProvider, inProviders, false);
+                    _cjquery.addQuery(sq);
+                }
 
-			//Excluded Providers
-			List<ProviderInfo> exProviders = theTSpec.getExcludedProviders();
-			if (exProviders != null) {
-				SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProvider, exProviders, true);
-				_cjquery.addQuery(sq);				  
-			}	
+                //Excluded Providers
+                List<ProviderInfo> exProviders = theTSpec.getExcludedProviders();
+                if (exProviders != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProvider, exProviders, true);
+                    _cjquery.addQuery(sq);
+                }
 
-			//CPC Range
-			double highCPC = theTSpec.getHighCPC();
-			double lowCPC = theTSpec.getLowCPC();
-			if ((highCPC > 0) || ( lowCPC > 0)) {
-				SimpleQuery sq = new RangeQuery (IProduct.Attribute.kCPC,lowCPC, highCPC);
-				_cjquery.addQuery(sq);
-			}
+                //CPC Range
+                double highCPC = theTSpec.getHighCPC();
+                double lowCPC = theTSpec.getLowCPC();
+                if ((highCPC > 0) || ( lowCPC > 0)) {
+                    SimpleQuery sq = new RangeQuery (IProduct.Attribute.kCPC,lowCPC, highCPC);
+                    _cjquery.addQuery(sq);
+                }
 
-			//CPO Range
-			double highCPO = theTSpec.getHighCPO();
-			double lowCPO = theTSpec.getLowCPO();
-			if ((highCPO > 0) || ( lowCPO > 0)) {
-				SimpleQuery sq = new RangeQuery (IProduct.Attribute.kCPO,lowCPO, highCPO);
-				_cjquery.addQuery(sq);
-			}
+                //CPO Range
+                double highCPO = theTSpec.getHighCPO();
+                double lowCPO = theTSpec.getLowCPO();
+                if ((highCPO > 0) || ( lowCPO > 0)) {
+                    SimpleQuery sq = new RangeQuery (IProduct.Attribute.kCPO,lowCPO, highCPO);
+                    _cjquery.addQuery(sq);
+                }
 
 
-			//Price Range
-			double highPrice = theTSpec.getHighCPC();
-			double lowPrice = theTSpec.getLowCPC();
-			if ((highPrice > 0) || ( lowPrice > 0)) {
-				SimpleQuery sq = new RangeQuery (IProduct.Attribute.kPrice,lowPrice, highPrice);
-				_cjquery.addQuery(sq);
-			}
+                //Price Range
+                double highPrice = theTSpec.getHighCPC();
+                double lowPrice = theTSpec.getLowCPC();
+                if ((highPrice > 0) || ( lowPrice > 0)) {
+                    SimpleQuery sq = new RangeQuery (IProduct.Attribute.kPrice,lowPrice, highPrice);
+                    _cjquery.addQuery(sq);
+                }
 
-		}
+            }
+        }
 
-		_query.addQuery (_cjquery);
+        _query.addQuery (_cjquery);
 		return _query;
 	}
 

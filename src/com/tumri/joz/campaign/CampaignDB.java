@@ -5,8 +5,10 @@ import com.tumri.utils.data.RWLockedTreeMap;
 import com.tumri.utils.Pair;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.AdpodIndex;
+import com.tumri.joz.index.AtomicAdpodIndex;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * CampaignDB is an in-memory representation for campaign(CMA) database that holds all the campagin related domain objects for
@@ -17,37 +19,43 @@ import java.util.*;
 public class CampaignDB {
     private static CampaignDB campaignDB = new CampaignDB();
 
-    private RWLockedTreeMap<Integer,Campaign> campaignMap   = new RWLockedTreeMap<Integer, Campaign>();
-    private RWLockedTreeMap<Integer,AdPod>    adPodMap      = new RWLockedTreeMap<Integer, AdPod>();
-    private RWLockedTreeMap<Integer,OSpec>    ospecMap      = new RWLockedTreeMap<Integer, OSpec>();
-    private RWLockedTreeMap<String,OSpec>    ospecNameMap   = new RWLockedTreeMap<String, OSpec>();
+    private AtomicReference<RWLockedTreeMap<Integer,Campaign>> campaignMap   = new AtomicReference<RWLockedTreeMap<Integer, Campaign>>(new RWLockedTreeMap<Integer, Campaign>());
+    private AtomicReference<RWLockedTreeMap<Integer,AdPod>>    adPodMap      = new AtomicReference<RWLockedTreeMap<Integer, AdPod>>(new RWLockedTreeMap<Integer, AdPod>());
+    private AtomicReference<RWLockedTreeMap<Integer,OSpec>>    ospecMap      = new AtomicReference<RWLockedTreeMap<Integer, OSpec>>(new RWLockedTreeMap<Integer, OSpec>());
+    private AtomicReference<RWLockedTreeMap<String,OSpec>>    ospecNameMap   = new AtomicReference<RWLockedTreeMap<String, OSpec>>(new RWLockedTreeMap<String, OSpec>());
+    private RWLockedTreeMap<String, OSpec>                  tempOSpecNameMap = new RWLockedTreeMap<String, OSpec>();
 
-    private RWLockedTreeMap<Integer,Geocode>  geocodeMap    = new RWLockedTreeMap<Integer, Geocode>();
-    private RWLockedTreeMap<Integer,Url>      urlMap        = new RWLockedTreeMap<Integer, Url>();
+    private AtomicReference<RWLockedTreeMap<Integer,Geocode>>  geocodeMap    = new AtomicReference<RWLockedTreeMap<Integer, Geocode>>(new RWLockedTreeMap<Integer, Geocode>());
+    private AtomicReference<RWLockedTreeMap<Integer,Url>>      urlMap        = new AtomicReference<RWLockedTreeMap<Integer, Url>>(new RWLockedTreeMap<Integer, Url>());
     @SuppressWarnings({"deprecation"})
-    private RWLockedTreeMap<Integer,Theme>    themeMap      = new RWLockedTreeMap<Integer, Theme>();
-    private RWLockedTreeMap<Integer,Location> locationMap   = new RWLockedTreeMap<Integer, Location>();
+    private AtomicReference<RWLockedTreeMap<Integer,Theme>>    themeMap      = new AtomicReference<RWLockedTreeMap<Integer, Theme>>(new RWLockedTreeMap<Integer, Theme>());
+    private AtomicReference<RWLockedTreeMap<Integer,Location>> locationMap   = new AtomicReference<RWLockedTreeMap<Integer, Location>>(new RWLockedTreeMap<Integer, Location>());
 
     // Map adpod Id to ospec ID
-    private RWLockedTreeMap<Integer, Integer> adPodOSpecMap = new RWLockedTreeMap<Integer, Integer>();
+    private AtomicReference<RWLockedTreeMap<Integer, Integer>> adPodOSpecMap = new AtomicReference<RWLockedTreeMap<Integer, Integer>>(new RWLockedTreeMap<Integer, Integer>());
 
     // Map the handles for all geocode associated adpods to avoid re-creating handles for multiple geocode elements
     // refering to same adpod.
-    private RWLockedTreeMap<Integer,Handle> adPodHandlesMap = new RWLockedTreeMap<Integer, Handle>();
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodConuntryHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodRegionHandlesMap   = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodCityHandlesMap     = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodZipcodeHandlesMap  = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodDmacodeHandlesMap  = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodAreacodeHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
 
     // All indices required in targeting
-    private AdpodIndex<Integer, Handle> adpodLocationMappingIndex = new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation);
-    private AdpodIndex<String, Handle>  adpodThemeMappingIndex    = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kTheme);
-    private AdpodIndex<String, Handle>  adpodUrlMappingIndex      = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kUrl);
-    private AdpodIndex<String, Handle>  adpodRunOfNetworkIndex    = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRunofNetwork);
-    private AdpodIndex<String, Handle>  adpodGeoNoneIndex         = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kGeoNone);
+    private AtomicAdpodIndex<Integer, Handle> adpodLocationMappingIndex = new AtomicAdpodIndex<Integer, Handle>(new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation));
+    private AtomicAdpodIndex<String, Handle>  adpodThemeMappingIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kTheme));
+    private AtomicAdpodIndex<String, Handle>  adpodUrlMappingIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kUrl));
+    private AtomicAdpodIndex<String, Handle>  adpodRunOfNetworkIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRunofNetwork));
+    private AtomicAdpodIndex<String, Handle>  adpodGeoNoneIndex         = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kGeoNone));
 
-    private AdpodIndex<String, Handle>  adpodGeoCountryIndex      = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kCountryCode);
-    private AdpodIndex<String, Handle>  adpodGeoRegionIndex       = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRegionCode);
-    private AdpodIndex<String, Handle>  adpodGeoCityIndex         = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kCityCode);
-    private AdpodIndex<String, Handle>  adpodGeoDmacodeIndex      = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kDMACode);
-    private AdpodIndex<String, Handle>  adpodGeoAreacodeIndex     = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAreaCode);
-    private AdpodIndex<String, Handle>  adpodGeoZipcodeIndex      = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kZipCode);
+    private AtomicAdpodIndex<String, Handle>  adpodGeoCountryIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kCountryCode));
+    private AtomicAdpodIndex<String, Handle>  adpodGeoRegionIndex       = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRegionCode));
+    private AtomicAdpodIndex<String, Handle>  adpodGeoCityIndex         = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kCityCode));
+    private AtomicAdpodIndex<String, Handle>  adpodGeoDmacodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kDMACode));
+    private AtomicAdpodIndex<String, Handle>  adpodGeoAreacodeIndex     = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAreaCode));
+    private AtomicAdpodIndex<String, Handle>  adpodGeoZipcodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kZipCode));
 
 
     private CampaignDB() {
@@ -58,34 +66,53 @@ public class CampaignDB {
     }
 
     public OSpec getOSpecForAdPod(int adPodId) {
-        int oSpecId = adPodOSpecMap.get(adPodId);
-        return ospecMap.get(oSpecId);
+        int oSpecId = adPodOSpecMap.get().get(adPodId);
+        return ospecMap.get().get(oSpecId);
 
     }
 
     public OSpec getOspec(String name) {
-        return ospecNameMap.get(name);    
+        OSpec oSpec = ospecNameMap.get().get(name);
+        if(oSpec == null) {
+            oSpec = tempOSpecNameMap.get(name);
+        }
+        return oSpec;
+    }
+
+    public void addOSpec(OSpec oSpec) {
+        tempOSpecNameMap.put(oSpec.getName(), oSpec);
+    }
+
+    public void deleteOSpec(String oSpecName) {
+        tempOSpecNameMap.remove(oSpecName);
+    }
+
+    public AdPod getDefaultAdPod() {
+        return adPodMap.get().get(adPodMap.get().firstKey());
     }
 
     public void loadCampaigns(Iterator<Campaign> iterator) {
         if(iterator == null) {
             return;
         }
+        RWLockedTreeMap<Integer,Campaign> map = new RWLockedTreeMap<Integer, Campaign>();
         while(iterator.hasNext()) {
             Campaign campaign = iterator.next();
-            campaignMap.put(campaign.getId(), campaign);
+            map.put(campaign.getId(), campaign);
         }
+        campaignMap.compareAndSet(campaignMap.get(), map);
     }
 
     public void loadAdPods(Iterator<AdPod> iterator) {
         if(iterator == null) {
             return;
         }
+        RWLockedTreeMap<Integer,AdPod> map = new RWLockedTreeMap<Integer, AdPod>();
         while(iterator.hasNext()) {
             AdPod adPod = iterator.next();
-            adPodMap.put(adPod.getId(), adPod);
+            map.put(adPod.getId(), adPod);
         }
-        //ToDo: if adpods are changed the associated handles should be updated as well
+        adPodMap.compareAndSet(adPodMap.get(), map);
     }
 
     public void loadRunOfNetworkAdPods(Iterator<AdPod> iterator) {
@@ -93,14 +120,15 @@ public class CampaignDB {
             return;
         }
         Map<String,List<Handle>> runOfNetworkAdPodMap = new HashMap<String, List<Handle>>();
+        AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRunofNetwork);
         List<Handle> list = new ArrayList<Handle>();
         while(iterator.hasNext()) {
             AdPod adPod = iterator.next();
             list.add(new AdPodHandle(adPod, adPod.getId(), AdPodHandle.runOfNetworkScore, AdPodHandle.runOfNetworkWeight));
         }
         runOfNetworkAdPodMap.put(AdpodIndex.RUN_OF_NETWORK, list);
-        //ToDo: if adpods are changed the associated handles should be updated as well
-        adpodRunOfNetworkIndex.put(runOfNetworkAdPodMap);
+        index.put(runOfNetworkAdPodMap);
+        adpodRunOfNetworkIndex.set(index);
     }
 
     public void loadGeoNoneAdPods(Iterator<AdPod> iterator) {
@@ -108,14 +136,15 @@ public class CampaignDB {
             return;
         }
         Map<String,List<Handle>> geoNoneAdPodMap = new HashMap<String, List<Handle>>();
+        AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kGeoNone);
         List<Handle> list = new ArrayList<Handle>();
         while(iterator.hasNext()) {
             AdPod adPod = iterator.next();
             list.add(new AdPodHandle(adPod, adPod.getId(), AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight));
         }
         geoNoneAdPodMap.put(AdpodIndex.GEO_NONE, list);
-        //ToDo: if adpods are changed the associated handles should be updated as well
-        adpodGeoNoneIndex.put(geoNoneAdPodMap);
+        index.put(geoNoneAdPodMap);
+        adpodGeoNoneIndex.set(index);
     }
 
     public void loadOSpecs(Iterator<OSpec> iterator) {
@@ -124,8 +153,8 @@ public class CampaignDB {
         }
         while(iterator.hasNext()) {
             OSpec oSpec = iterator.next();
-            ospecMap.put(oSpec.getId(), oSpec);
-            ospecNameMap.put(oSpec.getName(), oSpec);
+            ospecMap.get().put(oSpec.getId(), oSpec);
+            ospecNameMap.get().put(oSpec.getName(), oSpec);
         }
     }
 
@@ -137,7 +166,7 @@ public class CampaignDB {
             Pair<Integer, Integer> pair = iterator.next();
             int adPodId = pair.getFirst();
             int oSpecId = pair.getSecond();
-            adPodOSpecMap.put(adPodId, oSpecId);
+            adPodOSpecMap.get().put(adPodId, oSpecId);
         }
 
     }
@@ -147,41 +176,88 @@ public class CampaignDB {
             return;
         }
         Map<String, List<Handle>> countriesMap = new HashMap<String, List<Handle>>();
-        Map<String, List<Handle>> regionsMap = new HashMap<String, List<Handle>>();
-        Map<String, List<Handle>> citiesMap = new HashMap<String, List<Handle>>();
-        Map<String, List<Handle>> zipcodesMap = new HashMap<String, List<Handle>>();
-        Map<String, List<Handle>> dmacodesMap = new HashMap<String, List<Handle>>();
+        Map<String, List<Handle>> regionsMap   = new HashMap<String, List<Handle>>();
+        Map<String, List<Handle>> citiesMap    = new HashMap<String, List<Handle>>();
+        Map<String, List<Handle>> zipcodesMap  = new HashMap<String, List<Handle>>();
+        Map<String, List<Handle>> dmacodesMap  = new HashMap<String, List<Handle>>();
         Map<String, List<Handle>> areacodesMap = new HashMap<String, List<Handle>>();
+
+        AdpodIndex<String, Handle> countryIndex  = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kCountryCode);
+        AdpodIndex<String, Handle> regionIndex   = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRegionCode);
+        AdpodIndex<String, Handle> cityIndex     = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kCityCode);
+        AdpodIndex<String, Handle> zipcodeIndex  = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kZipCode);
+        AdpodIndex<String, Handle> dmacodeIndex  = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kDMACode);
+        AdpodIndex<String, Handle> areacodeIndex = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAreaCode);
+
+        RWLockedTreeMap<Integer,Handle> countryHandlesMap  = new RWLockedTreeMap<Integer,Handle>();
+        RWLockedTreeMap<Integer,Handle> regionHandlesMap   = new RWLockedTreeMap<Integer,Handle>();
+        RWLockedTreeMap<Integer,Handle> cityHandlesMap     = new RWLockedTreeMap<Integer,Handle>();
+        RWLockedTreeMap<Integer,Handle> zipcodeHandlesMap  = new RWLockedTreeMap<Integer,Handle>();
+        RWLockedTreeMap<Integer,Handle> dmacodeHandlesMap  = new RWLockedTreeMap<Integer,Handle>();
+        RWLockedTreeMap<Integer,Handle> areacodeHandlesMap = new RWLockedTreeMap<Integer,Handle>();
+
 
         while(iterator.hasNext()) {
             Geocode geocode = iterator.next();
-            geocodeMap.put(geocode.getId(), geocode);
-            Handle handle = addAdPodHandle(geocode.getAdPodId(), AdPodHandle.defaultScore);
+            geocodeMap.get().put(geocode.getId(), geocode);
             List<String> countries = geocode.getCountries();
-            addToMap(countries, countriesMap, handle);
+            if(countries != null) {
+                Handle handle = addAdPodHandle(countryHandlesMap, geocode.getAdPodId(), AdPodHandle.countryScore);
+                addToMap(countries, countriesMap, handle);
+            }
 
             List<String> regions   = geocode.getStates();
-            addToMap(regions, regionsMap, handle);
+            if(regions != null) {
+                Handle handle = addAdPodHandle(regionHandlesMap, geocode.getAdPodId(), AdPodHandle.regionScore);
+                addToMap(regions, regionsMap, handle);
+            }
 
             List<String> cities    = geocode.getCities();
-            addToMap(cities, citiesMap, handle);
+            if(cities != null) {
+                Handle handle = addAdPodHandle(cityHandlesMap, geocode.getAdPodId(), AdPodHandle.cityScore);
+                addToMap(cities, citiesMap, handle);
+            }
 
             List<String> zipcodes  = geocode.getZipcodes();
-            addToMap(zipcodes, zipcodesMap, handle);
+            if(zipcodes != null) {
+                Handle handle = addAdPodHandle(zipcodeHandlesMap, geocode.getAdPodId(), AdPodHandle.zipcodeScore);
+                addToMap(zipcodes, zipcodesMap, handle);
+            }
 
             List<String> dmacodes  = geocode.getDmaCodes();
-            addToMap(dmacodes, dmacodesMap, handle);
+            if(dmacodes != null) {
+                Handle handle = addAdPodHandle(dmacodeHandlesMap, geocode.getAdPodId(), AdPodHandle.dmacodeScore);
+                addToMap(dmacodes, dmacodesMap, handle);
+            }
 
             List<String> areacodes = geocode.getAreaCodes();
-            addToMap(areacodes, areacodesMap, handle);
+            if(areacodes != null) {
+                Handle handle = addAdPodHandle(areacodeHandlesMap, geocode.getAdPodId(), AdPodHandle.areacodeScore);
+                addToMap(areacodes, areacodesMap, handle);
+            }
         }
-        getAdpodGeoCountryIndex().put(countriesMap);
-        getAdpodGeoRegionIndex().put(regionsMap);
-        getAdpodGeoCityIndex().put(citiesMap);
-        getAdpodGeoDmacodeIndex().put(dmacodesMap);
-        getAdpodGeoAreacodeIndex().put(areacodesMap);
-        getAdpodGeoZipcodeIndex().put(zipcodesMap);
-        //ToDo: To update the indexes when there are changes in geocodes or adpods
+
+        adPodConuntryHandlesMap.compareAndSet(adPodConuntryHandlesMap.get(), countryHandlesMap);
+        adPodRegionHandlesMap.compareAndSet(adPodRegionHandlesMap.get(), regionHandlesMap);
+        adPodCityHandlesMap.compareAndSet(adPodCityHandlesMap.get(), cityHandlesMap);
+        adPodZipcodeHandlesMap.compareAndSet(adPodZipcodeHandlesMap.get(), zipcodeHandlesMap);
+        adPodDmacodeHandlesMap.compareAndSet(adPodDmacodeHandlesMap.get(), dmacodeHandlesMap);
+        adPodAreacodeHandlesMap.compareAndSet(adPodAreacodeHandlesMap.get(), areacodeHandlesMap);
+
+
+        countryIndex.put(countriesMap);
+        regionIndex.put(regionsMap);
+        cityIndex.put(citiesMap);
+        dmacodeIndex.put(dmacodesMap);
+        areacodeIndex.put(areacodesMap);
+        zipcodeIndex.put(zipcodesMap);
+
+        getAdpodGeoCountryIndex().set(countryIndex);
+        getAdpodGeoRegionIndex().set(regionIndex);
+        getAdpodGeoCityIndex().set(cityIndex);
+        getAdpodGeoDmacodeIndex().set(dmacodeIndex);
+        getAdpodGeoAreacodeIndex().set(areacodeIndex);
+        getAdpodGeoZipcodeIndex().set(zipcodeIndex);
     }
 
     private void addToMap(List<String> list, Map<String, List<Handle>> map, Handle handle) {
@@ -197,16 +273,17 @@ public class CampaignDB {
         }
     }
 
-    private Handle addAdPodHandle(int adPodId, double score) {
-        Handle handle = adPodHandlesMap.get(adPodId);
+    private Handle addAdPodHandle(RWLockedTreeMap<Integer,Handle> handlesMap, int adPodId, double score) {
+        Handle handle = handlesMap.get(adPodId);
         if(handle == null) {
-            AdPod adPod = adPodMap.get(adPodId);
+            AdPod adPod = adPodMap.get().get(adPodId);
             if(adPod != null) {
                 handle = new AdPodHandle(adPod, adPod.getId(), score);
-                adPodHandlesMap.put(adPodId, handle);
+                handlesMap.put(adPodId, handle);
             }
             else {
-                //ToDo: Throw and log appropriate exception
+                //@todo: Throw or log appropriate warning
+                //log Adpod not found, some inconsistency need to be investigated further
             }
         }
         return handle;        
@@ -218,7 +295,7 @@ public class CampaignDB {
         }
         while(iterator.hasNext()) {
             Url url = iterator.next();
-            urlMap.put(url.getId(), url);
+            urlMap.get().put(url.getId(), url);
         }
     }
 
@@ -229,7 +306,7 @@ public class CampaignDB {
         }
         while(iterator.hasNext()) {
             Theme theme = iterator.next();
-            themeMap.put(theme.getId(), theme);
+            themeMap.get().put(theme.getId(), theme);
         }
     }
 
@@ -239,7 +316,7 @@ public class CampaignDB {
         }
         while(iterator.hasNext()) {
             Location location = iterator.next();
-            locationMap.put(location.getId(), location);
+            locationMap.get().put(location.getId(), location);
         }
     }
 
@@ -247,10 +324,11 @@ public class CampaignDB {
         if(iterator == null) {
             return;
         }
-        Map<String,List<Handle>> urlAdPodMap      = new HashMap<String, List<Handle>>();
+        Map<String,List<Handle>>   urlAdPodMap = new HashMap<String, List<Handle>>();
+        AdpodIndex<String, Handle> index       = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kUrl);
         while(iterator.hasNext()) {
             UrlAdPodMapping urlAdPodMapping = iterator.next();
-            Url url = urlMap.get(urlAdPodMapping.getUrlId());
+            Url url = urlMap.get().get(urlAdPodMapping.getUrlId());
             List<Handle> list = null;
             if(url != null) {
                 list = urlAdPodMap.get(url.getName());
@@ -259,12 +337,20 @@ public class CampaignDB {
                 list = new ArrayList<Handle>();
             }
             int oid = urlAdPodMapping.getId();
-            list.add(new AdPodHandle(adPodMap.get(urlAdPodMapping.getAdPodId()), oid, AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
+            list.add(new AdPodHandle(adPodMap.get().get(urlAdPodMapping.getAdPodId()), oid, AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
             if(url != null) {
-                urlAdPodMap.put(url.getName(), list);
+                String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
+                if(urlName != null) {
+                    urlAdPodMap.put(urlName, list);
+                }
+                else {
+                    //log warning message, indicating some possible bug in normalizing process
+                    urlAdPodMap.put(url.getName(), list);
+                }
             }
         }
-        adpodUrlMappingIndex.put(urlAdPodMap);
+        index.put(urlAdPodMap);
+        adpodUrlMappingIndex.set(index);
     }
 
     @SuppressWarnings({"deprecation"})
@@ -272,10 +358,11 @@ public class CampaignDB {
         if(iterator == null) {
             return;
         }
-        Map<String, List<Handle>>    themeAdPodMap    = new HashMap<String, List<Handle>>();
+        Map<String, List<Handle>>  themeAdPodMap = new HashMap<String, List<Handle>>();
+        AdpodIndex<String, Handle> index         = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kTheme);
         while(iterator.hasNext()) {
             ThemeAdPodMapping themeAdPodMapping = iterator.next();
-            Theme theme = themeMap.get(themeAdPodMapping.getThemeId());
+            Theme theme = themeMap.get().get(themeAdPodMapping.getThemeId());
             List<Handle> list = null;
             if(theme != null) {
                 list = themeAdPodMap.get(theme.getName());
@@ -284,19 +371,21 @@ public class CampaignDB {
                 list = new ArrayList<Handle>();
             }
             int oid = themeAdPodMapping.getId();
-            list.add(new AdPodHandle(adPodMap.get(themeAdPodMapping.getAdPodId()), oid, AdPodHandle.themeScore, themeAdPodMapping.getWeight()));
+            list.add(new AdPodHandle(adPodMap.get().get(themeAdPodMapping.getAdPodId()), oid, AdPodHandle.themeScore, themeAdPodMapping.getWeight()));
             if(theme != null) {
                 themeAdPodMap.put(theme.getName(), list);
             }
         }
-        adpodThemeMappingIndex.put(themeAdPodMap);
+        index.put(themeAdPodMap);
+        adpodThemeMappingIndex.set(index);
     }
 
     public void loadLocationAdPodMappings(Iterator<LocationAdPodMapping> iterator) {
         if(iterator == null) {
             return;
         }
-        Map<Integer, List<Handle>> locationAdPodMap = new HashMap<Integer, List<Handle>>();
+        Map<Integer, List<Handle>>  locationAdPodMap = new HashMap<Integer, List<Handle>>();
+        AdpodIndex<Integer, Handle> index            = new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation);
         while(iterator.hasNext()) {
             LocationAdPodMapping locationAdPodMapping = iterator.next();
 
@@ -304,61 +393,56 @@ public class CampaignDB {
             if(list == null) {
                 list = new ArrayList<Handle>();
             }
-            //ToDo: add weight field to LocationAdpodMapping class
+            //@todo: add weight field to LocationAdpodMapping class
             int oid = locationAdPodMapping.getId();
-            list.add(new AdPodHandle(adPodMap.get(locationAdPodMapping.getAdPodId()), oid, AdPodHandle.locationScore, 1));
-            Location location = locationMap.get(locationAdPodMapping.getLocationId());
+            list.add(new AdPodHandle(adPodMap.get().get(locationAdPodMapping.getAdPodId()), oid, AdPodHandle.locationScore, 1));
+            Location location = locationMap.get().get(locationAdPodMapping.getLocationId());
             if(location != null) {
                 locationAdPodMap.put(location.getExternalId(), list);                
             }
         }
-        adpodLocationMappingIndex.put(locationAdPodMap);
+        index.put(locationAdPodMap);
+        adpodLocationMappingIndex.set(index);
     }
 
-    public AdpodIndex<Integer, Handle> getLocationAdPodMappingIndex() {
+    public AtomicAdpodIndex<Integer, Handle> getLocationAdPodMappingIndex() {
         return adpodLocationMappingIndex;
     }
 
-    public AdpodIndex<String, Handle> getUrlAdPodMappingIndex() {
+    public AtomicAdpodIndex<String, Handle> getUrlAdPodMappingIndex() {
         return adpodUrlMappingIndex;
     }
     
-    public AdpodIndex<String, Handle> getThemeAdPodMappingIndex() {
+    public AtomicAdpodIndex<String, Handle> getThemeAdPodMappingIndex() {
         return adpodThemeMappingIndex;
     }
 
-    public AdpodIndex<String, Handle> getRunOfNetworkAdPodIndex() {
+    public AtomicAdpodIndex<String, Handle> getRunOfNetworkAdPodIndex() {
         return adpodRunOfNetworkIndex;
     }
 
-    public AdpodIndex<String, Handle> getNonGeoAdPodIndex() {
+    public AtomicAdpodIndex<String, Handle> getNonGeoAdPodIndex() {
         return adpodGeoNoneIndex;
     }
 
-    public AdpodIndex<String, Handle> getAdpodGeoCountryIndex() {
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoCountryIndex() {
         return adpodGeoCountryIndex;
     }
 
-    public AdpodIndex<String, Handle> getAdpodGeoRegionIndex() {
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoRegionIndex() {
         return adpodGeoRegionIndex;
     }
-    public AdpodIndex<String, Handle> getAdpodGeoCityIndex() {
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoCityIndex() {
         return adpodGeoCityIndex;
     }
-    public AdpodIndex<String, Handle> getAdpodGeoDmacodeIndex() {
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoDmacodeIndex() {
         return adpodGeoDmacodeIndex;
     }
-    public AdpodIndex<String, Handle> getAdpodGeoAreacodeIndex() {
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoAreacodeIndex() {
         return adpodGeoAreacodeIndex;
     }
-    public AdpodIndex<String, Handle> getAdpodGeoZipcodeIndex() {
+
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoZipcodeIndex() {
         return adpodGeoZipcodeIndex;
     }
-    public void addOSpec(OSpec oSpec){
-    	ospecNameMap.put(oSpec.getName(), oSpec);
-    }
-    public void deleteOSpec(String oSpecName){
-    	ospecNameMap.remove(oSpecName);
-    }
-
 }

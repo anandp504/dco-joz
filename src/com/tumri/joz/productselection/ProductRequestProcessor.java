@@ -34,6 +34,7 @@ import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.targeting.TSpecTargetingHelper;
+import com.tumri.joz.targeting.TargetingRequestProcessor;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpReader;
@@ -93,20 +94,24 @@ public class ProductRequestProcessor {
 		//2.Num products will override the current page, and page size
 		m_NumProducts = request.get_num_products ();
 
-		//3. Select the TSpec for the request
-		String tSpecName = request.get_t_spec();
-		if ((tSpecName!=null) && (!"".equals(tSpecName))) {
-			m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(tSpecName);
-			m_currOSpec = CampaignDB.getInstance().getOspec(tSpecName);
-		} else {
-			//m_currOSpec = TargetingRequestProcessor.getInstance().processRequest(request);
-			//m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
-			String oSpecName = TSpecTargetingHelper.doTargeting(request);
-			if (oSpecName != null){
-				m_currOSpec = CampaignDB.getInstance().getOspec(oSpecName);
-				m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(oSpecName);
-			}
-		}
+		//3. Pass request to Targeting Processor
+        m_currOSpec = TargetingRequestProcessor.getInstance().processRequest(request);
+        if(m_currOSpec != null) {
+            m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
+        }
+
+		//String tSpecName = request.get_t_spec();
+		//if ((tSpecName!=null) && (!"".equals(tSpecName))) {
+		//	m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(tSpecName);
+		//	m_currOSpec = CampaignDB.getInstance().getOspec(tSpecName);
+		//} else {
+        //  m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
+		//	String oSpecName = TSpecTargetingHelper.doTargeting(request);
+        //      if (oSpecName != null){
+  		//		m_currOSpec = CampaignDB.getInstance().getOspec(oSpecName);
+  		//		m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(oSpecName);
+  		//	}
+		//}
 
 		MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
 
@@ -350,8 +355,8 @@ public class ProductRequestProcessor {
 
 	/**
 	 * Perform the keyword search
-	 * @param request
 	 * @param keywords
+     * @param bCreateNew
 	 * @return
 	 */
 	private void doKeywordSearch(String keywords, boolean bCreateNew) {

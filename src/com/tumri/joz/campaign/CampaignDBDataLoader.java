@@ -3,10 +3,12 @@ package com.tumri.joz.campaign;
 import com.tumri.cma.CMAConfigurationException;
 import com.tumri.cma.CMAFactory;
 import com.tumri.cma.RepositoryException;
+import com.tumri.cma.util.DeepCopy;
 import com.tumri.cma.domain.*;
 import com.tumri.cma.service.CampaignDeltaProvider;
 
 import com.tumri.utils.Pair;
+import com.tumri.joz.utils.AppProperties;
 
 import java.util.Iterator;
 
@@ -29,12 +31,19 @@ public class CampaignDBDataLoader {
     public void loadData() throws CampaignDataLoadingException {
         CampaignDB campaignDB = CampaignDB.getInstance();
         CampaignDeltaProvider deltaProvider;
-        //ToDo: The region is hard-coded for now, but this needs to be moved to properties file, from where value should
-        //be retrieved
-        String region = "USA";
+        String region;
+        try {
+            region = AppProperties.getInstance().getProperty("com.tumri.campaign.data.region.name");
+        }
+        catch(NullPointerException e) {
+            throw new CampaignDataLoadingException("Error loading joz.properties", e);            
+        }
+        catch(Exception e) {
+            throw new CampaignDataLoadingException("cannot load joz.properties", e);
+        }
 
         try {
-            CMAFactory factory = CMAFactory.getInstance();
+            CMAFactory factory = CMAFactory.getInstance(AppProperties.getInstance().getProperties());
             deltaProvider = factory.getCampaignDeltaProvider();
 
             Iterator<UrlAdPodMapping>        urlsAdPodMappingIterator      = deltaProvider.getUrlAdpodMappings(region);
@@ -45,12 +54,14 @@ public class CampaignDBDataLoader {
             Iterator<Url>      urlsIterator      = deltaProvider.getUrls(region);
             Iterator<Theme>    themesIterator    = deltaProvider.getThemes(region);
             Iterator<Location> locationsIterator = deltaProvider.getLocations(region);
-            Iterator<AdPod>    adPodsIterator    = deltaProvider.getAdPods(region);
             Iterator<Geocode>  geocodesIterator  = deltaProvider.getGeocodes(region);
+            Iterator<AdPod>    adPodsIterator    = deltaProvider.getAdPods(region);
             Iterator<OSpec>    oSpecsIterator    = deltaProvider.getOspecs(region);
             Iterator<Campaign> campaignsIterator = deltaProvider.getCampaigns(region);
             Iterator<AdPod>    runOfNetworkAdPodsIterator = deltaProvider.getNonSiteSpecificAdPods(region);
             Iterator<AdPod>    geoNoneAdPodsIterator      = deltaProvider.getNonGeoSpecificAdPods(region);
+
+            Iterator<OSpec>    oSpecsIterator2   = (Iterator<OSpec>) DeepCopy.copy(oSpecsIterator);
 
             campaignDB.loadUrls(urlsIterator);
             campaignDB.loadThemes(themesIterator);
@@ -65,6 +76,8 @@ public class CampaignDBDataLoader {
             campaignDB.loadLocationAdPodMappings(locationsAdPodMappingIterator);
             campaignDB.loadRunOfNetworkAdPods(runOfNetworkAdPodsIterator);
             campaignDB.loadGeoNoneAdPods(geoNoneAdPodsIterator);
+
+            OSpecQueryCache.getInstance().load(oSpecsIterator2);
 
         }
         catch(CMAConfigurationException e) {

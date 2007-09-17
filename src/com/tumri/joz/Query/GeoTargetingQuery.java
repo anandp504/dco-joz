@@ -3,10 +3,10 @@ package com.tumri.joz.Query;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.index.AdpodIndex;
+import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.utils.data.MultiSortedSet;
 
 import java.util.SortedSet;
-import java.util.List;
 
 /**
  * Targeting query for geo data
@@ -14,22 +14,21 @@ import java.util.List;
  * @author bpatel
  */
 public class GeoTargetingQuery extends TargetingQuery {
-    private List<String> countries;
-    private List<String> cities;
-    private List<String> regions;
-    private List<String> dmacodes;
-    private List<String> zipcodes;
-    private List<String> areacodes;
+    private String country;
+    private String city;
+    private String region;
+    private String dmacode;
+    private String zipcode;
+    private String areacode;
 
 
-
-    public GeoTargetingQuery(List<String> countries, List<String> regions, List<String> cities, List<String> dmacodes, List<String> zipcodes, List<String> areacodes) {
-        this.countries = countries;
-        this.cities    = cities;
-        this.regions   = regions;
-        this.dmacodes  = dmacodes;
-        this.zipcodes  = zipcodes;
-        this.areacodes = areacodes;
+    public GeoTargetingQuery(String country, String region, String city, String dmacode, String zipcode, String areacode) {
+        this.country = country;
+        this.city = city;
+        this.region = region;
+        this.dmacode = dmacode;
+        this.zipcode = zipcode;
+        this.areacode = areacode;
     }
 
     public Type getType() {
@@ -73,37 +72,55 @@ public class GeoTargetingQuery extends TargetingQuery {
     }
 
     private SortedSet<Handle> execCountryGeoQuery() {
+        if(country == null) {
+            return null;
+        }
         SortedSet<Handle> results;
-        results = CampaignDB.getInstance().getAdpodGeoCountryIndex().get(countries);
+        results = CampaignDB.getInstance().getAdpodGeoCountryIndex().get(country);
         return results;
     }
 
     private SortedSet<Handle> execRegionGeoQuery() {
+        if(region == null) {
+            return null;
+        }
         SortedSet<Handle> results = null;
-        AdpodIndex<String, Handle> index = CampaignDB.getInstance().getAdpodGeoRegionIndex();
+        AtomicAdpodIndex<String, Handle> index = CampaignDB.getInstance().getAdpodGeoRegionIndex();
         if(index != null) {
-            results = index.get(regions);
+            results = index.get(region);
         }
         return results;
     }
     private SortedSet<Handle> execCityGeoQuery() {
+        if(city == null) {
+            return null;
+        }
         SortedSet<Handle> results;
-        results = CampaignDB.getInstance().getAdpodGeoCityIndex().get(cities);
+        results = CampaignDB.getInstance().getAdpodGeoCityIndex().get(city);
         return results;
     }
     private SortedSet<Handle> execDmacodeGeoQuery() {
+        if(dmacode == null) {
+            return null;
+        }
         SortedSet<Handle> results;
-        results = CampaignDB.getInstance().getAdpodGeoDmacodeIndex().get(dmacodes);
+        results = CampaignDB.getInstance().getAdpodGeoDmacodeIndex().get(dmacode);
         return results;
     }
     private SortedSet<Handle> execZipcodeGeoQuery() {
+        if(zipcode == null) {
+            return null;
+        }
         SortedSet<Handle> results;
-        results = CampaignDB.getInstance().getAdpodGeoZipcodeIndex().get(zipcodes);
+        results = CampaignDB.getInstance().getAdpodGeoZipcodeIndex().get(zipcode);
         return results;
     }
     private SortedSet<Handle> execAreacodeGeoQuery() {
+        if(areacode == null) {
+            return null;
+        }
         SortedSet<Handle> results;
-        results = CampaignDB.getInstance().getAdpodGeoAreacodeIndex().get(areacodes);
+        results = CampaignDB.getInstance().getAdpodGeoAreacodeIndex().get(areacode);
         return results;
     }
 

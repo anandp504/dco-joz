@@ -18,3 +18,51 @@ com.tumri.campaign.file.mappingFileNamePattern=mapping.lisp
 #com.tumri.content.file.mup.dataDir=
 #com.tumri.content.file.taxonomy.dataDir=
 #com.tumri.content.file.merchant_data.dataDir=
+
+#JoZ uses the property below to load all the campaign data based on the region specified
+#For UK change the value below to UK
+com.tumri.campaign.data.region.name=USA
+
+#CMA specific properties
+
+# Data Source type can be either SIMPLE or JNDI
+data.source.type = SIMPLE
+
+# Set this property if JNDI data source is used. Example: data.source = jdbc/MySQL501_DS
+data.source =
+
+# Set the properties below if SIMPLE datasource is used.
+JDBC.Driver = com.mysql.jdbc.Driver
+
+# Connection url. Example: JDBC.ConnectionURL = jdbc:mysql://localhost:3306/CAMPAIGN_DB
+JDBC.ConnectionURL =
+
+JDBC.Username =
+
+JDBC.Password =
+
+JDBC.DefaultAutoCommit = true
+
+Pool.MaximumActiveConnections = 10
+
+Pool.MaximumIdleConnections = 5
+
+Pool.MaximumCheckoutTime = 12000
+
+Pool.TimeToWait = 10000
+
+Pool.PingQuery = select 1
+
+Pool.PingEnabled = false
+
+Pool.PingConnectionsOlderThan = 0
+
+Pool.PingConnectionsNotUsedFor = 0
+
+# Define the maximum page size for the data that should be retrieved from the repository at a time
+# The value of this parameter should be modified based on the memory capacity of the application using the CM API.
+result.page.size = 15000
+
+# This properties should be set only if instructed by the development team
+# Example: cma.factory.impl = com.tumri.cma.misc.CMAFactoryImpl
+cma.factory.impl =
