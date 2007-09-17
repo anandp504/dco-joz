@@ -48,12 +48,15 @@ package com.tumri.joz.jozMain;
 //import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.sexp.*;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpInteger;
+import com.tumri.utils.sexp.SexpKeyword;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpSymbol;
+import com.tumri.utils.sexp.SexpUtils;
 
 public class AdDataRequest
 {
@@ -94,9 +97,9 @@ public class AdDataRequest
     public Boolean get_include_cat_counts () { return _include_cat_counts; }
     // null represents "nil" or "unspecified"
     public Integer get_seed () { return _seed; }
-    public Enums.MaybeBoolean get_psychographics_p () { return _psychographics_p; }
-    public Enums.MaybeBoolean get_mine_pub_url_p () { return _mine_pub_url_p; }
-    public Enums.MaybeBoolean get_allow_too_few_products () { return _allow_too_few_products; }
+    public SexpUtils.MaybeBoolean get_psychographics_p () { return _psychographics_p; }
+    public SexpUtils.MaybeBoolean get_mine_pub_url_p () { return _mine_pub_url_p; }
+    public SexpUtils.MaybeBoolean get_allow_too_few_products () { return _allow_too_few_products; }
     // null represents "nil" or "unspecified"
     public Integer get_ad_width () { return _ad_width; }
     // null represents "nil" or "unspecified"
@@ -323,9 +326,9 @@ public class AdDataRequest
     // FIXME: should be null, fix.
     private static final Boolean DEFAULT_INCLUDE_CAT_COUNTS = new Boolean (false); // FIXME: check default value
     private static final Integer DEFAULT_SEED = null;
-    private static final Enums.MaybeBoolean DEFAULT_PSYCHOGRAPHICS_P = null;
-    private static final Enums.MaybeBoolean DEFAULT_MINE_PUB_URL_P = null;
-    private static final Enums.MaybeBoolean DEFAULT_ALLOW_TOO_FEW_PRODUCTS = null;
+    private static final SexpUtils.MaybeBoolean DEFAULT_PSYCHOGRAPHICS_P = null;
+    private static final SexpUtils.MaybeBoolean DEFAULT_MINE_PUB_URL_P = null;
+    private static final SexpUtils.MaybeBoolean DEFAULT_ALLOW_TOO_FEW_PRODUCTS = null;
     private static final Integer DEFAULT_AD_WIDTH = null;
     private static final Integer DEFAULT_AD_HEIGHT = null;
     private static final AdOfferType DEFAULT_AD_OFFER_TYPE = AdOfferType.PRODUCT_ONLY;
@@ -360,11 +363,11 @@ public class AdDataRequest
     // plug seed in here to deterministically replay a previous call
     Integer _seed = DEFAULT_SEED;
     // use psychographic curves when building roulette wheel
-    Enums.MaybeBoolean _psychographics_p = DEFAULT_PSYCHOGRAPHICS_P;
+    SexpUtils.MaybeBoolean _psychographics_p = DEFAULT_PSYCHOGRAPHICS_P;
     // pull keywords out of publisher URL and get products based on them
-    Enums.MaybeBoolean _mine_pub_url_p = DEFAULT_MINE_PUB_URL_P;
+    SexpUtils.MaybeBoolean _mine_pub_url_p = DEFAULT_MINE_PUB_URL_P;
     // if t then we don't care about too few products
-    Enums.MaybeBoolean _allow_too_few_products = DEFAULT_ALLOW_TOO_FEW_PRODUCTS;
+    SexpUtils.MaybeBoolean _allow_too_few_products = DEFAULT_ALLOW_TOO_FEW_PRODUCTS;
     // for leadgens, only return offers of these dimensions
     Integer _ad_width = DEFAULT_AD_WIDTH;
     Integer _ad_height = DEFAULT_AD_HEIGHT;

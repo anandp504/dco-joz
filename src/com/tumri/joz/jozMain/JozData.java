@@ -12,48 +12,16 @@ import com.tumri.joz.utils.AppProperties;
 
 public class JozData
 {
-    private static final String CAMPAIGN_SOURCE_DIR_PATH_PROPERTY = "com.tumri.campaign.file.sourceDir";
     
 	public static void
-    init ()
-    {
-    //Read the datapath from the joz.properties file
-	AppProperties props = AppProperties.getInstance();
-	String data_path = props.getProperty(CAMPAIGN_SOURCE_DIR_PATH_PROPERTY);
+	init ()
+	{
+		//Read the datapath from the joz.properties file
+		AppProperties props = AppProperties.getInstance();
+		loadContent(props.getProperties());
+		loadCampaignData();
+	}
 	
-	if (data_path == null) {
-		data_path = "../data/joz";
-	} 
-	
-	loadContent(props.getProperties());
-	
-	loadCampaignData();
-
-	try
-	{
-	    log.info ("Loading mappings ...");
-	    mapping_db = new TmpMappingDB (data_path + "/mappings/mapping.lisp");
-	}
-	catch (Exception e)
-	{
-	    log.error ("Unable to initialize Mapping DB: " + e);
-	}
-
-	try
-	{
-	    log.info ("Loading t-specs ...");
-	    tspec_db = new TmpTSpecDB (data_path + "/t-specs/t-specs.lisp");
-/*
-	    log.info ("Materializing t-specs ...");
-	    tspec_db.materialize ();
-*/
-	}
-	catch (Exception e)
-	{
-	    log.error ("Unable to initialize TSpec DB: " + e);
-	}
-    }
-
 /* - sigh
     public static void
     init1 ()
@@ -121,12 +89,6 @@ public class JozData
 	}
     }
 */
-
-    // T-Specs.
-    public static TSpecDB tspec_db = null;
-
-    // Mapping DB.
-    public static MappingDB mapping_db = null;
 
     // implementation details -------------------------------------------------
 
