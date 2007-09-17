@@ -1,4 +1,21 @@
 // tabulate-search-results command
+//
+// The result is a list of four elements:
+//
+// - (1 num-merchants num-merchants)
+// - nil
+// - expected column ordering, a list of strings:
+//   ("Merchant ID" "Merchant Name" "Catalog Name" "Merchant Rating"
+//    "Logo URL" "Home Page URL" "Category" "Collects Taxes?"
+//    "Catalog File" "Product Count" "Review Info" "Contact Info"
+//    "Shipping Promotion" "Return Policy")
+// - list of merchant data, one element per merchant:
+//   (merchant-name nil col2 col3 ... colN)
+//   where `col2 col3 ... colN' are the expected column ordering fields
+//   with "Merchant ID" removed, and the value is nil if there is no data,
+//   otherwise a list of a list of two elements with the same value, namely the
+//   value for that column, e.g. (("Runnersgear.com" "Runnersgear.com")) for
+//   the "Merchant Name" column
 
 package com.tumri.joz.jozMain;
 
