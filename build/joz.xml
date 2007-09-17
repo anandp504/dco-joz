@@ -27,7 +27,7 @@
 	<touch file="${stage.dir}/IndexCreator/createIndex.sh"/>
 
 	<echo file="${stage.dir}/IndexCreator/createIndex.sh">#!/bin/sh</echo>
-	<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx1g -classpath joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:caa.jar:cma.jar:utils.jar:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
+	<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx1g -classpath joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:caa.jar:jyaml-1.2.jar:ibatis-2.3.0.677.jar:cma.jar:utils.jar:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
 	<chmod file="${stage.dir}/IndexCreator/createIndex.sh" perm="a+x"></chmod>
 
 	<delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
