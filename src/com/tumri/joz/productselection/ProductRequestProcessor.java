@@ -23,7 +23,6 @@ import com.tumri.joz.Query.KeywordQuery;
 import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.Query.ProductTypeQuery;
 import com.tumri.joz.Query.SimpleQuery;
-import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.jozMain.AdDataRequest;
@@ -33,7 +32,6 @@ import com.tumri.joz.jozMain.Enums.MaybeBoolean;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.targeting.TSpecTargetingHelper;
 import com.tumri.joz.targeting.TargetingRequestProcessor;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
@@ -455,7 +453,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testVanillaGetAdData() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\")";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\")";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -467,7 +465,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testNumProducts() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :num-products 30)";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :num-products 30)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -479,7 +477,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testPagination() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :which-row 2 :row-size 12)";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :which-row 2 :row-size 12)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -491,7 +489,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testAllowTooFewProducts() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :leadgen-only :allow-too-few-products t)";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :leadgen-only :allow-too-few-products t)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -503,7 +501,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testRevertToDefaultRealm() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :revert-to-default-realm nil)";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :revert-to-default-realm nil)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -527,7 +525,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testProductOnly() {
 		try {
-			String queryStr =  "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm nil)";
+			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm nil)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -540,7 +538,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testHybrid() {
 		try {
-			String queryStr =  "(get-ad-data :theme \"http://www.photography.com/\" :ad-offer-type :product-leadgen :revert-to-default-realm nil)";
+			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-leadgen :revert-to-default-realm nil)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -552,7 +550,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testKeywordSearch() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :keywords \"nikon\" :revert-to-default-realm nil)";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :keywords \"nikon\" :revert-to-default-realm nil)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -564,7 +562,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testScriptKeywordSearch() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :script-keywords \"nikon\" :revert-to-default-realm nil)";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"nikon\" :revert-to-default-realm nil)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
@@ -576,7 +574,7 @@ public class ProductRequestProcessor {
 	@Test
 	public void testIncludedCategories() {
 		try {
-			String queryStr = "(get-ad-data :theme \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			Assert.assertTrue(result!=null);
 		} catch(Exception e){
