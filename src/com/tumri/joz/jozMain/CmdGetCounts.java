@@ -66,10 +66,20 @@ public class CmdGetCounts extends CommandDeferWriting
 	    if (l.size () != 2)
 		throw new BadCommandException ("expecting (get-counts t-spec-name)");
 	    Sexp arg = l.get (1);
-	    if (! arg.isSexpSymbol ())
+	    if (arg.isSexpSymbol ())
+	    {
+		SexpSymbol sym = arg.toSexpSymbol ();
+		e = get_counts (sym.toString ());
+	    }
+	    else if (arg.isSexpList ()
+		     && arg.toSexpList ().size () == 0)
+	    {
+		e = get_counts ("nil");
+	    }
+	    else
+	    {
 		return SexpReader.readFromStringNoex ("(:error \"expected t-spec name\")");
-	    SexpSymbol sym = arg.toSexpSymbol ();
-	    e = get_counts (sym.toString ());
+	    }
 	}
 	catch (Exception ex)
 	{
@@ -106,23 +116,24 @@ public class CmdGetCounts extends CommandDeferWriting
     {
 	JOZTaxonomy tax = JOZTaxonomy.getInstance ();
 	Taxonomy t = tax.getTaxonomy();
-	List<String> result = new ArrayList<String>();
-	HashSet<Integer> idSet = new HashSet<Integer>();
-	for (String c: cats) {
+	List<String> result = new ArrayList<String> ();
+	HashSet<Integer> idSet = new HashSet<Integer> ();
+	for (String c : cats)
+	{
 	    result.add(c);
-	    Category c1 = t.getCategory(c);
-        idSet.add(c1.getGlassId());
+	    Category c1 = t.getCategory (c);
+	    idSet.add (c1.getGlassId ());
 	    Category p = null;
 	    do {
-	        p = c1.getParent();
-	        if (idSet.contains(p.getGlassId())) {
+	        p = c1.getParent ();
+	        if (idSet.contains (p.getGlassId ()))
+		{
 	            break;
 	        }
-	        result.add(c1.getParent().getGlassIdStr());
+	        result.add (c1.getParent ().getGlassIdStr ());
 	    } while (p != null);
 	}
 	return result;
-	
     }
 
     // See docs for the get-counts external API call for a description
@@ -139,6 +150,7 @@ public class CmdGetCounts extends CommandDeferWriting
 	    new HashMap<String, Counter> ();
 	Iterator<Handle> product_handles;
 	JOZTaxonomy tax = JOZTaxonomy.getInstance ();
+	ProductDB pdb = ProductDB.getInstance ();
 
 	if (! tspec_name.equals ("nil"))
 	{
@@ -154,17 +166,21 @@ public class CmdGetCounts extends CommandDeferWriting
 	{
 	    // FIXME: Blech.  Why not provide a method to instead return an
 	    // iterator over the entire mup?
-	    SortedSet<Handle> product_handles_set = ProductDB.getInstance ().getAll ();
+	    SortedSet<Handle> product_handles_set = pdb.getAll ();
 	    product_handles = product_handles_set.iterator ();
 	}
 
-/*
 	while (product_handles.hasNext ())
 	{
 	    Handle h = product_handles.next ();
+	    IProduct p = pdb.get (h); // FIXME: blech
 	    Counter ctr;
 
-	    List<String> parents = p.get_parents ();
+	    // FIXME: I seem to recall products being able to be in
+	    // multiple categories.
+	    String category = p.getCategoryStr ();
+	    List<String> parents = new ArrayList<String> ();
+	    parents.add (category);
 	    List<String> categories = get_all_categories (parents);
 	    for (String cat : categories)
 	    {
@@ -175,21 +191,20 @@ public class CmdGetCounts extends CommandDeferWriting
 		    ctr.inc ();
 	    }
 
-	    String brand = p.get_brand ();
+	    String brand = p.getBrandStr ();
 	    ctr = brand_counts.get (brand);
 	    if (ctr == null)
 		brand_counts.put (brand, new Counter (1));
 	    else
 		ctr.inc ();
 
-	    String merchant = p.get_merchant ();
+	    String merchant = p.getProviderStr ();
 	    ctr = merchant_counts.get (merchant);
 	    if (ctr == null)
 		merchant_counts.put (merchant, new Counter (1));
 	    else
 		ctr.inc ();
 	}
-*/
 
 	SexpList category_list = new SexpList ();
 	Set<Map.Entry<String, Counter>> cat_counts = category_counts.entrySet ();
