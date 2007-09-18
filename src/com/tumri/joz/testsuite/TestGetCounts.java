@@ -16,8 +16,9 @@ public class TestGetCounts
     run ()
     {
 	JozClient jc = new JozClient (TestsuiteProps.get_joz_url ());
-	String tspec_name = "T-SPEC-http://www.shop4flowers.com/"; // FIXME: Should be a parameter.
-	InputStream is = jc.execute ("(" + me + " |" + tspec_name + "|)");
+	String tspec_name = "|T-SPEC-http://www.shop4flowers.com/|"; // FIXME: Should be a parameter.
+	//tspec_name = "nil"; // for entire mup
+	InputStream is = jc.execute ("(" + me + " " + tspec_name + ")");
 
 	if (is == null)
 	{
