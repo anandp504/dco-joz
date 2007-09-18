@@ -3,6 +3,7 @@ package com.tumri.joz.targeting;
 import static org.junit.Assert.*;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.campaign.CampaignDBDataLoader;
+import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.sexp.SexpReader;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
@@ -43,9 +44,21 @@ public class TargetingRequestProcessorTest {
 
     @BeforeClass
     public static void initialize() throws Exception {
-        loadData();
-        loadThemeData();
-        loadUrlData();
+        String factoryClass = null;
+        try {
+            factoryClass = AppProperties.getInstance().getProperty("cma.factory.impl");
+        }
+        catch(NullPointerException e) {
+            //ignore the exception
+        }
+        catch(Exception e) {
+            //ignore the exception
+        }
+        if(factoryClass == null || "".equals(factoryClass) || factoryClass.equals("com.tumri.cma.misc.CMAFactoryImpl")) {
+            loadData();
+            loadThemeData();
+            loadUrlData();
+        }
         CampaignDBDataLoader loader = CampaignDBDataLoader.getInstance();
         loader.loadData();
 

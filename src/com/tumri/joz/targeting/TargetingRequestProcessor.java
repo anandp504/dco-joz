@@ -38,30 +38,22 @@ public class TargetingRequestProcessor {
         OSpec oSpec = null;
         String tSpecName = request.get_t_spec();
         if(tSpecName != null && !"".equals(tSpecName)) {
-            try {
-            oSpec = getOSpecForGivenName(tSpecName);
-            }
-            catch(OSpecNotFoundException e) {
-                //@todo: Confirm with management whether to provide default ospec or propogate the error to top layer
-                AdPod adPod = CampaignDB.getInstance().getDefaultAdPod();
-                oSpec = CampaignDB.getInstance().getOSpecForAdPod(adPod.getId());
-            }
+            oSpec = CampaignDB.getInstance().getOspec(tSpecName);
         }
         else {
             oSpec = doSiteTargeting(request);
         }
-        return oSpec;
-    }
 
-    private OSpec getOSpecForGivenName(String oSpecName) throws OSpecNotFoundException {
-        OSpec oSpec = CampaignDB.getInstance().getOspec(oSpecName);
+        //If OSpec match is not found for the given request, pick default realm ospec if revertToDefaultRealm is set to true or null
         if(oSpec == null) {
-            log.error("OSpec not found for the specified name");
-            throw new OSpecNotFoundException("OSpec not found for the specified name: " + oSpecName);
+            boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
+            if(revertToDefaultRealm) {
+                oSpec = CampaignDB.getInstance().getDefaultOSpec();
+            }
         }
         return oSpec;
     }
-    
+
     private OSpec doSiteTargeting(AdDataRequest request) {
         OSpec ospec;
         int locationId       = 0;
@@ -98,24 +90,25 @@ public class TargetingRequestProcessor {
 
     private OSpec pickOneOSpec(SortedSet<Handle> results) {
         AdPod adPod;
-
+        OSpec oSpec;
         AdPodHandle handle;
         List<AdPodHandle> list = getHighestScoreAdPodHandles(results);
         if(list.size() == 0) {
-            //@todo: Discuss the requirements with business side for displaying default adpods
-            adPod = CampaignDB.getInstance().getDefaultAdPod();
+            oSpec = CampaignDB.getInstance().getDefaultOSpec();
 
         }
         else if(list.size() == 1) {
             handle = list.get(0);
             adPod = handle.getAdpod();
+            oSpec = CampaignDB.getInstance().getOSpecForAdPod(adPod.getId());
         }
         else {
             handle = selectAdPodHandle(list);
             adPod = handle.getAdpod();
+            oSpec = CampaignDB.getInstance().getOSpecForAdPod(adPod.getId());
         }
 
-        return CampaignDB.getInstance().getOSpecForAdPod(adPod.getId());
+        return oSpec;
     }
 
     private AdPodHandle selectAdPodHandle(List<AdPodHandle> list) {

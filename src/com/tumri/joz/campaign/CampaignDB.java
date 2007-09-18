@@ -6,6 +6,7 @@ import com.tumri.utils.Pair;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.AdpodIndex;
 import com.tumri.joz.index.AtomicAdpodIndex;
+import com.tumri.joz.utils.AppProperties;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,14 +58,33 @@ public class CampaignDB {
     private AtomicAdpodIndex<String, Handle>  adpodGeoAreacodeIndex     = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAreaCode));
     private AtomicAdpodIndex<String, Handle>  adpodGeoZipcodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kZipCode));
 
+    private String defaultRealmOSpecName = "T-SPEC-http://default-realm/";
 
     private CampaignDB() {
+        initialize();
     }
 
     public static CampaignDB getInstance() {
         return campaignDB;
     }
 
+    private void initialize() {
+        String defaultOSpecName = null;
+        try {
+            defaultOSpecName = AppProperties.getInstance().getProperty("com.tumri.targeting.default.realm.ospec.name");
+        }
+        catch(NullPointerException e) {
+            //ignore the error and pick the default realm specified specified in java class instead
+        }
+        catch(Exception e) {
+            //ignore the error and pick the default realm specified specified in java class instead
+        }
+
+        if(defaultOSpecName != null && !("".equals(defaultOSpecName))) {
+            defaultRealmOSpecName = defaultOSpecName;
+        }
+
+    }
     public OSpec getOSpecForAdPod(int adPodId) {
         int oSpecId = adPodOSpecMap.get().get(adPodId);
         return ospecMap.get().get(oSpecId);
@@ -89,6 +109,10 @@ public class CampaignDB {
 
     public AdPod getDefaultAdPod() {
         return adPodMap.get().get(adPodMap.get().firstKey());
+    }
+
+    public OSpec getDefaultOSpec() {
+        return ospecNameMap.get().get(defaultRealmOSpecName);
     }
 
     public void loadCampaigns(Iterator<Campaign> iterator) {

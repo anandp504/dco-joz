@@ -135,10 +135,10 @@ public class UrlNormalizer {
 
 		String[] tokens = domainStr.split("[.]");
 		if(tokens[tokens.length - 1].length() == 3) {
-			domain = tokens[tokens.length - 2];
+			domain = tokens[tokens.length - 2] + "." + tokens[tokens.length - 1];
 		}
 		else if(tokens[tokens.length - 1].length() == 2) {
-            domain = tokens[tokens.length - 3];
+            domain = tokens[tokens.length - 3] + "." + tokens[tokens.length - 2] + "." + tokens[tokens.length - 1];
         }
         else {
 			domain = domainStr;

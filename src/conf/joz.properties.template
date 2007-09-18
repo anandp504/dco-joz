@@ -23,6 +23,8 @@ com.tumri.campaign.file.mappingFileNamePattern=mapping.lisp
 #For UK change the value below to UK
 com.tumri.campaign.data.region.name=USA
 
+com.tumri.targeting.default.realm.ospec.name = T-SPEC-http://default-realm/
+
 #CMA specific properties
 
 # Data Source type can be either SIMPLE or JNDI
