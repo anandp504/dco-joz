@@ -3,6 +3,8 @@ package com.tumri.joz.utils;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -68,8 +70,15 @@ public class AppProperties {
 
   private static InputStream getInputStream() {
     InputStream is =  AppProperties.class.getClassLoader().getResourceAsStream(g_AppPropertyFile);
-    if (is == null)
-      log.error("Could not locate the resource file "+g_AppPropertyFile);
+    if (is == null) {
+      log.error("Could not locate the resource file "+g_AppPropertyFile + ". Will try ../conf");
+      try {
+          is =  new FileInputStream("../conf/" + g_AppPropertyFile);
+      } catch (FileNotFoundException ex) {
+          log.error("Couldn't find file " + g_AppPropertyFile + " in ../conf directory. Failing.");
+      }
+    } 
+    
     return is;
   }
 
