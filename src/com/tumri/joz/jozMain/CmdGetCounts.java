@@ -25,16 +25,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.OSpecQueryCache;
+import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.products.ProductDB;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpInteger;
 import com.tumri.utils.sexp.SexpList;
@@ -138,16 +142,20 @@ public class CmdGetCounts extends CommandDeferWriting
 
 	if (! tspec_name.equals ("nil"))
 	{
-//	    TSpec tspec = CampaignDB.getInstance().getOspec(tspec_name);
-//	    if (tspec == null)
-//		throw new RuntimeException ("bad tspec name: " + tspec_name);
+	    OSpecQueryCache qcache = OSpecQueryCache.getInstance ();
+	    CNFQuery query = qcache.getCNFQuery (tspec_name);
+	    if (query == null)
+		throw new RuntimeException ("bad tspec name: " + tspec_name);
+	    SortedSet<Handle> product_handles_set = query.exec ();
 	    // FIXME: stubbed out for now
-	    product_handles = new ArrayList<Handle> ().iterator ();
+	    product_handles = product_handles_set.iterator ();
 	}
 	else // search entire mup
 	{
-	    // FIXME: stubbed out until db support is ready
-	    product_handles = new ArrayList<Handle> ().iterator ();
+	    // FIXME: Blech.  Why not provide a method to instead return an
+	    // iterator over the entire mup?
+	    SortedSet<Handle> product_handles_set = ProductDB.getInstance ().getAll ();
+	    product_handles = product_handles_set.iterator ();
 	}
 
 /*
