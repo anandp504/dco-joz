@@ -11,7 +11,7 @@ public class UrlNormalizerTest {
     @Test
     public void testGetNormalizedURLValid1() {
         String url = "http://www.yahoo.com/sports/baseball";
-        String normalizedStr = "yahoo/sports/baseball";
+        String normalizedStr = "yahoo.com/sports/baseball";
         String actualString = UrlNormalizer.getNormalizedUrl(url);
         assertEquals(normalizedStr, actualString);
     }
@@ -30,7 +30,7 @@ public class UrlNormalizerTest {
     @Test
 	public void testGetNormalizedURLValid2() {
 		String url = "google.co.in/direction/home";
-		String normalizedStr = "google/direction/home";
+		String normalizedStr = "google.co.in/direction/home";
         long startTime = System.currentTimeMillis();
         String actualString = UrlNormalizer.getNormalizedUrl(url);
         long endTime = System.currentTimeMillis();
@@ -41,7 +41,7 @@ public class UrlNormalizerTest {
     @Test
 	public void testGetNormalizedURLValid3() {
 		String url = "http://sports.yahoo.com/cricket";
-		String normalizedStr = "yahoo/sports/cricket";
+		String normalizedStr = "yahoo.com/sports/cricket";
 		String actualString = UrlNormalizer.getNormalizedUrl(url);
 		assertEquals(normalizedStr, actualString);
 	}
@@ -49,7 +49,7 @@ public class UrlNormalizerTest {
 	@Test
 	public void testGetNormalizedURLValid4() {
 		String url = "https://www.google.com/finance/gainers";
-		String normalizedStr = "google/finance/gainers";
+		String normalizedStr = "google.com/finance/gainers";
 		String actualString = UrlNormalizer.getNormalizedUrl(url);
 		assertEquals(normalizedStr, actualString);
 	}
@@ -57,7 +57,7 @@ public class UrlNormalizerTest {
 	@Test
 	public void testGetNormalizedURLValid5() {
 		String url = "maps.google.com/direction/home";
-		String normalizedStr = "google/maps/direction/home";
+		String normalizedStr = "google.com/maps/direction/home";
 		String actualString = UrlNormalizer.getNormalizedUrl(url);
 		assertEquals(normalizedStr, actualString);
 	}
@@ -65,7 +65,7 @@ public class UrlNormalizerTest {
 	@Test
 	public void testGetNormalizedURLValid6() {
 		String url = "google.co.in/direction/home";
-		String normalizedStr = "google/direction/home";
+		String normalizedStr = "google.co.in/direction/home";
 		String actualString = UrlNormalizer.getNormalizedUrl(url);
 		assertEquals(normalizedStr, actualString);
 	}
@@ -73,7 +73,7 @@ public class UrlNormalizerTest {
 	@Test
 	public void testGetNormalizedURLValid7() {
 		String url = "google.com/direction/home";
-		String normalizedStr = "google/direction/home";
+		String normalizedStr = "google.com/direction/home";
 		String actualString = UrlNormalizer.getNormalizedUrl(url);
 		assertEquals(normalizedStr, actualString);
 	}
@@ -81,7 +81,7 @@ public class UrlNormalizerTest {
 	@Test
 	public void testGetNormalizedURLWithParameters() {
 		String url = "google.co.in/direction/home?test1=one&test2=two";
-		String normalizedStr = "google/direction/home";
+		String normalizedStr = "google.co.in/direction/home";
 		String actualString = UrlNormalizer.getNormalizedUrl(url);
 		assertEquals(normalizedStr, actualString);
 	}

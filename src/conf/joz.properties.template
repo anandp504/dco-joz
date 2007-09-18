@@ -67,4 +67,4 @@ result.page.size = 15000
 
 # This properties should be set only if instructed by the development team
 # Example: cma.factory.impl = com.tumri.cma.misc.CMAFactoryImpl
-cma.factory.impl =
+cma.factory.impl = com.tumri.cma.misc.CMALispFactoryImpl
