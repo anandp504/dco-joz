@@ -78,8 +78,6 @@ public class TargetingRequestProcessor {
             results = cjQuery.exec();
         }
         catch(Exception e) {
-            //@todo: log the error and take appropriate action for invalid value
-            //@todo: Confirm with management whether to provide some default adpods for unexpected errors
             log.error("Unexpected error. Not able to retrieve any adpods for given request", e);
             e.printStackTrace();
         }
@@ -94,8 +92,8 @@ public class TargetingRequestProcessor {
         AdPodHandle handle;
         List<AdPodHandle> list = getHighestScoreAdPodHandles(results);
         if(list.size() == 0) {
-            oSpec = CampaignDB.getInstance().getDefaultOSpec();
-
+            //No ospec will get selected by targeting layer so return null
+            return null;
         }
         else if(list.size() == 1) {
             handle = list.get(0);
