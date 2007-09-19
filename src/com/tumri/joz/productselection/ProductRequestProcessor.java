@@ -1,16 +1,11 @@
 package com.tumri.joz.productselection;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.ProductInfo;
@@ -26,16 +21,11 @@ import com.tumri.joz.Query.SimpleQuery;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.jozMain.AdDataRequest;
-import com.tumri.joz.jozMain.JozData;
 import com.tumri.joz.jozMain.AdDataRequest.AdOfferType;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.targeting.TargetingRequestProcessor;
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpList;
-import com.tumri.utils.sexp.SexpReader;
-import com.tumri.utils.sexp.SexpSymbol;
 import com.tumri.utils.sexp.SexpUtils;
 
 /**
@@ -417,216 +407,22 @@ public class ProductRequestProcessor {
 					try {
 						String productId = info.getName();
 						if (productId != null) {
-							productId = productId.substring(productId.indexOf("."), productId.length());
+							productId = productId.substring(productId.indexOf(".")+3, productId.length());
 							Handle prodHandle = ProductDB.getInstance().get(new Integer(productId).intValue()).getHandle();
 							if (prodHandle!=null){
+								if (prodList==null) {
+									prodList = new ArrayList<Handle>();
+								}
 								prodList.add(prodHandle);
 							}
 						}
 					} catch(Exception e) {
 						log.error("Could not get the product info from the Product DB");
+						e.printStackTrace();
 					}
 				}
 			}
 		}
 		return prodList;
-	}
-
-	@BeforeClass
-	public static void initialize() {
-		JozData.init ();
-	}
-
-	@Test
-	public void testDefaultRealm() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://default-realm/\")";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testVanillaGetAdData() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\")";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testNumProducts() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :num-products 30)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testPagination() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :which-row 2 :row-size 12)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testAllowTooFewProducts() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :leadgen-only :allow-too-few-products t)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testRevertToDefaultRealm() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testLeadgenOnly() {
-		try {
-			String queryStr = "(get-ad-data :t-spec \"T-SPEC-NBC Lead Gen\" :ad-offer-type :leadgen-only :ad-height 600 :ad-width 120)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testProductOnly() {
-		try {
-			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-
-	@Test
-	public void testHybrid() {
-		try {
-			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-leadgen :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testKeywordSearch() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :keywords \"nikon\" :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testScriptKeywordSearch() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"nikon\" :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testIncludedCategories() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			Assert.assertTrue(result!=null);
-		} catch(Exception e){
-			log.error("Exception caught during test run");
-			e.printStackTrace();
-		}
-	}
-
-	private ArrayList<Handle> testProcessRequest(String getAdDataCommandStr) throws Exception {
-		ProductRequestProcessor prodRequest = new ProductRequestProcessor();
-		Reader r = new StringReader (getAdDataCommandStr);
-		ArrayList<Handle> results = null;
-		SexpReader lr = new SexpReader (r);
-		try {
-			Sexp e = lr.read ();
-			SexpList l = e.toSexpList ();
-			Sexp cmd_expr = l.getFirst ();
-			if (! cmd_expr.isSexpSymbol ())
-				log.error("command name not a symbol: " + cmd_expr.toString ());
-
-			SexpSymbol sym = cmd_expr.toSexpSymbol ();
-			String cmd_name = sym.toString ();
-
-			// Return the right Cmd* class to handle this request.
-
-			if (cmd_name.equals ("get-ad-data")) {
-				AdDataRequest rqst = new AdDataRequest (e);
-				ProductSelectionResults presults = prodRequest.processRequest(rqst);
-				//Inspect the results
-				results = presults.getResults();
-				log.info("Number of results returned are : " + results.size());
-				Assert.assertTrue(presults!=null);
-
-				ProductDB pdb = ProductDB.getInstance ();
-				results = presults.getResults();
-				for (Handle res : results)
-				{
-					int id = res.getOid ();
-					IProduct ip = pdb.get (id);
-					String name = ip.getProductName ();
-					String desc = ip.getDescription ();
-					log.info(id + "     " + name + "    " + desc);
-				}
-
-			} else {
-				log.error("The request could not be parsed correctly");
-				Assert.assertTrue(false);
-			}
-		} catch(Exception e) {
-			throw e;
-		}
-
-		return results;
-
 	}
 }
