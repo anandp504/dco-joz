@@ -72,10 +72,7 @@ public class CmdGetAdData extends CommandOwnWriting {
     
     private void choose_and_write_products(AdDataRequest rqst, OutputStream out)
             throws IOException, Exception {
-        Integer seed = rqst.get_seed(); // FIXME: wip
-        if (seed == null)
-            seed = new Integer(42); // FIXME: wip
-        Features features = new Features(seed);
+        Features features = new Features();
         boolean private_label_p = false; // FIXME: t_spec.private_label_p ();
         
         // This does the real work of selecting a set of products.
@@ -170,10 +167,10 @@ public class CmdGetAdData extends CommandOwnWriting {
         write_elm(w, "REALM", targetedRealm); // FIXME: wip
         write_elm(w, "STRATEGY", targetedOSpecName); // FIXME: wip
         
-        write_elm(w, "IS-PRIVATE-LABEL-P", (private_label_p ? "T" : "NIL"));
+        write_elm(w, "IS-PRIVATE-LABEL-P", (private_label_p ? "t" : "nil"));
         
         SexpList sexp_features = features.toSexpList(elapsed_time);
-        write_elm(w, "SOZFEATURES", sexp_features);
+        write_elm(w, "SOZFEATURES", sexp_features.toStringValue());
         
         w.endList();
         
@@ -248,21 +245,19 @@ public class CmdGetAdData extends CommandOwnWriting {
         b.append("\",brand:\"");
         b.append(encode(p.getBrandStr()));
         b.append("\",merchant_id:\"");
-        b.append(encode(p.getProviderStr()));
+        b.append(encode(p.getSupplierStr()));
         b.append("\",provider:\"");
         b.append(encode(p.getSupplierStr()));
         MerchantData md = MerchantDB.getInstance().getMerchantData()
-                .getMerchant(p.getProviderStr());
+                .getMerchant(p.getSupplierStr());
         b.append("\",merchantlogo:\"");
-        if (md != null)
+        if (md != null) {
             b.append(encode(md.getLogoUrl()));
-        // b.append (encode (JozData.merchant_db.get_logo_url ((String)
-        // dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
+        }
         b.append("\",ship_promo:\"");
-        if (md != null)
+        if (md != null) {
             b.append(encode(md.getShippingPromotionText()));
-        // b.append (encode (JozData.merchant_db.get_shipping_promo ((String)
-        // dm.getValue (IProduct.Attribute.kProvider, p.getProvider ()))));
+        }
         b.append("\",description:\"");
         String desc = p.getDescription();
         if (maxProdDescLength > 0) {
