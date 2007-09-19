@@ -16,16 +16,17 @@ import org.apache.log4j.xml.DOMConfigurator;
 public class InitServlet extends HttpServlet {
     
     private static Logger log = null;
+    private static final String g_Log4JPropertiesFile = "jozLog4j.xml";
     
     static {
-        String filename = "../conf/jozLog4j.xml";
-        File f = new File(filename);
+        String fileName = getLog4JConfigFilePath();
+    	File f = new File(fileName);
         if (f.exists()) {
-            DOMConfigurator.configure(filename);
+            DOMConfigurator.configure(fileName);
         }
         log = Logger.getLogger(InitServlet.class);
         if (!f.exists()) {
-            log.error("Log4j configuration file " + filename + " missing.");
+            log.error("Log4j configuration file " + g_Log4JPropertiesFile + " missing.");
         }
     }
     
@@ -33,12 +34,6 @@ public class InitServlet extends HttpServlet {
         log.info("Initializing joz ...");
         
         try {
-            // Initialize this first in case something needs a property.
-            String config_dir = getInitParameter("tumri.joz.config.dir");
-            String config_file = getInitParameter("tumri.joz.config.file");
-            String app_config_file = getInitParameter("tumri.joz.app.config.file");
-            Props.init(config_dir, config_file, app_config_file);
-            
             JozData.init();
         } catch (Exception e) {
             log.error(e.toString());
@@ -50,4 +45,20 @@ public class InitServlet extends HttpServlet {
             throws IOException, ServletException {
         // FIXME
     }
+    
+    private static String getLog4JConfigFilePath() {
+    	String log4JFilePath = "";
+    	String catalinaBase = System.getProperty("catalina.base");
+    	if (catalinaBase != null) {
+    		String confFile = catalinaBase + File.separator + "conf" + File.separator + g_Log4JPropertiesFile;
+    		if (confFile != null){
+    			log4JFilePath = confFile;
+    		} else {
+    			System.out.println("Could not locate the resource file "+g_Log4JPropertiesFile + " in tomcat as catalina.base is not defined. Will try ../conf");
+    			log4JFilePath = "../conf/" +g_Log4JPropertiesFile ;
+    		}
+    	}
+    	return log4JFilePath;
+    }
+ 
 }
