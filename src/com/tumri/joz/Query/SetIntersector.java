@@ -158,6 +158,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   public void includeRankedSet(SortedSet<Value> aRankedSet, IWeight<Value> weight) {
     m_rankedSet = aRankedSet;
     m_rankedSetWeight = weight;
+    setListSize();
   }
 
   public boolean hasIncludes() {
@@ -287,7 +288,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
           continue;
         cPointer = null;
         int match = containsInt(v); // NB: match can be zero
-        if (addResult(lists,match-1, v, m_rankedSetWeight.getWeight(v), count)) {
+        if (addResult(lists,match, v, m_rankedSetWeight.getWeight(v), count)) {
             last = true;
         }
       }
@@ -633,7 +634,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   }
 
   private void setListSize() {
-    m_listSize = m_incSize + m_excSize + m_filterSize + m_iZeroSize + m_eZeroSize;
+	  m_listSize = m_incSize + m_excSize + m_filterSize + m_iZeroSize + m_eZeroSize + ((m_rankedSet!=null)?1:0);
   }
 
   /**
