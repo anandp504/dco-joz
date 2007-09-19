@@ -43,7 +43,7 @@ public class KeywordQuery extends MUPQuery {
   }
 
   public int getCount() {
-    return exec().size();
+    return rawResults().size();
   }
 
   public double getCost() {

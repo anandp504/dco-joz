@@ -152,26 +152,48 @@ public class ProductQueryProcessor extends QueryProcessor {
       SortedSet<Handle> plusset = lCatPlus.exec();
       if (plusset instanceof MultiSortedSet) {
         SortedSet<Handle> minusset = lCatMinus.exec();
-        List<SortedSet<Handle>> mlist = null;
+        List<SortedSet<Handle>> minuslist = null;
         if (minusset instanceof MultiSortedSet) {
-          mlist = ((MultiSortedSet<Handle>)minusset).getList();
+          minuslist = ((MultiSortedSet<Handle>)minusset).getList();
         } else {
-          mlist = new ArrayList<SortedSet<Handle>>();
-          mlist.add(minusset);
+          minuslist = new ArrayList<SortedSet<Handle>>();
+          minuslist.add(minusset);
         }
         List<SortedSet<Handle>> res= new ArrayList<SortedSet<Handle>>();
         res.addAll(((MultiSortedSet<Handle>)plusset).getList());
-        res.removeAll(mlist);
-        ArrayList<SortedSet<Handle>> alist = intersector.getIncludes();
-        for(int i=0;i< alist.size() ; i++) {
-          if (alist.get(i) == plusset) {
-            alist.set(i,new MultiSortedSet<Handle>(res));
-            break;
+        boolean removedAll = true; // Have all sets been removed, initially true
+        boolean removedSome = false; // Have some sets been removed, initially false
+        for (SortedSet<Handle> set : minuslist) {
+          boolean removed = res.remove(set);
+          removedSome = removedSome || removed;
+          removedAll = removedAll && removed;
+        }
+        if (removedSome) {
+          ArrayList<SortedSet<Handle>> alist = intersector.getIncludes();
+          for(int i=0;i< alist.size() ; i++) {
+            if (alist.get(i) == plusset) {
+              alist.set(i,new MultiSortedSet<Handle>(res));
+              break;
+            }
           }
         }
-        return true;
+        return removedAll; // Unless all were removed the computation is not complete
       }
     }
     return false;
+  }
+
+  private boolean shouldInclude(List<SimpleQuery> queries, SimpleQuery sq) {
+    double count = sq.getCost();
+    int lowercost = 0;
+    int positiveQueries = 0;
+    for(SimpleQuery q : queries) {
+      if (q.isNegation())
+        continue;
+      positiveQueries++;
+      if (q.getCost() >= count)
+        lowercost++;
+    }
+    return (positiveQueries == 0 ? true : false );
   }
 }
