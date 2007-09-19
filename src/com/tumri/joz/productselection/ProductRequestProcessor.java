@@ -253,14 +253,15 @@ public class ProductRequestProcessor {
 				m_tSpecQuery.addSimpleQuery(adWidthQuery);
 			}
 			m_tSpecQuery.addSimpleQuery(ptQuery);
-		} else if (offerType==AdOfferType.PRODUCT_ONLY){
+		} else if (offerType==AdOfferType.PRODUCT_ONLY || offerType==AdOfferType.PRODUCT_LEADGEN){
 			ptQuery.setNegation(true);
 			m_tSpecQuery.addSimpleQuery(ptQuery);
-		} else if (offerType==AdOfferType.PRODUCT_LEADGEN) {
-			m_productLeadgenRequest = true;
-			ptQuery.setNegation(true);
-			m_tSpecQuery.addSimpleQuery(ptQuery);
-		}
+			//TODO: Remove this once we add a strict query type for Product Type and Product attributes
+			m_tSpecQuery.setStrict(true);
+			if (offerType == AdOfferType.PRODUCT_LEADGEN) {
+				m_productLeadgenRequest = true;
+			}
+		} 
 	}
 
 	/**
@@ -373,7 +374,8 @@ public class ProductRequestProcessor {
 		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
 		CNFQuery clonedTSpecQuery = (CNFQuery)OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
 		clonedTSpecQuery.addSimpleQuery(ptQuery);
-		clonedTSpecQuery.getQueries().get(0).setStrict(true);
+		clonedTSpecQuery.setStrict(true);
+		clonedTSpecQuery.setReference(null);
 		if (adHeight!=null) {
 			AttributeQuery adHeightQuery = new AttributeQuery(Product.Attribute.kImageHeight, adHeight);
 			clonedTSpecQuery.addSimpleQuery(adHeightQuery);
