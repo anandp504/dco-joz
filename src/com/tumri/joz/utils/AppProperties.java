@@ -3,6 +3,7 @@ package com.tumri.joz.utils;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -71,11 +72,24 @@ public class AppProperties {
   private static InputStream getInputStream() {
     InputStream is =  AppProperties.class.getClassLoader().getResourceAsStream(g_AppPropertyFile);
     if (is == null) {
-      log.error("Could not locate the resource file "+g_AppPropertyFile + ". Will try ../conf");
-      try {
-          is =  new FileInputStream("../conf/" + g_AppPropertyFile);
-      } catch (FileNotFoundException ex) {
-          log.error("Couldn't find file " + g_AppPropertyFile + " in ../conf directory. Failing.");
+      log.error("Could not locate the resource file "+g_AppPropertyFile + ". Will try using catalina.base property if its tomcat");
+      String catalinaBase = System.getProperty("catalina.base");
+      if (catalinaBase != null) {
+          String confFile = catalinaBase + File.separator + "conf" + File.separator + g_AppPropertyFile;
+          try {
+              is = new FileInputStream(confFile);
+          } catch (FileNotFoundException ex) {
+              log.error("Could not locate the resource file "+g_AppPropertyFile + "in tomcat conf directory. Will try ../conf");
+          }
+      } else {
+          log.error("Could not locate the resource file "+g_AppPropertyFile + " in tomcat as catalina.base is not defined. Will try ../conf");
+      }
+      if (is == null) {
+          try {
+              is =  new FileInputStream("../conf/" + g_AppPropertyFile);
+          } catch (FileNotFoundException ex) {
+              log.error("Couldn't find file " + g_AppPropertyFile + " in ../conf directory. Failing.");
+          }
       }
     } 
     
