@@ -2,10 +2,10 @@
 
 package com.tumri.joz.jozMain;
 
-public class BadMUPDataException extends Exception
-{
-    public BadMUPDataException (String msg)
-    {
-	super (msg);
+public class BadMUPDataException extends Exception {
+    
+    public BadMUPDataException(String msg) {
+        super(msg);
     }
+    
 }

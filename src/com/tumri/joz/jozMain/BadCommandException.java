@@ -2,10 +2,10 @@
 
 package com.tumri.joz.jozMain;
 
-class BadCommandException extends Exception
-{
-    public BadCommandException (String msg)
-    {
-	super (msg);
+class BadCommandException extends Exception {
+    
+    public BadCommandException(String msg) {
+        super(msg);
     }
+    
 }

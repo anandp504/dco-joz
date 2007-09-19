@@ -2,10 +2,10 @@
 
 package com.tumri.joz.jozMain;
 
-public class BadMerchantDataException extends Exception
-{
-    public BadMerchantDataException (String msg)
-    {
-	super (msg);
+public class BadMerchantDataException extends Exception {
+    
+    public BadMerchantDataException(String msg) {
+        super(msg);
     }
+    
 }

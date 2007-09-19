@@ -2,7 +2,9 @@
 
 package com.tumri.joz.jozMain;
 
-public class Enums
-{
-    public enum MaybeBoolean { FALSE, TRUE, MAYBE };
+public class Enums {
+    
+    public enum MaybeBoolean {
+        FALSE, TRUE, MAYBE,
+    };
 }

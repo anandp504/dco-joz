@@ -2,10 +2,10 @@
 
 package com.tumri.joz.jozMain;
 
-public class BadTSpecException extends Exception
-{
-    public BadTSpecException (String msg)
-    {
-	super (msg);
+public class BadTSpecException extends Exception {
+    
+    public BadTSpecException(String msg) {
+        super(msg);
     }
+    
 }

@@ -2,14 +2,14 @@
 
 package com.tumri.joz.jozMain;
 
-class TSpecAndRealm
-{
+class TSpecAndRealm {
+    
     public TSpec _t_spec = null;
+    
     public Realm _realm = null;
-
-    public TSpecAndRealm (TSpec t, Realm r)
-    {
-	_t_spec = t;
-	_realm = r;
+    
+    public TSpecAndRealm(TSpec t, Realm r) {
+        _t_spec = t;
+        _realm = r;
     }
 }

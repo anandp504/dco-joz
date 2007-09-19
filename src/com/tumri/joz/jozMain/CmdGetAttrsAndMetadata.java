@@ -8,27 +8,25 @@ import org.apache.log4j.Logger;
 
 import com.tumri.utils.sexp.Sexp;
 
-public class CmdGetAttrsAndMetadata extends CommandDeferWriting
-{
-    public CmdGetAttrsAndMetadata (Sexp e)
-    {
-	super (e);
+public class CmdGetAttrsAndMetadata extends CommandDeferWriting {
+    
+    public CmdGetAttrsAndMetadata(Sexp e) {
+        super(e);
     }
-
-    public Sexp
-    process ()
-    {
-	Sexp e = MerchantDB.getInstance().getAttributesAndMetadata();
-	return e;
+    
+    public Sexp process() {
+        Sexp e = MerchantDB.getInstance().getAttributesAndMetadata();
+        return e;
     }
-
+    
     // At least one part of ZiniJavaAPI *requires* uppercase symbols.
     // E.g. {Row.valueMap} maps attribute names to values and {AdObject}
-    // uses uppercase values for the attribute names.  This affects
+    // uses uppercase values for the attribute names. This affects
     // processing of the tabulate-search-results command.
-    public boolean need_uppercase_syms () { return true; }
-
+    public boolean need_uppercase_syms() {
+        return true;
+    }
+    
     // implementation details -------------------------------------------------
-
-    private static Logger log = Logger.getLogger (CmdGetAttrsAndMetadata.class);
+    private static Logger log = Logger.getLogger(CmdGetAttrsAndMetadata.class);
 }
