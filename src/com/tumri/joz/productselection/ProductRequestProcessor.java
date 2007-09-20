@@ -256,8 +256,6 @@ public class ProductRequestProcessor {
 		} else if (offerType==AdOfferType.PRODUCT_ONLY || offerType==AdOfferType.PRODUCT_LEADGEN){
 			ptQuery.setNegation(true);
 			m_tSpecQuery.addSimpleQuery(ptQuery);
-			//TODO: Remove this once we add a strict query type for Product Type and Product attributes
-			m_tSpecQuery.setStrict(true);
 			if (offerType == AdOfferType.PRODUCT_LEADGEN) {
 				m_productLeadgenRequest = true;
 			}
