@@ -49,8 +49,9 @@ public class CMAContentPoller implements PollingUnit {
 	private void loadCampaignData() {
 		try {
 			log.info("Going to refresh campaign data.");
+			long startTime = System.currentTimeMillis();
 			CampaignDBDataLoader.getInstance().loadData();
-			log.info("Campaign data refreshed successfully.");
+			log.info("Campaign data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
 		} catch (Exception e) {
 			//TODO: invoke notification framework to indicate something is wrong here
 			log.error("Campaign data refresh failed");
