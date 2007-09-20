@@ -8,4 +8,8 @@ package com.tumri.joz.ranks;
 public interface IWeight<Value> {
   public double getWeight(Value v);
   public int match(Value v);
+  /**
+   * @return true if the match is mandatory, false otherwise
+   */
+  public boolean mustMatch();
 }

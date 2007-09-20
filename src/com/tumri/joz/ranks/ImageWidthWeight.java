@@ -28,4 +28,7 @@ public class ImageWidthWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kImageWidth);
   }
 
+  public boolean mustMatch() {
+    return true;
+  }
 }

@@ -28,4 +28,8 @@ public class ProviderWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kProvider);
   }
 
+
+  public boolean mustMatch() {
+    return true;
+  }
 }

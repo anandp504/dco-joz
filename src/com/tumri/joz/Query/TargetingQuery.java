@@ -46,4 +46,8 @@ public abstract class TargetingQuery extends SimpleQuery  implements IFilter<Han
     return true;
   }
 
+
+  public boolean mustMatch() {
+    return false;
+  }
 }

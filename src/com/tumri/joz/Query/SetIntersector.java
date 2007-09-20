@@ -288,7 +288,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
           continue;
         cPointer = null;
         int match = containsInt(v); // NB: match can be zero
-        if (addResult(lists,match, v, m_rankedSetWeight.getWeight(v), count)) {
+        if (match >= 0 && addResult(lists,match, v, m_rankedSetWeight.getWeight(v), count)) {
             last = true;
         }
       }
@@ -329,28 +329,35 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
         totalWeight *= m_includesWeight.get(0).getWeight(cPointer);
         // Inner loops runs as many times as the size of the sets
         Value nextPointer = null;
-        for (int i = 1; i < m_incSize; i++) {
+        for (int i = 1; i < m_incSize && totalWeight > 0.0; i++) {
           itemLookupCount++;
           nextPointer = locateElement(m_includes.get(i),cPointer,first);
           if (nextPointer == null || !nextPointer.equals(cPointer)) {
+            for (int j = i; j < m_incSize && totalWeight > 0.0; j++) {
+              if (m_includesWeight.get(j).mustMatch()) totalWeight = 0.0;
+            }
             break;
           }
           IWeight<Value> w = m_includesWeight.get(i);
           matches++; // += w.match(cPointer);
           totalWeight *= w.getWeight(nextPointer);
         }
-        for (int i = 0; i < m_filterSize; i++) {
-          if (!m_filters.get(i).accept(cPointer))
-            continue;
+        for (int i = 0; i < m_filterSize && totalWeight > 0.0; i++) {
           IWeight<Value> w = m_filtersWeight.get(i);
+          if (!m_filters.get(i).accept(cPointer)) {
+            if (w.mustMatch()) totalWeight = 0.0;
+            continue;
+          }
           matches++; // += w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }
-        for (int i = 0; i < m_excSize; i++) {
+        for (int i = 0; i < m_excSize && totalWeight > 0.0; i++) {
           itemLookupCount++;
-          if (m_excludes.get(i).contains(cPointer))
-            continue;
           IWeight<Value> w = m_excludesWeight.get(i);
+          if (m_excludes.get(i).contains(cPointer)) {
+            if (w.mustMatch()) totalWeight = 0.0;
+            continue;
+          }
           matches++; //= w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }
@@ -358,7 +365,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
         cPointer = ((nextPointer == null || cPointer.equals(nextPointer))?
             adjuscentElement(m_includes.get(0), cPointer,first) :
             locateElement(m_includes.get(0),nextPointer,first));
-        if (addResult(lists,matches, v, totalWeight, count)) {
+        if (totalWeight > 0.0 && addResult(lists,matches, v, totalWeight, count)) {
           break;
         }
         itemVisitCount++;
@@ -385,22 +392,26 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
         int matches = 0; // score for the cPointer matches
         double totalWeight = m_includesWeight.get(0).getWeight(cPointer);
         loopcount++;
-        for (int i = 0; i < m_filterSize; i++) {
-          if (!m_filters.get(i).accept(cPointer))
-            continue;
+        for (int i = 0; i < m_filterSize && totalWeight > 0.0; i++) {
           IWeight<Value> w = m_filtersWeight.get(i);
+          if (!m_filters.get(i).accept(cPointer)) {
+            if (w.mustMatch()) totalWeight = 0.0;
+            continue;
+          }
           matches++; // += w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }
-        for (int i = 0; i < m_excSize; i++) {
+        for (int i = 0; i < m_excSize && totalWeight > 0.0; i++) {
           itemLookupCount++;
-          if (m_excludes.get(i).contains(cPointer))
-            continue;
           IWeight<Value> w = m_excludesWeight.get(i);
+          if (m_excludes.get(i).contains(cPointer)) {
+            if (w.mustMatch()) totalWeight = 0.0;
+            continue;
+          }
           matches++; //= w.match(cPointer);
           totalWeight *= w.getWeight(cPointer);
         }
-        if (addResult(lists,matches, cPointer, totalWeight, count)) {
+        if (totalWeight > 0.0 && addResult(lists,matches, cPointer, totalWeight, count)) {
           done = true;
         }
         cPointer = null; // will be set right before exit from loop, if this is last element then it should be null
@@ -640,19 +651,34 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   /**
    * Returns the number of queries that matched the set
    * @param o
-   * @return integer value of number of matching sets/queries
+   * @return integer value of number of matching sets/queries, returns -1 if exclusion requested
    */
   @SuppressWarnings("unchecked")
   private int containsInt(Object o) {
     int match = 0;
+    int i=0;
     for (SortedSet<Value> lInclude : m_includes) {
-      if (lInclude.contains(o)) match ++;
+      if (lInclude.contains(o))
+        match ++;
+      else if (m_includesWeight.get(i).mustMatch())
+        return -1;
+      i++;
     }
+    i=0;
     for (SortedSet<Value> lExclude : m_excludes) {
-      if (!lExclude.contains(o)) match++;
+      if (!lExclude.contains(o))
+        match++;
+      else if (m_excludesWeight.get(i).mustMatch())
+        return -1;
+      i++;
     }
+    i=0;
     for (IFilter<Value> lFilter : m_filters) {
-      if (lFilter.accept((Value) o)) match++;
+      if (lFilter.accept((Value) o))
+        match++;
+      else if (m_filtersWeight.get(i).mustMatch())
+        return -1;
+      i++;
     }
     return match;
   }
