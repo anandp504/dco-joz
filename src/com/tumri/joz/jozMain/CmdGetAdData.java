@@ -287,7 +287,7 @@ public class CmdGetAdData extends CommandOwnWriting {
     private String encode(EString es) {
         // FIXME: wip
         if (es == null)
-            return "nil";
+            return "";
         return es.toString();
     }
     
@@ -300,7 +300,7 @@ public class CmdGetAdData extends CommandOwnWriting {
     private String encode(String s) {
         // FIXME: wip
         if (s == null)
-            return "nil";
+            return "";
         StringBuffer sb = new StringBuffer();
         for (int i = 0, len = s.length(); i < len; i++) {
             char c = s.charAt(i);
@@ -321,14 +321,14 @@ public class CmdGetAdData extends CommandOwnWriting {
     private String encode_price(Float f) {
         // FIXME: wip
         if (f == null)
-            return "nil";
+            return "";
         return String.format("%.2f", f);
     }
     
     private String encode_price(Double d) {
         // FIXME: wip
         if (d == null)
-            return "nil";
+            return "";
         return String.format("%.2f", d);
     }
     
