@@ -2,19 +2,17 @@
 
 package com.tumri.joz.jozMain;
 
-import java.io.IOException;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpIFASLWriter;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
-
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpIFASLWriter;
-import com.tumri.utils.strings.RFC1630Decoder;
+import java.io.IOException;
+import java.net.URLDecoder;
 
 public class JozServlet extends HttpServlet {
     
@@ -36,7 +34,7 @@ public class JozServlet extends HttpServlet {
         ServletOutputStream out = response.getOutputStream();
         
         try {
-            query = RFC1630Decoder.convertString(query);
+            query = URLDecoder.decode(query,"UTF-8");
             log.info("Query= " + query);
             
             long start_time = System.nanoTime();
