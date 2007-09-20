@@ -123,8 +123,17 @@ public class ProductRequestProcessor {
 			m_tSpecQuery.setStrict(false);
 		}
 
+		boolean bDoBackFill = false;
+		//Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
+		if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
+			bDoBackFill = true;
+		}
+		
 		//6. Product selection
-		rResult = doProductSelection(request);
+		rResult = doProductSelection(request, bDoBackFill);
+		
+		//If url or script keywords serach, and if not enuf products, do backfill
+		
 		resultAL = new ArrayList<Handle>();
 
 		//7.Add leadgens if needed
@@ -176,7 +185,7 @@ public class ProductRequestProcessor {
 	 * @param tSpecQuery
 	 * @return
 	 */
-	private SortedSet<Handle> doProductSelection(AdDataRequest request) {
+	private SortedSet<Handle> doProductSelection(AdDataRequest request, boolean bdoBackFill) {
 		SortedSet<Handle> qResult = null;
 
 		//1. Request Keywords
@@ -193,6 +202,8 @@ public class ProductRequestProcessor {
 			m_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
 		} else {
 			//Default
+			m_pageSize = new Integer(0);
+			m_currentPage = new Integer(0);
 			m_tSpecQuery.setBounds(0,0);
 		}
 
@@ -208,10 +219,36 @@ public class ProductRequestProcessor {
 		//7. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
 
+		//Check if backfill is needed
+		if (bdoBackFill && m_pageSize>0 && qResult.size()<m_pageSize){
+			removeKeywordQuery();
+			m_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
+			m_tSpecQuery.setStrict(false);
+			SortedSet<Handle> newResults = m_tSpecQuery.exec();
+			qResult.addAll(newResults);
+		}
 		return qResult;
 	}
 
 
+	/**
+	 * Helper method used to remove the keyword query from the CNFQuery
+	 * Note that this does not clone the query - but it works off the current query.
+	 *
+	 */
+	private void removeKeywordQuery(){
+		List<ConjunctQuery> queries = m_tSpecQuery.getQueries();
+		for (ConjunctQuery query : queries) {
+			List<SimpleQuery> sQueries = query.getQueries();
+			for (int i=0;i< sQueries.size();i++){
+				SimpleQuery query2 = sQueries.get(i);
+				if ((query2.getType() == SimpleQuery.Type.kKeyword) && !((KeywordQuery)query2).isInternal()) {
+					sQueries.remove(query2);
+					break;
+				}
+			}
+		}
+	}
 	/**
 	 * Category may be passed in from the request. If this is the case we always intersect with the TSpec results
 	 * Assumption is that the Category is a "included" condition and not excluded condition
@@ -271,6 +308,7 @@ public class ProductRequestProcessor {
 		String requestKeyWords = request.get_keywords();
 		//Note: This is a difference from SoZ. The widget search is going to be constrained by the TSpec
 		doKeywordSearch(requestKeyWords, false);
+		m_tSpecQuery.setStrict(true);
 	}
 
 
@@ -314,6 +352,7 @@ public class ProductRequestProcessor {
 			}
 			String urlKeywords = URLScavenger.mineKeywords(request, stopWordsAL, queryNamesAL);
 			doKeywordSearch(urlKeywords, !m_currOSpec.isPublishUrlKeywordsWithinOSpec());
+			m_tSpecQuery.setStrict(true);
 		}
 	}
 
@@ -325,6 +364,7 @@ public class ProductRequestProcessor {
 	private void doScriptKeywordSearch(AdDataRequest request) {
 		String scriptKeywords = request.get_script_keywords();
 		doKeywordSearch(scriptKeywords, !m_currOSpec.isScriptKeywordsWithinOSpec());
+		m_tSpecQuery.setStrict(true);
 	}
 
 	/**
@@ -408,7 +448,11 @@ public class ProductRequestProcessor {
 						String productId = info.getName();
 						if (productId != null) {
 							productId = productId.substring(productId.indexOf(".")+3, productId.length());
-							Handle prodHandle = ProductDB.getInstance().get(new Integer(productId).intValue()).getHandle();
+							IProduct iProdHandle = ProductDB.getInstance().get(new Integer(productId).intValue());
+							Handle prodHandle = null;
+							if (iProdHandle != null) {
+								prodHandle = iProdHandle.getHandle();
+							}
 							if (prodHandle!=null){
 								if (prodList==null) {
 									prodList = new ArrayList<Handle>();
