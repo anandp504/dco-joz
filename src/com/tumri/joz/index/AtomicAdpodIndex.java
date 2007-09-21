@@ -41,7 +41,7 @@ public class AtomicAdpodIndex<Key, Value> {
 
     //This breaks the rule and exposes internal index to outside world. Since the class will be replaced over time, the flaw is ignored. 
 
-    public AdpodIndex get() {
+    public AdpodIndex<Key, Value> get() {
         return atomicIndex.get();
     }
 
