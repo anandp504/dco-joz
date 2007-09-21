@@ -90,15 +90,15 @@ public class CmdGetAdData extends CommandOwnWriting {
         
         // Log the result for debugging.
         // FIXME: need flag to control this
-        String dump_file = "/tmp/soz3-" + dump_seq + ".dump";
-        ++dump_seq;
-        try {
-            FileOutputStream f = new FileOutputStream(dump_file);
-            write_result(rqst, null /* FIXME:wip */, null /* FIXME:wip */,
-                    private_label_p, features, elapsed_time, product_handles, f);
-        } catch (Exception e) {
-            log.error("Unable to dump result: " + e.toString());
-        }
+//        String dump_file = "/tmp/soz3-" + dump_seq + ".dump";
+//        ++dump_seq;
+//        try {
+//            FileOutputStream f = new FileOutputStream(dump_file);
+//            write_result(rqst, null /* FIXME:wip */, null /* FIXME:wip */,
+//                    private_label_p, features, elapsed_time, product_handles, f);
+//        } catch (Exception e) {
+//            log.error("Unable to dump result: " + e.toString());
+//        }
     }
     
     // Write the chosen product list back to the client.
