@@ -58,7 +58,7 @@ public class TargetingRequestProcessor {
             System.out.println(request.toString(true));
         }
         System.out.println("Targeting Processing time: " + totalTargetingTime + " ms");
-        
+        System.out.println("Passing OSpec: " + ((oSpec == null)? null: oSpec.getName()));
         return oSpec;
     }
 
