@@ -250,6 +250,13 @@ public class AdDataRequest {
                     _output_order_noise_stddev);
             b.append(" :max-prod-desc-len ").append(
                     _max_prod_desc_len != null ? _max_prod_desc_len : "null");
+            b.append(" :country-name ").append(_country);
+            b.append(" :region ").append(_region);
+            b.append(" :city ").append(_city);
+            b.append(" :dma ").append(_dmacode);
+            b.append(" :area-code ").append(_areacode);
+
+            
         } else {
             if (_url != DEFAULT_URL)
                 b.append(" :url ").append(_url);

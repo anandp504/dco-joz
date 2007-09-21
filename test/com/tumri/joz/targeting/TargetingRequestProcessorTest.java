@@ -348,7 +348,7 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testUrlGetAdData() {
         try {
-            String queryStr = "(get-ad-data :url \"" +  baseUrlName + "/sports/cricket\")";
+            String queryStr = "(get-ad-data :url \" http://consumersearch.com/www/electronics/gps\")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());

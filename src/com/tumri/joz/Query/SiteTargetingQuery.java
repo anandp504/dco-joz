@@ -38,7 +38,7 @@ public class SiteTargetingQuery extends TargetingQuery {
         SortedSet<Handle> locationResults      = execLocationQuery();
         SortedSet<Handle> urlResults           = execUrlQuery();
         SortedSet<Handle> themeResults         = execThemeQuery();
-        SortedSet<Handle> runOfNetworksResults = execRunOfNetworkQuery();
+        //SortedSet<Handle> runOfNetworksResults = execRunOfNetworkQuery();
 
         MultiSortedSet<Handle> results = new MultiSortedSet<Handle>();
         if(locationResults != null) {
@@ -50,9 +50,10 @@ public class SiteTargetingQuery extends TargetingQuery {
         if(themeResults != null) {
             results.add(themeResults);
         }
-        if(runOfNetworksResults != null) {
-            results.add(runOfNetworksResults);
-        }
+
+//        if(runOfNetworksResults != null) {
+//            results.add(runOfNetworksResults);
+//        }
 
         return results;
     }
@@ -61,7 +62,7 @@ public class SiteTargetingQuery extends TargetingQuery {
     private SortedSet<Handle> execLocationQuery() {
         SortedSet<Handle> results = null;
         if(locationId > 0) {
-            AtomicAdpodIndex index = CampaignDB.getInstance().getLocationAdPodMappingIndex();
+            AdpodIndex index = CampaignDB.getInstance().getLocationAdPodMappingIndex();
             results = index.get(locationId);
         }
         return results;
@@ -71,7 +72,7 @@ public class SiteTargetingQuery extends TargetingQuery {
     private SortedSet<Handle> execThemeQuery() {
         SortedSet<Handle> results = null;
         if(themeName != null && !themeName.equals("")) {
-            AtomicAdpodIndex index = CampaignDB.getInstance().getThemeAdPodMappingIndex();
+            AdpodIndex index = CampaignDB.getInstance().getThemeAdPodMappingIndex();
             results = index.get(themeName);
         }
         return results;
@@ -82,7 +83,7 @@ public class SiteTargetingQuery extends TargetingQuery {
         MultiSortedSet<Handle> urlsResults = new MultiSortedSet<Handle>();
         SortedSet<Handle> results;
         if(urlName != null && !urlName.equals("")) {
-            AtomicAdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
+            AdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
             List<String> urls = UrlNormalizer.getAllPossibleNormalizedUrl(urlName);
             if(urls != null && urls.size() > 0) {
                 //@todo replace this with more appropriate scoring
@@ -90,12 +91,17 @@ public class SiteTargetingQuery extends TargetingQuery {
                 double delta    = 0.05;
                 for (String url : urls) {
                     results = index.get(url);
-                    SortedSet<Handle> clonedResults = cloneResults(results, urlScore);
+                    SortedSet<Handle> clonedResults = null;
+                    if(results != null) {
+                        clonedResults = cloneResults(results, urlScore);
+                    }
                     urlScore = urlScore - delta;
                     if(urlScore < 0.05) {
                         urlScore = delta;    
                     }
-                    urlsResults.add(clonedResults);
+                    if(clonedResults != null) {
+                        urlsResults.add(clonedResults);
+                    }
                 }
             }
 
@@ -136,47 +142,10 @@ public class SiteTargetingQuery extends TargetingQuery {
     @SuppressWarnings({"unchecked"})
     private SortedSet<Handle> execRunOfNetworkQuery() {
         SortedSet<Handle> results;
-        AtomicAdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
+        AdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
         results = index.get(AdpodIndex.RUN_OF_NETWORK);
         return results;
     }
-
-//    private static List<String> parseUrl(String urlName) {
-//        List<String> parsedUrls = new ArrayList<String>();
-//        if(urlName != null && !"".equals(urlName)) {
-//            //check if http:// is present, if yes, move it to prefix
-//            String prefix = "";
-//            boolean prefixPresent = urlName.regionMatches(true, 0, "http://", 0, 7);
-//            if(prefixPresent) {
-//                prefix = urlName.substring(0, 7);
-//                urlName = urlName.substring(6);
-//            }
-//            String[] tokens = urlName.split("/");
-//            if(tokens != null && tokens.length > 0) {
-//                String currentStr = "";
-//
-//                int i = 0;
-//                //if prefix http:// is present, ignore first token
-//                if(prefixPresent) {
-//                    i = 1;
-//                }
-//                while (i< tokens.length) {
-//                    if("".equals(currentStr)) {
-//                        currentStr = tokens[i];
-//                    }
-//                    else {
-//                        currentStr += "/" + tokens[i];
-//                    }
-//                    if(!"".equals(currentStr)) {
-//                        parsedUrls.add(prefix + currentStr);
-//                    }
-//                    i++;
-//                }
-//            }
-//        }
-//
-//        return parsedUrls;
-//    }
 
     public boolean accept(Handle v) {
         return false;

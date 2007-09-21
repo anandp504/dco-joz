@@ -54,12 +54,12 @@ public class CampaignDBDataLoader {
             Iterator<Url>      urlsIterator      = deltaProvider.getUrls(region);
             Iterator<Theme>    themesIterator    = deltaProvider.getThemes(region);
             Iterator<Location> locationsIterator = deltaProvider.getLocations(region);
+            Iterator<AdPod>    runOfNetworkAdPodsIterator = deltaProvider.getNonSiteSpecificAdPods(region);
+            Iterator<AdPod>    geoNoneAdPodsIterator      = deltaProvider.getNonGeoSpecificAdPods(region);
             Iterator<Geocode>  geocodesIterator  = deltaProvider.getGeocodes(region);
             Iterator<AdPod>    adPodsIterator    = deltaProvider.getAdPods(region);
             Iterator<OSpec>    oSpecsIterator    = deltaProvider.getOspecs(region);
             Iterator<Campaign> campaignsIterator = deltaProvider.getCampaigns(region);
-            Iterator<AdPod>    runOfNetworkAdPodsIterator = deltaProvider.getNonSiteSpecificAdPods(region);
-            Iterator<AdPod>    geoNoneAdPodsIterator      = deltaProvider.getNonGeoSpecificAdPods(region);
 
             Iterator<OSpec>    oSpecsIterator2   = (Iterator<OSpec>) DeepCopy.copy(oSpecsIterator);
 

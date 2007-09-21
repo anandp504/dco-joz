@@ -9,7 +9,6 @@ import com.tumri.joz.Query.ConjunctQuery;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.AdPodHandle;
-import com.tumri.joz.campaign.OSpecNotFoundException;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.AdPod;
 import com.tumri.utils.data.SortedArraySet;
@@ -35,7 +34,8 @@ public class TargetingRequestProcessor {
     private static Logger log = Logger.getLogger (TargetingRequestProcessor.class);
 
     public OSpec processRequest(AdDataRequest request) {
-        OSpec oSpec = null;
+        long startTime = System.currentTimeMillis();
+        OSpec oSpec;
         String tSpecName = request.get_t_spec();
         if(tSpecName != null && !"".equals(tSpecName)) {
             oSpec = CampaignDB.getInstance().getOspec(tSpecName);
@@ -46,11 +46,19 @@ public class TargetingRequestProcessor {
 
         //If OSpec match is not found for the given request, pick default realm ospec if revertToDefaultRealm is set to true or null
         if(oSpec == null) {
-            boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
+            boolean revertToDefaultRealm = (request.get_revert_to_default_realm() != null) && request.get_revert_to_default_realm().booleanValue();
             if(revertToDefaultRealm) {
                 oSpec = CampaignDB.getInstance().getDefaultOSpec();
             }
         }
+
+        long endTime =  System.currentTimeMillis();
+        long totalTargetingTime = endTime - startTime;
+        if(request != null) {
+            System.out.println(request.toString(true));
+        }
+        System.out.println("Targeting Processing time: " + totalTargetingTime + " ms");
+        
         return oSpec;
     }
 
@@ -64,7 +72,7 @@ public class TargetingRequestProcessor {
 
         SortedSet<Handle> results = null;
 
-        if(locationIdStr != null && locationIdStr != "") {
+        if(locationIdStr != null && !"".equals(locationIdStr)) {
             locationId = Integer.parseInt(locationIdStr);
 
         }
@@ -73,6 +81,7 @@ public class TargetingRequestProcessor {
             GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
             ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
+            //cjQuery.setStrict(true);
             cjQuery.addQuery(siteQuery);
             cjQuery.addQuery(geoQuery);
             results = cjQuery.exec();
@@ -91,7 +100,7 @@ public class TargetingRequestProcessor {
         OSpec oSpec;
         AdPodHandle handle;
         List<AdPodHandle> list = getHighestScoreAdPodHandles(results);
-        if(list.size() == 0) {
+        if(list == null || list.size() == 0) {
             //No ospec will get selected by targeting layer so return null
             return null;
         }
@@ -136,25 +145,27 @@ public class TargetingRequestProcessor {
 
     private List<AdPodHandle> getHighestScoreAdPodHandles(SortedSet<Handle> results) {
         List<AdPodHandle> handles = new ArrayList<AdPodHandle>();
-        SortedArraySet<Handle> set = new SortedArraySet<Handle>(results, results.first());
-        Iterator<Handle> iterator = set.iterator();
-        double score = 0.0;
-        if(iterator != null) {
-            int i = 0;
-            double currentScore;
-            while(iterator.hasNext()) {
-                Handle handle = iterator.next();
-                currentScore = handle.getScore();
-                if(i == 0) {
-                    score = currentScore;
-                }
-                else if(i > 0) {
-                    if(score != currentScore) {
-                        break;
+        if(results != null) {
+            SortedArraySet<Handle> set = new SortedArraySet<Handle>(results, new AdPodHandle(null, 0, 0));
+            Iterator<Handle> iterator = set.iterator();
+            double score = 0.0;
+            if(iterator != null) {
+                int i = 0;
+                double currentScore;
+                while(iterator.hasNext()) {
+                    Handle handle = iterator.next();
+                    currentScore = handle.getScore();
+                    if(i == 0) {
+                        score = currentScore;
                     }
+                    else if(i > 0) {
+                        if(score != currentScore) {
+                            break;
+                        }
+                    }
+                    i++;
+                    handles.add((AdPodHandle)handle);
                 }
-                i++;
-                handles.add((AdPodHandle)handle);
             }
         }
         return handles;
