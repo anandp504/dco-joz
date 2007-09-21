@@ -12,6 +12,8 @@ import com.tumri.joz.utils.AppProperties;
 
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
+
 /**
  * CamapignDBDataLoader loads all the campaign related data from the repository using the CampaignDeltaProvider API.
  *
@@ -19,7 +21,7 @@ import java.util.Iterator;
  */
 public class CampaignDBDataLoader {
     private static CampaignDBDataLoader dataLoader = new CampaignDBDataLoader();
-
+    private static Logger log = Logger.getLogger (CampaignDBDataLoader.class);
     private CampaignDBDataLoader() {
     }
     
@@ -81,17 +83,20 @@ public class CampaignDBDataLoader {
 
         }
         catch(CMAConfigurationException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error("Invalid Configuration setup for CMA API", e);
             throw new CampaignDataLoadingException("Invalid configuration setup for CMA API", e);
         }
         catch (RepositoryException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error("Error occured while retrieving Campaign data", e);
             throw new CampaignDataLoadingException("Error occured while retrieving Camapign related objects from repository", e);
         }
         catch(Throwable t) {
             //This exception ensures that the calling client doesnt have to handle any runtime exceptions.
             //especially since the calling client for this class will be a poller which needs a graceful exit point.
-            t.printStackTrace();
+            //t.printStackTrace();
+            log.error("Unexpected Error occured while loading campaign data", t);            
             throw new CampaignDataLoadingException("Unexpected Error occured while loading campaign data", t);
         }
     }

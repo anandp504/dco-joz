@@ -127,9 +127,9 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             map = new RWLockedTreeMap<Integer, AdPod>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
-                if(adPod.getName().equals("T-SPEC-http://www.consumersearch.com/www/electronics/gps/")) {
-                    System.out.println("Full AdPod Found match: " + adPod.getName());
-                }
+//                if(adPod.getName().equals("T-SPEC-http://www.consumersearch.com/www/electronics/gps/")) {
+//                    System.out.println("Full AdPod Found match: " + adPod.getName());
+//                }
                 map.put(adPod.getId(), adPod);
             }
             adPodMap.compareAndSet(adPodMap.get(), map);
@@ -167,13 +167,13 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list = new ArrayList<Handle>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
-                if(adPod.getName().equals("T-SPEC-http://www.consumersearch.com/www/electronics/gps/")) {
-                    System.out.println("Found match: " + adPod.getName());
-                }
+//                if(adPod.getName().equals("T-SPEC-http://www.consumersearch.com/www/electronics/gps/")) {
+//                    System.out.println("Found match: " + adPod.getName());
+//                }
                 list.add(new AdPodHandle(adPod, adPod.getId(), AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight));
             }
             geoNoneAdPodMap.put(AdpodIndex.GEO_NONE, list);
-            System.out.println("Size: " + list.size());
+            //System.out.println("Size: " + list.size());
             index.put(geoNoneAdPodMap);
             adpodGeoNoneIndex.set(index);
         }
@@ -270,27 +270,39 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 }
             }
 
-            adPodConuntryHandlesMap.compareAndSet(adPodConuntryHandlesMap.get(), countryHandlesMap);
-            adPodRegionHandlesMap.compareAndSet(adPodRegionHandlesMap.get(), regionHandlesMap);
-            adPodCityHandlesMap.compareAndSet(adPodCityHandlesMap.get(), cityHandlesMap);
-            adPodZipcodeHandlesMap.compareAndSet(adPodZipcodeHandlesMap.get(), zipcodeHandlesMap);
-            adPodDmacodeHandlesMap.compareAndSet(adPodDmacodeHandlesMap.get(), dmacodeHandlesMap);
-            adPodAreacodeHandlesMap.compareAndSet(adPodAreacodeHandlesMap.get(), areacodeHandlesMap);
+            if(countryHandlesMap.size() > 0) {
+                adPodConuntryHandlesMap.compareAndSet(adPodConuntryHandlesMap.get(), countryHandlesMap);
+                countryIndex.put(countriesMap);
+                adpodGeoCountryIndex.set(countryIndex);
+            }
 
+            if(regionHandlesMap.size() > 0) {
+                adPodRegionHandlesMap.compareAndSet(adPodRegionHandlesMap.get(), regionHandlesMap);                
+                regionIndex.put(regionsMap);
+                adpodGeoRegionIndex.set(regionIndex);
+            }
 
-            countryIndex.put(countriesMap);
-            regionIndex.put(regionsMap);
-            cityIndex.put(citiesMap);
-            dmacodeIndex.put(dmacodesMap);
-            areacodeIndex.put(areacodesMap);
-            zipcodeIndex.put(zipcodesMap);
+            if(cityHandlesMap.size() > 0) {
+                adPodCityHandlesMap.compareAndSet(adPodCityHandlesMap.get(), cityHandlesMap);
+                cityIndex.put(citiesMap);
+                adpodGeoCityIndex.set(cityIndex);
+            }
+            if(zipcodeHandlesMap.size() > 0) {
+                adPodZipcodeHandlesMap.compareAndSet(adPodZipcodeHandlesMap.get(), zipcodeHandlesMap);
+                zipcodeIndex.put(zipcodesMap);
+                adpodGeoZipcodeIndex.set(zipcodeIndex);
+            }
+            if(dmacodeHandlesMap.size() > 0) {
+                adPodDmacodeHandlesMap.compareAndSet(adPodDmacodeHandlesMap.get(), dmacodeHandlesMap);
+                dmacodeIndex.put(dmacodesMap);
+                adpodGeoDmacodeIndex.set(dmacodeIndex);
+            }
+            if(areacodeHandlesMap.size() > 0) {
+                adPodAreacodeHandlesMap.compareAndSet(adPodAreacodeHandlesMap.get(), areacodeHandlesMap);
+                areacodeIndex.put(areacodesMap);
+                adpodGeoAreacodeIndex.set(areacodeIndex);
+            }
             
-            adpodGeoCountryIndex.set(countryIndex);
-            adpodGeoRegionIndex.set(regionIndex);
-            adpodGeoCityIndex.set(cityIndex);
-            adpodGeoDmacodeIndex.set(dmacodeIndex);
-            adpodGeoAreacodeIndex.set(areacodeIndex);
-            adpodGeoZipcodeIndex.set(zipcodeIndex);
         }
     }
 
