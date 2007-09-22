@@ -35,30 +35,49 @@ public class TargetingRequestProcessor {
 
     public OSpec processRequest(AdDataRequest request) {
         long startTime = System.currentTimeMillis();
-        OSpec oSpec;
-        String tSpecName = request.get_t_spec();
-        if(tSpecName != null && !"".equals(tSpecName)) {
-            oSpec = CampaignDB.getInstance().getOspec(tSpecName);
-        }
-        else {
-            oSpec = doSiteTargeting(request);
+        OSpec oSpec = null;
+        if(request == null) {
+            return null;
         }
 
+        try {
+            String tSpecName = request.get_t_spec();
+            if(tSpecName != null && !"".equals(tSpecName)) {
+                oSpec = CampaignDB.getInstance().getOspec(tSpecName);
+            }
+            else {
+                oSpec = doSiteTargeting(request);
+            }
+        }
+        catch(Throwable t) {
+            //It is critical to catch any unexpected error so that the JoZ server doesnt exit
+            log.error("Targeting layer: unxepected error. Owner need to look into the issue", t);
+            //Continue to provide default O-Spec after logging the error
+        }
         //If OSpec match is not found for the given request, pick default realm ospec if revertToDefaultRealm is set to true or null
+        try {
         if(oSpec == null) {
             boolean revertToDefaultRealm = (request.get_revert_to_default_realm() != null) && request.get_revert_to_default_realm().booleanValue();
             if(revertToDefaultRealm) {
                 oSpec = CampaignDB.getInstance().getDefaultOSpec();
             }
         }
+        }
+        catch(Throwable t) {
+            //It is critical to catch any unexpected error so that the JoZ server doesnt exit
+            //This error could occur if the campaign data loading failed for some reason
+            log.error("Targeting layer: unxepected error. The default o-spec not retrieved", t);
+        }
 
         long endTime =  System.currentTimeMillis();
         long totalTargetingTime = endTime - startTime;
+
         if(request != null) {
             System.out.println(request.toString(true));
         }
+
         System.out.println("Targeting Processing time: " + totalTargetingTime + " ms");
-        System.out.println("Passing OSpec: " + ((oSpec == null)? null: oSpec.getName()));
+        System.out.println("Passing OSpec To Product Selection Processor: " + ((oSpec == null)? null: oSpec.getName()));
         return oSpec;
     }
 
@@ -81,6 +100,7 @@ public class TargetingRequestProcessor {
             GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
             ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
+            //@todo: Bug in setting the strict to true. Needs to be fixed before setting the strict to true
             //cjQuery.setStrict(true);
             cjQuery.addQuery(siteQuery);
             cjQuery.addQuery(geoQuery);

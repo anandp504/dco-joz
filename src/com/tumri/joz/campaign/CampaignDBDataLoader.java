@@ -3,7 +3,6 @@ package com.tumri.joz.campaign;
 import com.tumri.cma.CMAConfigurationException;
 import com.tumri.cma.CMAFactory;
 import com.tumri.cma.RepositoryException;
-import com.tumri.cma.util.DeepCopy;
 import com.tumri.cma.domain.*;
 import com.tumri.cma.service.CampaignDeltaProvider;
 
@@ -47,7 +46,7 @@ public class CampaignDBDataLoader {
         try {
             CMAFactory factory = CMAFactory.getInstance(AppProperties.getInstance().getProperties());
             deltaProvider = factory.getCampaignDeltaProvider();
-
+            //long lispDataReadStartTime = System.currentTimeMillis();
             Iterator<UrlAdPodMapping>        urlsAdPodMappingIterator      = deltaProvider.getUrlAdpodMappings(region);
             Iterator<ThemeAdPodMapping>      themesAdPodMappingIterator    = deltaProvider.getThemeAdpodMappings(region);
             Iterator<LocationAdPodMapping>   locationsAdPodMappingIterator = deltaProvider.getLocationAdpodMappings(region);
@@ -62,8 +61,13 @@ public class CampaignDBDataLoader {
             Iterator<AdPod>    adPodsIterator    = deltaProvider.getAdPods(region);
             Iterator<OSpec>    oSpecsIterator    = deltaProvider.getOspecs(region);
             Iterator<Campaign> campaignsIterator = deltaProvider.getCampaigns(region);
+            //long lispDataReadEndTime = System.currentTimeMillis();
+            //System.out.println("Data Retrieval from Lisp Provider API: " + (lispDataReadEndTime - lispDataReadStartTime) + " ms");
 
-            Iterator<OSpec>    oSpecsIterator2   = (Iterator<OSpec>) DeepCopy.copy(oSpecsIterator);
+            //@todo: Clone the objects instead of getting again from database.
+            Iterator<OSpec>    oSpecsIterator2   = deltaProvider.getOspecs(region);
+
+            //long campaignIndexStartTime = System.currentTimeMillis();
 
             campaignDB.loadUrls(urlsIterator);
             campaignDB.loadThemes(themesIterator);
@@ -80,22 +84,21 @@ public class CampaignDBDataLoader {
             campaignDB.loadGeoNoneAdPods(geoNoneAdPodsIterator);
 
             OSpecQueryCache.getInstance().load(oSpecsIterator2);
+            //long campaignIndexEndTime = System.currentTimeMillis();
+            //System.out.println("Campaign Indexing Time: " + (campaignIndexEndTime - campaignIndexStartTime) + " ms");
 
         }
         catch(CMAConfigurationException e) {
-            //e.printStackTrace();
             log.error("Invalid Configuration setup for CMA API", e);
             throw new CampaignDataLoadingException("Invalid configuration setup for CMA API", e);
         }
         catch (RepositoryException e) {
-            //e.printStackTrace();
             log.error("Error occured while retrieving Campaign data", e);
             throw new CampaignDataLoadingException("Error occured while retrieving Camapign related objects from repository", e);
         }
         catch(Throwable t) {
             //This exception ensures that the calling client doesnt have to handle any runtime exceptions.
             //especially since the calling client for this class will be a poller which needs a graceful exit point.
-            //t.printStackTrace();
             log.error("Unexpected Error occured while loading campaign data", t);            
             throw new CampaignDataLoadingException("Unexpected Error occured while loading campaign data", t);
         }
