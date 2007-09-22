@@ -9,6 +9,7 @@ import java.io.StringReader;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpReader;
+import com.tumri.utils.sexp.SexpString;
 import com.tumri.utils.sexp.SexpSymbol;
 
 public abstract class Command {
@@ -112,4 +113,13 @@ public abstract class Command {
     public boolean need_uppercase_syms() {
         return false;
     }
+    
+    public Sexp returnError(Throwable t) {
+    // Convert {ex} to SexpString first so we can use its toString()
+    // method to escape "s.
+    SexpString ex_string = new SexpString(t.toString());
+    return SexpReader.readFromStringNoex("(:error " + ex_string.toString()
+            + ")");
+    }
+
 }
