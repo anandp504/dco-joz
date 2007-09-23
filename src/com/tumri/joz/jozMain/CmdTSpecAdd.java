@@ -49,14 +49,11 @@
 
 package com.tumri.joz.jozMain;
 
-// import java.io.PrintWriter;
 import org.apache.log4j.Logger;
 
 import com.tumri.joz.campaign.OSpecHelper;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
-import com.tumri.utils.sexp.SexpReader;
-import com.tumri.utils.sexp.SexpString;
 
 public class CmdTSpecAdd extends CommandDeferWriting {
     
@@ -65,31 +62,39 @@ public class CmdTSpecAdd extends CommandDeferWriting {
     }
     
     public Sexp process() {
-        Sexp e;
+        Sexp retVal;
         
         try {
-            if (!expr.isSexpList())
-                return SexpReader
-                        .readFromStringNoex("(:error \"expected (t-spec-add ...)\")");
-            e = add_tspec(expr.toSexpList());
+            if (!expr.isSexpList()) {
+                log.error("Invalid Request: " + expr);
+                throw new BadCommandException("expected (t-spec-add ...)");
+            }
+            retVal = add_tspec(expr.toSexpList());
+        } catch (BadCommandException ex) {
+            return returnError(ex);
+            
         } catch (Exception ex) {
-            // Convert {ex} to SexpString first so we can use its toString()
-            // method to escape "s.
-            SexpString ex_string = new SexpString(ex.toString());
-            e = SexpReader.readFromStringNoex("(:error " + ex_string.toString()
-                    + ")");
+            return returnError(ex);
         }
         
-        return e;
+        return retVal;
     }
     
     // implementation details -------------------------------------------------
     
     private static Logger log = Logger.getLogger(CmdTSpecAdd.class);
     
-    private Sexp add_tspec(SexpList rqst) {
-        OSpecHelper.doTSpecAdd(rqst);
-        // FIXME: not sure what the "success" result is
-        return new SexpList();
+    private Sexp add_tspec(SexpList rqst) throws BadCommandException {
+        String tspecName = OSpecHelper.doTSpecAdd(rqst);
+        if (tspecName == null) {
+            log.error("Unable to add t-spec. Request: " + rqst.toString());
+            throw new BadCommandException("Error while processing request: " + rqst.toString());
+        }
+        try {
+        return CmdGetCounts.getCounts(tspecName);
+        } catch (BadCommandException ex) {
+            log.error("Error while forming response after adding t-spec.",ex);
+            throw ex;
+        }
     }
 }

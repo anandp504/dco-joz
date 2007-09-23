@@ -564,7 +564,8 @@ public class AdDataRequest {
                         break;
                     
                     case T_SPEC:
-                        this._t_spec = SexpUtils.get_next_string(name, iter);
+                        // this._t_spec = SexpUtils.get_next_string(name, iter);
+                        this._t_spec = SexpUtils.get_next_symbol(name, iter);
                         break;
                     
                     case REFERRER:

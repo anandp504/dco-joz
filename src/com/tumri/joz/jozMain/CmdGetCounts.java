@@ -79,18 +79,18 @@ public class CmdGetCounts extends CommandDeferWriting {
         
         try {
             if (!expr.isSexpList()) {
-                throw new BadCommandException("expecting (get-counts t-spec-name)");
+                throw new BadCommandException("expecting (get-counts :t-spec-name t-spec-name)");
             }
             SexpList l = expr.toSexpList();
-            if (l.size() != 2) {
-                throw new BadCommandException("expecting (get-counts t-spec-name)");
+            if (l.size() != 3) {
+                throw new BadCommandException("expecting (get-counts :t-spec-name t-spec-name)");
             }
-            Sexp arg = l.get(1);
+            Sexp arg = l.get(2);
             if (arg.isSexpSymbol()) {
                 SexpSymbol sym = arg.toSexpSymbol();
-                retVal = get_counts(sym.toString());
+                retVal = getCounts(sym.toStringValue());
             } else if (arg.isSexpList() && arg.toSexpList().size() == 0) {
-                retVal = get_counts(null);
+                retVal = getCounts(null);
             } else {
                 throw new BadCommandException("expected t-spec name as a symbol");
             }
@@ -106,8 +106,9 @@ public class CmdGetCounts extends CommandDeferWriting {
     }
     
     // See docs for the get-counts external API call for a description
-    // of the format of the result.    
-    protected Sexp get_counts(String tspec_name) throws BadCommandException {
+    // of the format of the result.
+    // This method is invoded from CmdTSpecAdd also.
+    public static Sexp getCounts(String tspec_name) throws BadCommandException {
         
         HashMap<String, Counter> category_counts = new HashMap<String, Counter>();
         HashMap<String, Counter> brand_counts = new HashMap<String, Counter>();
@@ -121,6 +122,7 @@ public class CmdGetCounts extends CommandDeferWriting {
             OSpecQueryCache qcache = OSpecQueryCache.getInstance();
             CNFQuery query = qcache.getCNFQuery(tspec_name);
             if (query == null) {
+                log.error("t-spec " + tspec_name + " not found.");
                 throw new BadCommandException("t-spec " + tspec_name + " not found.");
             }
             product_handles_set = query.exec();
@@ -190,7 +192,7 @@ public class CmdGetCounts extends CommandDeferWriting {
     }
     
     
-    protected Counter getCounters(HashMap<String, Counter> counts, String key) {
+    protected static Counter getCounters(HashMap<String, Counter> counts, String key) {
         if (counts == null) {
             return null;
         }
@@ -202,7 +204,7 @@ public class CmdGetCounts extends CommandDeferWriting {
         return ctr;
     }
     
-    private class Counter {
+    private static class Counter {
         
         public int count;
         
