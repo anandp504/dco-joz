@@ -361,7 +361,7 @@ public class TargetingRequestProcessorTest {
     @Test   
     public void testStoreGetAdData() {
         try {
-            String queryStr = "(get-ad-data :store-ID \"11\")";
+            String queryStr = "(get-ad-data :store-ID \"11364\")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());

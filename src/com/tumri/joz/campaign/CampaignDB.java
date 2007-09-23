@@ -57,8 +57,6 @@ public abstract class CampaignDB {
 
     public abstract void deleteOSpec(String oSpecName);
 
-    public abstract AdPod getDefaultAdPod();
-
     public abstract OSpec getDefaultOSpec();
 
     public abstract void loadCampaigns(Iterator<Campaign> iterator);

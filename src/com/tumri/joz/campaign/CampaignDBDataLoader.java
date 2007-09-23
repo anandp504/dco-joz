@@ -43,10 +43,24 @@ public class CampaignDBDataLoader {
             throw new CampaignDataLoadingException("cannot load joz.properties", e);
         }
 
+
         try {
             CMAFactory factory = CMAFactory.getInstance(AppProperties.getInstance().getProperties());
             deltaProvider = factory.getCampaignDeltaProvider();
             //long lispDataReadStartTime = System.currentTimeMillis();
+
+            // Important: The order in which the get methods are called on the deltaProvider and the load methods that
+            // are called on the campaignDB is very important. By calling the methods in the order below, inconsistencies
+            // in the data can be minimized.
+            // Example: We always first get the mappings and then the url, theme, adpods, etc. so that we know for sure
+            // that later when we call the get method for those objects, those objects that are present in mappings, will
+            // be present while loading individual objects as well. One exception to this is if the object got deleted
+            // between the following two calls
+            // 1. get method for url adpod mapping
+            // 2. get method for adpods
+            // The above siutation though not very common as the window between two calls will be in miliseconds,
+            // if occured should be appropriately handled by the CampaignDB.
+
             Iterator<UrlAdPodMapping>        urlsAdPodMappingIterator      = deltaProvider.getUrlAdpodMappings(region);
             Iterator<ThemeAdPodMapping>      themesAdPodMappingIterator    = deltaProvider.getThemeAdpodMappings(region);
             Iterator<LocationAdPodMapping>   locationsAdPodMappingIterator = deltaProvider.getLocationAdpodMappings(region);
@@ -64,7 +78,7 @@ public class CampaignDBDataLoader {
             //long lispDataReadEndTime = System.currentTimeMillis();
             //System.out.println("Data Retrieval from Lisp Provider API: " + (lispDataReadEndTime - lispDataReadStartTime) + " ms");
 
-            //@todo: Clone the objects instead of getting again from database.
+            //@todo: Clone the objects instead of getting again from database or pull in the ospec query cache into CampaignDB
             Iterator<OSpec>    oSpecsIterator2   = deltaProvider.getOspecs(region);
 
             //long campaignIndexStartTime = System.currentTimeMillis();
