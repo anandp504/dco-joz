@@ -36,13 +36,15 @@ import com.tumri.utils.sexp.SexpUtils;
 public class ProductRequestProcessor {
 
 	private static Logger log = Logger.getLogger (ProductRequestProcessor.class);
-
+	private static final String DEFAULT_REALM_TSPEC_NAME = "T-SPEC-http://default-realm/";
+	
 	private CNFQuery m_tSpecQuery = null;
 	private OSpec m_currOSpec = null;
 	private Integer m_NumProducts = null;
 	private Integer m_currentPage = null;
 	private Integer m_pageSize = null;
 	private boolean m_productLeadgenRequest = false;
+	private boolean m_revertToDefaultRealm = false;
 
 	/**
 	 * Default constructor
@@ -71,6 +73,7 @@ public class ProductRequestProcessor {
 	 * @return
 	 */
 	public ProductSelectionResults processRequest(AdDataRequest request) {
+		long startTime = System.currentTimeMillis();
 		ProductSelectionResults pResults = new ProductSelectionResults();
 		SortedSet<Handle> rResult = null;
 		ArrayList<Handle> resultAL = null;
@@ -119,20 +122,25 @@ public class ProductRequestProcessor {
 
 		if ((mAllowTooFewProducts == SexpUtils.MaybeBoolean.TRUE)||(!revertToDefaultRealm)) {
 			m_tSpecQuery.setStrict(true);
+			m_revertToDefaultRealm = false;
 		} else {
 			m_tSpecQuery.setStrict(false);
+			m_revertToDefaultRealm = true;
 		}
 
-		boolean bDoBackFill = false;
+		boolean bSearchResultsBackFill = false;
 		//Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
 		if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
-			bDoBackFill = true;
+			bSearchResultsBackFill = true;
 		}
 		
 		//6. Product selection
-		rResult = doProductSelection(request, bDoBackFill);
+		rResult = doProductSelection(request);
 		
-		//If url or script keywords serach, and if not enuf products, do backfill
+		ArrayList<Handle> backFillProds = null;
+		if (m_NumProducts!=null && rResult!=null){
+			backFillProds = doBackFill(bSearchResultsBackFill,m_NumProducts,rResult.size());
+		}
 		
 		resultAL = new ArrayList<Handle>();
 
@@ -155,6 +163,10 @@ public class ProductRequestProcessor {
 
 		resultAL.addAll(rResult);
 
+		if (backFillProds!=null && backFillProds.size()>0){
+			resultAL.addAll(backFillProds);
+		}
+		
 		//9. Cull the result by num products
 		if ((resultAL!=null) && (m_NumProducts!=null) && (resultAL.size() > m_NumProducts)){
 			while(resultAL.size() > m_NumProducts){
@@ -164,6 +176,7 @@ public class ProductRequestProcessor {
 
 		pResults.setResults(resultAL);
 		pResults.setTargetedOSpec(m_currOSpec);
+		log.info("Product Selection processing time : " + (System.currentTimeMillis() - startTime) + " millis.");
 		return pResults;
 	}
 
@@ -185,7 +198,7 @@ public class ProductRequestProcessor {
 	 * @param tSpecQuery
 	 * @return
 	 */
-	private SortedSet<Handle> doProductSelection(AdDataRequest request, boolean bdoBackFill) {
+	private SortedSet<Handle> doProductSelection(AdDataRequest request) {
 		SortedSet<Handle> qResult = null;
 
 		//1. Request Keywords
@@ -219,18 +232,45 @@ public class ProductRequestProcessor {
 		//7. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
 
-		//Check if backfill is needed
-		if (bdoBackFill && m_pageSize>0 && qResult.size()<m_pageSize){
-			removeKeywordQuery();
-			m_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
-			m_tSpecQuery.setStrict(false);
-			SortedSet<Handle> newResults = m_tSpecQuery.exec();
-			qResult.addAll(newResults);
-		}
+		
 		return qResult;
 	}
 
-
+	/**
+	 * Perform the backfill of products when required
+	 * For ScriptKeywords and Mined PubUrl keywords the backfill is done from within the tspec first.
+	 * For other cases the backfill is done from the default realm tspec.
+	 * @return
+	 */
+	private ArrayList doBackFill(boolean bKeywordBackfill, int pageSize, int currSize){
+		//Check if backfill is needed bcos of the keyword query
+		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
+		if (bKeywordBackfill && pageSize>0 && currSize<pageSize){
+			removeKeywordQuery();
+			//We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
+			int tmpSize = pageSize-currSize+5;
+			m_tSpecQuery.setBounds(tmpSize,0);
+			m_tSpecQuery.setStrict(false);
+			SortedSet<Handle> newResults = m_tSpecQuery.exec();
+			backFillProds.addAll(newResults);
+			currSize = currSize + backFillProds.size();
+		}
+		
+		//Check if the backfill needs to be done - after the queries have been executed
+		if (m_revertToDefaultRealm && pageSize>0 && currSize<pageSize){
+			//Get the default realm tSpec query
+			//TODO: There could be more than one default realm tspec
+			CNFQuery defaultRealmTSpec = OSpecQueryCache.getInstance().getCNFQuery(DEFAULT_REALM_TSPEC_NAME);
+			if (defaultRealmTSpec!=null){
+				int tmpSize = pageSize-currSize;
+				defaultRealmTSpec.setBounds(tmpSize,0);
+				SortedSet<Handle> newResults = defaultRealmTSpec.exec();
+				backFillProds.addAll(newResults);
+			}
+		}
+		return backFillProds;
+	}
+	
 	/**
 	 * Helper method used to remove the keyword query from the CNFQuery
 	 * Note that this does not clone the query - but it works off the current query.
