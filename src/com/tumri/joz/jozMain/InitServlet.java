@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
+import com.tumri.utils.Polling;
+
 public class InitServlet extends HttpServlet {
     
     private static Logger log = null;
@@ -44,6 +46,11 @@ public class InitServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         // FIXME
+    }
+    
+    @Override
+    public void destroy() {
+        Polling.getInstance().shutdown();        
     }
     
     private static String getLog4JConfigFilePath() {
