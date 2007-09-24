@@ -34,7 +34,7 @@ public class TargetingRequestProcessor {
     private static Logger log = Logger.getLogger (TargetingRequestProcessor.class);
 
     public OSpec processRequest(AdDataRequest request) {
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         OSpec oSpec = null;
         if(request == null) {
             return null;
@@ -69,14 +69,14 @@ public class TargetingRequestProcessor {
             log.error("Targeting layer: unxepected error. The default o-spec not retrieved", t);
         }
 
-        long endTime =  System.currentTimeMillis();
+        long endTime =  System.nanoTime();
         long totalTargetingTime = endTime - startTime;
 
         if(request != null) {
             System.out.println(request.toString(true));
         }
 
-        System.out.println("Targeting Processing time: " + totalTargetingTime + " ms");
+        System.out.println("Targeting Processing time: " + (totalTargetingTime/1000) + " usecs");
         System.out.println("Passing OSpec To Product Selection Processor: " + ((oSpec == null)? null: oSpec.getName()));
         return oSpec;
     }
@@ -100,8 +100,7 @@ public class TargetingRequestProcessor {
             GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
             ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
-            //@todo: Bug in setting the strict to true. Needs to be fixed before setting the strict to true
-            //cjQuery.setStrict(true);
+            cjQuery.setStrict(true);
             cjQuery.addQuery(siteQuery);
             cjQuery.addQuery(geoQuery);
             results = cjQuery.exec();

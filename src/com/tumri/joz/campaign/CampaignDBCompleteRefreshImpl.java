@@ -173,10 +173,23 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        while(iterator.hasNext()) {
-            OSpec oSpec = iterator.next();
-            ospecMap.get().put(oSpec.getId(), oSpec);
-            ospecNameMap.get().put(oSpec.getName(), oSpec);
+        RWLockedTreeMap<Integer,OSpec> map = null;
+        ospecNameMap.get().writerLock();
+        try {
+            if(iterator.hasNext()) {
+                map = new RWLockedTreeMap<Integer,OSpec>();
+                while(iterator.hasNext()) {
+                    OSpec oSpec = iterator.next();
+                    map.put(oSpec.getId(), oSpec);
+                    ospecNameMap.get().put(oSpec.getName(), oSpec);
+                }
+            }
+        }
+        finally {
+            ospecNameMap.get().writerUnlock();
+        }
+        if(map != null) {
+            ospecMap.compareAndSet(ospecMap.get(), map);
         }
     }
 
@@ -184,13 +197,17 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        while(iterator.hasNext()) {
-            Pair<Integer, Integer> pair = iterator.next();
-            int adPodId = pair.getFirst();
-            int oSpecId = pair.getSecond();
-            adPodOSpecMap.get().put(adPodId, oSpecId);
+        RWLockedTreeMap<Integer,Integer> map = null;
+        if(iterator.hasNext()) {
+            map = new RWLockedTreeMap<Integer,Integer>();
+            while(iterator.hasNext()) {
+                Pair<Integer, Integer> pair = iterator.next();
+                int adPodId = pair.getFirst();
+                int oSpecId = pair.getSecond();
+                map.put(adPodId, oSpecId);
+            }
+            adPodOSpecMap.compareAndSet(adPodOSpecMap.get(), map);
         }
-
     }
 
     public void loadGeocodes(Iterator<Geocode> iterator) {
@@ -336,10 +353,16 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        while(iterator.hasNext()) {
-            Url url = iterator.next();
-            urlMap.get().put(url.getId(), url);
+        RWLockedTreeMap<Integer,Url> map = null;
+        if(iterator.hasNext()) {
+            map = new RWLockedTreeMap<Integer,Url>();
+            while(iterator.hasNext()) {
+                Url url = iterator.next();
+                map.put(url.getId(), url);
+            }
+            urlMap.compareAndSet(urlMap.get(), map);
         }
+
     }
 
     @SuppressWarnings({"deprecation"})
@@ -347,9 +370,15 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        while(iterator.hasNext()) {
-            Theme theme = iterator.next();
-            themeMap.get().put(theme.getId(), theme);
+        RWLockedTreeMap<Integer,Theme> map = null;
+        if(iterator.hasNext()) {
+            map = new RWLockedTreeMap<Integer,Theme>();
+
+            while(iterator.hasNext()) {
+                Theme theme = iterator.next();
+                map.put(theme.getId(), theme);
+            }
+            themeMap.compareAndSet(themeMap.get(), map);
         }
     }
 
@@ -357,9 +386,15 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        while(iterator.hasNext()) {
-            Location location = iterator.next();
-            locationMap.get().put(location.getId(), location);
+        RWLockedTreeMap<Integer,Location> map = null;
+        if(iterator.hasNext()) {
+            map = new RWLockedTreeMap<Integer,Location>();
+
+            while(iterator.hasNext()) {
+                Location location = iterator.next();
+                map.put(location.getId(), location);
+            }
+            locationMap.compareAndSet(locationMap.get(), map);
         }
     }
 
@@ -382,7 +417,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                     if(list == null) {
                         list = new ArrayList<Handle>();
                     }
-                    int oid = urlAdPodMapping.getId();
+                    int oid = adPod.getId(); //urlAdPodMapping.getId();
                     list.add(new AdPodHandle(adPod, oid, AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
                     String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
                     if(urlName != null) {
@@ -425,7 +460,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                     if(list == null) {
                         list = new ArrayList<Handle>();
                     }
-                    int oid = themeAdPodMapping.getId();
+                    int oid = adPod.getId(); //themeAdPodMapping.getId();
                     list.add(new AdPodHandle(adPod, oid, AdPodHandle.themeScore, themeAdPodMapping.getWeight()));
                     themeAdPodMap.put(theme.getName(), list);
                 }
@@ -460,7 +495,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                         list = new ArrayList<Handle>();
                     }
                     //@todo: add weight field to LocationAdpodMapping class
-                    int oid = locationAdPodMapping.getId();
+                    int oid = adPod.getId(); //locationAdPodMapping.getId();
                     list.add(new AdPodHandle(adPod, oid, AdPodHandle.locationScore, 1));
                     locationAdPodMap.put(location.getExternalId(), list);
                 }

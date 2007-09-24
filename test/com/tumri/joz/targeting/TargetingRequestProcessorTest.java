@@ -244,7 +244,7 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testUrlCountryGeoGetAdData() {
         try {
-            String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"" +  baseUrlName + "/sports/cricket\"" + ")";
+            String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"http://consumersearch.com/www/electronics/gps\"" + ")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
@@ -257,7 +257,7 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testCountryGeoGetAdData() {
         try {
-            String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"" +  baseUrlName + "/sports/cricket\"" + ")";
+            String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"http://www.photo.net/bboard/\"" + ")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
@@ -270,7 +270,7 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testRegionGeoGetAdData() {
         try {
-            String queryStr = "(get-ad-data :region \"CA\"" + ":url \"" +  base2UrlName + "/toys/electronics/gadgets/\"" + ")";
+            String queryStr = "(get-ad-data :region \"CA\"" + ":url \"http://ad.doubleclick.net/adi/ibs.ny.entertainment\"" + ")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
@@ -335,7 +335,7 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testThemeGetAdData() {
         try {
-            String queryStr = "(get-ad-data :theme \"" + sampleThemeName + "\")";
+            String queryStr = "(get-ad-data :theme \"ecpm-test1-laptops\")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
