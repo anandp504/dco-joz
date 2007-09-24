@@ -564,8 +564,12 @@ public class AdDataRequest {
                         break;
                     
                     case T_SPEC:
-                        // this._t_spec = SexpUtils.get_next_string(name, iter);
-                        this._t_spec = SexpUtils.get_next_symbol(name, iter);
+                        Sexp item = iter.next();
+                        if (item.isSexpString()) {
+                        	this._t_spec = item.toSexpString().toStringValue();
+                        } else if (item.isSexpSymbol()) {
+                        	this._t_spec = item.toSexpSymbol().toStringValue();
+                        }
                         break;
                     
                     case REFERRER:
