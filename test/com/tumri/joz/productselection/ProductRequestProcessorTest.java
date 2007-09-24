@@ -34,7 +34,7 @@ public class ProductRequestProcessorTest {
 	@Test
 	public void testHybridAdPod() {
 		try {
-			String queryStr = "(get-ad-data :url \"http://www.consumersearch.com/www/house_and_home/\" :num-products 12 :ad-offer-type :product-leadgen)";
+			String queryStr = "(get-ad-data :url \"http://default-realm/\")";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
@@ -48,7 +48,7 @@ public class ProductRequestProcessorTest {
 	@Test
 	public void testTSpecAdPod() {
 		try {
-			String queryStr = "(get-ad-data :t-spec \"TSPEC-zappos.com-1189622851218\" :num-products 12 :ad-offer-type :product-leadgen :allow-too-few-products t)";
+			String queryStr = "(get-ad-data :t-spec 'T-SPEC-TPP_H_1 :num-products 12 :ad-offer-type :product-leadgen)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
