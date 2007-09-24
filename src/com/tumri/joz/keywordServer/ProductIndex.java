@@ -147,7 +147,9 @@ public class ProductIndex {
             double score = hits.score(i);
             int oid = Integer.parseInt(id);
             IProduct p = db.getInt(oid); // avoids too many calls to lock/unlock
-            alist.add(new ProductHandle(p,score));
+            if (p != null) {
+              alist.add(new ProductHandle(p,score));
+            }
             if (score < min_score) break;
           }
         } finally {

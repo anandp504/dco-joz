@@ -68,7 +68,7 @@ public class ProductQueryProcessor extends QueryProcessor {
         if (lSimpleQuery.getType() == SimpleQuery.Type.kRange &&
             lSimpleQuery.hasIndex() &&
             !lSimpleQuery.isNegation()) {
-          if (!aIntersector.hasIncludes() || i == 0) {
+          if (!aIntersector.hasIncludes() || i == 0 || shouldInclude(aQueries,lSimpleQuery)) {
             aIntersector.include(lSimpleQuery.exec(), lSimpleQuery.getWeight()); // Step 2. include indexed range query if efficient
           } else {
             aIntersector.addFilter(lSimpleQuery.getFilter(), lSimpleQuery.getWeight()); // Step. 3 else range queries are filters
@@ -191,9 +191,9 @@ public class ProductQueryProcessor extends QueryProcessor {
       if (q.isNegation())
         continue;
       positiveQueries++;
-      if (q.getCost() >= count)
+      if (count <= q.getCost())
         lowercost++;
     }
-    return (positiveQueries == 0 ? true : false );
+    return (lowercost * 2) > positiveQueries;
   }
 }

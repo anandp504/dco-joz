@@ -45,7 +45,6 @@ public class TestProductSelection {
       Iterator<OSpec> iter = lispDeltaProvider.getOspecs("US");
       QueryProcessor qp = new ProductQueryProcessor();
       ProductDB.getInstance();
-      setup();
       buildCNFQueries(iter);
       test0();
       test1();
@@ -77,6 +76,7 @@ public class TestProductSelection {
       list.add(cnf);
       count++;
     }
+    System.out.println("Count is "+count);
     return list;
   }
 

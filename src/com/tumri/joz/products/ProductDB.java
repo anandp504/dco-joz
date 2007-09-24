@@ -1,36 +1,11 @@
 package com.tumri.joz.products;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.SortedMap;
-import java.util.SortedSet;
-
-import com.tumri.joz.filter.BrandFilter;
-import com.tumri.joz.filter.CPCRangeFilter;
-import com.tumri.joz.filter.CPORangeFilter;
-import com.tumri.joz.filter.CategoryFilter;
-import com.tumri.joz.filter.Filter;
-import com.tumri.joz.filter.ImageHeightFilter;
-import com.tumri.joz.filter.ImageWidthFilter;
-import com.tumri.joz.filter.PriceRangeFilter;
-import com.tumri.joz.filter.ProductTypeFilter;
-import com.tumri.joz.filter.ProviderFilter;
-import com.tumri.joz.filter.SupplierFilter;
-import com.tumri.joz.index.BrandIndex;
-import com.tumri.joz.index.CPCIndex;
-import com.tumri.joz.index.CPOIndex;
-import com.tumri.joz.index.CategoryIndex;
-import com.tumri.joz.index.ImageHeightIndex;
-import com.tumri.joz.index.ImageWidthIndex;
-import com.tumri.joz.index.PriceIndex;
-import com.tumri.joz.index.ProductAttributeIndex;
-import com.tumri.joz.index.ProductTypeIndex;
-import com.tumri.joz.index.ProviderIndex;
-import com.tumri.joz.index.SupplierIndex;
+import com.tumri.joz.filter.*;
+import com.tumri.joz.index.*;
 import com.tumri.utils.data.RWLockedSortedArraySet;
 import com.tumri.utils.data.RWLockedTreeMap;
+
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -114,8 +89,8 @@ public class ProductDB {
   public ArrayList<Handle> addProduct(ArrayList<IProduct> products) {
     checkUpdate(products);
     ArrayList<Handle> handles = new ArrayList<Handle>();
-    for (int i = 0; i < products.size(); i++) {
-      handles.add(products.get(i).getHandle());
+    for (IProduct product : products) {
+      handles.add(product.getHandle());
     }
     // Step 2.
     m_allProducts.writerLock();
@@ -127,17 +102,14 @@ public class ProductDB {
     // Step 3.
     m_map.writerLock();
     try {
-      for (int i = 0; i < products.size(); i++) {
-        IProduct p = products.get(i);
-        m_map.put(p.getId(),p);
+      for (IProduct p : products) {
+        m_map.put(p.getId(), p);
       }
     } finally {
       m_map.writerUnlock();
     }
     // Step 4.
-    Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
-    while (iter.hasNext()) {
-      ProductAttributeIndex<?,Handle> lIndex = iter.next();
+    for (ProductAttributeIndex<?, Handle> lIndex : m_indices.values()) {
       lIndex.add(products);
     }
     return handles;
@@ -147,8 +119,7 @@ public class ProductDB {
     ArrayList<IProduct> ops = new ArrayList<IProduct>();
     try {
       m_map.readerLock();
-      for (int i = 0; i < products.size(); i++) {
-        IProduct p = products.get(i);
+      for (IProduct p : products) {
         IProduct op = m_map.get(p.getId());
         if (op != null)
           ops.add(op);
@@ -180,19 +151,16 @@ public class ProductDB {
    */
   public ArrayList<Handle> deleteProduct(ArrayList<IProduct> products) {
     ArrayList<Handle> handles = new ArrayList<Handle>();
-    for (int i = 0; i < products.size(); i++) {
-      handles.add(products.get(i).getHandle());
+    for (IProduct product : products) {
+      handles.add(product.getHandle());
     }
-    Iterator<ProductAttributeIndex<?,Handle>> iter = m_indices.values().iterator();
-    while (iter.hasNext()) {
-      ProductAttributeIndex<?,Handle> lIndex = iter.next();
+    for (ProductAttributeIndex<?, Handle> lIndex : m_indices.values()) {
       lIndex.delete(products);
     }
     // Step 2.
     m_map.writerLock();
     try {
-      for (int i = 0; i < products.size(); i++) {
-        IProduct p = products.get(i);
+      for (IProduct p : products) {
         m_map.remove(p.getId());
       }
     } finally {

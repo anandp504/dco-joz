@@ -14,25 +14,21 @@ package com.tumri.joz.keywordServer;
  */
 
 import org.apache.lucene.analysis.CharTokenizer;
+
 import java.io.Reader;
 
-public class LowerAlnumTokenizer extends CharTokenizer
-{
-    public
-    LowerAlnumTokenizer (Reader in)
-    {
-	super (in);
-    }
+public class LowerAlnumTokenizer extends CharTokenizer {
+  public LowerAlnumTokenizer(Reader in) {
+    super(in);
+  }
 
-    protected boolean
-    isTokenChar (char c)
-    {
-	return Character.isLetterOrDigit (c);
-    }
+  protected boolean
+  isTokenChar(char c) {
+    return Character.isLetterOrDigit(c);
+  }
 
-    protected char
-    normalize (char c)
-    {
-	return Character.toLowerCase (c);
-    }
+  protected char
+  normalize(char c) {
+    return Character.toLowerCase(c);
+  }
 }

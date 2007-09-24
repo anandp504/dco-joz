@@ -27,7 +27,7 @@ public class CategoryFilter extends Filter<Handle> {
   }
 
   protected CategoryFilter(CategoryFilter f) {
-    super(f);
+    super(f); // m_descendents should not be copied
   }
 
   public boolean accept(Handle h) {
@@ -70,7 +70,7 @@ public class CategoryFilter extends Filter<Handle> {
     return new CategoryFilter(this);
   }
 
-  private SortedSet<Integer> getDescendants() {
+  public SortedSet<Integer> getDescendants() {
     if (m_descendants == null) {
       computeDescendants();
     }
