@@ -79,14 +79,20 @@ public class CmdGetAdData extends CommandOwnWriting {
         long start_time = System.nanoTime();
         ProductRequestProcessor prp = new ProductRequestProcessor();
         ProductSelectionResults prs = prp.processRequest(rqst);
-        ArrayList<Handle> product_handles = prs.getResults();
-        OSpec targetedOSpec = prs.getTargetedOSpec();
-        long end_time = System.nanoTime();
-        long elapsed_time = end_time - start_time;
-        
-        // Send the result back to the client.
-        write_result(rqst, targetedOSpec, null /* FIXME:wip */,
-                private_label_p, features, elapsed_time, product_handles, out);
+        if (prs!=null) {
+            ArrayList<Handle> product_handles = prs.getResults();
+            OSpec targetedOSpec = prs.getTargetedOSpec();
+            long end_time = System.nanoTime();
+            long elapsed_time = end_time - start_time;
+            
+            // Send the result back to the client.
+            write_result(rqst, targetedOSpec, null /* FIXME:wip */,
+                    private_label_p, features, elapsed_time, product_handles, out);
+        } else {
+        	//TODO: Set the error code in the output
+        	//We need to send back something like : (:error "null t-spec, most likely no default realm")
+        	log.error("No results were returned during product selecion");
+        }
         
         // Log the result for debugging.
         // FIXME: need flag to control this

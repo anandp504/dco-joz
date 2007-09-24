@@ -37,7 +37,7 @@ public class ProductRequestProcessor {
 
 	private static Logger log = Logger.getLogger (ProductRequestProcessor.class);
 	private static final String DEFAULT_REALM_TSPEC_NAME = "T-SPEC-http://default-realm/";
-	
+
 	private CNFQuery m_tSpecQuery = null;
 	private OSpec m_currOSpec = null;
 	private Integer m_NumProducts = null;
@@ -73,110 +73,114 @@ public class ProductRequestProcessor {
 	 * @return
 	 */
 	public ProductSelectionResults processRequest(AdDataRequest request) {
-		long startTime = System.currentTimeMillis();
 		ProductSelectionResults pResults = new ProductSelectionResults();
-		SortedSet<Handle> rResult = null;
-		ArrayList<Handle> resultAL = null;
+		try {
+			long startTime = System.currentTimeMillis();
+			SortedSet<Handle> rResult = null;
+			ArrayList<Handle> resultAL = null;
 
-		//1. if row-size and which-row are non-nil and integers then deterministically return a row/page of results:
-		m_currentPage = request.get_which_row();
-		m_pageSize = request.get_row_size();
+			//1. if row-size and which-row are non-nil and integers then deterministically return a row/page of results:
+			m_currentPage = request.get_which_row();
+			m_pageSize = request.get_row_size();
 
-		//2.Num products will override the current page, and page size
-		m_NumProducts = request.get_num_products ();
+			//2.Num products will override the current page, and page size
+			m_NumProducts = request.get_num_products ();
 
-		//3. Pass request to Targeting Processor
-		m_currOSpec = TargetingRequestProcessor.getInstance().processRequest(request);
-		if(m_currOSpec != null) {
-			m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
-		} else {
-			//Return 0 results.
-			resultAL = new ArrayList<Handle>();
-			pResults.setResults(resultAL);
-			pResults.setTargetedOSpec(null);
-			return pResults;
-		}
-
-		SexpUtils.MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
-		//Clone the query always
-		m_tSpecQuery = (CNFQuery)m_tSpecQuery.clone();
-
-		//4. Determine Random vs. Deterministic behaviour: Randomize results only when there is no keyword search, and there is no pagination
-		Handle ref = null;
-		if (((mMineUrls == SexpUtils.MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(m_currOSpec))
-				|| ((m_currentPage==null) && (m_pageSize==null))) {
-			ref = ProductDB.getInstance().genReference ();
-		}
-		m_tSpecQuery.setReference(ref);
-
-		//Default the current Page and page Size 
-		if (m_NumProducts!=null) {
-			int numProducts = m_NumProducts.intValue();
-			m_currentPage = new Integer(0);
-			m_pageSize = numProducts;
-		}
-
-		//5. Determine backfill of products
-		SexpUtils.MaybeBoolean mAllowTooFewProducts = request.get_allow_too_few_products();
-		boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
-
-		if ((mAllowTooFewProducts == SexpUtils.MaybeBoolean.TRUE)||(!revertToDefaultRealm)) {
-			m_tSpecQuery.setStrict(true);
-			m_revertToDefaultRealm = false;
-		} else {
-			m_tSpecQuery.setStrict(false);
-			m_revertToDefaultRealm = true;
-		}
-
-		boolean bSearchResultsBackFill = false;
-		//Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
-		if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
-			bSearchResultsBackFill = true;
-		}
-		
-		//6. Product selection
-		rResult = doProductSelection(request);
-		
-		ArrayList<Handle> backFillProds = null;
-		if (m_NumProducts!=null && rResult!=null){
-			backFillProds = doBackFill(bSearchResultsBackFill,m_NumProducts,rResult.size());
-		}
-		
-		resultAL = new ArrayList<Handle>();
-
-		//7.Add leadgens if needed
-		if (m_productLeadgenRequest) {
-			Integer numLeadGenProds = request.get_min_num_leadgens();
-			Integer adHeight = request.get_ad_height();
-			Integer adWeight = request.get_ad_width();
-			ArrayList<Handle> leadGenAL = getLeadGenProducts(numLeadGenProds, adHeight, adWeight);
-			//Append to the top of the results
-			resultAL.addAll(leadGenAL);
-		}
-
-		//8. Do Outer Disjunction
-		ArrayList<Handle> disjunctedProds = getIncludedProducts(m_currOSpec);
-
-		if (disjunctedProds!=null){
-			resultAL.addAll(disjunctedProds);
-		} 
-
-		resultAL.addAll(rResult);
-
-		if (backFillProds!=null && backFillProds.size()>0){
-			resultAL.addAll(backFillProds);
-		}
-		
-		//9. Cull the result by num products
-		if ((resultAL!=null) && (m_NumProducts!=null) && (resultAL.size() > m_NumProducts)){
-			while(resultAL.size() > m_NumProducts){
-				resultAL.remove(resultAL.size()-1);
+			//3. Pass request to Targeting Processor
+			m_currOSpec = TargetingRequestProcessor.getInstance().processRequest(request);
+			if(m_currOSpec != null) {
+				m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
+			} else {
+				//Return 0 results.
+				resultAL = new ArrayList<Handle>();
+				pResults.setResults(resultAL);
+				pResults.setTargetedOSpec(null);
+				return pResults;
 			}
-		}
 
-		pResults.setResults(resultAL);
-		pResults.setTargetedOSpec(m_currOSpec);
-		log.info("Product Selection processing time : " + (System.currentTimeMillis() - startTime) + " millis.");
+			SexpUtils.MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
+			//Clone the query always
+			m_tSpecQuery = (CNFQuery)m_tSpecQuery.clone();
+
+			//4. Determine Random vs. Deterministic behaviour: Randomize results only when there is no keyword search, and there is no pagination
+			Handle ref = null;
+			if (((mMineUrls == SexpUtils.MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(m_currOSpec))
+					|| ((m_currentPage==null) && (m_pageSize==null))) {
+				ref = ProductDB.getInstance().genReference ();
+			}
+			m_tSpecQuery.setReference(ref);
+
+			//Default the current Page and page Size 
+			if (m_NumProducts!=null) {
+				int numProducts = m_NumProducts.intValue();
+				m_currentPage = new Integer(0);
+				m_pageSize = numProducts;
+			}
+
+			//5. Determine backfill of products
+			SexpUtils.MaybeBoolean mAllowTooFewProducts = request.get_allow_too_few_products();
+			boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
+
+			if ((mAllowTooFewProducts == SexpUtils.MaybeBoolean.TRUE)||(!revertToDefaultRealm)) {
+				m_tSpecQuery.setStrict(true);
+				m_revertToDefaultRealm = false;
+			} else {
+				m_tSpecQuery.setStrict(false);
+				m_revertToDefaultRealm = true;
+			}
+
+			boolean bSearchResultsBackFill = false;
+			//Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
+			if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
+				bSearchResultsBackFill = true;
+			}
+
+			//6. Product selection
+			rResult = doProductSelection(request);
+
+			ArrayList<Handle> backFillProds = null;
+			if (m_NumProducts!=null && rResult!=null){
+				backFillProds = doBackFill(bSearchResultsBackFill,m_NumProducts,rResult.size());
+			}
+
+			resultAL = new ArrayList<Handle>();
+
+			//7.Add leadgens if needed
+			if (m_productLeadgenRequest) {
+				Integer numLeadGenProds = request.get_min_num_leadgens();
+				Integer adHeight = request.get_ad_height();
+				Integer adWeight = request.get_ad_width();
+				ArrayList<Handle> leadGenAL = getLeadGenProducts(numLeadGenProds, adHeight, adWeight);
+				//Append to the top of the results
+				resultAL.addAll(leadGenAL);
+			}
+
+			//8. Do Outer Disjunction
+			ArrayList<Handle> disjunctedProds = getIncludedProducts(m_currOSpec);
+
+			if (disjunctedProds!=null){
+				resultAL.addAll(disjunctedProds);
+			} 
+
+			resultAL.addAll(rResult);
+
+			if (backFillProds!=null && backFillProds.size()>0){
+				resultAL.addAll(backFillProds);
+			}
+
+			//9. Cull the result by num products
+			if ((resultAL!=null) && (m_NumProducts!=null) && (resultAL.size() > m_NumProducts)){
+				while(resultAL.size() > m_NumProducts){
+					resultAL.remove(resultAL.size()-1);
+				}
+			}
+
+			pResults.setResults(resultAL);
+			pResults.setTargetedOSpec(m_currOSpec);
+			log.info("Product Selection processing time : " + (System.currentTimeMillis() - startTime) + " millis.");
+		} catch (Throwable t) {
+			log.error("Product Selection layer: unxepected error. The products selection has failed", t);
+		}
 		return pResults;
 	}
 
@@ -232,7 +236,7 @@ public class ProductRequestProcessor {
 		//7. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
 
-		
+
 		return qResult;
 	}
 
@@ -245,6 +249,7 @@ public class ProductRequestProcessor {
 	private ArrayList doBackFill(boolean bKeywordBackfill, int pageSize, int currSize){
 		//Check if backfill is needed bcos of the keyword query
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
+		//TODO Check if there is a specific  backfills scenario to go agains the entire mup.. we shouldnt run into this case at all
 		if (bKeywordBackfill && pageSize>0 && currSize<pageSize){
 			removeKeywordQuery();
 			//We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
@@ -255,7 +260,7 @@ public class ProductRequestProcessor {
 			backFillProds.addAll(newResults);
 			currSize = currSize + backFillProds.size();
 		}
-		
+
 		//Check if the backfill needs to be done - after the queries have been executed
 		if (m_revertToDefaultRealm && pageSize>0 && currSize<pageSize){
 			//Get the default realm tSpec query
@@ -270,7 +275,7 @@ public class ProductRequestProcessor {
 		}
 		return backFillProds;
 	}
-	
+
 	/**
 	 * Helper method used to remove the keyword query from the CNFQuery
 	 * Note that this does not clone the query - but it works off the current query.
@@ -349,6 +354,7 @@ public class ProductRequestProcessor {
 		//Note: This is a difference from SoZ. The widget search is going to be constrained by the TSpec
 		doKeywordSearch(requestKeyWords, false);
 		m_tSpecQuery.setStrict(true);
+		m_revertToDefaultRealm = false; // Do not revert to default realm for a Widget Search
 	}
 
 

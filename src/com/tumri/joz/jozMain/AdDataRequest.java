@@ -324,7 +324,7 @@ public class AdDataRequest {
     private static Logger log = Logger.getLogger(AdDataRequest.class);
     
     private enum RqstParam {
-        URL, THEME, STORE_ID, CATEGORY, T_SPEC, REFERRER, ZIP_CODE, NUM_PRODUCTS, ROW_SIZE, WHICH_ROW, REVERT_TO_DEFAULT_REALM, KEYWORDS, SCRIPT_KEYWORDS, INCLUDE_CAT_COUNTS, SEED, PSYCHOGRAPHICS_P, MINE_PUB_URL_P, ALLOW_TOO_FEW_PRODUCTS, AD_WIDTH, AD_HEIGHT, AD_OFFER_TYPE, MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE
+        URL, THEME, STORE_ID, CATEGORY, T_SPEC, STRATEGY, REFERRER, ZIP_CODE, NUM_PRODUCTS, ROW_SIZE, WHICH_ROW, REVERT_TO_DEFAULT_REALM, KEYWORDS, SCRIPT_KEYWORDS, INCLUDE_CAT_COUNTS, SEED, PSYCHOGRAPHICS_P, MINE_PUB_URL_P, ALLOW_TOO_FEW_PRODUCTS, AD_WIDTH, AD_HEIGHT, AD_OFFER_TYPE, MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE
     }
     
     private static HashMap<String, RqstParam> rqst_params = new HashMap<String, RqstParam>();
@@ -336,7 +336,7 @@ public class AdDataRequest {
         rqst_params.put(":store-ID", RqstParam.STORE_ID);
         rqst_params.put(":category", RqstParam.CATEGORY);
         rqst_params.put(":t-spec", RqstParam.T_SPEC);
-        rqst_params.put(":strategy", RqstParam.T_SPEC); // ??? deprecated
+        rqst_params.put(":strategy", RqstParam.STRATEGY); 
         rqst_params.put(":referrer", RqstParam.REFERRER);
         rqst_params.put(":num-products", RqstParam.NUM_PRODUCTS);
         rqst_params.put(":row-size", RqstParam.ROW_SIZE);
@@ -564,14 +564,13 @@ public class AdDataRequest {
                         break;
                     
                     case T_SPEC:
-                        Sexp item = iter.next();
-                        if (item.isSexpString()) {
-                        	this._t_spec = item.toSexpString().toStringValue();
-                        } else if (item.isSexpSymbol()) {
-                        	this._t_spec = item.toSexpSymbol().toStringValue();
-                        }
+                        this._t_spec = SexpUtils.get_next_symbol(name, iter);
                         break;
-                    
+                        
+                    case STRATEGY:
+                        this._t_spec = SexpUtils.get_next_string(name, iter);
+                        break;
+                        
                     case REFERRER:
                         this._referrer = SexpUtils.get_next_string(name, iter);
                         break;
