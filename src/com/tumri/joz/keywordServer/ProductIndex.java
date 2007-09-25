@@ -167,12 +167,24 @@ public class ProductIndex {
   private Query createQuery(String str) {
     QueryParser qp = new QueryParser("description", getAnalyzer(false));
     try {
+      str = cleanseQueryString(str);
       return qp.parse(str);
     } catch (ParseException e) {
       return null;
     }
   }
   
+  /**
+   * Replace are whitespace control chars or Control-M with spaces
+   * @param queryStr
+   * @return
+   */
+  private String cleanseQueryString(String queryStr){
+  	if (queryStr!=null) {
+  		queryStr = queryStr.replaceAll("[\\^M\\s]", " ");
+  	}
+  	return queryStr;
+  } 
   
   /*
    * The following code is used to generate lucene index.
