@@ -371,6 +371,31 @@ public class TargetingRequestProcessorTest {
         }
     }
 
+    @Test
+    public void testGetAdDataForTSpecName() {
+        try {
+            String queryStr = "(get-ad-data :revert-to-default-realm t  :t-spec \"|tspecname|\")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+    
+    @Test
+    public void testGetAdDataForTSpecNameNoDefaultRealm() {
+        try {
+            String queryStr = "(get-ad-data :revert-to-default-realm nil  :t-spec \"|tspecname|\")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNull(oSpec);
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+
     private OSpec testProcessRequest(String getAdDataCommandStr) throws Exception {
         TargetingRequestProcessor processor = TargetingRequestProcessor.getInstance();
         Reader r = new StringReader(getAdDataCommandStr);
