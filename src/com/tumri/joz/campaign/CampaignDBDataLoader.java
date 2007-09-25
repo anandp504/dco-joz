@@ -35,6 +35,9 @@ public class CampaignDBDataLoader {
         String region;
         try {
             region = AppProperties.getInstance().getProperty("com.tumri.campaign.data.region.name");
+            if(region != null) {
+                region = region.trim();
+            }
         }
         catch(NullPointerException e) {
             throw new CampaignDataLoadingException("Error loading joz.properties", e);            
