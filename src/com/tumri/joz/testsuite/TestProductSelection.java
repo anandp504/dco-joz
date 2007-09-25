@@ -4,11 +4,12 @@ import com.tumri.cma.RepositoryException;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
 import com.tumri.joz.Query.CNFQuery;
-import com.tumri.joz.Query.QueryProcessor;
 import com.tumri.joz.Query.ProductQueryProcessor;
+import com.tumri.joz.Query.QueryProcessor;
 import com.tumri.joz.campaign.OSpecQueryCacheHelper;
-import com.tumri.joz.index.CategoryIndex;
-import com.tumri.joz.products.*;
+import com.tumri.joz.products.ContentHelper;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -31,11 +32,6 @@ public class TestProductSelection {
   public TestProductSelection() {
   }
 
-  private void setup() {
-    JOZTaxonomy tax = JOZTaxonomy.getInstance();
-    CategoryIndex catIndex = (CategoryIndex)ProductDB.getInstance().getIndex(IProduct.Attribute.kCategory);
-    catIndex.update(tax);
-  }
   @Test
   public void test() {
     try {
@@ -46,6 +42,7 @@ public class TestProductSelection {
       QueryProcessor qp = new ProductQueryProcessor();
       ProductDB.getInstance();
       buildCNFQueries(iter);
+      //setup();
       test0();
       test1();
     } catch (RepositoryException e) {

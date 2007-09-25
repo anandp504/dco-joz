@@ -1,14 +1,10 @@
 package com.tumri.joz.index;
 
-import com.tumri.content.data.Category;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.JOZTaxonomy;
-import com.tumri.utils.data.MultiSortedSet;
-import com.tumri.utils.data.RWLockedSortedSet;
 import com.tumri.utils.data.MergeSortedSets;
+import com.tumri.utils.data.MultiSortedSet;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -39,81 +35,18 @@ public class CategoryIndex extends ProductAttributeIndex<Integer, Handle> {
    * @param keys a List of key objects
    */
   public SortedSet<Handle> get(List<Integer> keys) {
-    if (keys.size() == 1) {
-      return get(keys.get(0));
-    } else {
-      MultiSortedSet<Handle> set = new MultiSortedSet<Handle>();
-      for (Integer key : keys) {
-        SortedSet<Handle> s = get(key);
-        if (s instanceof MultiSortedSet) {
-          List<SortedSet<Handle>> slist = ((MultiSortedSet<Handle>) s).getList();
-          for (SortedSet<Handle> lHandles : slist) {
-            set.add(lHandles);
-          }
-        } else {
-          set.add(s);
+    SortedSet<Handle> s = super.get(keys);
+    if (s instanceof MultiSortedSet) {
+      MultiSortedSet<Handle> set = (MultiSortedSet<Handle>)s;
+      if (set.getList().size() > 10) {
+        try {
+          set.readerLock();
+          return MergeSortedSets.merge(set.getList());
+        } finally {
+          set.readerUnlock();
         }
       }
-      return (set.getList().size() > 10 ? MergeSortedSets.merge(set.getList()) : set);
     }
-
-  }
-  /**
-   * Updates the index with the taxonomy object
-   * Internally for each of the parent child relationship index entries are created
-   * Any old entries are updated
-   * @param taxonomy
-   */
-  public void update(JOZTaxonomy taxonomy) {
-    try {
-      m_map.writerLock();
-      Integer root = taxonomy.getTaxonomy().getRootCategory().getGlassId();
-      if (root != null) {
-        update(taxonomy,root);
-      }
-    } finally {
-      m_map.writerUnlock();
-    }
-  }
-
-  private SortedSet<Handle> getChildSet(Integer childId) {
-    SortedSet<Handle> childSet = get(childId);
-    if (childSet == null) {
-      RWLockedSortedSet<Handle> set = createSet();
-      childSet = set;
-      m_map.put(childId,set);
-    }
-    return childSet;
-  }
-
-  /**
-   * Update all the child nodes before updating the parent node
-   * find the parent set from the index
-   * If the parent is not a MultiSortedSet then change the class to be so
-   * The parent category Node should have MultiSortedSet<Handle> as its set, where constituents are as follows
-   * MultiSortedSet = { Native Products to Category, child0, child1, child2 ... }
-   * Note: MultiSortedSet.add(Key,Value) adds the native products to first set in the row, while updating
-   * @param tax
-   * @param pid
-   */
-  private void update(JOZTaxonomy tax, Integer pid) {
-    Category[] children = tax.getTaxonomy().getCategory(pid).getChildren();
-    if (children != null) {
-      SortedSet<Handle> parentSet = get(pid);
-      if (parentSet == null) parentSet = createSet();
-      List<SortedSet<Handle>> nlist = new ArrayList<SortedSet<Handle>>();
-      nlist.add(parentSet instanceof MultiSortedSet ? ((MultiSortedSet<Handle>)parentSet).getList().get(0) : parentSet);
-      for (Category c: children) {
-        Integer child = c.getGlassId();
-        update(tax,child);
-        SortedSet<Handle> childSet = getChildSet(child);
-        if (childSet instanceof MultiSortedSet) {
-          nlist.addAll(((MultiSortedSet<Handle>)childSet).getList());
-        } else {
-          nlist.add(childSet);
-        }
-      }
-      put(pid,new MultiSortedSet<Handle>(nlist));
-    }
+    return s;
   }
 }

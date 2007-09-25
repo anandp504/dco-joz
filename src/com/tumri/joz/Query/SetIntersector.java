@@ -71,14 +71,18 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   public void setReference(Value aReference) {
     m_reference = aReference;
     if (m_reference != null && m_rankedSet == null) {
-      lock();
-      try {
-        for (int i = 0; i < m_includes.size(); i++) {
-          SortedSet<Value> lValues = m_includes.get(i);
+      for (int i = 0; i < m_includes.size(); i++) {
+        SortedSet<Value> lValues = m_includes.get(i);
+        boolean doLock = (lValues instanceof RWLocked);
+        try {
+          if (doLock)
+            ((RWLocked) lValues).readerLock();
           m_includes.set(i, new SortedSplitSet<Value>(lValues, m_reference));
+        } finally {
+          if (doLock) {
+            ((RWLocked) lValues).readerUnlock();
+          }
         }
-      } finally {
-        unlock();
       }
     }
   }
