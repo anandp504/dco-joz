@@ -110,9 +110,55 @@ public class CmdGetCounts extends CommandDeferWriting {
     // This method is invoded from CmdTSpecAdd also.
     public static Sexp getCounts(String tspec_name) throws BadCommandException {
         
+        HashMap<String, Counter>[] counters = getCounters(tspec_name);
+        
+        HashMap<String, Counter> category_counts = counters[0];
+        HashMap<String, Counter> brand_counts = counters[1];
+        HashMap<String, Counter> provider_counts = counters[2];
+
+
+        // Now create the return result.        
+        SexpList category_list = new SexpList();
+        Set<Map.Entry<String, Counter>> cat_counts = category_counts.entrySet();
+        for (Map.Entry<String, Counter> count : cat_counts) {
+            SexpList l = new SexpList(new SexpString(count.getKey()), new SexpInteger(count.getValue().get()));
+            category_list.addLast(l);
+        }
+        
+        SexpList brand_list = new SexpList();
+        Set<Map.Entry<String, Counter>> br_counts = brand_counts.entrySet();
+        for (Map.Entry<String, Counter> count : br_counts) {
+            SexpList l = new SexpList(new SexpString(count.getKey()), new SexpInteger(count.getValue().get()));
+            brand_list.addLast(l);
+        }
+        
+        SexpList merchant_list = new SexpList();
+        Set<Map.Entry<String, Counter>> mer_counts = provider_counts.entrySet();
+        for (Map.Entry<String, Counter> count : mer_counts) {
+            SexpList l = new SexpList(new SexpString(count.getKey()), new SexpInteger(count.getValue().get()));
+            merchant_list.addLast(l);
+        }
+        
+        SexpList result = new SexpList();
+        result.addLast(category_list);
+        result.addLast(brand_list);
+        result.addLast(merchant_list);
+        return result;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static HashMap<String, Counter>[] getCounters(String tspec_name) throws BadCommandException {
+        
+        HashMap<String, Counter>[] retVal = new HashMap[3];
+
         HashMap<String, Counter> category_counts = new HashMap<String, Counter>();
         HashMap<String, Counter> brand_counts = new HashMap<String, Counter>();
         HashMap<String, Counter> provider_counts = new HashMap<String, Counter>();
+        
+        retVal[0] = category_counts;
+        retVal[1] = brand_counts;
+        retVal[2] = provider_counts;
+        
         JOZTaxonomy tax = JOZTaxonomy.getInstance();
         ProductDB pdb = ProductDB.getInstance();
         
@@ -161,34 +207,9 @@ public class CmdGetCounts extends CommandDeferWriting {
             ctr = getCounters(provider_counts,provider);
             ctr.inc();
         }
+        
+        return retVal;
 
-        // Now create the return result.        
-        SexpList category_list = new SexpList();
-        Set<Map.Entry<String, Counter>> cat_counts = category_counts.entrySet();
-        for (Map.Entry<String, Counter> count : cat_counts) {
-            SexpList l = new SexpList(new SexpString(count.getKey()), new SexpInteger(count.getValue().get()));
-            category_list.addLast(l);
-        }
-        
-        SexpList brand_list = new SexpList();
-        Set<Map.Entry<String, Counter>> br_counts = brand_counts.entrySet();
-        for (Map.Entry<String, Counter> count : br_counts) {
-            SexpList l = new SexpList(new SexpString(count.getKey()), new SexpInteger(count.getValue().get()));
-            brand_list.addLast(l);
-        }
-        
-        SexpList merchant_list = new SexpList();
-        Set<Map.Entry<String, Counter>> mer_counts = provider_counts.entrySet();
-        for (Map.Entry<String, Counter> count : mer_counts) {
-            SexpList l = new SexpList(new SexpString(count.getKey()), new SexpInteger(count.getValue().get()));
-            merchant_list.addLast(l);
-        }
-        
-        SexpList result = new SexpList();
-        result.addLast(category_list);
-        result.addLast(brand_list);
-        result.addLast(merchant_list);
-        return result;
     }
     
     
@@ -204,7 +225,7 @@ public class CmdGetCounts extends CommandDeferWriting {
         return ctr;
     }
     
-    private static class Counter {
+    public static class Counter {
         
         public int count;
         
