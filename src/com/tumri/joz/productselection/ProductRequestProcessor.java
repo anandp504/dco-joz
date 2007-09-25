@@ -18,6 +18,7 @@ import com.tumri.joz.Query.KeywordQuery;
 import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.Query.ProductTypeQuery;
 import com.tumri.joz.Query.SimpleQuery;
+import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.jozMain.AdDataRequest;
@@ -36,7 +37,6 @@ import com.tumri.utils.sexp.SexpUtils;
 public class ProductRequestProcessor {
 
 	private static Logger log = Logger.getLogger (ProductRequestProcessor.class);
-	private static final String DEFAULT_REALM_TSPEC_NAME = "T-SPEC-http://default-realm/";
 
 	private CNFQuery m_tSpecQuery = null;
 	private OSpec m_currOSpec = null;
@@ -264,13 +264,15 @@ public class ProductRequestProcessor {
 		//Check if the backfill needs to be done - after the queries have been executed
 		if (m_revertToDefaultRealm && pageSize>0 && currSize<pageSize){
 			//Get the default realm tSpec query
-			//TODO: There could be more than one default realm tspec
-			CNFQuery defaultRealmTSpec = OSpecQueryCache.getInstance().getCNFQuery(DEFAULT_REALM_TSPEC_NAME);
-			if (defaultRealmTSpec!=null){
-				int tmpSize = pageSize-currSize;
-				defaultRealmTSpec.setBounds(tmpSize,0);
-				SortedSet<Handle> newResults = defaultRealmTSpec.exec();
-				backFillProds.addAll(newResults);
+			OSpec defaultRealmOSpec = CampaignDB.getInstance().getDefaultOSpec();
+			if (defaultRealmOSpec!=null) {
+				CNFQuery defaultRealmTSpec = OSpecQueryCache.getInstance().getCNFQuery(defaultRealmOSpec.getName());
+				if (defaultRealmTSpec!=null){
+					int tmpSize = pageSize-currSize;
+					defaultRealmTSpec.setBounds(tmpSize,0);
+					SortedSet<Handle> newResults = defaultRealmTSpec.exec();
+					backFillProds.addAll(newResults);
+				}
 			}
 		}
 		return backFillProds;
