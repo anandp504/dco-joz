@@ -2,10 +2,12 @@ package com.tumri.joz.campaign;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.tumri.cma.domain.OSpec;
 import com.tumri.joz.Query.CNFQuery;
+import com.tumri.joz.utils.AppProperties;
 
 /**
  * Class to maintain the LRU cache of the OSpec queries. The queries are looked up using the OSpec name.
@@ -16,9 +18,18 @@ import com.tumri.joz.Query.CNFQuery;
 public class OSpecQueryCache {
 	private LinkedHashMap<String, CNFQuery> m_oSpecQueryCache = null;
 	private static AtomicReference<OSpecQueryCache> g_queryCache = null;
-
+    private static final int DEFAULT_MAX_CACHE_ENTRIES = 2000;
+    private static final String CONFIG_OSPEC_CACHE_SIZE = "com.tumri.campaign.querycache.size";
+    
+    
 	private OSpecQueryCache() {
-		m_oSpecQueryCache = new LinkedHashMap<String, CNFQuery>(2000, 0.75f, true);
+		int cacheSize = DEFAULT_MAX_CACHE_ENTRIES;
+		try {
+			cacheSize = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_OSPEC_CACHE_SIZE));
+		} catch(Exception e) {
+			cacheSize = DEFAULT_MAX_CACHE_ENTRIES;
+		}
+		m_oSpecQueryCache = new OSpecLinkedHashMap<String, CNFQuery>(cacheSize);
 	}
 
 	public static OSpecQueryCache getInstance() {
@@ -103,6 +114,32 @@ public class OSpecQueryCache {
 		synchronized (OSpecQueryCache.class) {
 			m_oSpecQueryCache.clear();
 		}	
+	}
+
+	/**
+	 * Implementation of the LinkedHashMap to make it a LRU type cache
+	 * @author nipun
+	 *
+	 * @param <K>
+	 * @param <V>
+	 */
+	class OSpecLinkedHashMap<K,V> extends LinkedHashMap<K,V> {
+		 
+		private static final long serialVersionUID = 1L;
+		private int cacheSize;
+		
+		OSpecLinkedHashMap(int cacheSize) {
+			super(cacheSize, 0.75f, true);
+		}
+
+		OSpecLinkedHashMap() {
+			super(DEFAULT_MAX_CACHE_ENTRIES, 0.75f, true);
+		}
+		
+		protected boolean removeEldestEntry(Map.Entry eldest) {
+	        return size() > cacheSize;
+	     }
+		
 	}
 
 }
