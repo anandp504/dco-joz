@@ -81,7 +81,7 @@ public class OSpecQueryCache {
 	}
 
 	/**
-	 * Clear the cache
+	 * Remove specfic query from the cache
 	 */
 	public void removeQuery(String oSpecName){
 		synchronized (OSpecQueryCache.class) {
@@ -89,6 +89,16 @@ public class OSpecQueryCache {
 		}	
 	}
 
+	/**
+	 * Clear the cache
+	 *
+	 */
+	public void clear() {
+		synchronized (OSpecQueryCache.class) {
+			m_oSpecQueryCache.clear();
+		}	
+	}
+	
 	private void addToOSpecQueryCache(String oSpecName, CNFQuery _query) {
 		synchronized (OSpecQueryCache.class) {
 			m_oSpecQueryCache.put(oSpecName, _query);
@@ -104,16 +114,6 @@ public class OSpecQueryCache {
 
 	private OSpec lookupOSpec(String oSpecName) {
 		return CampaignDB.getInstance().getOspec(oSpecName);
-	}
-
-	/**
-	 * Clear the cache
-	 *
-	 */
-	private void clear() {
-		synchronized (OSpecQueryCache.class) {
-			m_oSpecQueryCache.clear();
-		}	
 	}
 
 	/**
