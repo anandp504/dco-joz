@@ -28,6 +28,7 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.tumri.content.TaxonomyProvider;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.Query.CNFQuery;
@@ -116,9 +117,29 @@ public class CmdGetCounts extends CommandDeferWriting {
         HashMap<String, Counter> brand_counts = counters[1];
         HashMap<String, Counter> provider_counts = counters[2];
 
+        String rootCatId = null;
+        Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
+        if (t != null) {
+            Category rootCat = t.getRootCategory();
+            if (rootCat != null) {
+                rootCatId = rootCat.getGlassIdStr();
+            }
+        }
 
-        // Now create the return result.        
+        // Now create the return result.  
+        
+        // In Category we are supposed to use value GLASSVIEW.Product for root category.
+        // This seems to be an undocumented quirk in the API.
+        // This is the only way that the client currently knows that this is the count for 
+        // root category (essentially for the entire t-spec).
         SexpList category_list = new SexpList();
+        Counter c = category_counts.get(rootCatId.toString());
+        if (c != null) {
+            category_list.addLast(new SexpList(new SexpString("GLASSVIEW.Product"), new SexpInteger(c.get())));
+            // Remove it once we have added it.
+            category_counts.remove(rootCatId);
+        }
+        
         Set<Map.Entry<String, Counter>> cat_counts = category_counts.entrySet();
         for (Map.Entry<String, Counter> count : cat_counts) {
             SexpList l = new SexpList(new SexpString(count.getKey()), new SexpInteger(count.getValue().get()));
@@ -193,18 +214,18 @@ public class CmdGetCounts extends CommandDeferWriting {
             
             categories = get_all_categories(categories);
             for (String cat : categories) {
-                ctr = getCounters(category_counts,cat);
+                ctr = getCounter(category_counts,cat);
                 ctr.inc();
             }
             
             // Brand Information
             String brand = p.getBrandStr();
-            ctr = getCounters(brand_counts,brand);
+            ctr = getCounter(brand_counts,brand);
             ctr.inc();
             
             // Provider Information
             String provider = p.getProviderStr();
-            ctr = getCounters(provider_counts,provider);
+            ctr = getCounter(provider_counts,provider);
             ctr.inc();
         }
         
@@ -213,7 +234,7 @@ public class CmdGetCounts extends CommandDeferWriting {
     }
     
     
-    protected static Counter getCounters(HashMap<String, Counter> counts, String key) {
+    protected static Counter getCounter(HashMap<String, Counter> counts, String key) {
         if (counts == null) {
             return null;
         }
