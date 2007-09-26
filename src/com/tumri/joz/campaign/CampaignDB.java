@@ -1,15 +1,12 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
-import com.tumri.utils.data.RWLockedTreeMap;
 import com.tumri.utils.Pair;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.AdpodIndex;
-import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.joz.utils.AppProperties;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * CampaignDB is an in-memory representation for campaign(CMA) database that holds all the campagin related domain objects for
@@ -21,7 +18,7 @@ public abstract class CampaignDB {
 
     private String defaultRealmOSpecName = "T-SPEC-http://default-realm/";
 
-    private static CampaignDB campaignDB = CampaignDBCompleteRefreshImpl.getInstance();
+    private static CampaignDB campaignDB = CampaignDBCompleteRefreshImpl.getInstance(); //CampaignDBIncrementalRefreshImpl.getInstance();
 
     public static CampaignDB getInstance() {
         return campaignDB;
@@ -56,6 +53,22 @@ public abstract class CampaignDB {
     public abstract void addOSpec(OSpec oSpec);
 
     public abstract void deleteOSpec(String oSpecName);
+
+    public abstract void addUrlMapping(String urlName, String tSpecName, float weight);
+
+    public abstract void addThemeMapping(String themeName, String tSpecName, float weight);
+
+    public abstract void addLocationMapping(String locationId, String tSpecName, float weight);
+
+    public abstract void addGeocodeMapping(Geocode geocode, String tSpecName, float weight);
+
+    public abstract void deleteUrlMapping(String urlName, String tSpecName, float weight);
+
+    public abstract void deleteThemeMapping(String themeName, String tSpecName, float weight);
+
+    public abstract void deleteLocationMapping(String locationId, String tSpecName, float weight);
+
+    public abstract void deleteGeocodeMapping(Geocode geocode, String tSpecName, float weight);
 
     public abstract OSpec getDefaultOSpec();
 

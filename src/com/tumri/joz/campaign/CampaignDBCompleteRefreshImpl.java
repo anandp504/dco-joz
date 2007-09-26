@@ -97,6 +97,38 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         tempOSpecNameMap.remove(oSpecName);
     }
 
+    public void addUrlMapping(String urlName, String tSpecName, float weight) {
+        throw new UnsupportedOperationException("This method is not yet implemented");
+    }
+
+    public void addThemeMapping(String themeName, String tSpecName, float weight) {
+        throw new UnsupportedOperationException("This method is not yet implemented");
+    }
+
+    public void addLocationMapping(String locationId, String tSpecName, float weight) {
+        throw new UnsupportedOperationException("This method is not yet implemented");
+    }
+
+    public void addGeocodeMapping(Geocode geocode, String tSpecName, float weight) {
+        throw new UnsupportedOperationException("This method is not yet implemented");
+    }
+
+    public void deleteUrlMapping(String urlName, String tSpecName, float weight) {
+        throw new UnsupportedOperationException("This method is not yet implemented");
+    }
+
+    public void deleteThemeMapping(String themeName, String tSpecName, float weight) {
+        throw new UnsupportedOperationException("This method is not yet implemented");
+    }
+
+    public void deleteLocationMapping(String locationId, String tSpecName, float weight) {
+        throw new UnsupportedOperationException("This method is not yet implemented");
+    }
+
+    public void deleteGeocodeMapping(Geocode geocode, String tSpecName, float weight) {
+        throw new UnsupportedOperationException("This method is not yet implemented");
+    }
+
     public OSpec getDefaultOSpec() {
         return ospecNameMap.get().get(getDefaultRealmOSpecName());
     }
@@ -197,9 +229,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        RWLockedTreeMap<Integer,Integer> map = null;
         if(iterator.hasNext()) {
-            map = new RWLockedTreeMap<Integer,Integer>();
+            RWLockedTreeMap<Integer,Integer> map = new RWLockedTreeMap<Integer,Integer>();
             while(iterator.hasNext()) {
                 Pair<Integer, Integer> pair = iterator.next();
                 int adPodId = pair.getFirst();
@@ -353,9 +384,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        RWLockedTreeMap<Integer,Url> map = null;
         if(iterator.hasNext()) {
-            map = new RWLockedTreeMap<Integer,Url>();
+            RWLockedTreeMap<Integer,Url> map = new RWLockedTreeMap<Integer,Url>();
             while(iterator.hasNext()) {
                 Url url = iterator.next();
                 map.put(url.getId(), url);
@@ -370,9 +400,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        RWLockedTreeMap<Integer,Theme> map = null;
         if(iterator.hasNext()) {
-            map = new RWLockedTreeMap<Integer,Theme>();
+            RWLockedTreeMap<Integer,Theme> map = new RWLockedTreeMap<Integer,Theme>();
 
             while(iterator.hasNext()) {
                 Theme theme = iterator.next();
@@ -386,9 +415,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
-        RWLockedTreeMap<Integer,Location> map = null;
         if(iterator.hasNext()) {
-            map = new RWLockedTreeMap<Integer,Location>();
+            RWLockedTreeMap<Integer,Location> map = new RWLockedTreeMap<Integer,Location>();
 
             while(iterator.hasNext()) {
                 Location location = iterator.next();
@@ -449,7 +477,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             AdpodIndex<String, Handle> index         = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kTheme);
             Theme theme;
             AdPod adPod;
-            List<Handle> list = null;
+            List<Handle> list;
 
             while(iterator.hasNext()) {
                 ThemeAdPodMapping themeAdPodMapping = iterator.next();

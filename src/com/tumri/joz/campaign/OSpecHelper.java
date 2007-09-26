@@ -87,11 +87,11 @@ public class OSpecHelper {
 			Sexp tmp_mapping_directive = updtMappingCommand.get(0);
 			Sexp tmp_site_constraint_spec = updtMappingCommand.get(1);
 			Sexp tmp_site_constraint = null;
-			Sexp tmp_site_spec = null;
+			String tmp_site_spec = null;
 			SexpList siteSpecList = tmp_site_constraint_spec.toSexpList();
 			if (siteSpecList.size() == 2) {
 				tmp_site_constraint = siteSpecList.get(0).toSexpKeyword();
-				tmp_site_spec = siteSpecList.get(1).toSexpString();
+				tmp_site_spec = siteSpecList.get(1).toSexpString().toStringValue();
 			}
 			Sexp tmp_geo_constraint_spec = updtMappingCommand.get(2);
 			Sexp tmp_demo_constraint_spec = updtMappingCommand.get(3);
@@ -127,47 +127,47 @@ public class OSpecHelper {
 			//TODO: Set modified time into the mapping object(s)
 			String modTime = tmp_modified.toStringValue();
 			MappingsParams mapType = SexpOSpecHelper.mappingParams.get(opLookupDataType.toLowerCase());
-			OSpec aOSpec = CampaignDB.getInstance().getOspec(tSpecName);
-			if (aOSpec != null) {
-				if (":add".equals(opType)) {
-					switch(mapType) {
-					case REALM:
-						//TODO Get the Url mapping ( if it exists ), or create a new one
-						//url value is in tmp_site_constraint
-						Url url = null;
-						Integer urlID = null;
-						UrlAdPodMapping urlMapping = new UrlAdPodMapping();
-						urlMapping.setWeight((int)weight);
-//						urlMapping.setUrlId(urlID);
-//						urlMapping.setAdPodId(aOSpec.getId());
-						//TODO: Commit the URL mapping back into the CampaignDB
-						break;
+            if (":add".equals(opType)) {
+                switch(mapType) {
+                case REALM:
+                    //url value is in tmp_site_constraint
+                    CampaignDB.getInstance().addUrlMapping(tmp_site_spec, tSpecName, weight);
+                    break;
 
-					case STOREID:
-						//TDP Get the Location or if the location does not exist
-						Location theLocation = null;
-						int locId = -1;
-						LocationAdPodMapping locMapping = new LocationAdPodMapping();
-						locMapping.setLocationId(locId);
-						break;
+                case STOREID:
+                    CampaignDB.getInstance().addLocationMapping(tmp_site_spec, tSpecName, weight);
+                    break;
 
-					case THEME:
-						Theme theTheme = null;
-						Integer themeId = null;
-						ThemeAdPodMapping themeMapping = new ThemeAdPodMapping();
-//						themeMapping.setThemeId(themeId);
-						break;
-					}
-				} else if (":delete".equals(opType)) {
-					if (":realm".equals(opLookupDataType)) {
-						//Delete the realm mapping to the TSpec
-					} else if (":store-ID".endsWith(opLookupDataType)) {
-						//Delete the storeid mapping to the TSpec
-					}
-				}
-			} else {
-				log.error("Could not add the mapping since the OSpec is not there in cache");
-			}
+                case THEME:
+                    CampaignDB.getInstance().addThemeMapping(tmp_site_spec, tSpecName, weight);
+                    break;
+                }
+
+                if (geoObj!=null) {
+                    CampaignDB.getInstance().addGeocodeMapping(geoObj, tSpecName, weight);
+
+                }
+            } else if (":delete".equals(opType)) {
+                switch(mapType) {
+                case REALM:
+                    //url value is in tmp_site_constraint
+                    CampaignDB.getInstance().deleteUrlMapping(tmp_site_spec, tSpecName, weight);
+                    break;
+
+                case STOREID:
+                    CampaignDB.getInstance().deleteLocationMapping(tmp_site_spec, tSpecName, weight);
+                    break;
+
+                case THEME:
+                    CampaignDB.getInstance().deleteThemeMapping(tmp_site_spec, tSpecName, weight);
+                    break;
+                }
+
+                if (geoObj!=null) {
+                    CampaignDB.getInstance().deleteGeocodeMapping(geoObj, tSpecName, weight);
+
+                }
+            }
 		}
 	}
 
