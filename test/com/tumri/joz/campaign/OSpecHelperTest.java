@@ -2,17 +2,12 @@ package com.tumri.joz.campaign;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
 
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.tumri.joz.jozMain.AdDataRequest;
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.productselection.ProductRequestProcessor;
-import com.tumri.joz.productselection.ProductSelectionResults;
+import com.tumri.cma.domain.OSpec;
+import com.tumri.cma.misc.SexpOSpecHelper;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpReader;
@@ -56,9 +51,51 @@ public class OSpecHelperTest {
 			}
 
     	}
+    }
+    
+    @Test
+    public void testTspecAdd() {
+    	String tSpecAddStr = "(t-spec-add :name '|TPP A 1| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14215| |GLASSVIEW.TUMRI_14209| |GLASSVIEW.TUMRI_14208| |GLASSVIEW.TUMRI_14214| |GLASSVIEW.TUMRI_14217| |GLASSVIEW.TUMRI_14227| ) :ref-price-constraints '(10.0 146.0) )";
+    	Sexp tspecMappingSexp = testProcessRequest(tSpecAddStr);
+    	if (tspecMappingSexp!=null){
+			SexpList tspecAddSpecList = tspecMappingSexp.toSexpList();
+			Sexp cmd_expr = tspecAddSpecList.getFirst ();
+			if (! cmd_expr.isSexpSymbol ()) {
+				System.out.println("command name not a symbol: " + cmd_expr.toString ());
+			}
+
+			SexpSymbol sym = cmd_expr.toSexpSymbol ();
+			String cmd_name = sym.toString ();
+			if (cmd_name.equalsIgnoreCase("t-spec-add")) {
+				String name = OSpecHelper.doTSpecAdd(tspecAddSpecList);
+				if (name != null){
+					assert(true);
+				} else {
+					assert(false);
+				}
+			} else {
+				System.out.println("Unexpected command received : " + cmd_expr);
+			}
+    	}
+    }
+
+    @Test
+    public void testTSpecDelete() {
     	
     }
     
+    @Test
+    public void testGetTSpecObject() {
+    	String tSpecAddStr = "(t-spec-add :name '|TPP A 1| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14215| |GLASSVIEW.TUMRI_14209| |GLASSVIEW.TUMRI_14208| |GLASSVIEW.TUMRI_14214| |GLASSVIEW.TUMRI_14217| |GLASSVIEW.TUMRI_14227| ) :ref-price-constraints '(10.0 146.0) )";
+    	OSpec ospec = null;
+    	try {
+    		ospec = SexpOSpecHelper.getOSpec(tSpecAddStr);
+    	} catch(Exception e) {
+    		
+    	}
+    	assert(ospec!=null);
+    	
+    }
     
     /**
      * Helper method that will convert the string into a Sexp
