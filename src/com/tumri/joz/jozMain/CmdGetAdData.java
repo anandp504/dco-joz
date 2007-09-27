@@ -3,7 +3,6 @@
  */
 package com.tumri.joz.jozMain;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import org.apache.log4j.Logger;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.MerchantData;
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.JOZTaxonomy;
@@ -40,24 +38,14 @@ public class CmdGetAdData extends CommandOwnWriting {
             AdDataRequest rqst = new AdDataRequest(expr);
             choose_and_write_products(rqst, out);
         } catch (IOException e) {
-            // Blech, may be in middle of transmission.
-            // FIXME: What to do? drop the connection and rely on client
-            // to detect dropped connection as an error indicator and
-            // reconnect?
-            log.error("Unknown IOException found", e);
+        	log.error("IOException : Connection lost with the client - cannot write to outputstream", e);
         } catch (Exception e) {
             log.error("Unknown Exception", e);
-            // FIXME: What to do? We should be written such that we cannot
-            // get here in the middle of transmitting a response. Sending the
-            // default realm may be reasonable except that there are other
-            // failure modes for which we might also want to show the default
-            // realm; it would be preferable to handle as many of them as
-            // possible in one place, and it's not yet clear this is that
-            // place.
-            /*
-             * Sexp sexp = JozData.mup_db.get_default_realm_response ();
-             * SexpIFASLWriter.writeOne (out, sexp);
-             */
+            try {
+            	writeErrorMessage("Unexpected exception caught during processing ad request", out);
+            } catch (Exception ioe) {
+            	log.error("Could not write the error to the output stream", e);
+            }
         }
     }
     
@@ -65,7 +53,6 @@ public class CmdGetAdData extends CommandOwnWriting {
     
     private static Logger log = Logger.getLogger(CmdGetAdData.class);
     
-    private static int dump_seq = 0;
     
     // Main entry point to product selection once the request has been read
     // and parsed.
@@ -90,11 +77,21 @@ public class CmdGetAdData extends CommandOwnWriting {
             write_result(rqst, targetedOSpec, null /* FIXME:wip */,
                     private_label_p, features, elapsed_time, product_handles, out);
         } else {
-        	//TODO: Set the error code in the output
-        	//We need to send back something like : (:error "null t-spec, most likely no default realm")
         	log.error("No results were returned during product selecion");
+        	writeErrorMessage("null t-spec, most likely no default realm", out);
         }
         
+    }
+    
+    /**
+     * Helper method to write the error string into the output stream.
+     * @param errorString
+     */
+    private void writeErrorMessage(String errorString,OutputStream out) throws IOException, Exception { 
+        SexpIFASLWriter w = new SexpIFASLWriter(out);
+        w.startDocument();
+        write_elm(w, "error", new SexpString(errorString));
+        w.endDocument();
     }
     
     // Write the chosen product list back to the client.
