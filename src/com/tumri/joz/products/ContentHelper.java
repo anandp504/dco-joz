@@ -32,6 +32,7 @@ import com.tumri.content.InvalidConfigException;
 import com.tumri.content.ProductProvider;
 import com.tumri.content.data.Content;
 import com.tumri.content.data.ContentProviderStatus;
+import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.utils.data.SortedArraySet;
@@ -152,8 +153,11 @@ public class ContentHelper implements ContentListener {
                 
                 // Need to update the lucene index before deleting old products.
                 initLucene();
-                
+
                 pdb.deleteProduct(deltas[2]);
+                
+                // Clear all Ospec Query Cache.
+                OSpecQueryCache.getInstance().clear();
             }
     }
     

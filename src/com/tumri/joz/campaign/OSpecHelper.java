@@ -48,6 +48,7 @@ public class OSpecHelper {
 			iter.next(); //ignore the t-spec-add keyword
 			OSpec theOSpec = SexpOSpecHelper.readTSpecDetailsFromSExp(iter);
 			CampaignDB.getInstance().addOSpec(theOSpec);
+	        OSpecQueryCache.getInstance().removeQuery(theOSpec.getName());
 			return theOSpec.getName();
 			//Note that we are not touching the Query cache here since the next access to the Tspec using get-ad-data will add it to the cache
 		} else {
