@@ -82,6 +82,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         if (prs!=null) {
             ArrayList<Handle> product_handles = prs.getResults();
             OSpec targetedOSpec = prs.getTargetedOSpec();
+            
             long end_time = System.nanoTime();
             long elapsed_time = end_time - start_time;
             
@@ -94,17 +95,6 @@ public class CmdGetAdData extends CommandOwnWriting {
         	log.error("No results were returned during product selecion");
         }
         
-        // Log the result for debugging.
-        // FIXME: need flag to control this
-//        String dump_file = "/tmp/soz3-" + dump_seq + ".dump";
-//        ++dump_seq;
-//        try {
-//            FileOutputStream f = new FileOutputStream(dump_file);
-//            write_result(rqst, null /* FIXME:wip */, null /* FIXME:wip */,
-//                    private_label_p, features, elapsed_time, product_handles, f);
-//        } catch (Exception e) {
-//            log.error("Unable to dump result: " + e.toString());
-//        }
     }
     
     // Write the chosen product list back to the client.
@@ -231,7 +221,6 @@ public class CmdGetAdData extends CommandOwnWriting {
     // encoded differently.
     
     public String toAdDataResultString(Handle h, int maxProdDescLength) {
-        DictionaryManager dm = DictionaryManager.getInstance();
         ProductDB pdb = ProductDB.getInstance();
         int id = h.getOid();
         IProduct p = pdb.get(id);
@@ -239,11 +228,18 @@ public class CmdGetAdData extends CommandOwnWriting {
         
         b.append("{");
         b.append("id:\"");
-        b.append(encode(p.getGId()));
+        b.append(encode(p.getIdSymbol()));
         b.append("\",display_category_name:\"");
+        Category cat = null;
+        try {
+        	cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(p.getCategory());
+        } catch (NullPointerException npe) {
+        	log.warn("The category specified for product is valid for the current taxonomy :" + p.getCategoryStr());
+        }
         // Use the first parent as the category.
-        b.append(encode(JOZTaxonomy.getInstance().getTaxonomy().getCategory(
-                p.getCategory()).getName()));
+        if (cat != null) {
+        	b.append(encode(cat.getName()));
+        } 
         b.append("\",price:\"");
         b.append(encode_price(p.getPrice()));
         b.append("\",discount_price:\"");
