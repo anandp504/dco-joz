@@ -193,6 +193,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list = new ArrayList<Handle>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
+                //System.out.println(adPod.getName());
                 list.add(new AdPodHandle(adPod, adPod.getId(), AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight));
             }
             geoNoneAdPodMap.put(AdpodIndex.GEO_NONE, list);
@@ -441,13 +442,13 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 url = urlMap.get().get(urlAdPodMapping.getUrlId());
                 adPod = adPodMap.get().get(urlAdPodMapping.getAdPodId());
                 if(url != null && adPod != null) {
-                    list = urlAdPodMap.get(url.getName());
+                    String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
+                    list = urlAdPodMap.get(urlName);
                     if(list == null) {
                         list = new ArrayList<Handle>();
                     }
-                    int oid = adPod.getId(); //urlAdPodMapping.getId();
+                    int oid = adPod.getId(); 
                     list.add(new AdPodHandle(adPod, oid, AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
-                    String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
                     if(urlName != null) {
                         urlAdPodMap.put(urlName, list);
                     }

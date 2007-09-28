@@ -241,7 +241,7 @@ public class TargetingRequestProcessorTest {
     public void tearDown() throws Exception {
     }
 
-    @Test
+
     public void testUrlCountryGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"http://consumersearch.com/www/electronics/gps\"" + ")";
@@ -254,7 +254,7 @@ public class TargetingRequestProcessorTest {
         }
     }
 
-    @Test
+    
     public void testCountryGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"http://www.photo.net/bboard/\"" + ")";
@@ -270,7 +270,7 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testRegionGeoGetAdData() {
         try {
-            String queryStr = "(get-ad-data :region \"CA\"" + ":url \"http://ad.doubleclick.net/adi/ibs.ny.entertainment\"" + ")";
+            String queryStr = "(get-ad-data :region \"KS\"" + ":url \"http://products.howstuffworks.com/computers-buying-guides.htm\"" + ")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
@@ -395,6 +395,20 @@ public class TargetingRequestProcessorTest {
             fail("Exception caught during test run");
         }
     }
+
+    @Test
+    public void testUrl2GetAdData() {
+        try {
+            String queryStr = "(get-ad-data :url \" http://products.howstuffworks.com/computers-buying-guides.htm\")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+
 
     private OSpec testProcessRequest(String getAdDataCommandStr) throws Exception {
         TargetingRequestProcessor processor = TargetingRequestProcessor.getInstance();
