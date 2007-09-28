@@ -198,7 +198,7 @@ public class ContentHelper implements ContentListener {
         IProduct currProduct = null;
         int compare = 0;
         while (!end) {
-            if (!allProdsIt.hasNext()) {
+            if ((prod==null) && !allProdsIt.hasNext()) {
                 if (currProduct != null) {
                     retVal[2].add(currProduct);
                     currProduct = null;
@@ -209,7 +209,7 @@ public class ContentHelper implements ContentListener {
                 end = true;
                 continue;
             }
-            if (!currProdsIt.hasNext()) {
+            if ((currProduct == null) && !currProdsIt.hasNext()) {
                 if (prod != null) {
                     retVal[0].add(prod);
                     prod = null;
