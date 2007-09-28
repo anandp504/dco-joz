@@ -131,6 +131,7 @@ public class MUPSetup {
       try {
         Runtime.getRuntime().exec(cmd1);
         Runtime.getRuntime().exec(cmd2);
+        Runtime.getRuntime().exec("sync");
       } catch (IOException e) {
         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
       }
