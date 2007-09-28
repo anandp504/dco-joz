@@ -206,7 +206,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         if (log.isDebugEnabled())
             log.debug("Product string: " + s);
         
-        w.writeString8(s);
+        w.writeString(s);
     }
     
     // Subroutine of {write_products} to simplify it.
@@ -221,6 +221,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         ProductDB pdb = ProductDB.getInstance();
         int id = h.getOid();
         IProduct p = pdb.get(id);
+        
         StringBuilder b = new StringBuilder();
         
         b.append("{");
