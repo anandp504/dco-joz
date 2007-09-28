@@ -49,6 +49,8 @@ public abstract class CampaignDB {
     public abstract OSpec getOSpecForAdPod(int adPodId);
 
     public abstract OSpec getOspec(String name);
+    
+    public abstract List<OSpec>  getAllOSpecs();
 
     public abstract void addOSpec(OSpec oSpec);
 

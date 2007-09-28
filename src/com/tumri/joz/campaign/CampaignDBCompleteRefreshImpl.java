@@ -89,6 +89,10 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         return oSpec;
     }
 
+    public List<OSpec> getAllOSpecs() {
+        return new ArrayList(ospecMap.get().values());
+    }
+
     public void addOSpec(OSpec oSpec) {
         tempOSpecNameMap.put(oSpec.getName(), oSpec);
     }
@@ -193,7 +197,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list = new ArrayList<Handle>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
-                //System.out.println(adPod.getName());
                 list.add(new AdPodHandle(adPod, adPod.getId(), AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight));
             }
             geoNoneAdPodMap.put(AdpodIndex.GEO_NONE, list);
