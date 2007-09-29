@@ -62,7 +62,7 @@ public class SiteTargetingQuery extends TargetingQuery {
     private SortedSet<Handle> execLocationQuery() {
         SortedSet<Handle> results = null;
         if(locationId > 0) {
-            AdpodIndex index = CampaignDB.getInstance().getLocationAdPodMappingIndex();
+            AtomicAdpodIndex index = CampaignDB.getInstance().getLocationAdPodMappingIndex();
             results = index.get(locationId);
         }
         return results;
@@ -72,7 +72,7 @@ public class SiteTargetingQuery extends TargetingQuery {
     private SortedSet<Handle> execThemeQuery() {
         SortedSet<Handle> results = null;
         if(themeName != null && !themeName.equals("")) {
-            AdpodIndex index = CampaignDB.getInstance().getThemeAdPodMappingIndex();
+            AtomicAdpodIndex index = CampaignDB.getInstance().getThemeAdPodMappingIndex();
             results = index.get(themeName);
         }
         return results;
@@ -83,7 +83,7 @@ public class SiteTargetingQuery extends TargetingQuery {
         MultiSortedSet<Handle> urlsResults = new MultiSortedSet<Handle>();
         SortedSet<Handle> results;
         if(urlName != null && !urlName.equals("")) {
-            AdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
+            AtomicAdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
             List<String> urls = UrlNormalizer.getAllPossibleNormalizedUrl(urlName);
             if(urls != null && urls.size() > 0) {
                 //@todo replace this with more appropriate scoring
@@ -142,7 +142,7 @@ public class SiteTargetingQuery extends TargetingQuery {
     @SuppressWarnings({"unchecked"})
     private SortedSet<Handle> execRunOfNetworkQuery() {
         SortedSet<Handle> results;
-        AdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
+        AtomicAdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
         results = index.get(AdpodIndex.RUN_OF_NETWORK);
         return results;
     }

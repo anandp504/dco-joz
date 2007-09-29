@@ -3,7 +3,7 @@ package com.tumri.joz.campaign;
 import com.tumri.cma.domain.*;
 import com.tumri.utils.Pair;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.index.AdpodIndex;
+import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.joz.utils.AppProperties;
 
 import java.util.*;
@@ -102,25 +102,25 @@ public abstract class CampaignDB {
 
     public abstract void loadLocationAdPodMappings(Iterator<LocationAdPodMapping> iterator);
 
-    public abstract AdpodIndex<Integer, Handle> getLocationAdPodMappingIndex();
+    public abstract AtomicAdpodIndex<Integer, Handle> getLocationAdPodMappingIndex();
 
-    public abstract AdpodIndex<String, Handle> getUrlAdPodMappingIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getUrlAdPodMappingIndex();
     
-    public abstract AdpodIndex<String, Handle> getThemeAdPodMappingIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getThemeAdPodMappingIndex();
 
-    public abstract AdpodIndex<String, Handle> getRunOfNetworkAdPodIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getRunOfNetworkAdPodIndex();
 
-    public abstract AdpodIndex<String, Handle> getNonGeoAdPodIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getNonGeoAdPodIndex();
 
-    public abstract AdpodIndex<String, Handle> getAdpodGeoCountryIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoCountryIndex();
 
-    public abstract AdpodIndex<String, Handle> getAdpodGeoRegionIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoRegionIndex();
 
-    public abstract AdpodIndex<String, Handle> getAdpodGeoCityIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoCityIndex();
 
-    public abstract AdpodIndex<String, Handle> getAdpodGeoDmacodeIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoDmacodeIndex();
 
-    public abstract AdpodIndex<String, Handle> getAdpodGeoAreacodeIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoAreacodeIndex();
 
-    public abstract AdpodIndex<String, Handle> getAdpodGeoZipcodeIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoZipcodeIndex();
 }

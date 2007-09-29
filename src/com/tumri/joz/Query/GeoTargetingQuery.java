@@ -85,7 +85,7 @@ public class GeoTargetingQuery extends TargetingQuery {
             return null;
         }
         SortedSet<Handle> results = null;
-        AdpodIndex<String, Handle> index = CampaignDB.getInstance().getAdpodGeoRegionIndex();
+        AtomicAdpodIndex<String, Handle> index = CampaignDB.getInstance().getAdpodGeoRegionIndex();
         if(index != null) {
             results = index.get(region);
         }

@@ -542,45 +542,45 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         }
     }
 
-    public AdpodIndex<Integer, Handle> getLocationAdPodMappingIndex() {
-        return adpodLocationMappingIndex.get();
+    public AtomicAdpodIndex<Integer, Handle> getLocationAdPodMappingIndex() {
+        return adpodLocationMappingIndex;
     }
 
-    public AdpodIndex<String, Handle> getUrlAdPodMappingIndex() {
-        return adpodUrlMappingIndex.get();
+    public AtomicAdpodIndex<String, Handle> getUrlAdPodMappingIndex() {
+        return adpodUrlMappingIndex;
     }
 
-    public AdpodIndex<String, Handle> getThemeAdPodMappingIndex() {
-        return adpodThemeMappingIndex.get();
+    public AtomicAdpodIndex<String, Handle> getThemeAdPodMappingIndex() {
+        return adpodThemeMappingIndex;
     }
 
-    public AdpodIndex<String, Handle> getRunOfNetworkAdPodIndex() {
-        return adpodRunOfNetworkIndex.get();
+    public AtomicAdpodIndex<String, Handle> getRunOfNetworkAdPodIndex() {
+        return adpodRunOfNetworkIndex;
     }
 
-    public AdpodIndex<String, Handle> getNonGeoAdPodIndex() {
-        return adpodGeoNoneIndex.get();
+    public AtomicAdpodIndex<String, Handle> getNonGeoAdPodIndex() {
+        return adpodGeoNoneIndex;
     }
 
-    public AdpodIndex<String, Handle> getAdpodGeoCountryIndex() {
-        return adpodGeoCountryIndex.get();
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoCountryIndex() {
+        return adpodGeoCountryIndex;
     }
 
-    public AdpodIndex<String, Handle> getAdpodGeoRegionIndex() {
-        return adpodGeoRegionIndex.get();
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoRegionIndex() {
+        return adpodGeoRegionIndex;
     }
-    public AdpodIndex<String, Handle> getAdpodGeoCityIndex() {
-        return adpodGeoCityIndex.get();
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoCityIndex() {
+        return adpodGeoCityIndex;
     }
-    public AdpodIndex<String, Handle> getAdpodGeoDmacodeIndex() {
-        return adpodGeoDmacodeIndex.get();
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoDmacodeIndex() {
+        return adpodGeoDmacodeIndex;
     }
-    public AdpodIndex<String, Handle> getAdpodGeoAreacodeIndex() {
-        return adpodGeoAreacodeIndex.get();
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoAreacodeIndex() {
+        return adpodGeoAreacodeIndex;
     }
 
-    public AdpodIndex<String, Handle> getAdpodGeoZipcodeIndex() {
-        return adpodGeoZipcodeIndex.get();
+    public AtomicAdpodIndex<String, Handle> getAdpodGeoZipcodeIndex() {
+        return adpodGeoZipcodeIndex;
     }
 
 }
