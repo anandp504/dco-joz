@@ -120,6 +120,9 @@
 
 	<war destfile="${dist.dir}/joz.war" 
 		webxml="${src.dir}/webresources/WEB-INF/web.xml">
+		<fileset dir="${src.dir}/webresources/">
+			<exclude name="WEB-INF"/>
+		</fileset>
 	    <lib dir="${dist.dir}" includes="joz.jar"/>
 	    <lib dir="${ext.lib.dir}" includes="*.jar">
 	    	<exclude name="log4j*.jar"/>
