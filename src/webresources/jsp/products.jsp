@@ -10,10 +10,14 @@
 	    .floatingDiv{  position:absolute; border: solid 1px blue; display:none; width:250px; height:100px; }
 	  </style>
 	  <script>
-	  function displayProductContent(productId)
+	  function displayProductContent(productId, category, merchant, brand, price)
 	  {
 	     var elm = document.getElementById("productContent");
-	     var val = '<strong>'+productId+'</strong>';
+	     var val = 'Product Id =<strong>'+productId+'</strong>';
+	     val = val + '<br> Category =<strong>'+category+'</strong>';
+	     val = val + '<br> Merchant =<strong>'+merchant+'</strong>';
+	     val = val + '<br> Brand =<strong>'+brand+'</strong>';
+	     val = val + '<br> Price =<strong>'+price+'</strong>';
 	     elm.innerHTML = val;
 	     elm.style.top = "100px";
 	     elm.style.left= "600px";
@@ -75,6 +79,11 @@
 		     		if(20==count) break;
 		     		product=products.get(count);
 				String productId=(String)product.get("id");
+				String category=(String)product.get("display_category_name");
+                              category = category.replaceAll("&#39;", "\\\\\'");
+				String brand=(String)product.get("brand");
+				String price=(String)product.get("discount_price");
+				String merchant=(String)product.get("merchant_id");
 				String temp=(String)product.get("thumbnailraw");
 				StringTokenizer attrToken=attrToken=new StringTokenizer(temp,"|");
 				attrToken.nextToken();
@@ -82,7 +91,7 @@
 				String thumbnailraw=attrToken.nextToken();
 				if (0==count) out.print("<tr>");
 				else if(count%4==0) out.print("</tr><tr>");
-				out.print("<td><img border=\"1\" src=\""+imageUrlPrefix+"/"+thumbnailraw+"\" onMouseOver=\"javascript:displayProductContent('"+productId+"');\" onMouseOut=\"javascript:hideProductContent()\";/></td>");
+				out.print("<td><img border=\"1\" src=\""+imageUrlPrefix+"/"+thumbnailraw+"\" onMouseOver=\"javascript:displayProductContent('"+productId+"','"+category+"','"+merchant+"','"+brand+"','"+price+"');\" onMouseOut=\"javascript:hideProductContent()\";/></td>");
                 
 			}
 		  %>
