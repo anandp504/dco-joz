@@ -9,10 +9,13 @@
   	<strong>Joz Console Ver 0.1</strong>
   	<hr/>
   </div>
-  </br>
+  <br>
   <div id="links">
-  	<strong>Joz Links</strong>
-  	</br></br>
+  	<strong>Commands</strong>
+  </div>
+  <br>
+  <br>
+  <div>
   	<a href="get-ad-data.jsp">get-ad-data</a>
   </div>
   </body>

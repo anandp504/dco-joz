@@ -67,7 +67,7 @@
 		     	else dp=tp;
 		  %>
 		  [<%=dp%> out of <%=tp%>]
-		  </br></br></br>
+		  <br><br><br>
 		  <table>
 		  <%
 		     	Map<String,String> product=null;

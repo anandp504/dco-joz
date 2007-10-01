@@ -25,12 +25,14 @@
 			<a href="console.jsp">home</a>
 		</div>
 	  </div>
-	  </br>
+	  <br>
 	  <div id="links">
 		  <strong>get-ad-data</strong>
-		  </br>
+      </div>
+	  <br>
+      <div>
 		  <form id="tspecSelForm" action="products.jsp" method="post">
-			  select T-spec :
+			  Select T-spec:
 			  <select id="tspecList">
 				  <%CampaignDB campaignDB=CampaignDB.getInstance();
 				  List<OSpec> oSpecList=campaignDB.getAllOSpecs();
