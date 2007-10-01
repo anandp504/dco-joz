@@ -90,20 +90,20 @@ public class ProductQueryMonitor extends ComponentMonitor
     {
         List<Map<String, String>> products = new ArrayList<Map<String,String>>();
         if (!sexpr.isSexpList())
-           throw new JozMonitorException("result is not a list");
+           throw new JozMonitorException("Expected sexp is not a list.");
         Sexp  tmp;
         // get Product Data
         tmp = ((SexpList)sexpr).get(1);
 
         if (tmp == null)
-            throw new JozMonitorException("Sexpression error. Returned a null.");
+            throw new JozMonitorException("Products not found. Null encountered.");
 
         if (!tmp.isSexpList())
-           throw new JozMonitorException("result is not a list");
+           throw new JozMonitorException("Expected sexp is not a list.");
         tmp = ((SexpList)tmp).get(1);
         // tmp should be a SexpString.
         if (!tmp.isSexpString())
-            throw new JozMonitorException("result is not a string");
+           throw new JozMonitorException("Expected sexp is not a string.");
 
         //strip off the quotes around the entire JSON array string
         String jsonStr = tmp.toString();
@@ -113,12 +113,9 @@ public class ProductQueryMonitor extends ComponentMonitor
 		//Replace "\"" by escaping it. Each character preceded by two(2) forward slashes.
       	jsonStr = jsonStr.replaceAll("\\\\\"","\"");
 
-    	System.out.println("Final JSON String : \n"+ jsonStr);
         try {
-            System.out.println("Constructing JSONArray...");
             JSONArray jsonArray = new JSONArray(jsonStr);
             for (int i=0; i<jsonArray.length(); i++) {
-                System.out.println("Processig Item - " + i);
                 Map<String, String> attributes = new HashMap<String, String>();
                 JSONObject jsonObj  = (JSONObject)jsonArray.get(i);
                 Iterator it = jsonObj.keys();
@@ -134,8 +131,7 @@ public class ProductQueryMonitor extends ComponentMonitor
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
-            throw new JozMonitorException("Json Error"); // + ex.getMessage());
+            throw new JozMonitorException("Unexpected Json library error."); 
         }
 
         return products;
@@ -148,7 +144,7 @@ public class ProductQueryMonitor extends ComponentMonitor
        if (tspec == null)
           tspec = defaultTspec;
        Sexp e = null;
-       String s = "(:get-ad-data :num-products 1 :revert-to-default-realm t :t-spec '|"+tspec+"|)";
+       String s = "(:get-ad-data :revert-to-default-realm t :t-spec '|"+tspec+"|)";
        SexpReader r = new SexpReader(new StringReader(s));
        try {
           e = r.read();
