@@ -65,32 +65,15 @@
 		     	int dp=0;
 		     	if (tp > 20) dp=20;
 		     	else dp=tp;
-			/*Map<String,String> product1=null;
-			for(int i=0;i<products.size();i++) {
-				product1=products.get(i);
-				Set keySet1=product1.keySet();
-				Iterator keys1=keySet1.iterator();
-				String key1=null;
-				String value1=null;
-				out.print("<table>");
-				while(keys1.hasNext()) {
-					key1=(String)keys1.next();
-					value1=(String)product1.get(key1);
-					out.print("<tr><td>"+key1+"</td><td>"+value1+"</td></tr>");
-				}
-				out.print("</table>");
-
-			}*/
 		  %>
 		  [<%=dp%> out of <%=tp%>]
 		  </br></br></br>
 		  <table>
 		  <%
 		     	Map<String,String> product=null;
-		     	int count=0;
-		     	for(int i=0;i<products.size();i++) {
+		     	for(int count=0;count<products.size();count++) {
 		     		if(20==count) break;
-		     		product=products.get(i);
+		     		product=products.get(count);
 				String productId=(String)product.get("id");
 				String temp=(String)product.get("thumbnailraw");
 				StringTokenizer attrToken=attrToken=new StringTokenizer(temp,"|");
@@ -100,6 +83,7 @@
 				if (0==count) out.print("<tr>");
 				else if(count%4==0) out.print("</tr><tr>");
 				out.print("<td><img border=\"1\" src=\""+imageUrlPrefix+"/"+thumbnailraw+"\" onMouseOver=\"javascript:displayProductContent('"+productId+"');\" onMouseOut=\"javascript:hideProductContent()\";/></td>");
+                
 			}
 		  %>
 		  </tr>
