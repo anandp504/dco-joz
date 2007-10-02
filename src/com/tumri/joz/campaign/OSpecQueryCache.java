@@ -50,12 +50,14 @@ public class OSpecQueryCache {
 	 * @param ospecIter
 	 */
 	public void load(Iterator<OSpec> ospecIter) {
-		clear();
+		if (ospecIter!=null) {
+			clear();
 
-		while(ospecIter.hasNext()) {
-			OSpec theOSpec = ospecIter.next();
-			CNFQuery _query = OSpecQueryCacheHelper.getQuery(theOSpec);
-			addToOSpecQueryCache(theOSpec.getName(), _query);
+			while(ospecIter.hasNext()) {
+				OSpec theOSpec = ospecIter.next();
+				CNFQuery _query = OSpecQueryCacheHelper.getQuery(theOSpec);
+				addToOSpecQueryCache(theOSpec.getName(), _query);
+			}
 		}
 	}
 
