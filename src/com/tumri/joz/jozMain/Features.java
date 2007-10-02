@@ -1,6 +1,8 @@
 package com.tumri.joz.jozMain;
 
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import com.tumri.utils.sexp.SexpInteger;
 import com.tumri.utils.sexp.SexpKeyword;
@@ -15,14 +17,17 @@ import com.tumri.utils.sexp.SexpString;
  */
 public class Features {
     public static final String JOZ_VERSION = "3.0";
-    
+    public static final String FEATURE_WIDGET_SEARCH = "SEARCH-IN-WIDGET";
+    public static final String FEATURE_MINE_URL_SEARCH = "SEARCH-MINE-URL";
+    public static final String FEATURE_SCRIPT_SEARCH = "SEARCH-SCRIPT_KEYWORD";
     
     private String _joz_version;
     private Integer _mup_version;
     private String _host_name;
     private Integer _seed;
-
-    public Features() {
+    private HashMap<String, String> jozFeaturesMap = null;
+    
+    public Features(HashMap<String, String> _jozFeaturesMap) {
     	//TODO: Get the Joz version from a properties file, or system parm. Major version + Build/Patch number
     	_joz_version = JOZ_VERSION;
         try {
@@ -33,6 +38,9 @@ public class Features {
         //TODO: Get the MUP version from CAA
         _mup_version = 666;
         //TODO: Check if the seed, ie, the random handle needs to passed back.
+        if (_jozFeaturesMap!=null){
+        	setJozFeaturesMap(_jozFeaturesMap);
+        }
     }
     
     private String get_joz_version() {
@@ -51,6 +59,10 @@ public class Features {
         return _seed;
     } 
     
+    private void setJozFeaturesMap(HashMap<String, String> jozFeatures) {
+    	this.jozFeaturesMap = jozFeatures;
+    }
+    
     /**
      * Generate Sexp string that needs to be appended to the results
      * @param elapsed_time
@@ -68,7 +80,20 @@ public class Features {
         l = new SexpList();
         k = new SexpKeyword(":FEATURES");
         l.addLast(k);
-        s = new SexpString("\"NIL\"");
+        if (jozFeaturesMap==null) {
+        	s = new SexpString("\"NIL\"");
+        } else {
+        	Iterator featureKeys = jozFeaturesMap.keySet().iterator();
+        	String featureBuiltUpStr = "";
+        	while (featureKeys.hasNext()) {
+        		String featureKeyStr = (String)featureKeys.next();
+        		String featureValStr = (String)jozFeaturesMap.get(featureKeyStr);
+        		if (featureKeyStr!=null && !"".equals(featureKeyStr) && featureValStr!=null && !"".equals(featureValStr)) {
+        			featureBuiltUpStr = "(" + featureKeyStr + " \"" + featureValStr + "\")";
+        		}
+        	}
+        	s = new SexpString(featureBuiltUpStr);
+        }
         l.addLast(s);
         flist.addLast(l);
         return flist;

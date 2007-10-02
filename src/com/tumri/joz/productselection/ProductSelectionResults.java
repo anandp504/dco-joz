@@ -1,6 +1,7 @@
 package com.tumri.joz.productselection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.tumri.cma.domain.OSpec;
 import com.tumri.joz.products.Handle;
@@ -14,10 +15,20 @@ public class ProductSelectionResults {
 
 	ArrayList<Handle> results = null;
 	OSpec targetedOSpec = null;
-	//TODO: Add the campaign/ Adpod to this container, so we can get the Realm etc
+	HashMap<String, String> featuresMap = null;
+	
+	public HashMap<String, String> getFeaturesMap() {
+		return featuresMap;
+	}
+	
+	public void setFeaturesMap(HashMap<String, String> featuresMap) {
+		this.featuresMap = featuresMap;
+	}
+
 	public ArrayList<Handle> getResults() {
 		return results;
 	}
+	
 	public void setResults(ArrayList<Handle> results) {
 		this.results = results;
 	}
@@ -25,6 +36,7 @@ public class ProductSelectionResults {
 	public OSpec getTargetedOSpec() {
 		return targetedOSpec;
 	}
+	
 	public void setTargetedOSpec(OSpec targettedOSpec) {
 		this.targetedOSpec = targettedOSpec;
 	}

@@ -6,6 +6,7 @@ package com.tumri.joz.jozMain;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -59,7 +60,7 @@ public class CmdGetAdData extends CommandOwnWriting {
     
     private void choose_and_write_products(AdDataRequest rqst, OutputStream out)
             throws IOException, Exception {
-        Features features = new Features();
+        Features features = null;
         boolean private_label_p = false; // FIXME: t_spec.private_label_p ();
         
         // This does the real work of selecting a set of products.
@@ -69,7 +70,8 @@ public class CmdGetAdData extends CommandOwnWriting {
         if (prs!=null) {
             ArrayList<Handle> product_handles = prs.getResults();
             OSpec targetedOSpec = prs.getTargetedOSpec();
-            
+            HashMap<String, String> featuresMap = prs.getFeaturesMap();
+            features = new Features(featuresMap);
             long end_time = System.nanoTime();
             long elapsed_time = end_time - start_time;
             
@@ -155,6 +157,18 @@ public class CmdGetAdData extends CommandOwnWriting {
         String targetedRealm = "";
         if (ospec != null) {
             targetedOSpecName = ospec.getName();
+        }
+		//TODO: The targeting requestProcessor should add the storeid and realm to the features list. 
+        String locationIdStr = rqst.get_store_id();
+        String themeName     = rqst.get_theme();
+        String urlName       = rqst.get_url();
+        
+        if (locationIdStr!=null && !"".equals(locationIdStr)) {
+        	targetedRealm = locationIdStr;
+        } else if (themeName!=null && !"".equals(themeName)) {
+        	targetedRealm = themeName;
+        } else if (urlName!=null && !"".equals(urlName)) {
+        	targetedRealm =  urlName;
         }
         
         write_elm(w, "REALM", targetedRealm); // FIXME: wip

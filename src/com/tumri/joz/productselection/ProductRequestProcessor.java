@@ -1,6 +1,7 @@
 package com.tumri.joz.productselection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -22,6 +23,7 @@ import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.jozMain.AdDataRequest;
+import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.jozMain.AdDataRequest.AdOfferType;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
@@ -45,6 +47,7 @@ public class ProductRequestProcessor {
 	private Integer m_pageSize = null;
 	private boolean m_productLeadgenRequest = false;
 	private boolean m_revertToDefaultRealm = false;
+	private HashMap<String, String> m_jozFeaturesMap = new HashMap<String, String>();
 
 	/**
 	 * Default constructor
@@ -88,6 +91,7 @@ public class ProductRequestProcessor {
 
 			//3. Pass request to Targeting Processor
 			m_currOSpec = TargetingRequestProcessor.getInstance().processRequest(request);
+			
 			if(m_currOSpec != null) {
 				m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
 			} else {
@@ -177,6 +181,7 @@ public class ProductRequestProcessor {
 
 			pResults.setResults(resultAL);
 			pResults.setTargetedOSpec(m_currOSpec);
+			pResults.setFeaturesMap(m_jozFeaturesMap);
 			log.info("Product Selection processing time : " + (System.currentTimeMillis() - startTime) + " millis.");
 		} catch (Throwable t) {
 			log.error("Product Selection layer: unxepected error. The products selection has failed", t);
@@ -357,6 +362,9 @@ public class ProductRequestProcessor {
 		doKeywordSearch(requestKeyWords, false);
 		m_tSpecQuery.setStrict(true);
 		m_revertToDefaultRealm = false; // Do not revert to default realm for a Widget Search
+		if ((requestKeyWords!=null)&&(!"".equals(requestKeyWords))) {
+			m_jozFeaturesMap.put(Features.FEATURE_WIDGET_SEARCH, requestKeyWords);
+		}
 	}
 
 
@@ -401,6 +409,9 @@ public class ProductRequestProcessor {
 			String urlKeywords = URLScavenger.mineKeywords(request, stopWordsAL, queryNamesAL);
 			doKeywordSearch(urlKeywords, !m_currOSpec.isPublishUrlKeywordsWithinOSpec());
 			m_tSpecQuery.setStrict(true);
+			if ((urlKeywords!=null)&&(!"".equals(urlKeywords))) {
+				m_jozFeaturesMap.put(Features.FEATURE_MINE_URL_SEARCH, urlKeywords);
+			}
 		}
 	}
 
@@ -413,6 +424,9 @@ public class ProductRequestProcessor {
 		String scriptKeywords = request.get_script_keywords();
 		doKeywordSearch(scriptKeywords, !m_currOSpec.isScriptKeywordsWithinOSpec());
 		m_tSpecQuery.setStrict(true);
+		if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords))) {
+			m_jozFeaturesMap.put(Features.FEATURE_SCRIPT_SEARCH, scriptKeywords);
+		}
 	}
 
 	/**
