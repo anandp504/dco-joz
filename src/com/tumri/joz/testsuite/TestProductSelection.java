@@ -51,10 +51,11 @@ public class TestProductSelection {
   }
 
   private void test0() {
+    long start = System.currentTimeMillis();
     for (CNFQuery cnf : m_queries) {
       SortedSet<Handle> set = cnf.exec();
     }
-    long start = System.currentTimeMillis();
+    System.out.println("Time is " + (System.currentTimeMillis() - start));
     for (int i = 0; i < 10; i++) {
       for (CNFQuery cnf : m_queries) {
         SortedSet<Handle> set = cnf.exec();

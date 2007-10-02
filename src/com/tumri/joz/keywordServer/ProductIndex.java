@@ -11,13 +11,16 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexModifier;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.index.memory.AnalyzerUtil;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopDocCollector;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
@@ -49,7 +52,7 @@ public class ProductIndex {
 
   private String deboostCategoryFile = null;
   private File m_index_dir;
-  private AtomicReference<IndexSearcher> m_searcher = new AtomicReference<IndexSearcher>();
+  private AtomicReference<IndexSearcherCache> m_searcherCache = new AtomicReference<IndexSearcherCache>();
 
   /**
    * @return singleton instance of LuceneDB
@@ -120,7 +123,7 @@ public class ProductIndex {
       if (f.exists() && f.isDirectory()) {
         m_index_dir = f;
         log.info("Loading keyword index from " + f.getAbsolutePath());
-        m_searcher.set(new IndexSearcher(new RAMDirectory(f)));
+        m_searcherCache.set(new IndexSearcherCache(f));
       } else {
         log.error("Bad index directory: " + f.getAbsolutePath());
         log.error("Keyword searching disbled.");
@@ -134,31 +137,43 @@ public class ProductIndex {
   public ArrayList<Handle> search(String query_string, double min_score, int max_docs) {
     ArrayList<Handle> alist = new ArrayList<Handle>();
     ProductDB db = ProductDB.getInstance();
-    try {
-      Query q = createQuery(query_string);
-      if (q != null) {
-        Hits hits = m_searcher.get().search(q);
-        int len = (hits.length() < max_docs ? hits.length() : max_docs);
-        db.readerLock();
-        try {
-          for(int i=0;i<len ; i++) {
-            Document doc = hits.doc(i);
-            String id = doc.get("id");
-            double score = hits.score(i);
-            int oid = Integer.parseInt(id);
-            IProduct p = db.getInt(oid); // avoids too many calls to lock/unlock
-            if (p != null) {
-              alist.add(new ProductHandle(p,score));
+    IndexSearcherCache searcherCache = m_searcherCache.get();
+    IndexSearcher searcher = searcherCache.get();
+    if (searcher != null) {
+      try {
+        Query q = createQuery(query_string);
+        if (q != null) {
+          TopDocCollector tdc = new TopDocCollector(max_docs);
+          searcher.search(q, tdc);
+          db.readerLock();
+          try {
+            TopDocs topdocs = tdc.topDocs();
+            if (topdocs != null) {
+              int len = topdocs.scoreDocs.length;
+              for (int i = 0; i < len; i++) {
+                Document doc = searcher.doc(topdocs.scoreDocs[i].doc);
+                String id = doc.get("id");
+                double score = topdocs.scoreDocs[i].score;
+                int oid = Integer.parseInt(id);
+                IProduct p = db.getInt(oid); // avoids too many calls to lock/unlock
+                if (p != null) {
+                  alist.add(new ProductHandle(p, score));
+                }
+                if (score < min_score) break;
+              }
             }
-            if (score < min_score) break;
+          } finally {
+            db.readerUnlock();
           }
-        } finally {
-          db.readerUnlock();
         }
+      } catch (IOException e) {
+        searcherCache.close(searcher);
+        searcher = null;
+        log.error("Exception", e);
+      } finally {
+        if (searcher != null)
+          searcherCache.put(searcher);
       }
-    } catch (IOException e) {
-      log.error("Exception",e);
-    } finally {
     }
     //System.out.println("returned "+alist.size() + " products");
     return alist;
@@ -423,15 +438,17 @@ public class ProductIndex {
     long start = System.currentTimeMillis();
     for (int i=0;i<1;i++) {
       try {
-        pi.m_searcher.get().search(createQuery("canon eos 400D"));
+        pi.m_searcherCache.get().get().search(createQuery("canon eos 400D"));
       } catch (IOException e) {
       }
     }
     System.out.println("Time is "+(System.currentTimeMillis()-start));
   }
-  
-  
-  /* - Code not being used.
+
+  /**
+   * Currently this code is not used, the intention is to allow dynamic addition of products
+   * @param products
+   */
   public void addProducts(ArrayList<IProduct> products) {
     IndexModifier index_modifier = null;
     try {
@@ -442,8 +459,8 @@ public class ProductIndex {
         index_modifier.addDocument(doc,getAnalyzer(false));
       }
       index_modifier.close();
-      m_searcher.get().close();
-      m_searcher.set(new IndexSearcher(new RAMDirectory(m_index_dir)));
+      m_searcherCache.get().close();
+      m_searcherCache.set(new IndexSearcherCache(m_index_dir));
     } catch (IOException e) {
       log.error("Exception while adding products",e);
     } finally {
@@ -454,6 +471,10 @@ public class ProductIndex {
     }
   }
 
+  /**
+   * Currently this code is not used, the intention is to allow dynamic addition of products
+   * @param products
+   */
   public void deleteProducts(ArrayList<IProduct> products) {
     IndexModifier index_modifier = null;
     try {
@@ -463,8 +484,8 @@ public class ProductIndex {
         index_modifier.deleteDocuments(new Term("id",p.getGId()));
       }
       index_modifier.close();
-      m_searcher.get().close();
-      m_searcher.set(new IndexSearcher(new RAMDirectory(m_index_dir)));
+      m_searcherCache.get().close();
+      m_searcherCache.set(new IndexSearcherCache(m_index_dir));
     } catch (IOException e) {
       log.error("Exception while deleting products",e);
     } finally {
@@ -474,7 +495,55 @@ public class ProductIndex {
       }
     }
   }
-  */
+}
 
-  
+class IndexSearcherCache {
+  static Logger log = Logger.getLogger(IndexSearcherCache.class);
+  Stack<IndexSearcher> m_stack = new Stack<IndexSearcher>();
+  File m_dir;
+  boolean m_close = false;
+
+  IndexSearcherCache(File dir) throws IOException {
+    m_dir = dir;
+    m_stack.add(new IndexSearcher(new RAMDirectory(m_dir)));
+  }
+
+  IndexSearcher get() {
+    IndexSearcher searcher = null;
+    try {
+      searcher = m_stack.pop();
+    } catch (EmptyStackException e) {
+      try {
+        searcher = new IndexSearcher(new RAMDirectory(m_dir));
+      } catch (IOException e1) {
+        log.error("IO exception while initializing IndexSearcher",e1);
+      }
+    }
+    return searcher;
+  }
+
+  void put(IndexSearcher searcher) {
+    if (!m_close) {
+      m_stack.push(searcher);
+    } else {
+      close(searcher);
+    }
+  }
+
+  void close() {
+    m_close = true;
+    IndexSearcher searcher;
+    while((searcher = get()) != null) {
+      close(searcher);
+    }
+  }
+
+  void close(IndexSearcher searcher) {
+    try {
+      if (searcher != null)
+        searcher.close();
+    } catch (IOException e) {
+      log.error("IO exception while closing IndexSearcher",e);
+    }
+  }
 }

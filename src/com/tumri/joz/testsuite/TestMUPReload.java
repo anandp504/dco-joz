@@ -5,6 +5,8 @@ import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.campaign.OSpecQueryCacheHelper;
+import com.tumri.joz.campaign.CampaignDBDataLoader;
+import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
@@ -34,33 +36,33 @@ public class TestMUPReload {
     try {
       Properties p = AppProperties.getInstance().getProperties();
       m_setup = new MUPSetup(p);
+      m_setup.setCount(100);
+
+      m_setup.setOdd(true);
+      m_setup.copyTo("test1");
       m_setup.initialLoad();
-      Thread main = new Thread(new TestProgram(p));
-      main.start();
+      m_setup.setOdd(false);
+      m_setup.copyTo("test2");
+      Thread.sleep(70000);
 
-      if (true) {
-        m_setup.setOdd(true);
-        m_setup.copyTo("test1");
-        m_setup.refresh();
-        Thread ttest1 = new Thread(new TestProgram(p));
-        ttest1.start();
+      CampaignDBDataLoader.getInstance().loadData();
+      Thread ttest1 = new Thread(new TestProgram(p));
+      ttest1.start();
 
-        m_setup.setOdd(false);
-        m_setup.copyTo("test2");
-        m_setup.refresh();
-        Thread ttest2 = new Thread(new TestProgram(p));
-        ttest2.start();
+      Thread.sleep(1000);
+      m_setup.refresh();
+      Thread ttest2 = new Thread(new TestProgram(p));
+      ttest2.start();
 
-        main.join();
-        ttest1.join();
-        ttest2.join();
+      ttest1.join();
+      ttest2.join();
 
-      }
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
       m_setup.cleanup();      
     }
+    CampaignDB db = CampaignDB.getInstance();
   }
 }
 
@@ -70,7 +72,7 @@ class TestProgram implements Runnable {
   public TestProgram(Properties aProperties) {
     try {
       Properties lProperties = (Properties) aProperties.clone();
-      CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(lProperties);
+      CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.newInstance(lProperties);
       Iterator<OSpec> iter = lispDeltaProvider.getOspecs("US");
       m_queries = buildCNFQueries(iter);
     } catch (RepositoryException e) {
@@ -80,11 +82,12 @@ class TestProgram implements Runnable {
   
   public void run() {
     try {
+      long start = System.currentTimeMillis();
       for (CNFQuery cnf : m_queries) {
         SortedSet<Handle> set = cnf.exec();
       }
-      long start = System.currentTimeMillis();
-      for (int i = 0; i < 100; i++) {
+      System.out.println("Time is " + (System.currentTimeMillis() - start));
+      for (int i = 0; i < 0; i++) {
         for (CNFQuery cnf : m_queries) {
           SortedSet<Handle> set = cnf.exec();
         }
@@ -93,6 +96,7 @@ class TestProgram implements Runnable {
     } catch (Exception e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
+    m_queries = null;
   }
 
   private List<CNFQuery> buildCNFQueries(Iterator<OSpec> iter) {

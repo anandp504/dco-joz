@@ -69,29 +69,34 @@ public class MUPSetup {
   }
 
   private void removedir(File dst) {
-    removeFiles(dst);
-    File[] files = dst.listFiles(new DirFilter());
-    if (files != null) {
-      for (File f : files) {
-        removedir(f);
+    if (dst.exists() && dst.isDirectory()) {
+      removeFiles(dst);
+      File[] files = dst.listFiles(new DirFilter());
+      if (files != null) {
+        for (File f : files) {
+          removedir(f);
+        }
       }
+      if (dst.delete())
+        log.info("Deleted dir "+dst.getPath());
     }
-    if (dst.delete())
-      log.info("Deleted dir "+dst.getPath());
   }
 
   private void removeFiles(File dst) {
-    File files[] = dst.listFiles();
-    if (files != null) {
-      for (File f : files) {
-        if (f.isFile() && f.delete())
-          log.info("Deleted file "+f.getPath());
+    if (dst.exists() && dst.isDirectory()) {
+      File files[] = dst.listFiles();
+      if (files != null) {
+        for (File f : files) {
+          if (f.isFile() && f.delete())
+            log.info("Deleted file "+f.getPath());
+        }
       }
     }
   }
 
   public void copyTo(String destdir) throws IOException {
     File dst = new File(m_src.getParentFile(),destdir);
+    removedir(dst);
     List<File> dirs = new ArrayList<File>();
     m_dirs.add(dst);
     listFiles(m_src,dirs, new DirFilter());
@@ -130,8 +135,8 @@ public class MUPSetup {
       System.out.println("Executing command "+cmd1 +" ; "+ sb.toString());
       try {
         Runtime.getRuntime().exec(cmd1);
-        Runtime.getRuntime().exec(cmd2);
         Runtime.getRuntime().exec("sync");
+        Runtime.getRuntime().exec(cmd2);
       } catch (IOException e) {
         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
       }
@@ -175,7 +180,7 @@ public class MUPSetup {
           bw.write(line);
           bw.write("\n");
         }
-        if (count >= (m_count*2)) break;
+        if (count >= (m_count*2) && (m_count > 0)) break;
       }
       bw.flush();
     } finally {
