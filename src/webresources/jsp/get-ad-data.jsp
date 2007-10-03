@@ -17,6 +17,14 @@
   	  </script>
   </head>
   <body>
+	 <%CampaignDB campaignDB=CampaignDB.getInstance();
+	  List<OSpec> oSpecList=campaignDB.getAllOSpecs();
+        List<String> names = new ArrayList<String>();
+	  for(int i=0;i<oSpecList.size();i++) {
+          names.add(oSpecList.get(i).getName().trim());
+	  }
+        Collections.sort(names);
+      %>
 	  <div id="desc">
 		<strong>Joz Console Ver 0.1</strong>
 		<hr/>
@@ -31,14 +39,16 @@
       </div>
 	  <br>
       <div>
+       total number of tspecs = <%=names.size()%> 
+      </div>
+      <br>
+      <div>
 		  <form id="tspecSelForm" action="products.jsp" method="post">
 			  Select T-spec:
 			  <select id="tspecList">
-				  <%CampaignDB campaignDB=CampaignDB.getInstance();
-				  List<OSpec> oSpecList=campaignDB.getAllOSpecs();
-				  for(int i=0;i<oSpecList.size();i++) {
-					OSpec oSpec=oSpecList.get(i);
-					out.print("<option value=\""+i+"\">"+oSpec.getName()+"</option>");
+                               <%
+				  for(int i=0;i<names.size();i++) {
+					out.print("<option value=\""+i+"\">"+names.get(i)+"</option>");
 				  }
 				  %>
 			  </select>
