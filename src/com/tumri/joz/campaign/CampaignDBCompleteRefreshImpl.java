@@ -2,6 +2,7 @@ package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
 import com.tumri.utils.data.RWLockedTreeMap;
+import com.tumri.utils.data.RWLocked;
 import com.tumri.utils.Pair;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.AtomicAdpodIndex;
@@ -225,7 +226,89 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public void addGeocodeMapping(Geocode geocode, int adPodId, float weight) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
+        if(geocode == null || adPodId <=0) {
+            log.error("Invalid geocode/adpodId passed for addind the geocode mapping");
+        }
+
+        if(geocodeMap.get().safeGet(adPodId) != null) {
+            log.error("Trying to add geocode with ID that already exists in geocodeMap inside CampaignDB");
+        }
+        else {
+            geocodeMap.get().safePut(geocode.getId(), geocode);
+
+            addGeocodeMapping(geocode.getCountries(), adPodId, AdPodHandle.countryScore, adpodGeoCountryIndex, adPodConuntryHandlesMap);
+            addGeocodeMapping(geocode.getStates(), adPodId, AdPodHandle.regionScore, adpodGeoRegionIndex, adPodRegionHandlesMap);
+            addGeocodeMapping(geocode.getCities(), adPodId, AdPodHandle.cityScore, adpodGeoCityIndex, adPodCityHandlesMap);
+            addGeocodeMapping(geocode.getAreaCodes(), adPodId, AdPodHandle.areacodeScore, adpodGeoAreacodeIndex, adPodAreacodeHandlesMap);
+            addGeocodeMapping(geocode.getZipcodes(), adPodId, AdPodHandle.zipcodeScore, adpodGeoZipcodeIndex, adPodZipcodeHandlesMap);
+            addGeocodeMapping(geocode.getDmaCodes(), adPodId, AdPodHandle.dmacodeScore, adpodGeoDmacodeIndex, adPodDmacodeHandlesMap);
+        }
+    }
+
+    private void addGeocodeMapping(List<String> list, int adPodId, double score, AtomicAdpodIndex<String, Handle> index, AtomicReference<RWLockedTreeMap<Integer, Handle>> hamdlesMap) {
+        if(list != null && list.size() > 0) {
+            Handle handle = hamdlesMap.get().safeGet(adPodId);
+            if(handle == null) {
+                handle = new AdPodHandle(adPodId, score);
+                hamdlesMap.get().safePut(adPodId, handle);
+            }
+            for(int i = 0; i < list.size(); i++) {
+                String name = list.get(i);
+                index.put(name, handle);
+            }
+        }
+    }
+
+    public void deleteGeocodeMapping(Geocode geocode, int adPodId) {
+        if(geocode == null || adPodId <=0 || (geocodeMap.get().safeGet(adPodId) == null)) {
+            log.error("Invalid geocode/adpodId passed for deleting the geocode mapping");
+        }
+
+        else {
+            geocodeMap.get().safeRemove(geocode.getId());
+
+            deleteGeocodeMapping(geocode.getCountries(), adPodId, adpodGeoCountryIndex);
+            deleteGeocodeMapping(geocode.getStates(), adPodId, adpodGeoRegionIndex);
+            deleteGeocodeMapping(geocode.getCities(), adPodId, adpodGeoCityIndex);
+            deleteGeocodeMapping(geocode.getAreaCodes(), adPodId, adpodGeoAreacodeIndex);
+            deleteGeocodeMapping(geocode.getZipcodes(), adPodId, adpodGeoZipcodeIndex);
+            deleteGeocodeMapping(geocode.getDmaCodes(), adPodId, adpodGeoDmacodeIndex);
+        }
+
+    }
+
+    private void deleteGeocodeMapping(List<String> list, int adPodId, AtomicAdpodIndex<String, Handle> index) {
+        if(list != null && list.size() > 0) {
+            for(int i = 0; i < list.size(); i++) {
+                String name = list.get(i);
+                SortedSet<Handle> set = index.get(name);
+                Iterator iterator = set.iterator();
+                Handle handleToDelete = null;
+                if(iterator != null && iterator.hasNext()) {
+                    while(iterator.hasNext()) {
+                        Handle handle = (Handle)iterator.next();
+                        if(handle.getOid() == adPodId) {
+                            handleToDelete = handle;
+                            break;
+                        }
+                    }
+                    if(handleToDelete != null) {
+                        if(set instanceof RWLocked) {
+                            ((RWLocked)set).writerLock();
+                            try {
+                                set.remove(handleToDelete);
+                            }
+                            finally {
+                                ((RWLocked)set).writerUnlock();
+                            }
+                        }
+                        else {
+                            set.remove(handleToDelete);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void deleteUrlMapping(String urlName, int adPodId) {
@@ -241,7 +324,18 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 }
             }
             if(handleToDelete != null) {
-                set.remove(handleToDelete);
+                if(set instanceof RWLocked) {
+                    ((RWLocked)set).writerLock();
+                    try {
+                        set.remove(handleToDelete);
+                    }
+                    finally {
+                        ((RWLocked)set).writerUnlock();
+                    }
+                }
+                else {
+                    set.remove(handleToDelete);
+                }
             }
         }
 
@@ -260,7 +354,18 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 }
             }
             if(handleToDelete != null) {
-                set.remove(handleToDelete);
+                if(set instanceof RWLocked) {
+                    ((RWLocked)set).writerLock();
+                    try {
+                        set.remove(handleToDelete);
+                    }
+                    finally {
+                        ((RWLocked)set).writerUnlock();
+                    }
+                }
+                else {
+                    set.remove(handleToDelete);
+                }
             }
         }
     }
@@ -278,13 +383,20 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 }
             }
             if(handleToDelete != null) {
-                set.remove(handleToDelete);
+                if(set instanceof RWLocked) {
+                    ((RWLocked)set).writerLock();
+                    try {
+                        set.remove(handleToDelete);
+                    }
+                    finally {
+                        ((RWLocked)set).writerUnlock();
+                    }
+                }
+                else {
+                    set.remove(handleToDelete);
+                }
             }
         }
-    }
-
-    public void deleteGeocodeMapping(Geocode geocode, int adPodId) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
     }
 
     public OSpec getDefaultOSpec() {
@@ -517,7 +629,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 areacodeIndex.put(areacodesMap);
                 adpodGeoAreacodeIndex.set(areacodeIndex);
             }
-            
         }
     }
 

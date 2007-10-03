@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
  * @author bpatel
  */
 public class TransientDataManager {
-    private OSpecNameLRUCache oSpecNameLRUCache = new OSpecNameLRUCache(5000);
+    private OSpecNameLRUCache oSpecNameLRUCache = new OSpecNameLRUCache(1000);
     private static Logger log = Logger.getLogger (TransientDataManager.class);
     //All the request maps below store the tspec-name -> IncorpDeltaMappingRequest mapping.
     private RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<String>>>  urlMapRequest        = new RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<String>>>();

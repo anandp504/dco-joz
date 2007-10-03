@@ -111,7 +111,6 @@ public class TargetingRequestProcessor {
     }
 
     private OSpec pickOneOSpec(SortedSet<Handle> results) {
-        AdPod adPod;
         OSpec oSpec;
         AdPodHandle handle;
         List<AdPodHandle> list = getHighestScoreAdPodHandles(results);
@@ -134,14 +133,28 @@ public class TargetingRequestProcessor {
     private AdPodHandle selectAdPodHandle(List<AdPodHandle> list) {
         AdPodHandle handle = null;
         int totalWeight = 0;
-        int weightRatio;
+        int weightRatio = 0;
         int[] weightArray = new int[list.size()];
-
         for(int i=0; i<list.size(); i++) {
+            weightArray[i] = Math.abs(list.get(i).getWeight());
             totalWeight += list.get(i).getWeight();
-            weightArray[i] = list.get(i).getWeight();
         }
-        weightRatio = new Random().nextInt(totalWeight);
+
+//        if(totalWeight == 0) {
+//            //Invalid weight assigned to the mappings. Overriding with equal weight for all the adpods
+//            for(int i=0; i<list.size(); i++) {
+//                weightArray[i] = 1;
+//                totalWeight += list.get(i).getWeight();
+//            }
+//        }
+        try {
+            weightRatio = new Random().nextInt(totalWeight);
+        }
+        catch(IllegalArgumentException e) {
+            weightRatio = 0;
+            e.printStackTrace();
+            log.error("Calculated totalWeight was not positive. totalWeight:" + totalWeight);
+        }
         Arrays.sort(weightArray);
         int additionFactor = 0;
         for(AdPodHandle aHandle : list) {

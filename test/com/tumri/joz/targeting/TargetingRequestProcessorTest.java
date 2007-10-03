@@ -16,6 +16,7 @@ import com.tumri.cma.DomainTestDataProvider;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -423,8 +424,20 @@ public class TargetingRequestProcessorTest {
         }
     }
 
+    @Test
+    public void testThemeGetAdDataWithDefaultRealmSet() {
+        try {
+            String queryStr = "(get-ad-data :theme \" wnd-mens-apparel-shoes\" :revert-to-default-realm t)";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
 
-	@Test
+    @Test
 	public void testDefaultRealm() {
 		try {
 			String queryStr = "(get-ad-data :url \"http://default-realm/\")";
@@ -473,4 +486,5 @@ public class TargetingRequestProcessorTest {
     private void printStackTrace(Exception e) {
         if(consoleDebug) { e.printStackTrace(); }
     }
+
 }
