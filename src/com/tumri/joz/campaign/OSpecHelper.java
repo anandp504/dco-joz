@@ -5,13 +5,7 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 import com.tumri.cma.domain.Geocode;
-import com.tumri.cma.domain.Location;
-import com.tumri.cma.domain.LocationAdPodMapping;
 import com.tumri.cma.domain.OSpec;
-import com.tumri.cma.domain.Theme;
-import com.tumri.cma.domain.ThemeAdPodMapping;
-import com.tumri.cma.domain.Url;
-import com.tumri.cma.domain.UrlAdPodMapping;
 import com.tumri.cma.misc.SexpOSpecHelper;
 import com.tumri.cma.misc.SexpOSpecHelper.MappingsParams;
 import com.tumri.utils.sexp.Sexp;
@@ -33,7 +27,7 @@ public class OSpecHelper {
 	 * @param tSpecAddSpec - the string expression that contains the tspec add command
 	 * @return name of the t-spec added.
 	 */
-	public static String doTSpecAdd(SexpList tSpecAddSpec) {
+	public static String doTSpecAdd(SexpList tSpecAddSpec) throws TransientDataException {
 		SexpList l = tSpecAddSpec;
 		Sexp cmd_expr = l.getFirst ();
 		if (! cmd_expr.isSexpSymbol ()) {
@@ -47,7 +41,7 @@ public class OSpecHelper {
 			Iterator<Sexp> iter = l.iterator();
 			iter.next(); //ignore the t-spec-add keyword
 			OSpec theOSpec = SexpOSpecHelper.readTSpecDetailsFromSExp(iter);
-			CampaignDB.getInstance().addOSpec(theOSpec);
+			TransientDataManager.getInstance().addOSpec(theOSpec);
 	        OSpecQueryCache.getInstance().removeQuery(theOSpec.getName());
 			return theOSpec.getName();
 			//Note that we are not touching the Query cache here since the next access to the Tspec using get-ad-data will add it to the cache
@@ -63,7 +57,7 @@ public class OSpecHelper {
 	 * @return name of tspec deleted.
 	 */
 	public static String doTSpecDelete(String tSpecName) {
-		CampaignDB.getInstance().deleteOSpec(tSpecName);
+		TransientDataManager.getInstance().deleteOSpec(tSpecName);
 		OSpecQueryCache.getInstance().removeQuery(tSpecName);
 		return tSpecName;
 	}
@@ -72,7 +66,7 @@ public class OSpecHelper {
 	 * Update the TSpec mapping on the fly
 	 * @param updtMappingCommands list of mapping commands
 	 */
-	public static void doUpdateTSpecMapping(SexpList updtMappingCommands){
+	public static void doUpdateTSpecMapping(SexpList updtMappingCommands) throws TransientDataException {
 		//TODO: Finalize what needs to be done for updating the mappings after looking at the usecases for TMC/QAC/Publisher/Advertiser
 		for (Sexp cmd : updtMappingCommands) {
 			if (! cmd.isSexpList ()) {
@@ -132,41 +126,45 @@ public class OSpecHelper {
                 switch(mapType) {
                 case REALM:
                     //url value is in tmp_site_constraint
-                    CampaignDB.getInstance().addUrlMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().addUrlMapping(tmp_site_spec, tSpecName, weight);
                     break;
 
                 case STOREID:
-                    CampaignDB.getInstance().addLocationMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().addLocationMapping(tmp_site_spec, tSpecName, weight);
                     break;
 
                 case THEME:
-                    CampaignDB.getInstance().addThemeMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().addThemeMapping(tmp_site_spec, tSpecName, weight);
                     break;
                 }
 
                 if (geoObj!=null) {
-                    CampaignDB.getInstance().addGeocodeMapping(geoObj, tSpecName, weight);
-
+                    TransientDataManager.getInstance().addGeocodeMapping(geoObj, tSpecName, weight);
+                }
+                else {
+                    TransientDataManager.getInstance().addNonGeocodeMapping(tSpecName);
                 }
             } else if (":delete".equals(opType)) {
                 switch(mapType) {
                 case REALM:
                     //url value is in tmp_site_constraint
-                    CampaignDB.getInstance().deleteUrlMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().deleteUrlMapping(tmp_site_spec, tSpecName, weight);
                     break;
 
                 case STOREID:
-                    CampaignDB.getInstance().deleteLocationMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().deleteLocationMapping(tmp_site_spec, tSpecName, weight);
                     break;
 
                 case THEME:
-                    CampaignDB.getInstance().deleteThemeMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().deleteThemeMapping(tmp_site_spec, tSpecName, weight);
                     break;
                 }
 
                 if (geoObj!=null) {
-                    CampaignDB.getInstance().deleteGeocodeMapping(geoObj, tSpecName, weight);
-
+                    TransientDataManager.getInstance().deleteGeocodeMapping(tSpecName);
+                }
+                else {
+                    TransientDataManager.getInstance().deleteNonGeocodeMapping(tSpecName);
                 }
             }
 		}

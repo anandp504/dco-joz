@@ -30,16 +30,14 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private AtomicReference<RWLockedTreeMap<Integer, OSpec>>    ospecMap      = new AtomicReference<RWLockedTreeMap<Integer, OSpec>>(new RWLockedTreeMap<Integer, OSpec>());
     private AtomicReference<RWLockedTreeMap<String,OSpec>>    ospecNameMap   = new AtomicReference<RWLockedTreeMap<String, OSpec>>(new RWLockedTreeMap<String, OSpec>());
 
-    //This map is populated by add-tspec calls from publisher. The map is never cleared on it own, but the delete-tspec
-    //calls from portals will delete individual entries in this map.
-    //This could potentially lead to memory leak.
-    //@todo: Refactor the map to use some kind of LRU cache so the memory leak cannot go out of control.
-    private RWLockedTreeMap<String, OSpec>                  tempOSpecNameMap = new RWLockedTreeMap<String, OSpec>();
-
     private AtomicReference<RWLockedTreeMap<Integer, Geocode>>  geocodeMap    = new AtomicReference<RWLockedTreeMap<Integer, Geocode>>(new RWLockedTreeMap<Integer, Geocode>());
     private AtomicReference<RWLockedTreeMap<Integer, Url>>      urlMap        = new AtomicReference<RWLockedTreeMap<Integer, Url>>(new RWLockedTreeMap<Integer, Url>());
+    private AtomicReference<RWLockedTreeMap<String, Url>>       urlNameMap    = new AtomicReference<RWLockedTreeMap<String, Url>>(new RWLockedTreeMap<String, Url>());
+
     @SuppressWarnings({"deprecation"})
     private AtomicReference<RWLockedTreeMap<Integer,Theme>>    themeMap      = new AtomicReference<RWLockedTreeMap<Integer, Theme>>(new RWLockedTreeMap<Integer, Theme>());
+    private AtomicReference<RWLockedTreeMap<String, Theme>>    themeNameMap  = new AtomicReference<RWLockedTreeMap<String, Theme>>(new RWLockedTreeMap<String, Theme>());
+
     private AtomicReference<RWLockedTreeMap<Integer,Location>> locationMap   = new AtomicReference<RWLockedTreeMap<Integer, Location>>(new RWLockedTreeMap<Integer, Location>());
 
     // Map adpod Id to ospec ID
@@ -53,6 +51,9 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodZipcodeHandlesMap  = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
     private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodDmacodeHandlesMap  = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
     private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodAreacodeHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
+
+    //This map is only used by dynamic data request - incorp-mapping-delta.
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodGeoNoneHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
 
     // All indices required in targeting
     private AtomicAdpodIndex<Integer, Handle> adpodLocationMappingIndex = new AtomicAdpodIndex<Integer, Handle>(new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation));
@@ -76,60 +77,212 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         return instance;
     }
 
+    public void addAdPod(AdPod adPod) {
+        adPodMap.get().safePut(adPod.getId(), adPod);
+    }
+
+    public void deleteAdPod(int adPodId) {
+        adPodMap.get().safeRemove(adPodId);
+    }
+
+    public void addNonGeoAdPod(int adPodId) {
+        if(adPodGeoNoneHandlesMap.get().safeGet(adPodId) == null) {
+            AdPodHandle handle = new AdPodHandle(adPodId, AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight);
+            adpodGeoNoneIndex.put(AdpodIndex.GEO_NONE, handle);
+            adPodGeoNoneHandlesMap.get().safePut(adPodId, handle);
+        }
+    }
+
+    public void deleteNonGeoAdPod(int adPodId) {
+        SortedSet<Handle> set = adpodGeoNoneIndex.get(AdpodIndex.GEO_NONE);
+        //@todo remove from the non-geo index
+        set.remove(adPodGeoNoneHandlesMap.get().safeGet(adPodId));
+        adPodGeoNoneHandlesMap.get().safeRemove(adPodId);
+    }
+
+    public void addAdpodOSpecMapping(int adPodId, int oSpecId) {
+        adPodOSpecMap.get().safePut(adPodId, oSpecId);
+    }
+
     public OSpec getOSpecForAdPod(int adPodId) {
-        int oSpecId = adPodOSpecMap.get().get(adPodId);
-        return ospecMap.get().get(oSpecId);
+        int oSpecId = adPodOSpecMap.get().safeGet(adPodId);
+        return ospecMap.get().safeGet(oSpecId);
     }
 
     public OSpec getOspec(String name) {
-        OSpec oSpec = ospecNameMap.get().get(name);
-        if(oSpec == null) {
-            oSpec = tempOSpecNameMap.get(name);
-        }
+        OSpec oSpec = ospecNameMap.get().safeGet(name);
         return oSpec;
     }
 
+    //@todo: look into possible concurrency issue in exposing the values objects to the client
     public List<OSpec> getAllOSpecs() {
         return new ArrayList(ospecMap.get().values());
     }
 
     public void addOSpec(OSpec oSpec) {
-        tempOSpecNameMap.put(oSpec.getName(), oSpec);
+        ospecNameMap.get().safePut(oSpec.getName(), oSpec);
+        ospecMap.get().safePut(oSpec.getId(), oSpec);
     }
 
     public void deleteOSpec(String oSpecName) {
-        tempOSpecNameMap.remove(oSpecName);
+        ospecMap.get().safeRemove(ospecNameMap.get().safeGet(oSpecName).getId());
+        ospecNameMap.get().safeRemove(oSpecName);
     }
 
-    public void addUrlMapping(String urlName, String tSpecName, float weight) {
+    public Url getUrl(String urlName) {
+        return urlNameMap.get().safeGet(urlName);
+    }
+
+    public Theme getTheme(String themeName) {
+        return themeNameMap.get().safeGet(themeName);
+    }
+
+    public Location getLocation(int locationId) {
+        return locationMap.get().safeGet(locationId);
+    }
+
+    public Geocode getGeocode(int geocodeId) {
+        return geocodeMap.get().safeGet(geocodeId);
+    }
+
+    public void addUrl(Url url) {
+        urlMap.get().put(url.getId(), url);
+        urlNameMap.get().put(url.getName(), url);
+    }
+
+    public void deleteUrl(String urlName) {
+        urlMap.get().remove(urlNameMap.get().get(urlName).getId());
+        urlNameMap.get().remove(urlName);
+    }
+
+    public void addTheme(Theme theme) {
+        themeMap.get().put(theme.getId(), theme);
+        themeNameMap.get().put(theme.getName(), theme);
+    }
+
+    public void deleteTheme(String themeName) {
+        themeMap.get().remove(themeNameMap.get().get(themeName).getId());
+        themeNameMap.get().remove(themeName);
+    }
+
+    public void addLocation(Location location) {
+        locationMap.get().safePut(location.getId(), location);
+    }
+
+    public void deleteLocation(int locationId) {
+        locationMap.get().safeRemove(locationId);
+    }
+
+    public void addGeocode(Geocode geocode) {
+        geocodeMap.get().safePut(geocode.getId(), geocode);
+    }
+
+    public void deleteGeocode(int geocodeId) {
+        geocodeMap.get().safeRemove(geocodeId);
+    }
+
+    public void addUrlMapping(UrlAdPodMapping urlAdPodMapping) {
+        Url url = urlMap.get().get(urlAdPodMapping.getUrlId());
+        AdPod adPod = adPodMap.get().get(urlAdPodMapping.getAdPodId());
+        if(url != null && adPod != null) {
+            String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
+            adpodUrlMappingIndex.put(urlName, new AdPodHandle(adPod.getId(), AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
+        }
+        else {
+            //Url or Adpod not found, some inconsistency caused this. The url-adpod mapping for that particular
+            // url or adpod will not be added to index.
+            log.error("The Url or Adpod was not found in the urlMap/adPodMap when looking it up while creating url-adpod-mapping Indexes");
+        }
+    }
+
+    public void addThemeMapping(ThemeAdPodMapping mapping) {
+        Theme theme = themeMap.get().get(mapping.getThemeId());
+        AdPod adPod = adPodMap.get().get(mapping.getAdPodId());
+        if(theme != null && adPod != null) {
+            String themeName = theme.getName();
+            adpodThemeMappingIndex.put(themeName, new AdPodHandle(adPod.getId(), AdPodHandle.themeScore, mapping.getWeight()));
+        }
+        else {
+            //Theme or Adpod not found, some inconsistency caused this. The theme-adpod mapping for that particular
+            // theme or adpod will not be added to index.
+            log.error("The Theme or Adpod was not found in the themeMap/adPodMap when looking it up while creating theme-adpod-mapping Indexes");
+        }
+    }
+
+    public void addLocationMapping(LocationAdPodMapping mapping) {
+        Location location = locationMap.get().get(mapping.getLocationId());
+        AdPod adPod = adPodMap.get().get(mapping.getAdPodId());
+        if(location != null && adPod != null) {
+            int locationId = location.getId();
+            adpodLocationMappingIndex.put(locationId, new AdPodHandle(adPod.getId(), AdPodHandle.locationScore, 1));
+        }
+        else {
+            //Location or Adpod not found, some inconsistency caused this. The location-adpod mapping for that particular
+            // location or adpod will not be added to index.
+            log.error("The Location or Adpod was not found in the locationMap/adPodMap when looking it up while creating location-adpod-mapping Indexes");
+        }
+    }
+
+    public void addGeocodeMapping(Geocode geocode, int adPodId, float weight) {
         throw new UnsupportedOperationException("This method is not yet implemented");
     }
 
-    public void addThemeMapping(String themeName, String tSpecName, float weight) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
+    public void deleteUrlMapping(String urlName, int adPodId) {
+        SortedSet<Handle> set = adpodUrlMappingIndex.get(UrlNormalizer.getNormalizedUrl(urlName));
+        Iterator iterator = set.iterator();
+        Handle handleToDelete = null;
+        if(iterator != null && iterator.hasNext()) {
+            while(iterator.hasNext()) {
+                Handle handle = (Handle)iterator.next();
+                if(handle.getOid() == adPodId) {
+                    handleToDelete = handle;
+                    break;
+                }
+            }
+            if(handleToDelete != null) {
+                set.remove(handleToDelete);
+            }
+        }
+
     }
 
-    public void addLocationMapping(String locationId, String tSpecName, float weight) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
+    public void deleteThemeMapping(String themeName, int adPodId) {
+        SortedSet<Handle> set = adpodThemeMappingIndex.get(themeName);
+        Iterator iterator = set.iterator();
+        Handle handleToDelete = null;
+        if(iterator != null && iterator.hasNext()) {
+            while(iterator.hasNext()) {
+                Handle handle = (Handle)iterator.next();
+                if(handle.getOid() == adPodId) {
+                    handleToDelete = handle;
+                    break;
+                }
+            }
+            if(handleToDelete != null) {
+                set.remove(handleToDelete);
+            }
+        }
     }
 
-    public void addGeocodeMapping(Geocode geocode, String tSpecName, float weight) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
+    public void deleteLocationMapping(int locationId, int adPodId) {
+        SortedSet<Handle> set = adpodLocationMappingIndex.get(locationId);
+        Iterator iterator = set.iterator();
+        Handle handleToDelete = null;
+        if(iterator != null && iterator.hasNext()) {
+            while(iterator.hasNext()) {
+                Handle handle = (Handle)iterator.next();
+                if(handle.getOid() == adPodId) {
+                    handleToDelete = handle;
+                    break;
+                }
+            }
+            if(handleToDelete != null) {
+                set.remove(handleToDelete);
+            }
+        }
     }
 
-    public void deleteUrlMapping(String urlName, String tSpecName, float weight) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
-    }
-
-    public void deleteThemeMapping(String themeName, String tSpecName, float weight) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
-    }
-
-    public void deleteLocationMapping(String locationId, String tSpecName, float weight) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
-    }
-
-    public void deleteGeocodeMapping(Geocode geocode, String tSpecName, float weight) {
+    public void deleteGeocodeMapping(Geocode geocode, int adPodId) {
         throw new UnsupportedOperationException("This method is not yet implemented");
     }
 
@@ -141,30 +294,37 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
+        int campaignCount = 0;
         RWLockedTreeMap<Integer,Campaign> map;
         if(iterator.hasNext()) {
             map = new RWLockedTreeMap<Integer, Campaign>();
             while(iterator.hasNext()) {
                 Campaign campaign = iterator.next();
                 map.put(campaign.getId(), campaign);
+                campaignCount++;
             }
             campaignMap.compareAndSet(campaignMap.get(), map);
         }
+        log.info("Campaign Size: " + campaignCount);
     }
 
     public void loadAdPods(Iterator<AdPod> iterator) {
         if(iterator == null) {
             return;
         }
+        int adPodCount = 0;
         RWLockedTreeMap<Integer,AdPod> map;
         if(iterator.hasNext()) {
             map = new RWLockedTreeMap<Integer, AdPod>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
                 map.put(adPod.getId(), adPod);
+                adPodCount++;
             }
             adPodMap.compareAndSet(adPodMap.get(), map);
         }
+        log.info("AdPod Size: " + adPodCount);
+
     }
 
     public void loadRunOfNetworkAdPods(Iterator<AdPod> iterator) {
@@ -178,7 +338,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list = new ArrayList<Handle>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
-                list.add(new AdPodHandle(adPod, adPod.getId(), AdPodHandle.runOfNetworkScore, AdPodHandle.runOfNetworkWeight));
+                list.add(new AdPodHandle(adPod.getId(), AdPodHandle.runOfNetworkScore, AdPodHandle.runOfNetworkWeight));
+
             }
             runOfNetworkAdPodMap.put(AdpodIndex.RUN_OF_NETWORK, list);
             index.put(runOfNetworkAdPodMap);
@@ -190,6 +351,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
+        int nonGeoAdpodCount = 0;
         Map<String,List<Handle>> geoNoneAdPodMap;
         if(iterator.hasNext()) {
             geoNoneAdPodMap = new HashMap<String, List<Handle>>();
@@ -197,11 +359,17 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list = new ArrayList<Handle>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
-                list.add(new AdPodHandle(adPod, adPod.getId(), AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight));
+                list.add(new AdPodHandle(adPod.getId(), AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight));
+                nonGeoAdpodCount++;
             }
+            log.info("Non-Geo Adpod Size: " + nonGeoAdpodCount);
+
             geoNoneAdPodMap.put(AdpodIndex.GEO_NONE, list);
             index.put(geoNoneAdPodMap);
             adpodGeoNoneIndex.set(index);
+
+            //Reset the map that holds on to adpod handles for dynamic request - incorpmappingdelta
+            adPodGeoNoneHandlesMap.compareAndSet(adPodGeoNoneHandlesMap.get(), new RWLockedTreeMap<Integer, Handle>());
         }
     }
 
@@ -209,6 +377,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         if(iterator == null) {
             return;
         }
+        int oSpecCount = 0;
         RWLockedTreeMap<Integer,OSpec> map = null;
         ospecNameMap.get().writerLock();
         try {
@@ -218,8 +387,11 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                     OSpec oSpec = iterator.next();
                     map.put(oSpec.getId(), oSpec);
                     ospecNameMap.get().put(oSpec.getName(), oSpec);
+                    oSpecCount++;
                 }
             }
+            log.info("OSpec Size: " + oSpecCount);
+
         }
         finally {
             ospecNameMap.get().writerUnlock();
@@ -367,7 +539,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             if(adPodMap.get() != null) {
                 AdPod adPod = adPodMap.get().get(adPodId);
                 if(adPod != null) {
-                    handle = new AdPodHandle(adPod, adPod.getId(), score);
+                    handle = new AdPodHandle(adPod.getId(), score);
                     handlesMap.put(adPodId, handle);
                 }
                 else {
@@ -389,12 +561,15 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             return;
         }
         if(iterator.hasNext()) {
-            RWLockedTreeMap<Integer,Url> map = new RWLockedTreeMap<Integer,Url>();
+            RWLockedTreeMap<Integer,Url> map    = new RWLockedTreeMap<Integer,Url>();
+            RWLockedTreeMap<String,Url> nameMap = new RWLockedTreeMap<String,Url>();
             while(iterator.hasNext()) {
                 Url url = iterator.next();
                 map.put(url.getId(), url);
+                nameMap.put(url.getName(), url);
             }
             urlMap.compareAndSet(urlMap.get(), map);
+            urlNameMap.compareAndSet(urlNameMap.get(), nameMap);
         }
 
     }
@@ -406,12 +581,14 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         }
         if(iterator.hasNext()) {
             RWLockedTreeMap<Integer,Theme> map = new RWLockedTreeMap<Integer,Theme>();
-
+            RWLockedTreeMap<String,Theme> nameMap = new RWLockedTreeMap<String,Theme>();
             while(iterator.hasNext()) {
                 Theme theme = iterator.next();
                 map.put(theme.getId(), theme);
+                nameMap.put(theme.getName(), theme);
             }
             themeMap.compareAndSet(themeMap.get(), map);
+            themeNameMap.compareAndSet(themeNameMap.get(), nameMap);
         }
     }
 
@@ -451,7 +628,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                         list = new ArrayList<Handle>();
                     }
                     int oid = adPod.getId(); 
-                    list.add(new AdPodHandle(adPod, oid, AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
+                    list.add(new AdPodHandle(oid, AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
                     if(urlName != null) {
                         urlAdPodMap.put(urlName, list);
                     }
@@ -493,7 +670,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                         list = new ArrayList<Handle>();
                     }
                     int oid = adPod.getId(); //themeAdPodMapping.getId();
-                    list.add(new AdPodHandle(adPod, oid, AdPodHandle.themeScore, themeAdPodMapping.getWeight()));
+                    list.add(new AdPodHandle(oid, AdPodHandle.themeScore, themeAdPodMapping.getWeight()));
                     themeAdPodMap.put(theme.getName(), list);
                 }
                 else {
@@ -528,7 +705,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                     }
                     //@todo: add weight field to LocationAdpodMapping class
                     int oid = adPod.getId(); //locationAdPodMapping.getId();
-                    list.add(new AdPodHandle(adPod, oid, AdPodHandle.locationScore, 1));
+                    list.add(new AdPodHandle(oid, AdPodHandle.locationScore, 1));
                     locationAdPodMap.put(location.getExternalId(), list);
                 }
                 else {
@@ -582,5 +759,4 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     public AtomicAdpodIndex<String, Handle> getAdpodGeoZipcodeIndex() {
         return adpodGeoZipcodeIndex;
     }
-
 }

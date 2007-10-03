@@ -52,6 +52,7 @@ package com.tumri.joz.jozMain;
 import org.apache.log4j.Logger;
 
 import com.tumri.joz.campaign.OSpecHelper;
+import com.tumri.joz.campaign.TransientDataException;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 
@@ -85,16 +86,23 @@ public class CmdTSpecAdd extends CommandDeferWriting {
     private static Logger log = Logger.getLogger(CmdTSpecAdd.class);
     
     private Sexp add_tspec(SexpList rqst) throws BadCommandException {
-        String tspecName = OSpecHelper.doTSpecAdd(rqst);
-        if (tspecName == null) {
-            log.error("Unable to add t-spec. Request: " + rqst.toString());
+        String tspecName;
+        Sexp result;
+        try {
+            tspecName = OSpecHelper.doTSpecAdd(rqst);
+        }
+        catch(TransientDataException e) {
+            log.error("Error occured while adding t-spec", e);
             throw new BadCommandException("Error while processing request: " + rqst.toString());
         }
+
         try {
-        return CmdGetCounts.getCounts(tspecName);
-        } catch (BadCommandException ex) {
+            result = CmdGetCounts.getCounts(tspecName);
+        }
+        catch (BadCommandException ex) {
             log.error("Error while forming response after adding t-spec.",ex);
             throw ex;
         }
+        return result;
     }
 }

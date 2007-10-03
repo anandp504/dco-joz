@@ -72,12 +72,9 @@ public class TargetingRequestProcessor {
         long endTime =  System.nanoTime();
         long totalTargetingTime = endTime - startTime;
 
-        if(request != null) {
-            System.out.println(request.toString(true));
-        }
-
-        System.out.println("Targeting Processing time: " + (totalTargetingTime/1000) + " usecs");
-        System.out.println("Passing OSpec To Product Selection Processor: " + ((oSpec == null)? null: oSpec.getName()));
+        log.info(request.toString(true));
+        log.info("Targeting Processing time: " + (totalTargetingTime/1000) + " usecs");
+        log.info("Passing OSpec To Product Selection Processor: " + ((oSpec == null)? null: oSpec.getName()));
         return oSpec;
     }
 
@@ -107,7 +104,6 @@ public class TargetingRequestProcessor {
         }
         catch(Exception e) {
             log.error("Unexpected error. Not able to retrieve any adpods for given request", e);
-            e.printStackTrace();
         }
 
         ospec = pickOneOSpec(results);
@@ -125,13 +121,11 @@ public class TargetingRequestProcessor {
         }
         else if(list.size() == 1) {
             handle = list.get(0);
-            adPod = handle.getAdpod();
-            oSpec = CampaignDB.getInstance().getOSpecForAdPod(adPod.getId());
+            oSpec = CampaignDB.getInstance().getOSpecForAdPod(handle.getOid());
         }
         else {
             handle = selectAdPodHandle(list);
-            adPod = handle.getAdpod();
-            oSpec = CampaignDB.getInstance().getOSpecForAdPod(adPod.getId());
+            oSpec = CampaignDB.getInstance().getOSpecForAdPod(handle.getOid());
         }
 
         return oSpec;
@@ -165,7 +159,7 @@ public class TargetingRequestProcessor {
     private List<AdPodHandle> getHighestScoreAdPodHandles(SortedSet<Handle> results) {
         List<AdPodHandle> handles = new ArrayList<AdPodHandle>();
         if(results != null) {
-            SortedArraySet<Handle> set = new SortedArraySet<Handle>(results, new AdPodHandle(null, 0, 0));
+            SortedArraySet<Handle> set = new SortedArraySet<Handle>(results, new AdPodHandle(0, 0));
             Iterator<Handle> iterator = set.iterator();
             double score = 0.0;
             if(iterator != null) {

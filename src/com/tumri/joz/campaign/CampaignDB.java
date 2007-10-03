@@ -49,28 +49,62 @@ public abstract class CampaignDB {
     public abstract OSpec getOSpecForAdPod(int adPodId);
 
     public abstract OSpec getOspec(String name);
-    
+
+    public abstract Url getUrl(String urlName);
+
+    public abstract Theme getTheme(String themeName);
+
+    public abstract Location getLocation(int locationId);
+
+    public abstract Geocode getGeocode(int geocodeId);
+
     public abstract List<OSpec>  getAllOSpecs();
+
+    public abstract void addUrl(Url url);
+
+    public abstract void deleteUrl(String urlName);
+
+    public abstract void addTheme(Theme theme);
+
+    public abstract void deleteTheme(String themeName);
+
+    public abstract void addLocation(Location location);
+
+    public abstract void deleteLocation(int locationId);
+
+    public abstract void addAdPod(AdPod adPod);
+
+    public abstract void deleteAdPod(int adPodId);
+
+    public abstract void addGeocode(Geocode geocode);
+
+    public abstract void deleteGeocode(int geocodeId);
+
+    public abstract void addNonGeoAdPod(int adPodId);
+
+    public abstract void deleteNonGeoAdPod(int adPodId);
+
+    public abstract void addAdpodOSpecMapping(int adPodId, int oSpecId);
 
     public abstract void addOSpec(OSpec oSpec);
 
     public abstract void deleteOSpec(String oSpecName);
 
-    public abstract void addUrlMapping(String urlName, String tSpecName, float weight);
+    public abstract void addUrlMapping(UrlAdPodMapping mapping);
 
-    public abstract void addThemeMapping(String themeName, String tSpecName, float weight);
+    public abstract void addThemeMapping(ThemeAdPodMapping mapping);
 
-    public abstract void addLocationMapping(String locationId, String tSpecName, float weight);
+    public abstract void addLocationMapping(LocationAdPodMapping mapping);
 
-    public abstract void addGeocodeMapping(Geocode geocode, String tSpecName, float weight);
+    public abstract void addGeocodeMapping(Geocode geocode, int adPodId, float weight);
 
-    public abstract void deleteUrlMapping(String urlName, String tSpecName, float weight);
+    public abstract void deleteUrlMapping(String urlName, int adPodId);
 
-    public abstract void deleteThemeMapping(String themeName, String tSpecName, float weight);
+    public abstract void deleteThemeMapping(String themeName, int adPodId);
 
-    public abstract void deleteLocationMapping(String locationId, String tSpecName, float weight);
+    public abstract void deleteLocationMapping(int locationId, int adPodId);
 
-    public abstract void deleteGeocodeMapping(Geocode geocode, String tSpecName, float weight);
+    public abstract void deleteGeocodeMapping(Geocode geocode, int adPodId);
 
     public abstract OSpec getDefaultOSpec();
 

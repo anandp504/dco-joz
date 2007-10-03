@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.campaign.CampaignDBDataLoader;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.products.Handle;
 import com.tumri.utils.sexp.SexpReader;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
@@ -283,7 +284,7 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testCityGeoGetAdData() {
         try {
-            String queryStr = "(get-ad-data :city \"LA\"" + ":url \"" +  base2UrlName + "/toys/electronics/gadgets/\"" + ")";
+            String queryStr = "(get-ad-data :city \"Los Angeles\"" + ":url \"http://www.consumersearch.com/www/kitchen/toaster-ovens/\"" + ")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
@@ -296,7 +297,7 @@ public class TargetingRequestProcessorTest {
     @Test
     public void testZipcodeGeoGetAdData() {
         try {
-            String queryStr = "(get-ad-data :zip-code \"94404\"" + ":url \"" +  base2UrlName + "/books/computers/\"" + ")";
+            String queryStr = "(get-ad-data :zip-code \"94404\"" + ":url \"http://www.consumersearch.com/www/kitchen/toaster-ovens/\"" + ")";
             OSpec oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
@@ -409,6 +410,31 @@ public class TargetingRequestProcessorTest {
         }
     }
 
+    @Test
+    public void testUrl3GetAdData() {
+        try {
+            String queryStr = "(get-ad-data :url \" http://www.consumersearch.com/www/kitchen/toaster-ovens/\")";
+            OSpec oSpec = testProcessRequest(queryStr);
+            Assert.assertNotNull(oSpec);
+            System.out.println(oSpec.getId() + " : " +oSpec.getName());
+        } catch(Exception e){
+            printStackTrace(e);
+            fail("Exception caught during test run");
+        }
+    }
+
+
+	@Test
+	public void testDefaultRealm() {
+		try {
+			String queryStr = "(get-ad-data :url \"http://default-realm/\")";
+			OSpec oSpec = testProcessRequest(queryStr);
+			assertNotNull(oSpec);
+		} catch(Exception e){
+			e.printStackTrace();
+            fail("Error occured" + e.getMessage());
+		}
+	}
 
     private OSpec testProcessRequest(String getAdDataCommandStr) throws Exception {
         TargetingRequestProcessor processor = TargetingRequestProcessor.getInstance();

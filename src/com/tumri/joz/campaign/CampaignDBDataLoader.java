@@ -100,6 +100,8 @@ public class CampaignDBDataLoader {
             campaignDB.loadRunOfNetworkAdPods(runOfNetworkAdPodsIterator);
             campaignDB.loadGeoNoneAdPods(geoNoneAdPodsIterator);
 
+            TransientDataManager.getInstance().reloadInCampaignDB();
+
             OSpecQueryCache.getInstance().load(oSpecsIterator2);
             //long campaignIndexEndTime = System.currentTimeMillis();
             //System.out.println("Campaign Indexing Time: " + (campaignIndexEndTime - campaignIndexStartTime) + " ms");

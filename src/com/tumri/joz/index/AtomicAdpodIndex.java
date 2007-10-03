@@ -32,12 +32,6 @@ public class AtomicAdpodIndex<Key, Value> {
         return atomicIndex.get().getType();
     }
 
-    //This breaks the rule and exposes internal index to outside world. Since the class will be replaced over time, the flaw is ignored. 
-
-    public AdpodIndex<Key, Value> get() {
-        return atomicIndex.get();
-    }
-
     public List<Map.Entry<Key, Value>> getEntries(AdPod adPod) {
         if(atomicIndex.get() == null) {
             return null;
@@ -92,6 +86,13 @@ public class AtomicAdpodIndex<Key, Value> {
             return;
         }
         atomicIndex.get().put(key, set);
+    }
+
+    public void remove(Key key) {
+        if(atomicIndex.get() == null) {
+            return;
+        }
+        atomicIndex.get().remove(key);        
     }
 
     public void clear() {

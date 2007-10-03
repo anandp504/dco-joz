@@ -46,6 +46,7 @@ package com.tumri.joz.jozMain;
 import org.apache.log4j.Logger;
 
 import com.tumri.joz.campaign.OSpecHelper;
+import com.tumri.joz.campaign.TransientDataException;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpReader;
@@ -89,9 +90,14 @@ public class CmdIncorpMappingDeltas extends CommandDeferWriting {
     
     private static Logger log = Logger.getLogger(CmdIncorpMappingDeltas.class);
     
-    private static Sexp incorp_mapping_deltas(SexpList rqst)
-            throws BadCommandException {
-        OSpecHelper.doUpdateTSpecMapping(rqst);
+    private static Sexp incorp_mapping_deltas(SexpList rqst) throws BadCommandException {
+        try {
+            OSpecHelper.doUpdateTSpecMapping(rqst);
+        }
+        catch(TransientDataException e) {
+            log.error("Error occured in incorp-mapping-delta request processing", e);
+            throw new BadCommandException("Error while processing request: " + rqst.toString());            
+        }
         // FIXME: not sure what the "success" result is
         return new SexpList();
     }

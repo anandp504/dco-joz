@@ -1,6 +1,5 @@
 package com.tumri.joz.campaign;
 
-import com.tumri.cma.domain.AdPod;
 import com.tumri.joz.products.Handle;
 
 /**
@@ -9,46 +8,40 @@ import com.tumri.joz.products.Handle;
  * @author snawathe, bpatel
  */
 public class AdPodHandle implements Handle {
-  private AdPod  adpod;
   private double score;
   private int    weight = 1;
   private int    oid;
 
     public static final double locationScore = 1.0;
-    public static final double urlScore      = 0.9;
-    public static final double themeScore    = 0.8;
+    public static final double themeScore    = 0.9;
+    public static final double urlScore      = 0.8;
+
     
     public static final double defaultScore  = 0.1;
-    public static final double countryScore  = 0.6;
-    public static final double regionScore   = 0.6;
-    public static final double cityScore     = 0.6;
-    public static final double zipcodeScore  = 0.6;
-    public static final double dmacodeScore  = 0.6;
-    public static final double areacodeScore = 0.6;
+    public static final double countryScore  = 0.75;
+    public static final double regionScore   = 0.80;
+    public static final double cityScore     = 0.85;
+    public static final double zipcodeScore  = 1.0;
+    public static final double dmacodeScore  = 0.95;
+    public static final double areacodeScore = 0.90;
 
     public static final double runOfNetworkScore = 0.2;
-    public static final int runOfNetworkWeight   = 50;
+    public static final int runOfNetworkWeight   = 1;
     public static final double geoNoneScore      = 0.2;
     public static final int geoNoneWeight        = 1;
 
 
 
 
-  public AdPodHandle(AdPod aAdpod, int oid, double aScore) {
-    this.adpod = aAdpod;
+  public AdPodHandle(int oid, double aScore) {
     this.score = aScore;
     this.oid = oid;
   }
 
-  public AdPodHandle(AdPod aAdpod, int oid, double aScore, int weight) {
-      this.adpod = aAdpod;
+  public AdPodHandle(int oid, double aScore, int weight) {
       this.score = aScore;
       this.weight = weight;
       this.oid = oid;
-  }
-
-  public AdPod getAdpod() {
-    return adpod;
   }
 
   public int getOid() {
@@ -64,7 +57,7 @@ public class AdPodHandle implements Handle {
   }
 
   public Handle createHandle(double score) {
-    return (score != this.score ? new AdPodHandle(adpod, oid, score, weight) : this);
+    return (score != this.score ? new AdPodHandle(oid, score, weight) : this);
   }
 
   public boolean equals(Object o) {
