@@ -103,6 +103,12 @@ public class ProductRequestProcessor {
 			}
 
 			SexpUtils.MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
+			if (mMineUrls == null) {
+				if (m_currOSpec.isMinePubUrl()) {
+					mMineUrls = SexpUtils.MaybeBoolean.TRUE;
+				}
+			}
+
 			//Clone the query always
 			m_tSpecQuery = (CNFQuery)m_tSpecQuery.clone();
 
@@ -133,18 +139,12 @@ public class ProductRequestProcessor {
 				m_revertToDefaultRealm = true;
 			}
 
-			boolean bSearchResultsBackFill = false;
-			//Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
-			if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
-				bSearchResultsBackFill = true;
-			}
-
 			//6. Product selection
 			rResult = doProductSelection(request);
 
 			ArrayList<Handle> backFillProds = null;
 			if (m_NumProducts!=null && rResult!=null){
-				backFillProds = doBackFill(bSearchResultsBackFill,m_NumProducts,rResult.size());
+				backFillProds = doBackFill(request, m_NumProducts,rResult.size());
 			}
 
 			resultAL = new ArrayList<Handle>();
@@ -251,9 +251,24 @@ public class ProductRequestProcessor {
 	 * For other cases the backfill is done from the default realm tspec.
 	 * @return
 	 */
-	private ArrayList doBackFill(boolean bKeywordBackfill, int pageSize, int currSize){
+	private ArrayList doBackFill(AdDataRequest request,int pageSize, int currSize){
+		//Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
+		SexpUtils.MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
+		boolean bKeywordBackfill = false;
+		
+		if (mMineUrls == null) {
+			if (m_currOSpec.isMinePubUrl()) {
+				mMineUrls = SexpUtils.MaybeBoolean.TRUE;
+			}
+		}
+		
+		if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
+			bKeywordBackfill = true;
+		}
+
 		//Check if backfill is needed bcos of the keyword query
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
+
 		//TODO Check if there is a specific  backfills scenario to go agains the entire mup.. we shouldnt run into this case at all
 		if (bKeywordBackfill && pageSize>0 && currSize<pageSize){
 			removeKeywordQuery();
@@ -400,7 +415,7 @@ public class ProductRequestProcessor {
 					if (stopWordsAL==null) {
 						stopWordsAL = new ArrayList<String>();
 					}
-					StringTokenizer tokenizer = new StringTokenizer(stopWords, " ");
+					StringTokenizer tokenizer = new StringTokenizer(stopWords, ",");
 					while (tokenizer.hasMoreTokens()){
 						stopWordsAL.add(tokenizer.nextToken());
 					}

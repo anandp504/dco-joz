@@ -52,8 +52,8 @@ public class URLScavenger {
 				} else if (oprType.equals("-")) {
 					tmpScavenger.stopWordsAL.remove(theStopWord);
 				} else {
-					//Bad format of stop word - ignoring
-					log.warn("Ignoring the stop word since it does not have the operation type");
+					//By default add
+					tmpScavenger.stopWordsAL.add(reqStopWords.get(i));
 				}
 			}
 		}
