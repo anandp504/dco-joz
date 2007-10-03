@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
  *
  * @author bpatel
  */
+@SuppressWarnings({"UnnecessaryLocalVariable", "deprecation"})
 public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private static CampaignDBCompleteRefreshImpl instance = new CampaignDBCompleteRefreshImpl();
     private static Logger log = Logger.getLogger (CampaignDBCompleteRefreshImpl.class);
@@ -116,7 +117,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     //@todo: look into possible concurrency issue in exposing the values objects to the client
     public List<OSpec> getAllOSpecs() {
-        return new ArrayList(ospecMap.get().values());
+        return new ArrayList<OSpec>(ospecMap.get().values());
     }
 
     public void addOSpec(OSpec oSpec) {

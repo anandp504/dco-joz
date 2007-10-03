@@ -14,6 +14,7 @@ import java.util.*;
  *
  * @author bpatel
  */
+@SuppressWarnings({"deprecation"})
 public abstract class CampaignDB {
 
     private String defaultRealmOSpecName = "T-SPEC-http://default-realm/";
@@ -51,6 +52,7 @@ public abstract class CampaignDB {
     public abstract OSpec getOspec(String name);
 
     public abstract Url getUrl(String urlName);
+
 
     public abstract Theme getTheme(String themeName);
 
