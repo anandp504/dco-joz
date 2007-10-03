@@ -1,4 +1,5 @@
 <%@ page language="java" import="com.tumri.joz.monitor.*" %>
+<%@ page language="java" import="com.tumri.joz.campaign.*" %>
 <%@ page language="java" import="java.util.*" %>
 <%@ page language="java" import="com.tumri.cma.domain.*" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -20,7 +21,7 @@
 	     val = val + '<br> Price =<strong>'+price+'</strong>';
 	     elm.innerHTML = val;
 	     elm.style.top = "100px";
-	     elm.style.left= "600px";
+	     elm.style.left= "700px";
 	     elm.style.display = "block";
 	  };
 	  
@@ -32,6 +33,27 @@
 	  </script>
   </head>
   <body>  
+	<%CampaignDB campaignDB=CampaignDB.getInstance();
+	  String tspecName = request.getParameter("selTspec");
+      OSpec ospec = campaignDB.getOspec(tspecName);
+      List<TSpec> tspecs = ospec.getTspecs();
+      TSpec tspec = tspecs.get(0);
+      List<BrandInfo> excludedBrands = tspec.getExcludedBrands();
+      List<BrandInfo> includedBrands = tspec.getIncludedBrands();
+      List<MerchantInfo> excludedMerchants = tspec.getExcludedMerchants();
+	  List<MerchantInfo> includedMerchants = tspec.getIncludedMerchants();
+	  List<CategoryInfo> excludedCategories = tspec.getExcludedCategories();
+      List<CategoryInfo> includedCategories = tspec.getIncludedCategories();
+	  List<ProviderInfo> excludedProviders = tspec.getExcludedProviders();
+      List<ProviderInfo> includedProviders = tspec.getIncludedProviders();
+	  List<ProductInfo> excludedProducts = tspec.getExcludedProducts();
+      List<ProductInfo> includedProducts = tspec.getIncludedProducts();
+      List<KeywordInfo> includedKeywords = tspec.getIncludedKeywords();
+	  String imageUrlPrefix="http://images.tumri.net/iCornerStore";
+	  ProductQueryMonitor pqm=new ProductQueryMonitor();
+	  List<Map<String,String>> products=pqm.getProducts(tspecName);
+	%>
+
 	  <!-- Sample Product Data
 	  display_category_name Plants & Shrubs 
 	  merchant_id REDENVELOPE 
@@ -58,46 +80,161 @@
 			<a href="console.jsp">home</a>
 		</div>
 	  </div>
-	  </br>
+	  <br>
 	  <div id="links">
-		  Products for Tspec : <strong><%=request.getParameter("selTspec")%></strong>
-		  <% 
-		  	String imageUrlPrefix="http://images.tumri.net/iCornerStore";
-		  	ProductQueryMonitor pqm=new ProductQueryMonitor();
-		     	List<Map<String,String>> products=pqm.getProducts(request.getParameter("selTspec"));
-		     	int tp=products.size();
+	  <table>
+	  <tr style="text-align: center">
+			<td>	
+		  	<br>
+		  	Products for Tspec: <strong><%=tspecName%></strong>
+		  	<% 
 		     	int dp=0;
-		     	if (tp > 20) dp=20;
-		     	else dp=tp;
-		  %>
-		  [<%=dp%> out of <%=tp%>]
-		  <br><br><br>
-		  <table>
-		  <%
-		     	Map<String,String> product=null;
-		     	for(int count=0;count<products.size();count++) {
-		     		if(20==count) break;
-		     		product=products.get(count);
-				String productId=(String)product.get("id");
-				String category=(String)product.get("display_category_name");
-                              category = category.replaceAll("&#39;", "\\\\\'");
-				String brand=(String)product.get("brand");
-				String price=(String)product.get("discount_price");
-				String merchant=(String)product.get("merchant_id");
-				String temp=(String)product.get("thumbnailraw");
-				StringTokenizer attrToken=attrToken=new StringTokenizer(temp,"|");
-				attrToken.nextToken();
-				attrToken.nextToken();
-				String thumbnailraw=attrToken.nextToken();
-				if (0==count) out.print("<tr>");
-				else if(count%4==0) out.print("</tr><tr>");
-				out.print("<td><img border=\"1\" src=\""+imageUrlPrefix+"/"+thumbnailraw+"\" onMouseOver=\"javascript:displayProductContent('"+productId+"','"+category+"','"+merchant+"','"+brand+"','"+price+"');\" onMouseOut=\"javascript:hideProductContent()\";/></td>");
+		     	if (products.size() > 20) dp=20;
+		     	else dp=products.size();
+		  	%>
+		  	[displaying <%=dp%> products out of a total of <%=products.size()%>]
+		  	<br> <br> <br>
+			</td>
+	   </tr>
+	   <tr>	 
+		<table>
+			<tr>
+				<td valign="top" >
+		  			<% 
+			  		 out.print("<br>");
+		      		 if (includedBrands != null) {
+			  				out.print("<strong>Included Brands:</strong>");
+			  				out.print("<br>");
+			  				for (int i=0; i<includedBrands.size(); i++) {
+								out.print("&nbsp;&nbsp;&nbsp;"+includedBrands.get(i).getName());
+								out.print("<br>");
+			  				}
+							out.print("<br>");
+			  		 }
+			 		 if (excludedBrands != null) {		
+					  	out.print("<strong>Excluded Brands:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<excludedBrands.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+excludedBrands.get(i).getName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+				      if (includedMerchants != null) {
+					  	out.print("<strong>Included Merchants:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<includedMerchants.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+includedMerchants.get(i).getName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+					  if (excludedMerchants != null) {		
+					  	out.print("<strong>Excluded Merchants:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<excludedMerchants.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+excludedMerchants.get(i).getName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+				      if (includedCategories != null) {
+					  	out.print("<strong>Included Categories:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<includedCategories.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+includedCategories.get(i).getDisplayName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+					  if (excludedCategories != null) {		
+					  	out.print("<strong>Excluded Categories:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<excludedCategories.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+excludedCategories.get(i).getDisplayName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+				      if (includedProviders != null) {
+					  	out.print("<strong>Included Providers:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<includedProviders.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+includedProviders.get(i).getName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+					  if (excludedProviders != null) {		
+					  	out.print("<strong>Excluded Providers:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<excludedProviders.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+excludedProviders.get(i).getName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+				      if (includedProducts != null) {
+					  	out.print("<strong>Included Products:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<includedProducts.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+includedProducts.get(i).getName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+					  if (excludedProducts != null) {		
+					  	out.print("<strong>Excluded Products:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<excludedProducts.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+excludedProducts.get(i).getName());
+							out.print("<br>");
+					  	}
+					  }
+				      if (includedKeywords != null) {
+					  	out.print("<strong>Included Keywords:</strong>");
+					  	out.print("<br>");
+					  	for (int i=0; i<includedKeywords.size(); i++) {
+							out.print("&nbsp;&nbsp;&nbsp;"+includedKeywords.get(i).getName());
+							out.print("<br>");
+					  	}
+						out.print("<br>");
+					  }
+				     %>
+				</td>
+				<td width="10">
+				</td>
+				<td>
+		  			<table>
+		  			<%
+		     			Map<String,String> product=null;
+		     			for(int count=0;count<products.size();count++) {
+		     				if(20==count) break;
+		     				product=products.get(count);
+							String productId=(String)product.get("id");
+							String category=(String)product.get("display_category_name");
+                        	category = category.replaceAll("&#39;", "\\\\\'");
+							String brand=(String)product.get("brand");
+							String price=(String)product.get("discount_price");
+							String merchant=(String)product.get("merchant_id");
+							String temp=(String)product.get("thumbnailraw");
+							StringTokenizer attrToken=attrToken=new StringTokenizer(temp,"|");
+							attrToken.nextToken();
+							attrToken.nextToken();
+							String thumbnailraw=attrToken.nextToken();
+							if (0==count) out.print("<tr>");
+							else if(count%4==0) out.print("</tr><tr>");
+							out.print("<td><img border=\"1\" src=\""+imageUrlPrefix+"/"+thumbnailraw+"\" onMouseOver=\"javascript:displayProductContent('"+productId+"','"+category+"','"+merchant+"','"+brand+"','"+price+"');\" onMouseOut=\"javascript:hideProductContent()\";/></td>");
                 
-			}
-		  %>
-		  </tr>
-		  </table>
-		  </br>
+						}
+		  		   	%>
+		  			</tr>
+		  			</table>
+				</td>
+			</tr>
+		</table>
+		</tr>
+	  </table>
 	  </div>
 	  <div id="productContent"  class="floatingDiv" />
   </body>
