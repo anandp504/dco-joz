@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.tumri.joz.campaign.CMAContentPoller;
+import com.tumri.joz.campaign.CMAContentRefreshMonitor;
 import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.utils.AppProperties;
 
@@ -65,14 +66,14 @@ public class JozData {
         // Initialize the campaign content poller, which will also take care
         // loading the campaign db.
         try {
+        	CMAContentRefreshMonitor.getInstance().init();
             CMAContentPoller.getInstance().init();
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Exception caught during the campaign data load");
         } catch (Throwable t) {
             t.printStackTrace();
-            log
-                    .error("Unexpected runtime exception during the campaign data load");
+            log.error("Unexpected runtime exception during the campaign data load");
         }
     }
     
