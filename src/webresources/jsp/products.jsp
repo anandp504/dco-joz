@@ -45,22 +45,27 @@
 	  </script>
   </head>
   <body>  
-	<%CampaignDB campaignDB=CampaignDB.getInstance();
+	<%
+	  CampaignDB campaignDB=CampaignDB.getInstance();
 	  String tspecName = request.getParameter("selTspec");
-      	  OSpec ospec = campaignDB.getOspec(tspecName);
-      	  List<TSpec> tspecs = ospec.getTspecs();
-      	  TSpec tspec = tspecs.get(0);
-      	  List<BrandInfo> excludedBrands = tspec.getExcludedBrands();
-      	  List<BrandInfo> includedBrands = tspec.getIncludedBrands();
-      	  List<MerchantInfo> excludedMerchants = tspec.getExcludedMerchants();
+	  if (tspecName == null)
+		tspecName = (String)session.getAttribute("selTspec");
+	  else
+	    session.setAttribute("selTspec", tspecName);
+      OSpec ospec = campaignDB.getOspec(tspecName);
+      List<TSpec> tspecs = ospec.getTspecs();
+      TSpec tspec = tspecs.get(0);
+      List<BrandInfo> excludedBrands = tspec.getExcludedBrands();
+      List<BrandInfo> includedBrands = tspec.getIncludedBrands();
+      List<MerchantInfo> excludedMerchants = tspec.getExcludedMerchants();
 	  List<MerchantInfo> includedMerchants = tspec.getIncludedMerchants();
 	  List<CategoryInfo> excludedCategories = tspec.getExcludedCategories();
-      	  List<CategoryInfo> includedCategories = tspec.getIncludedCategories();
+      List<CategoryInfo> includedCategories = tspec.getIncludedCategories();
 	  List<ProviderInfo> excludedProviders = tspec.getExcludedProviders();
-      	  List<ProviderInfo> includedProviders = tspec.getIncludedProviders();
+      List<ProviderInfo> includedProviders = tspec.getIncludedProviders();
 	  List<ProductInfo> excludedProducts = tspec.getExcludedProducts();
-      	  List<ProductInfo> includedProducts = tspec.getIncludedProducts();
-      	  List<KeywordInfo> includedKeywords = tspec.getIncludedKeywords();
+      List<ProductInfo> includedProducts = tspec.getIncludedProducts();
+      List<KeywordInfo> includedKeywords = tspec.getIncludedKeywords();
 	  String imageUrlPrefix="http://images.tumri.net/iCornerStore";
 	%>
 
@@ -90,12 +95,12 @@
 			<a href="console.jsp">home</a>
 		</div>
 	  </div>
-	  <form id="1" name="productPageForm" method="post" action="products.jsp">
-	  <input type="hidden" name="pageAction" value=""/>
-	  <input type="hidden" name="selTspec" value="<%=request.getParameter("selTspec")%>"/>
+	  <form id="productPageForm" name="productPageForm" method="post" action="products.jsp">
+	  <input id="pageAction" type="hidden" name="pageAction" value=""/>
+	  <input id="selTspec" type="hidden" name="selTspec" value="<%=tspecName%>"/>
 	  <div id="links">
-		  <% 
-			String pageAction=request.getParameter("pageAction");
+		    <% 
+			String pageAction=request.getQueryString();
 			boolean prevPage=false;
 			boolean nextPage=false;
 			List<Map<String,String>> products=null;
@@ -121,7 +126,7 @@
 				session.setAttribute("PPSI",new Integer(0));
 				session.setAttribute("NPSI",new Integer(20));
 			}
-			if ("Previous".equals(pageAction)) {
+			if ("previous".equals(pageAction)) {
 				prevPageStartIndex=(Integer)session.getAttribute("PPSI");
 				nextPageStartIndex=(Integer)session.getAttribute("NPSI");
 				products=(List<Map<String,String>>)session.getAttribute("PQMS");
@@ -143,7 +148,7 @@
 				if(startIndex+20 >= tp) dp=tp;
 				else dp=startIndex+20;
 			}
-			if ("Next".equals(pageAction)) {
+			if ("next".equals(pageAction)) {
 				prevPageStartIndex=(Integer)session.getAttribute("PPSI");
 				nextPageStartIndex=(Integer)session.getAttribute("NPSI");
 				products=(List<Map<String,String>>)session.getAttribute("PQMS");
@@ -163,25 +168,25 @@
 					nextPage=true;
 				}
 			}
-		  %>
-		  <table>
-		  <tr style="text-align: center">
+		    %>
+		  	<table>
+		  	<tr style="text-align: center">
 			<td>	
 			<br>
 			Products for Tspec: <strong><%=tspecName%></strong>
 			[displaying <%=(tp==0)?startIndex:startIndex+1%>-<%=dp%> out of <%=tp%>] 
 			<% 
 			   if (prevPage) {
-				out.print("<input type=\"button\" name=\"previous\" value=\"Previous\" onclick=\"javascript:getPage('Previous')\"/>");
-			     }
-			     if (nextPage) {
-				out.print("<input type=\"button\" name=\"next\" value=\"Next\" onclick=\"javascript:getPage('Next')\"/>");
+					out.print("&nbsp; <a href=\"products.jsp?previous\">previous</a> "); 
+			   }
+			   if (nextPage) {
+					out.print("&nbsp; <a href=\"products.jsp?next\">next</a>"); 
 			   }
 			%>
 			<br>
 			</td>
-		   </tr>
-		   <tr>	 
+		   	</tr>
+		   	<tr>	 
 			<table>
 				<tr>
 					<td valign="top" >
