@@ -37,7 +37,7 @@ public class TestProductSelection {
     try {
       Properties props = AppProperties.getInstance().getProperties();
       ContentHelper.init(props);
-      CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.getInstance(props);
+      CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.newInstance(props);
       Iterator<OSpec> iter = lispDeltaProvider.getOspecs("US");
       QueryProcessor qp = new ProductQueryProcessor();
       ProductDB.getInstance();
