@@ -61,32 +61,7 @@ public class ProductQueryMonitor extends ComponentMonitor
         return status;
     }
 
-    public List<Map<String,String>> getProducts(String arg)
-	{
-	        byte[] bytes;
-	        List<Map<String, String>>  results;
-
-	        try {
-	            ByteArrayOutputStream out = new ByteArrayOutputStream();
-	            Sexp sexp = createSexp(arg);
-	            CmdGetAdData cmd = new CmdGetAdData(sexp);
-	            cmd.process_and_write(out);
-	            bytes = out.toByteArray();
-	            ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-	            SexpIFASLReader ifaslreader = new SexpIFASLReader(in);
-	            Sexp sexpr = ifaslreader.read();
-	            results = getProductData(sexpr);
-	        }
-	        catch(Exception ex) {
-	          log.error("Error reading sexpression:  "+ex.getMessage());
-	          results = null;
-	        }
-
-	        ((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
-	        return results;
-    }
-
-    public List<Map<String, String>> getProductData(Sexp sexpr) throws JozMonitorException
+    private List<Map<String, String>> getProductData(Sexp sexpr) throws JozMonitorException
     {
         List<Map<String, String>> products = new ArrayList<Map<String,String>>();
         if (!sexpr.isSexpList())

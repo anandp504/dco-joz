@@ -29,6 +29,11 @@ public class ProductQueryMonitorStatus extends MonitorStatus
        this.products = products;
     }
 
+    public List<Map<String, String>>  getProducts()
+    {
+       return products;
+    }
+
     public String toHTML()
     {
         StringBuffer sb = new StringBuffer();

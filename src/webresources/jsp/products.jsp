@@ -53,7 +53,8 @@
       List<KeywordInfo> includedKeywords = tspec.getIncludedKeywords();
 	  String imageUrlPrefix="http://images.tumri.net/iCornerStore";
 	  ProductQueryMonitor pqm=new ProductQueryMonitor();
-	  List<Map<String,String>> products=pqm.getProducts(tspecName);
+	  ProductQueryMonitorStatus pqmstat = (ProductQueryMonitorStatus)pqm.getStatus(tspecName);
+	  List<Map<String,String>> products = pqmstat.getProducts();
 	%>
 
 	  <!-- Sample Product Data
