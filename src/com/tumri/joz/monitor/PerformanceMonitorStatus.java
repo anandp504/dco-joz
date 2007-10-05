@@ -11,7 +11,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
- * Status description Class for the performance monitor 
+ * Status description Class for the performance monitor
  *
  * @author vijay
  */
@@ -23,7 +23,9 @@ public class PerformanceMonitorStatus extends MonitorStatus
     private long    minTime  = 0;
 	private long    totalCount = 0;
 	private long    failedCount = 0;
-	private Map<String, Long>  failedTspecs = null; 
+	private long 	totalTime = 0;
+	private Date	startDate = null;
+	private Map<String, Long>  failedTspecs = null;
 
     public  PerformanceMonitorStatus(String name)
     {
@@ -33,42 +35,42 @@ public class PerformanceMonitorStatus extends MonitorStatus
 
     public void setMaxTspec(String tspec)
     {
-       maxTspec = tspec; 
+       maxTspec = tspec;
     }
 
     public void setMinTspec(String tspec)
     {
-       minTspec = tspec; 
+       minTspec = tspec;
     }
 
     public String getMaxTspec()
     {
-       return maxTspec; 
+       return maxTspec;
     }
 
     public String getMinTspec()
     {
-       return minTspec; 
+       return minTspec;
     }
 
     public void setMaxTime(long time)
     {
-       maxTime = time; 
+       maxTime = time;
     }
 
     public void setMinTime(long time)
     {
-       minTime = time; 
+       minTime = time;
     }
 
     public long getMaxTime()
     {
-       return maxTime; 
+       return maxTime;
     }
 
     public long getMinTime()
     {
-       return minTime; 
+       return minTime;
     }
 
 	public void setTotalRequestCount(long count)
@@ -99,6 +101,22 @@ public class PerformanceMonitorStatus extends MonitorStatus
     public Map<String, Long> getFailedTspecs()
 	{
 		return failedTspecs;
+	}
+
+	public void setTotalTime(long totalTime) {
+		this.totalTime=totalTime;
+	}
+
+	public long getTotalTime() {
+		return this.totalTime;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate=startDate;
+	}
+
+	public Date getStartDate() {
+		return this.startDate;
 	}
 
     public String toHTML()
@@ -134,7 +152,7 @@ public class PerformanceMonitorStatus extends MonitorStatus
 				}
 			}
 			sb.append("</table>");
-		 } 
+		 }
          return new String(sb);
     }
 
