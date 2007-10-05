@@ -4,9 +4,8 @@ import com.tumri.cma.RepositoryException;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
 import com.tumri.joz.Query.CNFQuery;
-import com.tumri.joz.campaign.OSpecQueryCacheHelper;
-import com.tumri.joz.campaign.CampaignDBDataLoader;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.OSpecQueryCacheHelper;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
@@ -41,15 +40,12 @@ public class TestMUPReload {
       m_setup.setOdd(true);
       m_setup.copyTo("test1");
       m_setup.initialLoad();
-      m_setup.setOdd(false);
-      m_setup.copyTo("test2");
-      Thread.sleep(70000);
-
-      CampaignDBDataLoader.getInstance().loadData();
       Thread ttest1 = new Thread(new TestProgram(p));
       ttest1.start();
 
-      Thread.sleep(1000);
+      m_setup.setOdd(false);
+      m_setup.copyTo("test2");
+      Thread.sleep(70000);
       m_setup.refresh();
       Thread ttest2 = new Thread(new TestProgram(p));
       ttest2.start();

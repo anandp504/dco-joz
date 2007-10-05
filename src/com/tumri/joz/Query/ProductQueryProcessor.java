@@ -25,15 +25,17 @@ public class ProductQueryProcessor extends QueryProcessor {
 
   public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference) {
     ProductSetIntersector aIntersector = new ProductSetIntersector();
-    for (SimpleQuery aQuery : aQueries) {
-      MUPQuery mq = (MUPQuery) aQuery;
-      if (mq.getAttribute() == IProduct.Attribute.kKeywords)
-        aIntersector.includeRankedSet(((KeywordQuery)mq).rawResults(), AttributeWeights.getWeight(IProduct.Attribute.kKeywords));
-      else
-      aIntersector.addFilter(mq.getFilter(), mq.getWeight());
+    if (aQueries.size() != 0) {
+      for (SimpleQuery aQuery : aQueries) {
+        MUPQuery mq = (MUPQuery) aQuery;
+        if (mq.getAttribute() == IProduct.Attribute.kKeywords)
+          aIntersector.includeRankedSet(((KeywordQuery)mq).rawResults(), AttributeWeights.getWeight(IProduct.Attribute.kKeywords));
+        else
+        aIntersector.addFilter(mq.getFilter(), mq.getWeight());
+      }
+      if (!aIntersector.hasIncludes() && aIntersector.getRankedSet() == null)
+        aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     }
-    if (!aIntersector.hasIncludes() && aIntersector.getRankedSet() == null)
-      aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     aIntersector.setReference(reference);
     return aIntersector;
   }
@@ -52,7 +54,7 @@ public class ProductQueryProcessor extends QueryProcessor {
   public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference) {
     ProductSetIntersector aIntersector = new ProductSetIntersector();
     if (aQueries.size() == 0){
-      aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
+      //aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     } else {
       handleKeywordQueries(aQueries,aIntersector); // step 0, take care of all keyword queries
       for (SimpleQuery lSimpleQuery : aQueries) { // Step 1
