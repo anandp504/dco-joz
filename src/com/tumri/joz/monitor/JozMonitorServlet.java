@@ -16,6 +16,8 @@ import com.tumri.utils.sexp.SexpIFASLWriter;
 
 public class JozMonitorServlet extends HttpServlet
 {
+    private static Logger log = Logger.getLogger (JozMonitorServlet.class);
+
     public void
     doGet (HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException
@@ -34,40 +36,26 @@ public class JozMonitorServlet extends HttpServlet
     doService (HttpServletRequest request, HttpServletResponse response)
 	throws IOException, ServletException
     {
-	    String query = request.getQueryString ();
+	    //String query = request.getQueryString ();
 
-	    response.setContentType ("text/html");
+	    response.setContentType ("text/plain");
 	    PrintWriter out = response.getWriter();
 
 	    try
 	    {
-	        query = URLDecoder.decode (query, "UTF-8");
-	        log.info ("Monitor Query= " + query);
-            String results = JozMonitor.serviceQuery(query);
-
-            out.print("<html><head><title>Joz Monitor</title></head>");
-            out.print("<body>");
-            out.print(results);
-            out.print("</body>");
-            out.print("</html>");
+			String result = null;
+			ProductQueryMonitor pqm = new ProductQueryMonitor();
+			ProductQueryMonitorStatus pqms = (ProductQueryMonitorStatus)pqm.getStatus("http://default");
+			if (pqms.getProducts().size() > 0)
+				result = "success";
+			else
+				result = "failed";
+            out.print(result);
         }
 	    catch (Exception e)
 	    {
-            out.print("<html>");
-            out.print("<title>Joz Console</title>");
-            out.print("<body>");
-            out.print("<strong>Joz Console Ver 0.1</strong>");
-            out.print("</br>");
-            out.print("<hr>");
-            out.print("<strong>Links</strong>");
-            out.print("</br>");
-            out.print("<a href=\"monitor?campaign\">get-ad-data</a>");
-            out.print("</body>");
-            out.print("</html>");
+            out.print("failed");
 	    }
     }
 
-    // implementation details -------------------------------------------------
-
-    private static Logger log = Logger.getLogger (JozMonitorServlet.class);
 }
