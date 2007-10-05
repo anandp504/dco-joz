@@ -209,23 +209,26 @@ public class TransientDataManager {
 
     public void addOSpec(OSpec oSpec) throws TransientDataException {
         //Check if the oSpec already exists
-        if(campaignDB.getOspec(oSpec.getName()) != null) {
-            throw new TransientDataException("Ospec for this name already Exists");
-        }
-        else if(oSpecNameLRUCache.containsKey(oSpec.getName())) {
-            throw new TransientDataException("Ospec for this name already Exists in the LRU Cache");
+//        if(campaignDB.getOspec(oSpec.getName()) != null) {
+//            throw new TransientDataException("Ospec for this name already Exists");
+//        }
+        int oSpecId = 0;
+        if(oSpecNameLRUCache.containsKey(oSpec.getName())) {
+            oSpecId = oSpecNameLRUCache.get(oSpec.getName()).getId();
         }
         else {
             //create OSpec ID
-            int oSpecId = idSequence.incrementAndGet();
-            oSpec.setId(oSpecId);
-
-            //Add to LRU cache
-            oSpecNameLRUCache.put(oSpec.getName(), oSpec);
-            addOSpecToCampaignDB(oSpec);
-            //7. Add to local Ospec-Adpod-Map for back reference
-            oSpecAdPodMap.safePut(oSpecId, oSpecId);
+            oSpecId = idSequence.incrementAndGet();
         }
+        oSpec.setId(oSpecId);
+
+
+        //Add to LRU cache
+        oSpecNameLRUCache.put(oSpec.getName(), oSpec);
+        addOSpecToCampaignDB(oSpec);
+        //7. Add to local Ospec-Adpod-Map for back reference
+        oSpecAdPodMap.safePut(oSpecId, oSpecId);
+//        }
 
         //reset the idSequence if highBound is exceeded
         if(idSequence.get() >= highBound) {
