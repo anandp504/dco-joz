@@ -373,11 +373,11 @@ public class ProductRequestProcessor {
 	 */
 	private void doWidgetKeywordSearch(AdDataRequest request) {
 		String requestKeyWords = request.get_keywords();
-		//Note: This is a difference from SoZ. The widget search is going to be constrained by the TSpec
-		doKeywordSearch(requestKeyWords, false);
-		m_tSpecQuery.setStrict(true);
-		m_revertToDefaultRealm = false; // Do not revert to default realm for a Widget Search
 		if ((requestKeyWords!=null)&&(!"".equals(requestKeyWords))) {
+			//Note: This is a difference from SoZ. The widget search is going to be constrained by the TSpec
+			doKeywordSearch(requestKeyWords, false);
+			m_tSpecQuery.setStrict(true);
+			m_revertToDefaultRealm = false; // Do not revert to default realm for a Widget Search
 			m_jozFeaturesMap.put(Features.FEATURE_WIDGET_SEARCH, requestKeyWords);
 		}
 	}
@@ -437,10 +437,10 @@ public class ProductRequestProcessor {
 	 */
 	private void doScriptKeywordSearch(AdDataRequest request) {
 		String scriptKeywords = request.get_script_keywords();
-		doKeywordSearch(scriptKeywords, !m_currOSpec.isScriptKeywordsWithinOSpec());
-		m_tSpecQuery.setStrict(true);
 		if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords))) {
+			doKeywordSearch(scriptKeywords, !m_currOSpec.isScriptKeywordsWithinOSpec());
 			m_jozFeaturesMap.put(Features.FEATURE_SCRIPT_SEARCH, scriptKeywords);
+			m_tSpecQuery.setStrict(true);
 		}
 	}
 
