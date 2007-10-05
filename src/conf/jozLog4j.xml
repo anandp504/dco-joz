@@ -7,46 +7,53 @@
 <!--                                                                       -->
 <!-- ===================================================================== -->
 
-<!--
-   | Note that the log4j DTD requires that appenders and categories not be 
-   | intermingled, i.e., the following categories must be put with the existing
-   | categories and similarly for the appenders.
- -->
-
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
-    <category name="com.tumri" additivity="false">
-	<priority value="INFO"/>
-	<appender-ref ref="tumriConsole"/>
-	<appender-ref ref="tumriFile"/>
-    </category>
-
-    <category name="httpclient">
-	<priority value="INFO"/>
-    </category>
-
-    <appender name="tumriConsole" class="org.apache.log4j.ConsoleAppender">
+<appender name="jozConsole" class="org.apache.log4j.ConsoleAppender">
 	<errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
 	<param name="Target" value="System.out"/>
-	<param name="Threshold" value="DEBUG"/>
+	<param name="Threshold" value="INFO"/>
 
 	<layout class="org.apache.log4j.PatternLayout">
-	    <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{3}] %m%n"/>
+		<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{3}] %m%n"/>
 	</layout>
-    </appender>
+</appender>
 
-    <appender name="tumriFile" class="org.apache.log4j.DailyRollingFileAppender">
+<appender name="jozLogFile" class="org.apache.log4j.DailyRollingFileAppender">
 	<errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
 	<param name="File" value="/@error.logs.dir@/joz-log.txt"/>
-	<!-- Need to set the UTF-8 encoding for the log files to have correct values -->
 	<param name="Encoding" value="UTF-8"/>
 	<param name="Append" value="true"/>
 	<!-- Rollover at midnight each day -->
 	<param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
 	<layout class="org.apache.log4j.PatternLayout">
-	    <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{3}] %m%n"/>
+		<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{3}] %m%n"/>
 	</layout>
-    </appender>
+</appender>
+
+<appender name="jozFatalLogFile" class="org.apache.log4j.DailyRollingFileAppender">
+	<errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
+	<param name="File" value="/@error.logs.dir@/joz-fatal-error-log.txt"/>
+	<param name="Append" value="true"/>
+	<!-- Rollover at midnight each day -->
+	<param name="Encoding" value="UTF-8"/>
+	<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{3}] %m%n"/>
+	</layout>
+</appender>
+
+<category name="com.tumri" additivity="false">
+	<priority value="INFO"/>
+	<appender-ref ref="jozConsole"/>
+	<appender-ref ref="jozLogFile"/>
+</category>
+
+<category name="fatal" additivity="false">
+	<priority value="INFO"/>
+	<appender-ref ref="jozFatalLogFile"/>
+</category>
 
 </log4j:configuration>

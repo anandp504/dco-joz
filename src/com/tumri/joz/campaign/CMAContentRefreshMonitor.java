@@ -19,6 +19,8 @@ import com.tumri.utils.PollingUnit;
 public class CMAContentRefreshMonitor implements PollingUnit {
 
 	protected static Logger log = Logger.getLogger(CMAContentRefreshMonitor.class);
+	protected static Logger fatallog = Logger.getLogger("fatal");
+	
 	protected long refreshInterval = 10;
 	protected String g_triggerRefreshFile = "cmaload.txt";
 	protected String g_TSpecMappingsSrcPath = "../.";
@@ -64,8 +66,9 @@ public class CMAContentRefreshMonitor implements PollingUnit {
 				CampaignDBDataLoader.getInstance().loadData();
 				log.info("Campaign data force refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
 			}
-		} catch (Exception e) {
-			log.error("Campaign data force refresh failed");
+		} catch (CampaignDataLoadingException e) {
+			log.info("Campaign data force refresh failed",e);
+			fatallog.fatal("Campaign data force refresh failed",e);
 		}
 	}
 	

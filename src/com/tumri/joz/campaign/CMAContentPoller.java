@@ -25,6 +25,7 @@ public class CMAContentPoller {
 	private static final String CONFIG_WALL_CLOCK_MINUTES = "com.tumri.campaign.file.refresh.time.minutes";
 	private static final String CONFIG_CMA_REFRESH_INTERVAL_MINUTES = "com.tumri.campaign.file.refresh.interval.minutes";
 	private static CMAContentPoller g_cmaContentPoller = null;
+	private static Logger fatallog = Logger.getLogger("fatal");
 	
 	private CMAContentPoller() {
 		super();
@@ -44,7 +45,7 @@ public class CMAContentPoller {
 	/**
 	 * Implementation that will invoke the CMA loading.
 	 */
-	public void performTask() {
+	public void performTask() throws CampaignDataLoadingException  {
 		loadCampaignData();
 	}
 	
@@ -53,22 +54,18 @@ public class CMAContentPoller {
 	 * The logic to check if the refresh is needed, can be implemented inside the Campaign Delta Provider impl.
 	 *
 	 */
-	private void loadCampaignData() {
-		try {
-			log.info("Going to refresh campaign data.");
-			long startTime = System.currentTimeMillis();
-			CampaignDBDataLoader.getInstance().loadData();
-			log.info("Campaign data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
-		} catch (Exception e) {
-			log.error("Campaign data refresh failed", e);
-		}
+	private void loadCampaignData() throws CampaignDataLoadingException {
+		log.info("Going to refresh campaign data.");
+		long startTime = System.currentTimeMillis();
+		CampaignDBDataLoader.getInstance().loadData();
+		log.info("Campaign data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
 	}
 	
 	/**
 	 * Perform the initialization tasks for Campaign Data Loading
 	 *
 	 */
-	public void init() {
+	public void init() throws CampaignDataLoadingException  {
 		
 		performTask();
 
@@ -107,7 +104,11 @@ public class CMAContentPoller {
         _timer.scheduleAtFixedRate(new TimerTask() {
             public void run()
             {
-            	performTask();
+            	try {
+            		performTask();
+            	} catch (CampaignDataLoadingException e) {
+            		fatallog.fatal("Campaign data load failed", e);
+            	}
             }
         }, c.getTime(), repeatIntervalMins*60*1000);
 

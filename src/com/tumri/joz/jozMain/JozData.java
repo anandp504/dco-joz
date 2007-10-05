@@ -53,6 +53,7 @@ public class JozData {
 
     // implementation details -------------------------------------------------
     private static Logger log = Logger.getLogger(JozData.class);
+    private static Logger fatallog = Logger.getLogger("fatal");
     
     protected static void loadContent(Properties props) {
         ContentHelper.init(props);
@@ -69,11 +70,11 @@ public class JozData {
         	CMAContentRefreshMonitor.getInstance().init();
             CMAContentPoller.getInstance().init();
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("Exception caught during the campaign data load");
+            fatallog.fatal("Exception caught during campaign data load", e);
         } catch (Throwable t) {
-            t.printStackTrace();
             log.error("Unexpected runtime exception during the campaign data load");
+            fatallog.fatal("Unexpected runtime exception during the campaign data load", t);
         }
     }
     
