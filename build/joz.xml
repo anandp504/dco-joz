@@ -82,7 +82,7 @@
 
     <!-- ****************************************************************** -->
 
-    <target name="build-Joz-jar" depends="init">
+    <target name="build-Joz-jar" depends="init,version">
 
         <javac destdir="${classes.dir}"
                debug="on"
@@ -107,6 +107,9 @@
 		     includes="**/*.class"
 		     excludes="com/tumri/joz/testsuite/*.class"/>
             <fileset dir="${stage.dir}/Joz"/>
+			<!--  JMN - to include the *.version.properties file. -->
+            <fileset dir="${dist.dir}/META-INF/"
+            	includes="${version_properties_file_dest}" />
             <manifest>
                 <attribute name="Main-Class" value="com.tumri.joz.keywordServer.ProductIndex"/>
             </manifest>
@@ -123,6 +126,10 @@
 		<fileset dir="${src.dir}/webresources/">
 			<exclude name="WEB-INF"/>
 		</fileset>
+		<!-- JMN - to include the *.version.properties file. -->
+		<fileset dir="${dist.dir}/META-INF/">
+			<include name="${version_properties_file_dest}"/>
+		</fileset>
 	    <lib dir="${dist.dir}" includes="joz.jar"/>
 	    <lib dir="${ext.lib.dir}" includes="*.jar">
 	    	<exclude name="log4j*.jar"/>
@@ -138,5 +145,33 @@
 	</war>
 
     </target>
+
+	<!-- ****************************************************************** -->		
+	<!-- JMN - A target to generate product version information. -->
+	<target name="version">
+	    <property file="${root.dir}/build/joz_version.properties"/>
+		
+		<mkdir dir="${dist.dir}/META-INF/"/>
+		<copy file="${top.root.dir}/build/${version_properties_file_src}" 
+			tofile="${dist.dir}/META-INF/${version_properties_file_dest}"/>
+		
+	    <!-- JMN - To be implemented and utilized after 10/9/07.
+		<manifest>
+			<section name="common">
+				<attribute name="Specification-Title" value="${product_name}"/>
+				<attribute name="Specification-Vendor" value="${vendor}"/>
+				<attribute name="Specification-Version" value="${major_number}.${minor_number}.${maintenance_number}"/>
+				<attribute name="Implementation-Title" value="${product_name}"/>
+				<attribute name="Implementation-Vendor" value="${vendor}"/>
+				<attribute name="Implementation-Version" value="${version}"/>
+			</section>
+		</manifest>
+		<metainf dir="${dist.dir}/META-INF/">
+			<copy file="${top.root.dir}/build/${version_properties_file_src}" 
+				tofile="${dist.dir}/META-INF/${version_properties_file_dest}"/>
+			<include name="${version_properties_file_dest}"/>
+		</metainf>
+		-->
+	</target>
 
 </project>
