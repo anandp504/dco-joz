@@ -120,8 +120,8 @@ public class ProductRequestProcessor {
 			}
 			m_tSpecQuery.setReference(ref);
 
-			//Default the current Page and page Size 
-			if (m_NumProducts!=null) {
+			//Default the current Page and page Size if they have not been specified
+			if (m_NumProducts!=null && (m_currentPage ==null && m_pageSize ==null)) {
 				int numProducts = m_NumProducts.intValue();
 				m_currentPage = new Integer(0);
 				m_pageSize = numProducts;
@@ -340,7 +340,7 @@ public class ProductRequestProcessor {
 	private void addProductTypeQuery(AdDataRequest request) {
 		AdOfferType offerType = request.get_ad_offer_type();
 		if (offerType == null) {
-			offerType = AdOfferType.PRODUCT_LEADGEN;
+			return;
 		}
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");

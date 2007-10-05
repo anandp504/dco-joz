@@ -80,7 +80,7 @@ public class Features {
         l = new SexpList();
         k = new SexpKeyword(":FEATURES");
         l.addLast(k);
-        if (jozFeaturesMap==null) {
+        if (jozFeaturesMap==null || jozFeaturesMap.isEmpty()) {
         	s = new SexpString("\"NIL\"");
         } else {
         	Iterator featureKeys = jozFeaturesMap.keySet().iterator();
