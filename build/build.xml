@@ -74,8 +74,8 @@
 	    </fileset>
 	</copy>
 	<replace file="${dist.dir}/conf/jozLog4j.xml"
-		 token="value=&quot;/@error.logs.dir@/"
-		 value="value=&quot;${error.logs.dir}/"/>
+		 token="value=&quot;/@joz.error.logs.dir@/"
+		 value="value=&quot;${joz.error.logs.dir}/"/>
     </target>
 
     <!-- ****************************************************************** -->
