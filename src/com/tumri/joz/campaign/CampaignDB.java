@@ -1,12 +1,17 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
+import com.tumri.cma.misc.SexpOSpecHelper;
 import com.tumri.utils.Pair;
+import com.tumri.utils.sexp.BadSexpException;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.joz.utils.AppProperties;
 
 import java.util.*;
+import java.io.IOException;
+
+import org.apache.log4j.Logger;
 
 /**
  * CampaignDB is an in-memory representation for campaign(CMA) database that holds all the campagin related domain objects for
@@ -17,7 +22,11 @@ import java.util.*;
 @SuppressWarnings({"deprecation"})
 public abstract class CampaignDB {
 
+    private static Logger log = Logger.getLogger (CampaignDB.class);
+
     private String defaultRealmOSpecName = "T-SPEC-http://default-realm/";
+
+    private String defaultRealmOSpecStr = "(t-spec-add :name '|T-SPEC-http://default-realm/| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14150| |GLASSVIEW.TUMRI_14137| ) :attr-inclusions '((PROVIDER |SHOPPING.COM| )) :ref-price-constraints '(NIL 180) )";
 
     private static CampaignDB campaignDB = CampaignDBCompleteRefreshImpl.getInstance(); //CampaignDBIncrementalRefreshImpl.getInstance();
 
@@ -31,14 +40,29 @@ public abstract class CampaignDB {
             defaultOSpecName = AppProperties.getInstance().getProperty("com.tumri.targeting.default.realm.ospec.name");
         }
         catch(NullPointerException e) {
+            //ignore the error and pick the default realm name specified specified in java class instead
+        }
+        catch(Exception e) {
+            //ignore the error and pick the default realm name specified specified in java class instead
+        }
+
+        if(defaultOSpecName != null && !("".equals(defaultOSpecName))) {
+            defaultRealmOSpecName = defaultOSpecName;
+        }
+
+        String defaultOSpecStr = null;
+        try {
+            defaultOSpecStr = AppProperties.getInstance().getProperty("com.tumri.targeting.default.realm.ospec.string");
+        }
+        catch(NullPointerException e) {
             //ignore the error and pick the default realm specified specified in java class instead
         }
         catch(Exception e) {
             //ignore the error and pick the default realm specified specified in java class instead
         }
 
-        if(defaultOSpecName != null && !("".equals(defaultOSpecName))) {
-            defaultRealmOSpecName = defaultOSpecName;
+        if(defaultOSpecStr != null && !("".equals(defaultOSpecStr))) {
+            defaultRealmOSpecStr = defaultOSpecStr;
         }
 
     }
@@ -46,7 +70,20 @@ public abstract class CampaignDB {
     public String getDefaultRealmOSpecName() {
         return defaultRealmOSpecName;
     }
-    
+
+    public OSpec getDefaultOSpec() {
+        OSpec oSpec = null;
+
+        try {
+            oSpec = SexpOSpecHelper.getOSpec(defaultRealmOSpecStr);
+        } catch (BadSexpException e) {
+            log.error("BadSexpException occured while reading default realm ospec from joz.properties file", e);
+        } catch (IOException e) {
+            log.error("IOExcpetion occured while reading default realm ospec from joz.properties file", e);
+        }
+        return oSpec;
+    }
+
     public abstract OSpec getOSpecForAdPod(int adPodId);
 
     public abstract OSpec getOspec(String name);
@@ -107,8 +144,6 @@ public abstract class CampaignDB {
     public abstract void deleteLocationMapping(int locationId, int adPodId);
 
     public abstract void deleteGeocodeMapping(Geocode geocode, int adPodId);
-
-    public abstract OSpec getDefaultOSpec();
 
     public abstract void loadCampaigns(Iterator<Campaign> iterator);
 

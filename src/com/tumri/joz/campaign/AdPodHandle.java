@@ -12,27 +12,6 @@ public class AdPodHandle implements Handle {
   private int    weight = 1;
   private int    oid;
 
-    public static final double locationScore = 1.0;
-    public static final double themeScore    = 0.9;
-    public static final double urlScore      = 0.8;
-
-    
-    public static final double defaultScore  = 0.1;
-    public static final double countryScore  = 0.75;
-    public static final double regionScore   = 0.80;
-    public static final double cityScore     = 0.85;
-    public static final double zipcodeScore  = 1.0;
-    public static final double dmacodeScore  = 0.95;
-    public static final double areacodeScore = 0.90;
-
-    public static final double runOfNetworkScore = 0.2;
-    public static final int runOfNetworkWeight   = 1;
-    public static final double geoNoneScore      = 0.2;
-    public static final int geoNoneWeight        = 1;
-
-
-
-
   public AdPodHandle(int oid, double aScore) {
     this.score = aScore;
     this.oid = oid;

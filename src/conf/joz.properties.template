@@ -25,11 +25,30 @@ com.tumri.campaign.file.polling.mode=calendar
 #com.tumri.content.file.taxonomy.dataDir=
 #com.tumri.content.file.merchant_data.dataDir=
 
+#Targeting related score
+com.tumri.targeting.locationScore = 1.0;
+com.tumri.targeting.themeScore    = 0.9;
+com.tumri.targeting.urlScore      = 0.8;
+com.tumri.targeting.defaultScore  = 0.1;
+com.tumri.targeting.countryScore  = 0.75;
+com.tumri.targeting.regionScore   = 0.80;
+com.tumri.targeting.cityScore     = 0.85;
+com.tumri.targeting.zipcodeScore  = 1.0;
+com.tumri.targeting.dmacodeScore  = 0.95;
+com.tumri.targeting.areacodeScore = 0.90;
+
+com.tumri.targeting.runOfNetworkScore  = 0.2;
+com.tumri.targeting.runOfNetworkWeight = 1;
+com.tumri.targeting.geoNoneScore       = 0.2;
+com.tumri.targeting.geoNoneWeight      = 1;
+
 #JoZ uses the property below to load all the campaign data based on the region specified
 #For UK change the value below to UK
 com.tumri.campaign.data.region.name=USA
 
 com.tumri.targeting.default.realm.ospec.name = T-SPEC-http://default-realm/
+
+com.tumri.targeting.default.realm.ospec.string = (t-spec-add :name '|T-SPEC-http://default-realm/| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14150| |GLASSVIEW.TUMRI_14137| ) :attr-inclusions '((PROVIDER |SHOPPING.COM| )) :ref-price-constraints '(NIL 180) )
 
 #CMA specific properties
 

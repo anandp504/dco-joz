@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
  *
  * @author bpatel
  */
+@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
 public class TransientDataManager {
     private OSpecNameLRUCache oSpecNameLRUCache = new OSpecNameLRUCache(1000);
     private static Logger log = Logger.getLogger (TransientDataManager.class);
@@ -78,6 +79,7 @@ public class TransientDataManager {
         }
     }
 
+    @SuppressWarnings({"unchecked"})
     private void reloadUrlMappings() {
         urlMapRequest.readerLock();
         try {
@@ -86,12 +88,11 @@ public class TransientDataManager {
                 while(iterator.hasNext()) {
                     List<IncorpDeltaMappingRequest<String>> requestList = (List<IncorpDeltaMappingRequest<String>>)iterator.next();
                     if(requestList != null) {
-                        for(int i=0; i<requestList.size(); i++) {
-                            IncorpDeltaMappingRequest<String> request = requestList.get(i);
+                        for (IncorpDeltaMappingRequest<String> request : requestList) {
                             try {
                                 addUrlMapping(request);
                             }
-                            catch(TransientDataException e) {
+                            catch (TransientDataException e) {
                                 log.error("Error occured while reloading urlmapping in TransientDataManager", e);
                             }
                         }
@@ -104,6 +105,7 @@ public class TransientDataManager {
         }
     }
 
+    @SuppressWarnings({"unchecked"})
     private void reloadThemeMappings() {
         themeMapRequest.readerLock();
         try {
@@ -112,12 +114,11 @@ public class TransientDataManager {
                 while(iterator.hasNext()) {
                     List<IncorpDeltaMappingRequest<String>> requestList = (List<IncorpDeltaMappingRequest<String>>)iterator.next();
                     if(requestList != null) {
-                        for(int i=0; i<requestList.size(); i++) {
-                            IncorpDeltaMappingRequest<String> request = requestList.get(i);
+                        for (IncorpDeltaMappingRequest<String> request : requestList) {
                             try {
                                 addThemeMapping(request);
                             }
-                            catch(TransientDataException e) {
+                            catch (TransientDataException e) {
                                 log.error("Error occured while reloading thememapping in TransientDataManager", e);
                             }
                         }
@@ -131,6 +132,7 @@ public class TransientDataManager {
 
     }
 
+    @SuppressWarnings({"unchecked"})
     private void reloadLocationMappings() {
         locationMapRequest.readerLock();
         try {
@@ -139,12 +141,11 @@ public class TransientDataManager {
                 while(iterator.hasNext()) {
                     List<IncorpDeltaMappingRequest<Integer>> requestList = (List<IncorpDeltaMappingRequest<Integer>>)iterator.next();
                     if(requestList != null) {
-                        for(int i=0; i<requestList.size(); i++) {
-                            IncorpDeltaMappingRequest<Integer> request = requestList.get(i);
+                        for (IncorpDeltaMappingRequest<Integer> request : requestList) {
                             try {
                                 addLocationMapping(request);
                             }
-                            catch(TransientDataException e) {
+                            catch (TransientDataException e) {
                                 log.error("Error occured while reloading thememapping in TransientDataManager", e);
                             }
                         }
@@ -165,7 +166,7 @@ public class TransientDataManager {
             if(iterator != null && iterator.hasNext()) {
                 while(iterator.hasNext()) {
                     String tSpecName = (String)iterator.next();
-                    if(campaignDB.getOspec(tSpecName) == null || oSpecNameLRUCache.containsKey(tSpecName) == false) {
+                    if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
                         log.error("TSpec under non-geo transient data map is no longer valid");
                     }
                     int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
@@ -179,6 +180,7 @@ public class TransientDataManager {
 
     }
 
+    @SuppressWarnings({"unchecked"})
     private void reloadGeocodeMappings() {
         geocodeMapRequest.readerLock();
         try {
@@ -187,12 +189,11 @@ public class TransientDataManager {
                 while(iterator.hasNext()) {
                     List<IncorpDeltaMappingRequest<Geocode>> requestList = (List<IncorpDeltaMappingRequest<Geocode>>)iterator.next();
                     if(requestList != null) {
-                        for(int i=0; i<requestList.size(); i++) {
-                            IncorpDeltaMappingRequest<Geocode> request = requestList.get(i);
+                        for (IncorpDeltaMappingRequest<Geocode> request : requestList) {
                             try {
                                 addGeocodeMapping(request);
                             }
-                            catch(TransientDataException e) {
+                            catch (TransientDataException e) {
                                 log.error("Error occured while reloading geocode-mapping in TransientDataManager", e);
                             }
                         }
@@ -270,12 +271,13 @@ public class TransientDataManager {
      * Step 3: Lookup adpod id and url id for given request
      * Step 4: Add to Url-Adpod-Index within CampaignDB
      *  
-     * @param urlName
-     * @param tSpecName
-     * @param weight
+     * @param urlName - URL Name
+     * @param tSpecName - t-spec name
+     * @param weight - weight for mapping
+     * @throws TransientDataException - Gets thrown for invalid condition
      */
     public void addUrlMapping(String urlName, String tSpecName, float weight) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || oSpecNameLRUCache.containsKey(tSpecName) == false) {
+        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(urlName, tSpecName, weight);
@@ -313,7 +315,7 @@ public class TransientDataManager {
     }
 
     public void addThemeMapping(String themeName, String tSpecName, float weight) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || oSpecNameLRUCache.containsKey(tSpecName) == false) {
+        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(themeName, tSpecName, weight);
@@ -332,6 +334,7 @@ public class TransientDataManager {
         addThemeMapping(request);
     }
 
+    @SuppressWarnings({"deprecation"})
     private void addThemeMapping(IncorpDeltaMappingRequest<String> request) throws TransientDataException {
         Theme theme = campaignDB.getTheme(request.getId());
         if(theme == null) {
@@ -351,10 +354,10 @@ public class TransientDataManager {
     }
 
     public void addLocationMapping(String locationIdStr, String tSpecName, float weight) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || oSpecNameLRUCache.containsKey(tSpecName) == false) {
+        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
-        int locationId = 0;
+        int locationId;
         try {
             locationId = Integer.parseInt(locationIdStr);
         }
@@ -393,7 +396,7 @@ public class TransientDataManager {
     }
 
     public void addGeocodeMapping(Geocode geocode, String tSpecName, float weight) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || oSpecNameLRUCache.containsKey(tSpecName) == false) {
+        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         geocode.setId(idSequence.incrementAndGet());
@@ -415,7 +418,7 @@ public class TransientDataManager {
     }
 
     public void addNonGeocodeMapping(String tSpecName) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || oSpecNameLRUCache.containsKey(tSpecName) == false) {
+        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
@@ -445,6 +448,7 @@ public class TransientDataManager {
         }
     }
 
+    @SuppressWarnings({"deprecation"})
     public void deleteThemeMapping(String themeName, String tSpecName, float weight) {
         List <IncorpDeltaMappingRequest<String>>  themeRequestList      = themeMapRequest.safeGet(tSpecName);
         if(themeRequestList != null) {
@@ -513,6 +517,7 @@ public class TransientDataManager {
         }
     }
 
+    @SuppressWarnings({"deprecation"})
     private void deleteDependencies(OSpec oSpec) {
         List <IncorpDeltaMappingRequest<String>>  urlRequestList      = urlMapRequest.safeGet(oSpec.getName());
         List <IncorpDeltaMappingRequest<String>>  themeRequestList    = themeMapRequest.safeGet(oSpec.getName());
@@ -535,11 +540,10 @@ public class TransientDataManager {
         deleteNonGeocodeMapping(oSpec.getName());
         deleteGeocodeMapping(oSpec.getName());
         if(urlRequestList != null) {
-            for(int i=0; i<urlRequestList.size(); i++) {
-                IncorpDeltaMappingRequest<String> urlRequest = urlRequestList.get(i);
+            for (IncorpDeltaMappingRequest<String> urlRequest : urlRequestList) {
                 String urlName = urlRequest.getId();
                 Url url = campaignDB.getUrl(urlName);
-                if(url != null) {
+                if (url != null) {
                     campaignDB.getUrlAdPodMappingIndex().remove(UrlNormalizer.getNormalizedUrl(url.getName()));
                     campaignDB.deleteUrl(url.getName());
                 }
@@ -547,11 +551,10 @@ public class TransientDataManager {
         }
 
         if(themeRequestList != null) {
-            for(int i=0; i<themeRequestList.size(); i++) {
-                IncorpDeltaMappingRequest<String> themeRequest = themeRequestList.get(i);
+            for (IncorpDeltaMappingRequest<String> themeRequest : themeRequestList) {
                 String themeName = themeRequest.getId();
                 Theme theme = campaignDB.getTheme(themeName);
-                if(theme != null) {
+                if (theme != null) {
                     campaignDB.getThemeAdPodMappingIndex().remove(theme.getName());
                     campaignDB.deleteTheme(theme.getName());
                 }
@@ -559,14 +562,13 @@ public class TransientDataManager {
         }
 
         if(locationRequestList != null) {
-            for(int i=0; i<locationRequestList.size(); i++) {
-                IncorpDeltaMappingRequest<Integer> locationRequest = locationRequestList.get(i);
+            for (IncorpDeltaMappingRequest<Integer> locationRequest : locationRequestList) {
                 int locationId = locationRequest.getId();
                 Location location = campaignDB.getLocation(locationId);
-                if(location != null) {
+                if (location != null) {
                     campaignDB.getLocationAdPodMappingIndex().remove(location.getId());
                     campaignDB.deleteLocation(location.getId());
-                }
+                } 
             }
         }
 

@@ -7,6 +7,7 @@ import com.tumri.utils.Pair;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.joz.index.AdpodIndex;
+import com.tumri.joz.targeting.TargetingScoreHelper;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.*;
@@ -89,7 +90,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     public void addNonGeoAdPod(int adPodId) {
         if(adPodGeoNoneHandlesMap.get().safeGet(adPodId) == null) {
-            AdPodHandle handle = new AdPodHandle(adPodId, AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight);
+            AdPodHandle handle = new AdPodHandle(adPodId, TargetingScoreHelper.getInstance().getGeoNoneScore(), TargetingScoreHelper.getInstance().getGeoNoneWeight());
             adpodGeoNoneIndex.put(AdpodIndex.GEO_NONE, handle);
             adPodGeoNoneHandlesMap.get().safePut(adPodId, handle);
         }
@@ -188,7 +189,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         AdPod adPod = adPodMap.get().get(urlAdPodMapping.getAdPodId());
         if(url != null && adPod != null) {
             String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
-            adpodUrlMappingIndex.put(urlName, new AdPodHandle(adPod.getId(), AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
+            adpodUrlMappingIndex.put(urlName, new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getUrlScore(), urlAdPodMapping.getWeight()));
         }
         else {
             //Url or Adpod not found, some inconsistency caused this. The url-adpod mapping for that particular
@@ -202,7 +203,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         AdPod adPod = adPodMap.get().get(mapping.getAdPodId());
         if(theme != null && adPod != null) {
             String themeName = theme.getName();
-            adpodThemeMappingIndex.put(themeName, new AdPodHandle(adPod.getId(), AdPodHandle.themeScore, mapping.getWeight()));
+            adpodThemeMappingIndex.put(themeName, new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getThemeScore(), mapping.getWeight()));
         }
         else {
             //Theme or Adpod not found, some inconsistency caused this. The theme-adpod mapping for that particular
@@ -216,7 +217,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         AdPod adPod = adPodMap.get().get(mapping.getAdPodId());
         if(location != null && adPod != null) {
             int locationId = location.getId();
-            adpodLocationMappingIndex.put(locationId, new AdPodHandle(adPod.getId(), AdPodHandle.locationScore, 1));
+            adpodLocationMappingIndex.put(locationId, new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getLocationScore(), 1));
         }
         else {
             //Location or Adpod not found, some inconsistency caused this. The location-adpod mapping for that particular
@@ -230,18 +231,18 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             log.error("Invalid geocode/adpodId passed for addind the geocode mapping");
         }
 
-        if(geocodeMap.get().safeGet(adPodId) != null) {
+        else if(geocodeMap.get().safeGet(adPodId) != null) {
             log.error("Trying to add geocode with ID that already exists in geocodeMap inside CampaignDB");
         }
         else {
             geocodeMap.get().safePut(geocode.getId(), geocode);
 
-            addGeocodeMapping(geocode.getCountries(), adPodId, AdPodHandle.countryScore, adpodGeoCountryIndex, adPodConuntryHandlesMap);
-            addGeocodeMapping(geocode.getStates(), adPodId, AdPodHandle.regionScore, adpodGeoRegionIndex, adPodRegionHandlesMap);
-            addGeocodeMapping(geocode.getCities(), adPodId, AdPodHandle.cityScore, adpodGeoCityIndex, adPodCityHandlesMap);
-            addGeocodeMapping(geocode.getAreaCodes(), adPodId, AdPodHandle.areacodeScore, adpodGeoAreacodeIndex, adPodAreacodeHandlesMap);
-            addGeocodeMapping(geocode.getZipcodes(), adPodId, AdPodHandle.zipcodeScore, adpodGeoZipcodeIndex, adPodZipcodeHandlesMap);
-            addGeocodeMapping(geocode.getDmaCodes(), adPodId, AdPodHandle.dmacodeScore, adpodGeoDmacodeIndex, adPodDmacodeHandlesMap);
+            addGeocodeMapping(geocode.getCountries(), adPodId, TargetingScoreHelper.getInstance().getCountryScore(), adpodGeoCountryIndex, adPodConuntryHandlesMap);
+            addGeocodeMapping(geocode.getStates(), adPodId, TargetingScoreHelper.getInstance().getRegionScore(), adpodGeoRegionIndex, adPodRegionHandlesMap);
+            addGeocodeMapping(geocode.getCities(), adPodId, TargetingScoreHelper.getInstance().getCityScore(), adpodGeoCityIndex, adPodCityHandlesMap);
+            addGeocodeMapping(geocode.getAreaCodes(), adPodId, TargetingScoreHelper.getInstance().getAreacodeScore(), adpodGeoAreacodeIndex, adPodAreacodeHandlesMap);
+            addGeocodeMapping(geocode.getZipcodes(), adPodId, TargetingScoreHelper.getInstance().getZipcodeScore(), adpodGeoZipcodeIndex, adPodZipcodeHandlesMap);
+            addGeocodeMapping(geocode.getDmaCodes(), adPodId, TargetingScoreHelper.getInstance().getDmacodeScore(), adpodGeoDmacodeIndex, adPodDmacodeHandlesMap);
         }
     }
 
@@ -252,8 +253,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 handle = new AdPodHandle(adPodId, score);
                 hamdlesMap.get().safePut(adPodId, handle);
             }
-            for(int i = 0; i < list.size(); i++) {
-                String name = list.get(i);
+            for (String name : list) {
                 index.put(name, handle);
             }
         }
@@ -279,30 +279,28 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     private void deleteGeocodeMapping(List<String> list, int adPodId, AtomicAdpodIndex<String, Handle> index) {
         if(list != null && list.size() > 0) {
-            for(int i = 0; i < list.size(); i++) {
-                String name = list.get(i);
+            for (String name : list) {
                 SortedSet<Handle> set = index.get(name);
                 Iterator iterator = set.iterator();
                 Handle handleToDelete = null;
-                if(iterator != null && iterator.hasNext()) {
-                    while(iterator.hasNext()) {
-                        Handle handle = (Handle)iterator.next();
-                        if(handle.getOid() == adPodId) {
+                if (iterator != null && iterator.hasNext()) {
+                    while (iterator.hasNext()) {
+                        Handle handle = (Handle) iterator.next();
+                        if (handle.getOid() == adPodId) {
                             handleToDelete = handle;
                             break;
                         }
                     }
-                    if(handleToDelete != null) {
-                        if(set instanceof RWLocked) {
-                            ((RWLocked)set).writerLock();
+                    if (handleToDelete != null) {
+                        if (set instanceof RWLocked) {
+                            ((RWLocked) set).writerLock();
                             try {
                                 set.remove(handleToDelete);
                             }
                             finally {
-                                ((RWLocked)set).writerUnlock();
+                                ((RWLocked) set).writerUnlock();
                             }
-                        }
-                        else {
+                        } else {
                             set.remove(handleToDelete);
                         }
                     }
@@ -400,7 +398,11 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public OSpec getDefaultOSpec() {
-        return ospecNameMap.get().get(getDefaultRealmOSpecName());
+        OSpec oSpec = ospecNameMap.get().get(getDefaultRealmOSpecName());
+        if(oSpec == null) {
+            oSpec = super.getDefaultOSpec();
+        }
+        return oSpec;
     }
 
     public void loadCampaigns(Iterator<Campaign> iterator) {
@@ -451,7 +453,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list = new ArrayList<Handle>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
-                list.add(new AdPodHandle(adPod.getId(), AdPodHandle.runOfNetworkScore, AdPodHandle.runOfNetworkWeight));
+                list.add(new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getRunOfNetworkScore(), TargetingScoreHelper.getInstance().getRunOfNetworkWeight()));
 
             }
             runOfNetworkAdPodMap.put(AdpodIndex.RUN_OF_NETWORK, list);
@@ -472,7 +474,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list = new ArrayList<Handle>();
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
-                list.add(new AdPodHandle(adPod.getId(), AdPodHandle.geoNoneScore, AdPodHandle.geoNoneWeight));
+                list.add(new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getGeoNoneScore(), TargetingScoreHelper.getInstance().getGeoNoneWeight()));
                 nonGeoAdpodCount++;
             }
             log.info("Non-Geo Adpod Size: " + nonGeoAdpodCount);
@@ -562,37 +564,37 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 geocodeMap.get().put(geocode.getId(), geocode);
                 List<String> countries = geocode.getCountries();
                 if(countries != null) {
-                    Handle handle = addAdPodHandle(countryHandlesMap, geocode.getAdPodId(), AdPodHandle.countryScore);
+                    Handle handle = addAdPodHandle(countryHandlesMap, geocode.getAdPodId(), TargetingScoreHelper.getInstance().getCountryScore());
                     addToMap(countries, countriesMap, handle);
                 }
 
                 List<String> regions   = geocode.getStates();
                 if(regions != null) {
-                    Handle handle = addAdPodHandle(regionHandlesMap, geocode.getAdPodId(), AdPodHandle.regionScore);
+                    Handle handle = addAdPodHandle(regionHandlesMap, geocode.getAdPodId(), TargetingScoreHelper.getInstance().getRegionScore());
                     addToMap(regions, regionsMap, handle);
                 }
 
                 List<String> cities    = geocode.getCities();
                 if(cities != null) {
-                    Handle handle = addAdPodHandle(cityHandlesMap, geocode.getAdPodId(), AdPodHandle.cityScore);
+                    Handle handle = addAdPodHandle(cityHandlesMap, geocode.getAdPodId(), TargetingScoreHelper.getInstance().getCityScore());
                     addToMap(cities, citiesMap, handle);
                 }
 
                 List<String> zipcodes  = geocode.getZipcodes();
                 if(zipcodes != null) {
-                    Handle handle = addAdPodHandle(zipcodeHandlesMap, geocode.getAdPodId(), AdPodHandle.zipcodeScore);
+                    Handle handle = addAdPodHandle(zipcodeHandlesMap, geocode.getAdPodId(), TargetingScoreHelper.getInstance().getZipcodeScore());
                     addToMap(zipcodes, zipcodesMap, handle);
                 }
 
                 List<String> dmacodes  = geocode.getDmaCodes();
                 if(dmacodes != null) {
-                    Handle handle = addAdPodHandle(dmacodeHandlesMap, geocode.getAdPodId(), AdPodHandle.dmacodeScore);
+                    Handle handle = addAdPodHandle(dmacodeHandlesMap, geocode.getAdPodId(), TargetingScoreHelper.getInstance().getDmacodeScore());
                     addToMap(dmacodes, dmacodesMap, handle);
                 }
 
                 List<String> areacodes = geocode.getAreaCodes();
                 if(areacodes != null) {
-                    Handle handle = addAdPodHandle(areacodeHandlesMap, geocode.getAdPodId(), AdPodHandle.areacodeScore);
+                    Handle handle = addAdPodHandle(areacodeHandlesMap, geocode.getAdPodId(), TargetingScoreHelper.getInstance().getAreacodeScore());
                     addToMap(areacodes, areacodesMap, handle);
                 }
             }
@@ -740,7 +742,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                         list = new ArrayList<Handle>();
                     }
                     int oid = adPod.getId(); 
-                    list.add(new AdPodHandle(oid, AdPodHandle.urlScore, urlAdPodMapping.getWeight()));
+                    list.add(new AdPodHandle(oid, TargetingScoreHelper.getInstance().getUrlScore(), urlAdPodMapping.getWeight()));
                     if(urlName != null) {
                         urlAdPodMap.put(urlName, list);
                     }
@@ -782,7 +784,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                         list = new ArrayList<Handle>();
                     }
                     int oid = adPod.getId(); //themeAdPodMapping.getId();
-                    list.add(new AdPodHandle(oid, AdPodHandle.themeScore, themeAdPodMapping.getWeight()));
+                    list.add(new AdPodHandle(oid, TargetingScoreHelper.getInstance().getThemeScore(), themeAdPodMapping.getWeight()));
                     themeAdPodMap.put(theme.getName(), list);
                 }
                 else {
@@ -817,7 +819,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                     }
                     //@todo: add weight field to LocationAdpodMapping class
                     int oid = adPod.getId(); //locationAdPodMapping.getId();
-                    list.add(new AdPodHandle(oid, AdPodHandle.locationScore, 1));
+                    list.add(new AdPodHandle(oid, TargetingScoreHelper.getInstance().getLocationScore(), 1));
                     locationAdPodMap.put(location.getExternalId(), list);
                 }
                 else {
