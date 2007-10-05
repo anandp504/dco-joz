@@ -1,6 +1,6 @@
 #Template file for joz properties
 com.tumri.content.file.refreshInterval=5
-com.tumri.content.file.sourceDir=.
+com.tumri.content.file.sourceDir=/opt/joz/data/caa/current
 com.tumri.content.file.dataDir=data
 com.tumri.content.luceneDir=lucene
 #com.tumri.content.file.cacheEnabled=false
@@ -12,7 +12,7 @@ com.tumri.content.file.batchReadSize=5000
 com.tumri.content.file.batchReadInterval=1
 #Note that the com.tumri.campaign.file.sourceDir can be set to a comma separated list of directories that are all used to look for the tspec and mapping lisp files. 
 com.tumri.campaign.querycache.size=2000
-com.tumri.campaign.file.sourceDir=.
+com.tumri.campaign.file.sourceDir=/opt/joz/data/cma
 com.tumri.campaign.file.trigger.monitorInterval=5
 com.tumri.campaign.file.tspecFileNamePattern=t[-]*specs.lisp
 com.tumri.campaign.file.mappingFileNamePattern=mapping.lisp
