@@ -42,7 +42,7 @@ public class TransientDataManagerTest {
         String tSpecAddStr3 = "(t-spec-add :name ' |" + sampleTSpecName + "| :version -1 :include-categories '(|GLASSVIEW.TUMRI_99999| |GLASSVIEW.TUMRI_14209| |GLASSVIEW.TUMRI_14208| |GLASSVIEW.TUMRI_14214| |GLASSVIEW.TUMRI_14217| |GLASSVIEW.TUMRI_14227| ) :ref-price-constraints '(10.0 146.0) )";
         String tSpecAddStr4 = "(t-spec-add :name ' |" + sampleTSpecName4 + "| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14215| |GLASSVIEW.TUMRI_14209| |GLASSVIEW.TUMRI_14208| |GLASSVIEW.TUMRI_14214| |GLASSVIEW.TUMRI_14217| |GLASSVIEW.TUMRI_14227| ) :ref-price-constraints '(10.0 146.0) )";
         String tSpecAddStr5 = "(t-spec-add :name ' |" + sampleGeoTSpecName + "| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14215| |GLASSVIEW.TUMRI_14209| |GLASSVIEW.TUMRI_14208| |GLASSVIEW.TUMRI_14214| |GLASSVIEW.TUMRI_14217| |GLASSVIEW.TUMRI_14227| ) :ref-price-constraints '(10.0 146.0) )";
-        String[] tspecNameArray = {sampleTSpecName, sampleTSpecName2, sampleTSpecName3, sampleTSpecName4, sampleGeoTSpecName};
+        String[] tspecNameArray = {sampleTSpecName, sampleTSpecName2, sampleTSpecName, sampleTSpecName4, sampleGeoTSpecName};
         String[] strArray = {tSpecAddStr, tSpecAddStr2, tSpecAddStr3, tSpecAddStr4, tSpecAddStr5};
         for(int i=0; i<strArray.length; i++) {
             Sexp tspecMappingSexp = testProcessRequest(strArray[i]);
@@ -209,7 +209,9 @@ public class TransientDataManagerTest {
                 }
                 String tSpecGetStr = "(get-ad-data :url \" http://www.imd.com/sample\")";
                 OSpec oSpec = testTargetingRequest(tSpecGetStr);
-                assertNull(oSpec);
+                assertNotNull(oSpec);
+                OSpec defaultOSpec = CampaignDB.getInstance().getDefaultOSpec();
+                assertEquals(oSpec, defaultOSpec);
             }
             catch(TransientDataException e) {
                 e.printStackTrace();
@@ -230,7 +232,9 @@ public class TransientDataManagerTest {
         try {
             String tSpecGetStr = "(get-ad-data :url \" http://www.sample4.com/sample\")";
             OSpec oSpec = testTargetingRequest(tSpecGetStr);
-            assertNull(oSpec);
+                assertNotNull(oSpec);
+                OSpec defaultOSpec = CampaignDB.getInstance().getDefaultOSpec();
+                assertEquals(oSpec, defaultOSpec);
         }
         catch(TransientDataException e) {
             e.printStackTrace();

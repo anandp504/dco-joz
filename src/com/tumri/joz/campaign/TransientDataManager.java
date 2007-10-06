@@ -40,6 +40,7 @@ public class TransientDataManager {
     private RWLockedTreeMap<String, String>                                   nonGeocodeMapRequest = new RWLockedTreeMap<String, String>();
 
     private RWLockedTreeMap<Integer, Integer> oSpecAdPodMap = new RWLockedTreeMap<Integer, Integer>();
+    private RWLockedTreeMap<Integer, OSpec> originalOSpecMap = new RWLockedTreeMap<Integer, OSpec>();
 
     //This low bound is set this high so that the IDs assigned to transient objects doesnt collide with the database generated IDs for other objects
     private final static int lowBound  = 999000000;
@@ -209,9 +210,11 @@ public class TransientDataManager {
 
     public void addOSpec(OSpec oSpec) throws TransientDataException {
         //Check if the oSpec already exists
-//        if(campaignDB.getOspec(oSpec.getName()) != null) {
-//            throw new TransientDataException("Ospec for this name already Exists");
-//        }
+        if(campaignDB.getOspec(oSpec.getName()) != null && !oSpecNameLRUCache.containsKey(oSpec.getName())) {
+            //copy the original ospec object to temporary area, for being replaced later on once the delete-tspec is called
+            OSpec origOSpec = campaignDB.getOspec(oSpec.getName());
+            originalOSpecMap.safePut(origOSpec.getId(), origOSpec);
+        }
         int oSpecId = 0;
         if(oSpecNameLRUCache.containsKey(oSpec.getName())) {
             oSpecId = oSpecNameLRUCache.get(oSpec.getName()).getId();
@@ -573,6 +576,14 @@ public class TransientDataManager {
                     campaignDB.deleteLocation(location.getId());
                 } 
             }
+        }      
+        if(originalOSpecMap.containsKey(oSpec.getId())) {
+            originalOSpecMap.safeRemove(oSpec.getId());
+            campaignDB.deleteOSpec(oSpec.getName());
+            campaignDB.addOSpec(originalOSpecMap.safeGet(oSpec.getId()));
+        }
+        else {
+            campaignDB.deleteOSpec(oSpec.getName());
         }
 
     }

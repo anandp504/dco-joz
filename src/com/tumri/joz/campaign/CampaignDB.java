@@ -28,6 +28,7 @@ public abstract class CampaignDB {
 
     private String defaultRealmOSpecStr = "(t-spec-add :name '|T-SPEC-http://default-realm/| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14150| |GLASSVIEW.TUMRI_14137| ) :attr-inclusions '((PROVIDER |SHOPPING.COM| )) :ref-price-constraints '(NIL 180) )";
 
+    private OSpec defaultOSpec;
     private static CampaignDB campaignDB = CampaignDBCompleteRefreshImpl.getInstance(); //CampaignDBIncrementalRefreshImpl.getInstance();
 
     public static CampaignDB getInstance() {
@@ -65,6 +66,14 @@ public abstract class CampaignDB {
             defaultRealmOSpecStr = defaultOSpecStr;
         }
 
+        try {
+            defaultOSpec = SexpOSpecHelper.getOSpec(defaultRealmOSpecStr);
+        } catch (BadSexpException e) {
+            log.error("BadSexpException occured while reading default realm ospec from joz.properties file", e);
+        } catch (IOException e) {
+            log.error("IOExcpetion occured while reading default realm ospec from joz.properties file", e);
+        }
+
     }
 
     public String getDefaultRealmOSpecName() {
@@ -72,16 +81,7 @@ public abstract class CampaignDB {
     }
 
     public OSpec getDefaultOSpec() {
-        OSpec oSpec = null;
-
-        try {
-            oSpec = SexpOSpecHelper.getOSpec(defaultRealmOSpecStr);
-        } catch (BadSexpException e) {
-            log.error("BadSexpException occured while reading default realm ospec from joz.properties file", e);
-        } catch (IOException e) {
-            log.error("IOExcpetion occured while reading default realm ospec from joz.properties file", e);
-        }
-        return oSpec;
+        return defaultOSpec;
     }
 
     public abstract OSpec getOSpecForAdPod(int adPodId);
