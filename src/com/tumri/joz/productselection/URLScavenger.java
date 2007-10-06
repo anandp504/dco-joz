@@ -12,6 +12,7 @@ import com.tumri.joz.jozMain.AdDataRequest;
 
 /**
  * Class that holds the bizlogic for URL Scavenging 
+ * Note that this code does not handle unicode characters well 
  * @author nipun
  *
  */
@@ -98,6 +99,8 @@ public class URLScavenger {
 						builtUpKeywords.append(' ');
 						break;    
 					case StreamTokenizer.TT_NUMBER:
+						int num = (int)st.ttype;
+						builtUpKeywords.append(num);
 						break;
 					case ':':
 						break;
@@ -154,7 +157,7 @@ public class URLScavenger {
 					while (token != StreamTokenizer.TT_EOF) {
 						token = st.nextToken();
 						switch (token) {
-						case StreamTokenizer.TT_WORD:
+						case StreamTokenizer.TT_WORD :
 							// A word was found; the value is in sval
 							if (bQueryNameValue) {
 								String word = st.sval;
@@ -188,8 +191,22 @@ public class URLScavenger {
 							break;    
 						case '.':
 							builtUpKeywords.append(' ');
-							break;    
+							break;  
+						case '+':
+							builtUpKeywords.append(' ');
+							break;  
+						case '-':
+							builtUpKeywords.append(' ');
+							break;  
+						case '_':
+							builtUpKeywords.append(' ');
+							break;  
+						case '|':
+							builtUpKeywords.append(' ');
+							break;  
 						case StreamTokenizer.TT_NUMBER:
+							int num = (int)st.ttype;
+							builtUpKeywords.append(num);
 							break;
 						case ':':
 							break;
