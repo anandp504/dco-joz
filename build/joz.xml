@@ -99,7 +99,7 @@
         <mkdir dir="${stage.dir}/Joz"/>
 
         <!-- copy so it gets put into our jar -->
-        <copy file="${src.dir}/log4j.properties"
+        <copy file="${src.dir}/log4j.properties.template"
               todir="${stage.dir}/Joz"/>
 
         <jar destfile="${dist.dir}/joz.jar">
