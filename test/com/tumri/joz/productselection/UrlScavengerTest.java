@@ -17,7 +17,7 @@ public class UrlScavengerTest {
 
 	@Test
 	public void testURLScavenging() {
-		String queryStr = "(get-ad-data :url \"http://www.photography.com/camera/nikon\")";
+		String queryStr = "(get-ad-data :url \"http://www.photography.com/ni11,pun/camera/nikon?q=xyz\")";
 		try {
 			AdDataRequest rqst = createRequestFromCommandString(queryStr);
 			String keywords = URLScavenger.mineKeywords(rqst, null, null);
