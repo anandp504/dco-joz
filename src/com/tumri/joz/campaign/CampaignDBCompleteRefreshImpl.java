@@ -128,7 +128,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public void deleteOSpec(String oSpecName) {
-        ospecMap.get().safeRemove(ospecNameMap.get().safeGet(oSpecName).getId());
+        int id = ospecNameMap.get().safeGet(oSpecName).getId();
+        ospecMap.get().safeRemove(id);
         ospecNameMap.get().safeRemove(oSpecName);
     }
 
@@ -150,22 +151,24 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     public void addUrl(Url url) {
         urlMap.get().put(url.getId(), url);
-        urlNameMap.get().put(url.getName(), url);
+        urlNameMap.get().safePut(url.getName(), url);
     }
 
     public void deleteUrl(String urlName) {
-        urlMap.get().remove(urlNameMap.get().get(urlName).getId());
-        urlNameMap.get().remove(urlName);
+        int id = urlNameMap.get().safeGet(urlName).getId();
+        urlMap.get().safeRemove(id);
+        urlNameMap.get().safeRemove(urlName);
     }
 
     public void addTheme(Theme theme) {
-        themeMap.get().put(theme.getId(), theme);
-        themeNameMap.get().put(theme.getName(), theme);
+        themeMap.get().safePut(theme.getId(), theme);
+        themeNameMap.get().safePut(theme.getName(), theme);
     }
 
     public void deleteTheme(String themeName) {
-        themeMap.get().remove(themeNameMap.get().get(themeName).getId());
-        themeNameMap.get().remove(themeName);
+        int id = themeNameMap.get().safeGet(themeName).getId();
+        themeMap.get().safeRemove(id);
+        themeNameMap.get().safeRemove(themeName);
     }
 
     public void addLocation(Location location) {
@@ -185,8 +188,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public void addUrlMapping(UrlAdPodMapping urlAdPodMapping) {
-        Url url = urlMap.get().get(urlAdPodMapping.getUrlId());
-        AdPod adPod = adPodMap.get().get(urlAdPodMapping.getAdPodId());
+        Url url = urlMap.get().safeGet(urlAdPodMapping.getUrlId());
+        AdPod adPod = adPodMap.get().safeGet(urlAdPodMapping.getAdPodId());
         if(url != null && adPod != null) {
             String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
             adpodUrlMappingIndex.put(urlName, new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getUrlScore(), urlAdPodMapping.getWeight()));
@@ -213,7 +216,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public void addLocationMapping(LocationAdPodMapping mapping) {
-        Location location = locationMap.get().get(mapping.getLocationId());
+        Location location = locationMap.get().safeGet(mapping.getLocationId());
         AdPod adPod = adPodMap.get().safeGet(mapping.getAdPodId());
         if(location != null && adPod != null) {
             int locationId = location.getId();
