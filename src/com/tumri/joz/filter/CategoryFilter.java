@@ -62,7 +62,7 @@ public class CategoryFilter extends Filter<Handle> {
         }
       }
     } else {
-      log.error("Error in t-spec category not found in taxonomy "+parent);
+      log.warn("Error in t-spec category not found in taxonomy "+parent);
     }
   }
 
