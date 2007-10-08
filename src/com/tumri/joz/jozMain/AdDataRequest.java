@@ -420,7 +420,7 @@ public class AdDataRequest {
     
     private static final Integer DEFAULT_AD_HEIGHT = null;
     
-    private static final AdOfferType DEFAULT_AD_OFFER_TYPE = null;
+    private static final AdOfferType DEFAULT_AD_OFFER_TYPE = AdOfferType.PRODUCT_ONLY;
     
     private static final Integer DEFAULT_MIN_NUM_LEADGENS = null;
     
