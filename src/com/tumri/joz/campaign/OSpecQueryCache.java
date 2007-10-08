@@ -5,8 +5,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.log4j.Logger;
+
 import com.tumri.cma.domain.OSpec;
 import com.tumri.joz.Query.CNFQuery;
+import com.tumri.joz.Query.ConjunctQuery;
+import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.utils.AppProperties;
 
 /**
@@ -21,7 +25,7 @@ public class OSpecQueryCache {
     private static final int DEFAULT_MAX_CACHE_ENTRIES = 2000;
     private static final String CONFIG_OSPEC_CACHE_SIZE = "com.tumri.campaign.querycache.size";
     
-    
+    private static Logger log = Logger.getLogger (OSpecQueryCache.class);
 	private OSpecQueryCache() {
 		int cacheSize = DEFAULT_MAX_CACHE_ENTRIES;
 		try {
@@ -75,6 +79,12 @@ public class OSpecQueryCache {
 				if (oSpec!=null) {
 					query = OSpecQueryCacheHelper.getQuery(oSpec);
 					addToOSpecQueryCache(oSpecName, query);
+				} else {
+					log.warn("The targeted OSpec was not found in the cache : " + oSpecName);
+					//Adding an empty query as a safegaurd
+	                query = new CNFQuery();
+	                query.addQuery(new ConjunctQuery(new ProductQueryProcessor()));
+	                addToOSpecQueryCache(oSpecName, query);
 				}
 			}
 		}
@@ -132,6 +142,7 @@ public class OSpecQueryCache {
 		
 		OSpecLinkedHashMap(int cacheSize) {
 			super(cacheSize, 0.75f, true);
+			this.cacheSize = cacheSize;
 		}
 
 		OSpecLinkedHashMap() {
