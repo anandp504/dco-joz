@@ -18,5 +18,9 @@
   <div>
   	<a href="get-ad-data.jsp">get-ad-data</a>
   </div>
+  <br>
+  <div>
+  	<a href="content-status.jsp">show content status</a>
+  </div>
   </body>
 </html>
