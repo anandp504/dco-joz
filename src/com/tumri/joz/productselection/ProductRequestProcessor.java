@@ -342,6 +342,20 @@ public class ProductRequestProcessor {
 		if (offerType == null) {
 			return;
 		}
+		//If there are no queries in the selected tspec - do not add ad offer type
+		boolean bSimpleQueries = false;
+		ArrayList<ConjunctQuery> _conjQueryAL = m_tSpecQuery.getQueries();
+		for (int i=0;i<_conjQueryAL.size();i++) {
+			ConjunctQuery conjQuery = _conjQueryAL.get(0);
+			ArrayList<SimpleQuery> simpleQueryAL = conjQuery.getQueries();
+			if (simpleQueryAL.size()!=0) {
+				bSimpleQueries = true;
+				break;
+			}
+		}
+		if (!bSimpleQueries) {
+			return;
+		}
 		DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
 		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
