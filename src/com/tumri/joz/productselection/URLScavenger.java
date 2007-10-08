@@ -58,7 +58,7 @@ public class URLScavenger {
 				}
 			}
 		}
-		if (reqQueryNames != null) {
+		if ((reqQueryNames != null) && (!reqQueryNames.isEmpty())) {
 			return tmpScavenger.buildKeywordsUsingQueryNames(request, reqQueryNames);
 		}
 		StringBuilder builtUpKeywords = new StringBuilder();
@@ -140,9 +140,11 @@ public class URLScavenger {
 	private String buildKeywordsUsingQueryNames(AdDataRequest request, ArrayList<String> reqQueryNames) {
 		String publisherUrl = request.get_url();
 		StringBuilder builtUpKeywords = new StringBuilder();
-		if (reqQueryNames != null) {
+		if (reqQueryNames != null && publisherUrl !=null) {
 			//Select the keywords using the querynames - we can ignore everything until the first '?'
-			publisherUrl = publisherUrl.substring(publisherUrl.indexOf("?"), publisherUrl.length());
+			if (publisherUrl.indexOf("?") > -1) {
+				publisherUrl = publisherUrl.substring(publisherUrl.indexOf("?"), publisherUrl.length());
+			}
 			try {
 				if (publisherUrl!=null) {
 					StreamTokenizer st = new StreamTokenizer(new BufferedReader(new StringReader(publisherUrl)));
