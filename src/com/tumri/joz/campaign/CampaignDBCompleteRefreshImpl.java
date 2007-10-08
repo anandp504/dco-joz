@@ -199,8 +199,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public void addThemeMapping(ThemeAdPodMapping mapping) {
-        Theme theme = themeMap.get().get(mapping.getThemeId());
-        AdPod adPod = adPodMap.get().get(mapping.getAdPodId());
+        Theme theme = themeMap.get().safeGet(mapping.getThemeId());
+        AdPod adPod = adPodMap.get().safeGet(mapping.getAdPodId());
         if(theme != null && adPod != null) {
             String themeName = theme.getName();
             adpodThemeMappingIndex.put(themeName, new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getThemeScore(), mapping.getWeight()));
@@ -214,7 +214,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     public void addLocationMapping(LocationAdPodMapping mapping) {
         Location location = locationMap.get().get(mapping.getLocationId());
-        AdPod adPod = adPodMap.get().get(mapping.getAdPodId());
+        AdPod adPod = adPodMap.get().safeGet(mapping.getAdPodId());
         if(location != null && adPod != null) {
             int locationId = location.getId();
             adpodLocationMappingIndex.put(locationId, new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getLocationScore(), 1));
@@ -398,7 +398,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public OSpec getDefaultOSpec() {
-        OSpec oSpec = ospecNameMap.get().get(getDefaultRealmOSpecName());
+        OSpec oSpec = ospecNameMap.get().safeGet(getDefaultRealmOSpecName());
         if(oSpec == null) {
             oSpec = super.getDefaultOSpec();
         }
@@ -493,27 +493,23 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             return;
         }
         int oSpecCount = 0;
-        RWLockedTreeMap<Integer,OSpec> map = null;
-        ospecNameMap.get().writerLock();
-        try {
-            if(iterator.hasNext()) {
-                map = new RWLockedTreeMap<Integer,OSpec>();
-                while(iterator.hasNext()) {
-                    OSpec oSpec = iterator.next();
-                    map.put(oSpec.getId(), oSpec);
-                    ospecNameMap.get().put(oSpec.getName(), oSpec);
-                    oSpecCount++;
-                }
-            }
-            log.info("OSpec Size: " + oSpecCount);
+        RWLockedTreeMap<Integer,OSpec> map     = null;
+        RWLockedTreeMap<String,OSpec>  nameMap = null;
+        
+        if(iterator.hasNext()) {
+            map = new RWLockedTreeMap<Integer,OSpec>();
+            nameMap = new RWLockedTreeMap<String,OSpec>();
 
-        }
-        finally {
-            ospecNameMap.get().writerUnlock();
-        }
-        if(map != null) {
+            while(iterator.hasNext()) {
+                OSpec oSpec = iterator.next();
+                map.put(oSpec.getId(), oSpec);
+                nameMap.put(oSpec.getName(), oSpec);
+                oSpecCount++;
+            }
+            ospecNameMap.compareAndSet(ospecNameMap.get(), nameMap);
             ospecMap.compareAndSet(ospecMap.get(), map);
         }
+        log.info("OSpec Size: " + oSpecCount);
     }
 
     public void loadAdPodOSpecMapping(Iterator<Pair<Integer, Integer>> iterator) {
@@ -561,7 +557,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
             while(iterator.hasNext()) {
                 Geocode geocode = iterator.next();
-                geocodeMap.get().put(geocode.getId(), geocode);
+                geocodeMap.get().safePut(geocode.getId(), geocode);
                 List<String> countries = geocode.getCountries();
                 if(countries != null) {
                     Handle handle = addAdPodHandle(countryHandlesMap, geocode.getAdPodId(), TargetingScoreHelper.getInstance().getCountryScore());
@@ -651,10 +647,10 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         Handle handle = handlesMap.get(adPodId);
         if(handle == null) {
             if(adPodMap.get() != null) {
-                AdPod adPod = adPodMap.get().get(adPodId);
+                AdPod adPod = adPodMap.get().safeGet(adPodId);
                 if(adPod != null) {
                     handle = new AdPodHandle(adPod.getId(), score);
-                    handlesMap.put(adPodId, handle);
+                    handlesMap.safePut(adPodId, handle);
                 }
                 else {
                     //Adpod not found, some inconsistency caused this. The geocode mapping for that particular adpod will
@@ -733,8 +729,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list;
             while(iterator.hasNext()) {
                 UrlAdPodMapping urlAdPodMapping = iterator.next();
-                url = urlMap.get().get(urlAdPodMapping.getUrlId());
-                adPod = adPodMap.get().get(urlAdPodMapping.getAdPodId());
+                url = urlMap.get().safeGet(urlAdPodMapping.getUrlId());
+                adPod = adPodMap.get().safeGet(urlAdPodMapping.getAdPodId());
                 if(url != null && adPod != null) {
                     String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
                     list = urlAdPodMap.get(urlName);
@@ -776,8 +772,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
             while(iterator.hasNext()) {
                 ThemeAdPodMapping themeAdPodMapping = iterator.next();
-                theme = themeMap.get().get(themeAdPodMapping.getThemeId());
-                adPod = adPodMap.get().get(themeAdPodMapping.getAdPodId());
+                theme = themeMap.get().safeGet(themeAdPodMapping.getThemeId());
+                adPod = adPodMap.get().safeGet(themeAdPodMapping.getAdPodId());
                 if(theme != null && adPod != null) {
                     list = themeAdPodMap.get(theme.getName());
                     if(list == null) {
@@ -810,8 +806,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Handle> list;
             while(iterator.hasNext()) {
                 LocationAdPodMapping locationAdPodMapping = iterator.next();
-                adPod = adPodMap.get().get(locationAdPodMapping.getAdPodId());
-                location = locationMap.get().get(locationAdPodMapping.getLocationId());
+                adPod = adPodMap.get().safeGet(locationAdPodMapping.getAdPodId());
+                location = locationMap.get().safeGet(locationAdPodMapping.getLocationId());
                 if(location != null && adPod != null) {
                     list = locationAdPodMap.get(locationAdPodMapping.getLocationId());
                     if(list == null) {
