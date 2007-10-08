@@ -86,6 +86,14 @@ public class CMAContentPoller {
 	}
 
 	/**
+	 * Shutdown the timer task
+	 *
+	 */
+	public void shutdown() {
+		_timer.cancel();
+	}
+	
+	/**
 	 * Start the timer.
 	 */
     private void startTimer()

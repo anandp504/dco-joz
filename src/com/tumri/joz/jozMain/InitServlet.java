@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
+import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.utils.Polling;
 
 public class InitServlet extends HttpServlet {
@@ -50,7 +51,8 @@ public class InitServlet extends HttpServlet {
     
     @Override
     public void destroy() {
-        Polling.getInstance().shutdown();        
+        Polling.getInstance().shutdown();  
+        CMAContentPoller.getInstance().shutdown();
     }
     
     private static String getLog4JConfigFilePath() {
