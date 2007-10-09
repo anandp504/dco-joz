@@ -167,20 +167,18 @@ public class TargetingRequestProcessor {
             totalWeight += list.get(i).getWeight();
         }
 
-//        if(totalWeight == 0) {
-//            //Invalid weight assigned to the mappings. Overriding with equal weight for all the adpods
-//            for(int i=0; i<list.size(); i++) {
-//                weightArray[i] = 1;
-//                totalWeight += list.get(i).getWeight();
-//            }
-//        }
+        if(totalWeight == 0) {
+            //Invalid weight assigned to the mappings. Overriding with equal weight for all the adpods
+            for(int i=0; i<list.size(); i++) {
+                totalWeight += 1;
+            }
+        }
         try {
             weightRatio = new Random().nextInt(totalWeight);
         }
         catch(IllegalArgumentException e) {
             weightRatio = 0;
-            e.printStackTrace();
-            log.error("Calculated totalWeight was not positive. totalWeight:" + totalWeight);
+            log.warn("Calculated totalWeight was not positive. totalWeight:" + totalWeight);
         }
         Arrays.sort(weightArray);
         int additionFactor = 0;

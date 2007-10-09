@@ -48,12 +48,21 @@ public class ProductRequestProcessor {
 	private boolean m_productLeadgenRequest = false;
 	private boolean m_revertToDefaultRealm = false;
 	private HashMap<String, String> m_jozFeaturesMap = new HashMap<String, String>();
-
+	
+	private static Integer g_productTypeLeadgen = null;
+	private static Integer g_productTypeProduct = null;
+	
 	/**
 	 * Default constructor
 	 *
 	 */
 	public ProductRequestProcessor() {
+		if (g_productTypeLeadgen == null) {
+			g_productTypeLeadgen = com.tumri.content.data.dictionary.DictionaryManager.getId (IProduct.Attribute.kProductType, "LEADGEN");
+		}
+		if (g_productTypeProduct == null) {
+			g_productTypeProduct = com.tumri.content.data.dictionary.DictionaryManager.getId (IProduct.Attribute.kProductType, "Product");
+		}
 	}
 
 
@@ -172,6 +181,7 @@ public class ProductRequestProcessor {
 				resultAL.addAll(backFillProds);
 			}
 
+			
 			//9. Cull the result by num products
 			if ((resultAL!=null) && (m_NumProducts!=null) && (resultAL.size() > m_NumProducts)){
 				while(resultAL.size() > m_NumProducts){
@@ -524,13 +534,14 @@ public class ProductRequestProcessor {
 	}
 
 	/**
-	 * Returns the included products if the oSpec has included products
+	 * Returns the sorted set of included products if the oSpec has included products
 	 * @param ospec
 	 * @return
 	 */
 	private ArrayList<Handle> getIncludedProducts(OSpec ospec) {
+		ArrayList<Handle> leadGenAL = new ArrayList<Handle>();
+		ArrayList<Handle> prodsAL = new ArrayList<Handle>();
 		List<TSpec> tspeclist = ospec.getTspecs();
-		ArrayList<Handle> prodList = null;
 		for (TSpec tspec : tspeclist) {
 			List<ProductInfo> prodInfoList = tspec.getIncludedProducts();
 			if (prodInfoList!=null) {
@@ -543,13 +554,13 @@ public class ProductRequestProcessor {
 							Handle prodHandle = null;
 							if (iProdHandle != null) {
 								prodHandle = iProdHandle.getHandle();
-							}
-							if (prodHandle!=null){
-								if (prodList==null) {
-									prodList = new ArrayList<Handle>();
+								if (iProdHandle.getProductType().equals(g_productTypeLeadgen) ) {
+									leadGenAL.add(prodHandle);
+								} else {
+									prodsAL.add(prodHandle);
 								}
-								prodList.add(prodHandle);
 							}
+
 						}
 					} catch(Exception e) {
 						log.error("Could not get the product info from the Product DB");
@@ -558,6 +569,8 @@ public class ProductRequestProcessor {
 				}
 			}
 		}
-		return prodList;
+		
+		leadGenAL.addAll(prodsAL);
+		return leadGenAL;
 	}
 }
