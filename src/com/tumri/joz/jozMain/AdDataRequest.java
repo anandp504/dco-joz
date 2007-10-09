@@ -203,7 +203,16 @@ public class AdDataRequest {
     public String get_zip_code() {
         return _zip_code;
     }
-    
+
+
+    public String getTargetedRealm() {
+        return targetedRealm;
+    }
+
+    public void setTargetedRealm(String targetedRealm) {
+        this.targetedRealm = targetedRealm;
+    }
+
     public String toString() {
         return toString(false);
     }
@@ -515,6 +524,8 @@ public class AdDataRequest {
     String _dmacode;
     
     String _areacode;
+
+    String targetedRealm = "";
     
     private void parse_request(Sexp expr) throws BadCommandException {
         if (!expr.isSexpList())

@@ -158,20 +158,9 @@ public class CmdGetAdData extends CommandOwnWriting {
         if (ospec != null) {
             targetedOSpecName = ospec.getName();
         }
-		//TODO: The targeting requestProcessor should add the storeid and realm to the features list. 
-        String locationIdStr = rqst.get_store_id();
-        String themeName     = rqst.get_theme();
-        String urlName       = rqst.get_url();
-        
-        if (locationIdStr!=null && !"".equals(locationIdStr)) {
-        	targetedRealm = locationIdStr;
-        } else if (themeName!=null && !"".equals(themeName)) {
-        	targetedRealm = themeName;
-        } else if (urlName!=null && !"".equals(urlName)) {
-        	targetedRealm =  urlName;
-        }
-        
-        write_elm(w, "REALM", targetedRealm); // FIXME: wip
+		//@todo: The targeting and product requestProcessor should add the data to response object. So that piece of code
+        //needs to be refactored across the request processors
+        write_elm(w, "REALM", rqst.getTargetedRealm()); // FIXME: wip
         write_elm(w, "STRATEGY", targetedOSpecName); // FIXME: wip
         
         write_elm(w, "IS-PRIVATE-LABEL-P", (private_label_p ? "t" : "nil"));

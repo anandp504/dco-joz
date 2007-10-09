@@ -47,6 +47,9 @@ public class TargetingRequestProcessor {
             }
             else {
                 oSpec = doSiteTargeting(request);
+                if(oSpec != null) {
+                    setTargetedRealm(request);
+                }
             }
         }
         catch(Throwable t) {
@@ -60,6 +63,9 @@ public class TargetingRequestProcessor {
             boolean revertToDefaultRealm = (request.get_revert_to_default_realm() != null) && request.get_revert_to_default_realm().booleanValue();
             if(revertToDefaultRealm) {
                 oSpec = CampaignDB.getInstance().getDefaultOSpec();
+                //@todo: This should be fixed the default-realm should come from properties file and not hard-coded here
+                //also the targetedRealm should be set in response object and not request.
+                request.setTargetedRealm("http://default-realm/");
             }
         }
         }
@@ -72,10 +78,31 @@ public class TargetingRequestProcessor {
         long endTime =  System.nanoTime();
         long totalTargetingTime = endTime - startTime;
 
+
         log.info(request.toString(true));
         log.info("Targeting Processing time: " + (totalTargetingTime/1000) + " usecs");
         log.info("Passing OSpec To Product Selection Processor: " + ((oSpec == null)? null: oSpec.getName()));
         return oSpec;
+    }
+
+    //@todo: We should use a response object across all the requestprocessor. Currently we are adding
+    //targetedRealm to the request object itself, which should soon be refactored to use response objects across
+    //the whole flow of get-ad-data request
+    private void setTargetedRealm(AdDataRequest request) {
+        String locationIdStr = request.get_store_id();
+        String themeName     = request.get_theme();
+        String urlName       = request.get_url();
+        String targetedRealm = null;
+        if(locationIdStr != null && !"".equals(locationIdStr)) {
+            targetedRealm = locationIdStr;
+        }
+        else if(urlName != null && !"".equals(urlName)) {
+            targetedRealm = urlName;
+        }
+        else if(themeName != null && !"".equals(themeName)) {
+            targetedRealm = themeName;
+        }
+        request.setTargetedRealm(targetedRealm);
     }
 
     private OSpec doSiteTargeting(AdDataRequest request) {
