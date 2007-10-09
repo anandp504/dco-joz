@@ -14,7 +14,7 @@ com.tumri.content.file.batchReadInterval=1
 com.tumri.campaign.querycache.size=2000
 com.tumri.campaign.file.sourceDir=/opt/joz/data/cma
 com.tumri.campaign.file.trigger.monitorInterval=5
-com.tumri.campaign.file.tspecFileNamePattern=t[-]*specs.lisp
+com.tumri.campaign.file.tspecFileNamePattern=t-specs.lisp
 com.tumri.campaign.file.mappingFileNamePattern=mapping.lisp
 com.tumri.campaign.file.refresh.time.minutes=40
 com.tumri.campaign.file.refresh.interval.minutes=60
@@ -26,21 +26,21 @@ com.tumri.campaign.file.polling.mode=calendar
 #com.tumri.content.file.merchant_data.dataDir=
 
 #Targeting related score
-com.tumri.targeting.locationScore = 1.0;
-com.tumri.targeting.themeScore    = 0.9;
-com.tumri.targeting.urlScore      = 0.8;
-com.tumri.targeting.defaultScore  = 0.1;
-com.tumri.targeting.countryScore  = 0.75;
-com.tumri.targeting.regionScore   = 0.80;
-com.tumri.targeting.cityScore     = 0.85;
-com.tumri.targeting.zipcodeScore  = 1.0;
-com.tumri.targeting.dmacodeScore  = 0.95;
-com.tumri.targeting.areacodeScore = 0.90;
+com.tumri.targeting.locationScore = 1.0
+com.tumri.targeting.themeScore    = 0.9
+com.tumri.targeting.urlScore      = 0.8
+com.tumri.targeting.defaultScore  = 0.1
+com.tumri.targeting.countryScore  = 0.75
+com.tumri.targeting.regionScore   = 0.80
+com.tumri.targeting.cityScore     = 0.85
+com.tumri.targeting.zipcodeScore  = 1.0
+com.tumri.targeting.dmacodeScore  = 0.95
+com.tumri.targeting.areacodeScore = 0.90
 
-com.tumri.targeting.runOfNetworkScore  = 0.2;
-com.tumri.targeting.runOfNetworkWeight = 1;
-com.tumri.targeting.geoNoneScore       = 0.2;
-com.tumri.targeting.geoNoneWeight      = 1;
+com.tumri.targeting.runOfNetworkScore  = 0.2
+com.tumri.targeting.runOfNetworkWeight = 1
+com.tumri.targeting.geoNoneScore       = 0.2
+com.tumri.targeting.geoNoneWeight      = 1
 
 #JoZ uses the property below to load all the campaign data based on the region specified
 #For UK change the value below to UK
