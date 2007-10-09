@@ -37,8 +37,7 @@
   	</div>
   	<br>
   	<div id="links">
-		<strong>get-ad-data call statistics</strong><br>
-		since : <%=(pms.getStartDate()).toString()%>
+		<strong>get-ad-data call statistics</strong> &nbsp;&nbsp;&nbsp since : <%=(pms.getStartDate()).toString()%>
 	</div>
 	<br>
 	<div>
@@ -60,6 +59,7 @@
 		Tspec Name = <%=(0!=totalReqs)?maxTimedTspecName:""%> <br>
 		Time = <%=(0!=totalReqs)?(maxRequestTime/1000000):0%> ms
 	</div>
+	<br>
 	<div>
 		<strong>Average call performance:&nbsp;&nbsp;&nbsp <%=(0!=totalReqs)?(aveReqTime/1000000):0%> ms </strong><br>
 	</div>
