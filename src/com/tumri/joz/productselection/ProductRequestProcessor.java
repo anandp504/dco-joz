@@ -160,10 +160,10 @@ public class ProductRequestProcessor {
 
 			//7.Add leadgens if needed
 			if (m_productLeadgenRequest) {
-				Integer numLeadGenProds = request.get_min_num_leadgens();
+				Integer minNumLeadGenProds = request.get_min_num_leadgens();
 				Integer adHeight = request.get_ad_height();
 				Integer adWeight = request.get_ad_width();
-				ArrayList<Handle> leadGenAL = getLeadGenProducts(numLeadGenProds, adHeight, adWeight);
+				ArrayList<Handle> leadGenAL = getLeadGenProducts(minNumLeadGenProds, adHeight, adWeight);
 				//Append to the top of the results
 				resultAL.addAll(leadGenAL);
 			}
@@ -524,8 +524,12 @@ public class ProductRequestProcessor {
 			clonedTSpecQuery.addSimpleQuery(adWidthQuery);
 		}
 		int numLeadGens = 1;
-		if (minNumLeadGenProds!=null){
-			numLeadGens = minNumLeadGenProds.intValue();
+		if (minNumLeadGenProds!=null && m_pageSize !=null){
+			if (m_pageSize >= minNumLeadGenProds) {
+				numLeadGens = m_pageSize.intValue();
+			} else {
+				numLeadGens = minNumLeadGenProds.intValue();
+			}
 		}
 		clonedTSpecQuery.setBounds(numLeadGens, 0);
 		SortedSet<Handle> qResult = clonedTSpecQuery.exec();
