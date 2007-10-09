@@ -24,11 +24,8 @@ public abstract class CampaignDB {
 
     private static Logger log = Logger.getLogger (CampaignDB.class);
 
-    private String defaultRealmOSpecName = "T-SPEC-http://default-realm/";
+    private String defaultRealmName = "http://default-realm/";
 
-    private String defaultRealmOSpecStr = "(t-spec-add :name '|T-SPEC-http://default-realm/| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14150| |GLASSVIEW.TUMRI_14137| ) :attr-inclusions '((PROVIDER |SHOPPING.COM| )) :ref-price-constraints '(NIL 180) )";
-
-    private OSpec defaultOSpec;
     private static CampaignDB campaignDB = CampaignDBCompleteRefreshImpl.getInstance(); //CampaignDBIncrementalRefreshImpl.getInstance();
 
     public static CampaignDB getInstance() {
@@ -36,53 +33,30 @@ public abstract class CampaignDB {
     }
 
     protected void initialize() {
-        String defaultOSpecName = null;
+        String realmName = null;
         try {
-            defaultOSpecName = AppProperties.getInstance().getProperty("com.tumri.targeting.default.realm.ospec.name");
+            realmName = AppProperties.getInstance().getProperty("com.tumri.targeting.default.realm.name");
         }
         catch(NullPointerException e) {
             //ignore the error and pick the default realm name specified specified in java class instead
+            log.warn("Default realm name not specified joz.properties file", e);
         }
         catch(Exception e) {
             //ignore the error and pick the default realm name specified specified in java class instead
+            log.warn("Default realm name not specified joz.properties file", e);
         }
 
-        if(defaultOSpecName != null && !("".equals(defaultOSpecName))) {
-            defaultRealmOSpecName = defaultOSpecName;
+        if(realmName != null && !("".equals(realmName))) {
+            defaultRealmName = realmName;
         }
-
-        String defaultOSpecStr = null;
-        try {
-            defaultOSpecStr = AppProperties.getInstance().getProperty("com.tumri.targeting.default.realm.ospec.string");
-        }
-        catch(NullPointerException e) {
-            //ignore the error and pick the default realm specified specified in java class instead
-        }
-        catch(Exception e) {
-            //ignore the error and pick the default realm specified specified in java class instead
-        }
-
-        if(defaultOSpecStr != null && !("".equals(defaultOSpecStr))) {
-            defaultRealmOSpecStr = defaultOSpecStr;
-        }
-
-        try {
-            defaultOSpec = SexpOSpecHelper.getOSpec(defaultRealmOSpecStr);
-        } catch (BadSexpException e) {
-            log.error("BadSexpException occured while reading default realm ospec from joz.properties file", e);
-        } catch (IOException e) {
-            log.error("IOExcpetion occured while reading default realm ospec from joz.properties file", e);
-        }
-
     }
 
-    public String getDefaultRealmOSpecName() {
-        return defaultRealmOSpecName;
+
+    public String getDefaultRealmName() {
+        return defaultRealmName;    
     }
 
-    public OSpec getDefaultOSpec() {
-        return defaultOSpec;
-    }
+    public abstract OSpec getDefaultOSpec();
 
     public abstract OSpec getOSpecForAdPod(int adPodId);
 

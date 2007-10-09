@@ -72,6 +72,9 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private AtomicAdpodIndex<String, Handle>  adpodGeoAreacodeIndex     = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAreaCode));
     private AtomicAdpodIndex<String, Handle>  adpodGeoZipcodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kZipCode));
 
+    private static final String DEFAULT_REALM_NAME = "http://default-realm/";
+    private OSpec defaultOSpec;
+
     private CampaignDBCompleteRefreshImpl() {
         initialize();
     }
@@ -115,6 +118,10 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     public OSpec getOspec(String name) {
         OSpec oSpec = ospecNameMap.get().safeGet(name);
         return oSpec;
+    }
+
+    public OSpec getDefaultOSpec() {
+        return defaultOSpec;
     }
 
     //@todo: look into possible concurrency issue in exposing the values objects to the client
@@ -398,14 +405,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 }
             }
         }
-    }
-
-    public OSpec getDefaultOSpec() {
-        OSpec oSpec = ospecNameMap.get().safeGet(getDefaultRealmOSpecName());
-        if(oSpec == null) {
-            oSpec = super.getDefaultOSpec();
-        }
-        return oSpec;
     }
 
     public void loadCampaigns(Iterator<Campaign> iterator) {
@@ -730,11 +729,19 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             Url url;
             AdPod adPod;
             List<Handle> list;
+            boolean defaultOSpecFound = false;
             while(iterator.hasNext()) {
                 UrlAdPodMapping urlAdPodMapping = iterator.next();
                 url = urlMap.get().safeGet(urlAdPodMapping.getUrlId());
                 adPod = adPodMap.get().safeGet(urlAdPodMapping.getAdPodId());
                 if(url != null && adPod != null) {
+                    //This is a special case where we check for the mapping for default realm url. If the mapping is found we
+                    //set the default ospec as per adpod id in the mapping.
+                    //The assumption here is that the default-realm url will always be present with a valid mapping to a tspec
+                    if(DEFAULT_REALM_NAME.equals(url.getName())) {
+                        defaultOSpec = ospecMap.get().safeGet(adPodOSpecMap.get().safeGet(adPod.getId()));
+                        defaultOSpecFound = true;
+                    }
                     String urlName = UrlNormalizer.getNormalizedUrl(url.getName());
                     list = urlAdPodMap.get(urlName);
                     if(list == null) {
@@ -755,6 +762,9 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                     // url or adpod will not be added to index.
                     log.error("The Url or Adpod was not found in the urlMap/adPodMap when looking it up while creating url-adpod-mapping Indexes");
                 }
+            }
+            if(!defaultOSpecFound) {
+                defaultOSpec = null;
             }
             index.put(urlAdPodMap);
             adpodUrlMappingIndex.set(index);
