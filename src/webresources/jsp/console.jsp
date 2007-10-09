@@ -4,23 +4,33 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Joz Console Home Page</title>
   </head>
+
   <body>
   <div id="desc">
   	<strong>Joz Console Ver 0.1</strong>
   	<hr/>
   </div>
   <br>
+
   <div id="links">
   	<strong>Commands</strong>
   </div>
   <br>
   <br>
+
   <div>
   	<a href="get-ad-data.jsp">get-ad-data</a>
   </div>
   <br>
+
   <div>
   	<a href="content-status.jsp">show content status</a>
   </div>
+  <br>
+
+  <div>
+    	<a href="performance-stat.jsp">performance statistics</a>
+  </div>
   </body>
+
 </html>
