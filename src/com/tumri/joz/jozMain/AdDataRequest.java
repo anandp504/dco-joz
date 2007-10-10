@@ -579,11 +579,11 @@ public class AdDataRequest {
                         break;
                     
                     case STORE_ID:
-                        this._store_id = SexpUtils.get_next_string(name, iter);
+                    	this._store_id = SexpUtils.get_next_string_or_symbol(name, iter);
                         break;
                     
                     case CATEGORY:
-                        this._category = SexpUtils.get_next_string(name, iter);
+                        this._category = SexpUtils.get_next_string_or_symbol(name, iter);
                         break;
                     
                     case T_SPEC:
@@ -591,7 +591,7 @@ public class AdDataRequest {
                         break;
                         
                     case STRATEGY:
-                        this._t_spec = SexpUtils.get_next_string(name, iter);
+                        this._t_spec = SexpUtils.get_next_string_or_symbol(name, iter);
                         break;
                         
                     case REFERRER:
