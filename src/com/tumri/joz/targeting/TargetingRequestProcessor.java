@@ -52,6 +52,9 @@ public class TargetingRequestProcessor {
                 }
             }
         }
+        catch(NumberFormatException e){
+        	log.warn("Invalid value specified for the location : " + e.getMessage());
+        }
         catch(Throwable t) {
             //It is critical to catch any unexpected error so that the JoZ server doesnt exit
             log.error("Targeting layer: unxepected error. Owner need to look into the issue", t);
@@ -65,7 +68,6 @@ public class TargetingRequestProcessor {
                 oSpec = CampaignDB.getInstance().getDefaultOSpec();
                 //@todo: This should be fixed the default-realm should come from properties file and not hard-coded here
                 //also the targetedRealm should be set in response object and not request.
-                request.setTargetedRealm("http://default-realm/");
             }
         }
         }
@@ -78,6 +80,9 @@ public class TargetingRequestProcessor {
         long endTime =  System.nanoTime();
         long totalTargetingTime = endTime - startTime;
 
+        if (request.getTargetedRealm() == null || "".equals(request.getTargetedRealm())) {
+            request.setTargetedRealm("http://default-realm/");
+        }
 
         log.info(request.toString(true));
         log.info("Targeting Processing time: " + (totalTargetingTime/1000) + " usecs");
