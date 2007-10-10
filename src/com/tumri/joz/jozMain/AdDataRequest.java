@@ -333,7 +333,9 @@ public class AdDataRequest {
     private static Logger log = Logger.getLogger(AdDataRequest.class);
     
     private enum RqstParam {
-        URL, THEME, STORE_ID, CATEGORY, T_SPEC, STRATEGY, REFERRER, ZIP_CODE, NUM_PRODUCTS, ROW_SIZE, WHICH_ROW, REVERT_TO_DEFAULT_REALM, KEYWORDS, SCRIPT_KEYWORDS, INCLUDE_CAT_COUNTS, SEED, PSYCHOGRAPHICS_P, MINE_PUB_URL_P, ALLOW_TOO_FEW_PRODUCTS, AD_WIDTH, AD_HEIGHT, AD_OFFER_TYPE, MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE
+        URL, THEME, STORE_ID, CATEGORY, T_SPEC, STRATEGY, REFERRER, ZIP_CODE, NUM_PRODUCTS, ROW_SIZE, WHICH_ROW, REVERT_TO_DEFAULT_REALM, KEYWORDS, 
+        SCRIPT_KEYWORDS, INCLUDE_CAT_COUNTS, SEED, PSYCHOGRAPHICS_P, MINE_PUB_URL_P, ALLOW_TOO_FEW_PRODUCTS, AD_WIDTH, AD_HEIGHT, AD_OFFER_TYPE, 
+        MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE, LATITUDE, LONGITUDE,
     }
     
     private static HashMap<String, RqstParam> rqst_params = new HashMap<String, RqstParam>();
@@ -375,6 +377,8 @@ public class AdDataRequest {
         rqst_params.put(":dma", RqstParam.DMACODE);
         rqst_params.put(":area-code", RqstParam.AREACODE);
         rqst_params.put(":zip-code", RqstParam.ZIP_CODE);
+        rqst_params.put(":latitude", RqstParam.LATITUDE);
+        rqst_params.put(":longitude", RqstParam.LONGITUDE);
     }
     
     // WARNING: If the default value is not null, you're probably doing
@@ -396,6 +400,10 @@ public class AdDataRequest {
     private static final String DEFAULT_REFERRER = null;
     
     private static final String DEFAULT_ZIP_CODE = null;
+    
+    private static final String DEFAULT_LATITUDE = null;
+    
+    private static final String DEFAULT_LONGITUDE = null;
     
     private static final Integer DEFAULT_NUM_PRODUCTS = null;
     
@@ -457,6 +465,10 @@ public class AdDataRequest {
     String _referrer = DEFAULT_REFERRER;
     
     String _zip_code = DEFAULT_ZIP_CODE;
+    
+    String _latitude = DEFAULT_LATITUDE;
+    
+    String _longitude = DEFAULT_LONGITUDE;
     
     // "all" means return all products
     Integer _num_products = DEFAULT_NUM_PRODUCTS;
@@ -700,6 +712,14 @@ public class AdDataRequest {
                     case ZIP_CODE:
                         this._zip_code = SexpUtils.get_next_string(name, iter);
                         break;
+                        
+                    case LATITUDE:
+                        this._latitude = SexpUtils.get_next_string(name, iter);
+                        break;
+                        
+                    case LONGITUDE:
+                        this._longitude = SexpUtils.get_next_string(name, iter);
+                        break;   
                     
                     default:
                         log
