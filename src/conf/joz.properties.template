@@ -50,6 +50,7 @@ com.tumri.targeting.default.realm.ospec.name = T-SPEC-http://default-realm/
 
 com.tumri.targeting.default.realm.ospec.string = (t-spec-add :name '|T-SPEC-http://default-realm/| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14150| |GLASSVIEW.TUMRI_14137| ) :attr-inclusions '((PROVIDER |SHOPPING.COM| )) :ref-price-constraints '(NIL 180) )
 
+com.tumri.targeting.default.realm.name = http://default-realm/
 #CMA specific properties
 
 # Data Source type can be either SIMPLE or JNDI
