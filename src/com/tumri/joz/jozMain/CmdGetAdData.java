@@ -372,7 +372,7 @@ public class CmdGetAdData extends CommandOwnWriting {
                 b.append(",");
             int id = h.getOid();
             IProduct p = pdb.get(id);
-            b.append(p.getGId());
+            b.append(p.getIdSymbol());
             done_one = true;
         }
         
