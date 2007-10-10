@@ -35,6 +35,7 @@ import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.keywordServer.ProductIndex;
+import com.tumri.joz.utils.LogUtils;
 import com.tumri.utils.data.SortedArraySet;
 
 /**
@@ -50,6 +51,7 @@ public class ContentHelper implements ContentListener {
         try {
             load(getContentProvider());
         } catch (InvalidConfigException e) {
+            LogUtils.getFatalLog().fatal("Error during initialization of content",e);
             log.error("Error during initialization of content",e);
         }
     }
@@ -58,6 +60,7 @@ public class ContentHelper implements ContentListener {
         try {
             load(getContentProvider(file));
         } catch (InvalidConfigException e) {
+            LogUtils.getFatalLog().fatal("Error during initialization of content",e);
             log.error("Error during initialization of content",e);
         }
     }
@@ -66,6 +69,7 @@ public class ContentHelper implements ContentListener {
         try {
             load(getContentProvider(props));
         } catch (InvalidConfigException e) {
+            LogUtils.getFatalLog().fatal("Error during initialization of content",e);
             log.error("Error during initialization of content",e);
         }
     }
@@ -271,8 +275,8 @@ public class ContentHelper implements ContentListener {
             initTaxonomyDatabase(data);
             initProductsDatabase(data);
         } catch (InvalidConfigException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Error while updating content",e);
+            LogUtils.getFatalLog().error("Error while updating content",e);
         }
     }
     

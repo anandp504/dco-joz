@@ -10,6 +10,7 @@ import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.campaign.CMAContentRefreshMonitor;
 import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.LogUtils;
 
 public class JozData {
     
@@ -53,7 +54,6 @@ public class JozData {
 
     // implementation details -------------------------------------------------
     private static Logger log = Logger.getLogger(JozData.class);
-    private static Logger fatallog = Logger.getLogger("fatal");
     
     protected static void loadContent(Properties props) {
         ContentHelper.init(props);
@@ -71,10 +71,10 @@ public class JozData {
             CMAContentPoller.getInstance().init();
         } catch (Exception e) {
             log.error("Exception caught during the campaign data load");
-            fatallog.fatal("Exception caught during campaign data load", e);
+            LogUtils.getFatalLog().fatal("Exception caught during campaign data load", e);
         } catch (Throwable t) {
             log.error("Unexpected runtime exception during the campaign data load");
-            fatallog.fatal("Unexpected runtime exception during the campaign data load", t);
+            LogUtils.getFatalLog().fatal("Unexpected runtime exception during the campaign data load", t);
         }
     }
     

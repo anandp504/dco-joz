@@ -72,24 +72,29 @@ public class AppProperties {
   private static InputStream getInputStream() {
     InputStream is =  AppProperties.class.getClassLoader().getResourceAsStream(g_AppPropertyFile);
     if (is == null) {
-      log.error("Could not locate the resource file "+g_AppPropertyFile + ". Will try using catalina.base property if its tomcat");
+      log.debug("Could not locate the resource file "+g_AppPropertyFile + ". Will try using catalina.base property if its tomcat");
       String catalinaBase = System.getProperty("catalina.base");
       if (catalinaBase != null) {
           String confFile = catalinaBase + File.separator + "conf" + File.separator + g_AppPropertyFile;
           try {
               is = new FileInputStream(confFile);
           } catch (FileNotFoundException ex) {
-              log.error("Could not locate the resource file "+g_AppPropertyFile + "in tomcat conf directory. Will try ../conf");
+              log.debug("Could not locate the resource file "+g_AppPropertyFile + "in tomcat conf directory. Will try ../conf");
           }
       } else {
-          log.error("Could not locate the resource file "+g_AppPropertyFile + " in tomcat as catalina.base is not defined. Will try ../conf");
+          log.debug("Could not locate the resource file "+g_AppPropertyFile + " in tomcat as catalina.base is not defined. Will try ../conf");
       }
       if (is == null) {
           try {
               is =  new FileInputStream("../conf/" + g_AppPropertyFile);
           } catch (FileNotFoundException ex) {
-              log.error("Couldn't find file " + g_AppPropertyFile + " in ../conf directory. Failing.");
+              log.debug("Couldn't find file " + g_AppPropertyFile + " in ../conf directory. Failing.");
           }
+      }
+      if (is == null) {
+          String message = "Couldn't locate resource file " + g_AppPropertyFile + " in classpath, catalina.base/conf or ../conf directory.";
+          log.error(message);
+          LogUtils.getFatalLog().fatal(message);
       }
     } 
     

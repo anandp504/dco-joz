@@ -7,6 +7,7 @@ import java.util.TimerTask;
 import org.apache.log4j.Logger;
 
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.LogUtils;
 
 /**
  * Bizlogic to load the CMA content. This needs to be invoked from the Joz startup routine.
@@ -25,7 +26,6 @@ public class CMAContentPoller {
 	private static final String CONFIG_WALL_CLOCK_MINUTES = "com.tumri.campaign.file.refresh.time.minutes";
 	private static final String CONFIG_CMA_REFRESH_INTERVAL_MINUTES = "com.tumri.campaign.file.refresh.interval.minutes";
 	private static CMAContentPoller g_cmaContentPoller = null;
-	private static Logger fatallog = Logger.getLogger("fatal");
 	
 	private CMAContentPoller() {
 		super();
@@ -115,7 +115,7 @@ public class CMAContentPoller {
             	try {
             		performTask();
             	} catch (CampaignDataLoadingException e) {
-            		fatallog.fatal("Campaign data load failed", e);
+            	    LogUtils.getFatalLog().fatal("Campaign data load failed", e);
             	}
             }
         }, c.getTime(), repeatIntervalMins*60*1000);

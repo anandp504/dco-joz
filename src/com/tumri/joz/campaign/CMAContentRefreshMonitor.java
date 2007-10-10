@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.LogUtils;
 import com.tumri.utils.Polling;
 import com.tumri.utils.PollingUnit;
 
@@ -19,7 +20,6 @@ import com.tumri.utils.PollingUnit;
 public class CMAContentRefreshMonitor implements PollingUnit {
 
 	protected static Logger log = Logger.getLogger(CMAContentRefreshMonitor.class);
-	protected static Logger fatallog = Logger.getLogger("fatal");
 	
 	protected long refreshInterval = 10;
 	protected String g_triggerRefreshFile = "cmaload.txt";
@@ -68,7 +68,7 @@ public class CMAContentRefreshMonitor implements PollingUnit {
 			}
 		} catch (CampaignDataLoadingException e) {
 			log.info("Campaign data force refresh failed",e);
-			fatallog.fatal("Campaign data force refresh failed",e);
+			LogUtils.getFatalLog().fatal("Campaign data force refresh failed",e);
 		}
 	}
 	

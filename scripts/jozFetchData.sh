@@ -5,16 +5,13 @@ function getCmaData() {
 	rm -Rf qac tmc storebuilder cma.zip
 	mkdir tmc
 	mkdir storebuilder
-	mkdir qac
 
-	scp -o StrictHostKeyChecking=false test-soz02.dev.tumri.net:/opt/SoZ/inputs-us/t-specs/t-specs.lisp qac/
-	scp -o StrictHostKeyChecking=false test-soz02.dev.tumri.net:/opt/SoZ/inputs-us/mappings/mapping.lisp qac/
 	scp -o StrictHostKeyChecking=false tmc01-us.dc1.tumri.net:/usr/share/tomcat5/tmc-to-soz/t-specs.lisp tmc/
 	scp -o StrictHostKeyChecking=false tmc01-us.dc1.tumri.net:/usr/share/tomcat5/tmc-to-soz/mapping.lisp tmc/
 	scp -o StrictHostKeyChecking=false pub-us.dc1.tumri.net:/usr/share/tomcat5/to-soz/t-specs.lisp storebuilder/
 	scp -o StrictHostKeyChecking=false pub-us.dc1.tumri.net:/usr/share/tomcat5/to-soz/mapping.lisp storebuilder/
 
-	zip -r cma.zip qac tmc storebuilder
+	zip -r cma.zip tmc storebuilder
 
 }
 
