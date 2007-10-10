@@ -1,13 +1,20 @@
 package com.tumri.joz.campaign;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.tumri.cma.domain.Geocode;
 import com.tumri.cma.domain.OSpec;
+import com.tumri.cma.domain.ProductInfo;
+import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.misc.SexpOSpecHelper;
 import com.tumri.cma.misc.SexpOSpecHelper.MappingsParams;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.ProductDB;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpSymbol;
@@ -20,7 +27,9 @@ import com.tumri.utils.sexp.SexpSymbol;
 public class OSpecHelper {
 
 	private static Logger log = Logger.getLogger (OSpecHelper.class);
-
+	private static Integer g_productTypeLeadgen = null;
+	private static Integer g_productTypeProduct = null;
+	
 	/**
 	 * Parses the tspec-add directive and adds an Ospec to the cache.
 	 * This is used when creating a tSpec from the consoles. This tSpec does not become part of the Campaign Cache
@@ -170,4 +179,50 @@ public class OSpecHelper {
 		}
 	}
 
+	/**
+	 * Returns the sorted set of included products if the oSpec has included products
+	 * @param ospec
+	 * @return
+	 */
+	public static ArrayList<Handle> getIncludedProducts(OSpec ospec) {
+		if (g_productTypeLeadgen == null) {
+			g_productTypeLeadgen = com.tumri.content.data.dictionary.DictionaryManager.getId (IProduct.Attribute.kProductType, "LEADGEN");
+		}
+		if (g_productTypeProduct == null) {
+			g_productTypeProduct = com.tumri.content.data.dictionary.DictionaryManager.getId (IProduct.Attribute.kProductType, "Product");
+		}
+		ArrayList<Handle> leadGenAL = new ArrayList<Handle>();
+		ArrayList<Handle> prodsAL = new ArrayList<Handle>();
+		List<TSpec> tspeclist = ospec.getTspecs();
+		for (TSpec tspec : tspeclist) {
+			List<ProductInfo> prodInfoList = tspec.getIncludedProducts();
+			if (prodInfoList!=null) {
+				for (ProductInfo info : prodInfoList) {
+					try {
+						String productId = info.getName();
+						if (productId != null) {
+							productId = productId.substring(productId.indexOf(".")+3, productId.length());
+							IProduct iProdHandle = ProductDB.getInstance().get(new Integer(productId).intValue());
+							Handle prodHandle = null;
+							if (iProdHandle != null) {
+								prodHandle = iProdHandle.getHandle();
+								if (iProdHandle.getProductType().equals(g_productTypeLeadgen) ) {
+									leadGenAL.add(prodHandle);
+								} else {
+									prodsAL.add(prodHandle);
+								}
+							}
+
+						}
+					} catch(Exception e) {
+						log.error("Could not get the product info from the Product DB");
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		leadGenAL.addAll(prodsAL);
+		return leadGenAL;
+	}
 }

@@ -9,7 +9,6 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import com.tumri.cma.domain.OSpec;
-import com.tumri.cma.domain.ProductInfo;
 import com.tumri.cma.domain.TSpec;
 import com.tumri.content.data.Product;
 import com.tumri.joz.Query.AttributeQuery;
@@ -20,6 +19,7 @@ import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.Query.ProductTypeQuery;
 import com.tumri.joz.Query.SimpleQuery;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.OSpecHelper;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.jozMain.AdDataRequest;
@@ -49,20 +49,12 @@ public class ProductRequestProcessor {
 	private boolean m_revertToDefaultRealm = false;
 	private HashMap<String, String> m_jozFeaturesMap = new HashMap<String, String>();
 	
-	private static Integer g_productTypeLeadgen = null;
-	private static Integer g_productTypeProduct = null;
 	
 	/**
 	 * Default constructor
 	 *
 	 */
 	public ProductRequestProcessor() {
-		if (g_productTypeLeadgen == null) {
-			g_productTypeLeadgen = com.tumri.content.data.dictionary.DictionaryManager.getId (IProduct.Attribute.kProductType, "LEADGEN");
-		}
-		if (g_productTypeProduct == null) {
-			g_productTypeProduct = com.tumri.content.data.dictionary.DictionaryManager.getId (IProduct.Attribute.kProductType, "Product");
-		}
 	}
 
 
@@ -169,7 +161,7 @@ public class ProductRequestProcessor {
 			}
 
 			//8. Do Outer Disjunction
-			ArrayList<Handle> disjunctedProds = getIncludedProducts(m_currOSpec);
+			ArrayList<Handle> disjunctedProds = OSpecHelper.getIncludedProducts(m_currOSpec);
 
 			if (disjunctedProds!=null){
 				resultAL.addAll(disjunctedProds);
@@ -300,6 +292,8 @@ public class ProductRequestProcessor {
 				if (defaultRealmTSpec!=null){
 					int tmpSize = pageSize-currSize;
 					defaultRealmTSpec.setBounds(tmpSize,0);
+					Handle ref = ProductDB.getInstance().genReference ();
+					defaultRealmTSpec.setReference(ref);
 					SortedSet<Handle> newResults = defaultRealmTSpec.exec();
 					backFillProds.addAll(newResults);
 				}
@@ -535,46 +529,5 @@ public class ProductRequestProcessor {
 		SortedSet<Handle> qResult = clonedTSpecQuery.exec();
 		leadGenProds.addAll(qResult);
 		return leadGenProds;
-	}
-
-	/**
-	 * Returns the sorted set of included products if the oSpec has included products
-	 * @param ospec
-	 * @return
-	 */
-	private ArrayList<Handle> getIncludedProducts(OSpec ospec) {
-		ArrayList<Handle> leadGenAL = new ArrayList<Handle>();
-		ArrayList<Handle> prodsAL = new ArrayList<Handle>();
-		List<TSpec> tspeclist = ospec.getTspecs();
-		for (TSpec tspec : tspeclist) {
-			List<ProductInfo> prodInfoList = tspec.getIncludedProducts();
-			if (prodInfoList!=null) {
-				for (ProductInfo info : prodInfoList) {
-					try {
-						String productId = info.getName();
-						if (productId != null) {
-							productId = productId.substring(productId.indexOf(".")+3, productId.length());
-							IProduct iProdHandle = ProductDB.getInstance().get(new Integer(productId).intValue());
-							Handle prodHandle = null;
-							if (iProdHandle != null) {
-								prodHandle = iProdHandle.getHandle();
-								if (iProdHandle.getProductType().equals(g_productTypeLeadgen) ) {
-									leadGenAL.add(prodHandle);
-								} else {
-									prodsAL.add(prodHandle);
-								}
-							}
-
-						}
-					} catch(Exception e) {
-						log.error("Could not get the product info from the Product DB");
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		
-		leadGenAL.addAll(prodsAL);
-		return leadGenAL;
 	}
 }

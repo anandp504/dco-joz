@@ -28,10 +28,12 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
-import com.tumri.content.TaxonomyProvider;
+import com.tumri.cma.domain.OSpec;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.Query.CNFQuery;
+import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.OSpecHelper;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
@@ -192,7 +194,17 @@ public class CmdGetCounts extends CommandDeferWriting {
                 log.error("t-spec " + tspec_name + " not found.");
                 throw new BadCommandException("t-spec " + tspec_name + " not found.");
             }
+            query.setStrict(true);
+            query.setBounds(0, 0);
             product_handles_set = query.exec();
+            OSpec ospec = CampaignDB.getInstance().getOspec(tspec_name);
+            ArrayList<Handle> includedProducts = null;
+            if (ospec !=null) {
+            	includedProducts = OSpecHelper.getIncludedProducts(ospec);
+            }
+            if (includedProducts!=null && includedProducts.size() > 0) {
+            	product_handles_set.addAll(includedProducts);
+            }
         } else { 
             // search entire mup. Is this the right way to do it ?
             product_handles_set = pdb.getAll();
