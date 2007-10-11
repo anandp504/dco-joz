@@ -135,45 +135,33 @@ public class OSpecHelper {
                 switch(mapType) {
                 case REALM:
                     //url value is in tmp_site_constraint
-                    TransientDataManager.getInstance().addUrlMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().addUrlMapping(tmp_site_spec, tSpecName, weight, geoObj);
                     break;
 
                 case STOREID:
-                    TransientDataManager.getInstance().addLocationMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().addLocationMapping(tmp_site_spec, tSpecName, weight, geoObj);
                     break;
 
                 case THEME:
-                    TransientDataManager.getInstance().addThemeMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().addThemeMapping(tmp_site_spec, tSpecName, weight, geoObj);
                     break;
                 }
 
-                if (geoObj!=null) {
-                    TransientDataManager.getInstance().addGeocodeMapping(geoObj, tSpecName, weight);
-                }
-                else {
-                    TransientDataManager.getInstance().addNonGeocodeMapping(tSpecName);
-                }
-            } else if (":delete".equals(opType)) {
+            }
+            else if (":delete".equals(opType)) {
                 switch(mapType) {
                 case REALM:
                     //url value is in tmp_site_constraint
-                    TransientDataManager.getInstance().deleteUrlMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().deleteUrlMapping(tmp_site_spec, tSpecName, weight, geoObj);
                     break;
 
                 case STOREID:
-                    TransientDataManager.getInstance().deleteLocationMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().deleteLocationMapping(tmp_site_spec, tSpecName, weight, geoObj);
                     break;
 
                 case THEME:
-                    TransientDataManager.getInstance().deleteThemeMapping(tmp_site_spec, tSpecName, weight);
+                    TransientDataManager.getInstance().deleteThemeMapping(tmp_site_spec, tSpecName, weight, geoObj);
                     break;
-                }
-
-                if (geoObj!=null) {
-                    TransientDataManager.getInstance().deleteGeocodeMapping(tSpecName);
-                }
-                else {
-                    TransientDataManager.getInstance().deleteNonGeocodeMapping(tSpecName);
                 }
             }
 		}

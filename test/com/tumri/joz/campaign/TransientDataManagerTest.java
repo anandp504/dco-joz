@@ -2,6 +2,7 @@ package com.tumri.joz.campaign;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpSymbol;
@@ -31,8 +32,8 @@ public class TransientDataManagerTest {
 
     @BeforeClass
     public static void initialize() throws Exception {
-        //CampaignDBDataLoader loader = CampaignDBDataLoader.getInstance();
-        //loader.loadData();
+        CampaignDBDataLoader loader = CampaignDBDataLoader.getInstance();
+        loader.loadData();
     }
 
     @Test
@@ -209,9 +210,7 @@ public class TransientDataManagerTest {
                 }
                 String tSpecGetStr = "(get-ad-data :url \" http://www.imd.com/sample\")";
                 OSpec oSpec = testTargetingRequest(tSpecGetStr);
-                assertNotNull(oSpec);
-                OSpec defaultOSpec = CampaignDB.getInstance().getDefaultOSpec();
-                assertEquals(oSpec, defaultOSpec);
+                assertNull(oSpec);
             }
             catch(TransientDataException e) {
                 e.printStackTrace();
@@ -232,9 +231,7 @@ public class TransientDataManagerTest {
         try {
             String tSpecGetStr = "(get-ad-data :url \" http://www.sample4.com/sample\")";
             OSpec oSpec = testTargetingRequest(tSpecGetStr);
-                assertNotNull(oSpec);
-                OSpec defaultOSpec = CampaignDB.getInstance().getDefaultOSpec();
-                assertEquals(oSpec, defaultOSpec);
+            assertNull(oSpec);
         }
         catch(TransientDataException e) {
             e.printStackTrace();
@@ -248,7 +245,7 @@ public class TransientDataManagerTest {
 
     }
 
-	private Sexp testProcessRequest(String sexpCommandStr) {
+    private Sexp testProcessRequest(String sexpCommandStr) {
 		Reader r = new StringReader(sexpCommandStr);
 		SexpReader lr = new SexpReader (r);
 		Sexp e = null;
@@ -291,5 +288,6 @@ public class TransientDataManagerTest {
         return oSpec;
 
     }
+
     
 }

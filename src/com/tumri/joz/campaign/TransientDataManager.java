@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  * It internally maintains an LRU cache for transient campaign data <BR/>
  * There are two ways by which the data gets removed from the cache: <BR/>
  *
- * 1. When tspec-delete command is made by portal clients
+ * 1. When delete tspec/delete mapping command is made by portal clients
  *
  * 2. The maximum size of the LRU cache is exceeded.
  *
@@ -36,10 +36,10 @@ public class TransientDataManager {
     private RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<String>>>  urlMapRequest        = new RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<String>>>();
     private RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<String>>>  themeMapRequest      = new RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<String>>>();
     private RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<Integer>>> locationMapRequest   = new RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<Integer>>>();
-    private RWLockedTreeMap<String, IncorpDeltaMappingRequest<Geocode>>       geocodeMapRequest    = new RWLockedTreeMap<String, IncorpDeltaMappingRequest<Geocode>>();
-    private RWLockedTreeMap<String, String>                                   nonGeocodeMapRequest = new RWLockedTreeMap<String, String>();
 
-    private RWLockedTreeMap<Integer, Integer> oSpecAdPodMap = new RWLockedTreeMap<Integer, Integer>();
+    private RWLockedTreeMap<String, Integer>       oSpecSiteGeoAdPodMap     = new RWLockedTreeMap<String, Integer>();
+    private RWLockedTreeMap<String, Integer>       oSpecSiteNonGeoAdPodMap  = new RWLockedTreeMap<String, Integer>();
+
     private RWLockedTreeMap<Integer, OSpec> originalOSpecMap = new RWLockedTreeMap<Integer, OSpec>();
 
     //This low bound is set this high so that the IDs assigned to transient objects doesnt collide with the database generated IDs for other objects
@@ -60,8 +60,6 @@ public class TransientDataManager {
         reloadUrlMappings();
         reloadThemeMappings();
         reloadLocationMappings();
-        reloadNonGeoAdPods();
-        reloadGeocodeMappings();
     }
 
     private void reloadOSpec() {
@@ -160,54 +158,6 @@ public class TransientDataManager {
 
     }
 
-    private void reloadNonGeoAdPods() {
-        nonGeocodeMapRequest.readerLock();
-        try {
-            Iterator iterator = nonGeocodeMapRequest.values().iterator();
-            if(iterator != null && iterator.hasNext()) {
-                while(iterator.hasNext()) {
-                    String tSpecName = (String)iterator.next();
-                    if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
-                        log.error("TSpec under non-geo transient data map is no longer valid");
-                    }
-                    int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
-                    campaignDB.addNonGeoAdPod(adPodId);
-                }
-            }
-        }
-        finally {
-            nonGeocodeMapRequest.readerUnlock();
-        }
-
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private void reloadGeocodeMappings() {
-        geocodeMapRequest.readerLock();
-        try {
-            Iterator iterator = geocodeMapRequest.values().iterator();
-            if(iterator != null && iterator.hasNext()) {
-                while(iterator.hasNext()) {
-                    List<IncorpDeltaMappingRequest<Geocode>> requestList = (List<IncorpDeltaMappingRequest<Geocode>>)iterator.next();
-                    if(requestList != null) {
-                        for (IncorpDeltaMappingRequest<Geocode> request : requestList) {
-                            try {
-                                addGeocodeMapping(request);
-                            }
-                            catch (TransientDataException e) {
-                                log.error("Error occured while reloading geocode-mapping in TransientDataManager", e);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        finally {
-            geocodeMapRequest.readerUnlock();
-        }
-    }
-
-
     public void addOSpec(OSpec oSpec) throws TransientDataException {
         //Check if the oSpec already exists
         if(campaignDB.getOspec(oSpec.getName()) != null && !oSpecNameLRUCache.containsKey(oSpec.getName())) {
@@ -215,7 +165,7 @@ public class TransientDataManager {
             OSpec origOSpec = campaignDB.getOspec(oSpec.getName());
             originalOSpecMap.safePut(origOSpec.getId(), origOSpec);
         }
-        int oSpecId = 0;
+        int oSpecId;
         if(oSpecNameLRUCache.containsKey(oSpec.getName())) {
             oSpecId = oSpecNameLRUCache.get(oSpec.getName()).getId();
         }
@@ -230,8 +180,7 @@ public class TransientDataManager {
         oSpecNameLRUCache.put(oSpec.getName(), oSpec);
         addOSpecToCampaignDB(oSpec);
         //7. Add to local Ospec-Adpod-Map for back reference
-        oSpecAdPodMap.safePut(oSpecId, oSpecId);
-//        }
+        //oSpecAdPodMap.safePut(oSpecId, oSpecId);
 
         //reset the idSequence if highBound is exceeded
         if(idSequence.get() >= highBound) {
@@ -241,23 +190,7 @@ public class TransientDataManager {
     }
 
     private void addOSpecToCampaignDB(OSpec oSpec) {
-
-        //2. Create new Adpod
-        int adPodId = oSpec.getId(); //For now keeping the ospec and adpod id to be the same, since there is a 1-to-1 mapping between the two.
-        AdPod adPod = new AdPod();
-        adPod.setName(oSpec.getName());
-        adPod.setId(adPodId);
-        adPod.setOspec(oSpec);
-
-        //4. Add OSpec to CampaignDB maps
         campaignDB.addOSpec(oSpec);
-
-        //5. Add AdPod to CampaignDB maps
-        campaignDB.addAdPod(adPod);
-
-        //6. Add to Adpod-Ospec-Map within CampaignDB
-        campaignDB.addAdpodOSpecMapping(adPodId, oSpec.getId());
-
     }
 
     public void deleteOSpec(String oSpecName) {
@@ -270,6 +203,21 @@ public class TransientDataManager {
         }
     }
 
+    private int createAdPod(int oSpecId) {
+        int adPodId = idSequence.incrementAndGet();
+        AdPod adPod = new AdPod();
+        adPod.setName("Transient-Incorp-AdPod " + adPodId);
+        adPod.setId(adPodId);
+
+        campaignDB.addAdPod(adPod);
+        campaignDB.addAdpodOSpecMapping(adPodId, oSpecId);
+        return adPodId;
+    }
+
+    private String generateKey(String tSpecName, String siteId) {
+        return tSpecName + "-" + siteId;        
+    }
+
     /**
      * Adds the url-adpod-mapping
      * Step 1: Check if OSpec exists, if not throw exception
@@ -280,13 +228,14 @@ public class TransientDataManager {
      * @param urlName - URL Name
      * @param tSpecName - t-spec name
      * @param weight - weight for mapping
+     * @param geocode - geocode
      * @throws TransientDataException - Gets thrown for invalid condition
      */
-    public void addUrlMapping(String urlName, String tSpecName, float weight) throws TransientDataException {
+    public void addUrlMapping(String urlName, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
         if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
-        IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(urlName, tSpecName, weight);
+        IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(urlName, tSpecName, weight, geocode);
         synchronized (tSpecName) {
             List<IncorpDeltaMappingRequest<String>> list = urlMapRequest.safeGet(tSpecName);
             if(list == null) {
@@ -312,19 +261,32 @@ public class TransientDataManager {
             url.setName(request.getId());
             campaignDB.addUrl(url);
         }
-        int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(request.getTSpecName()).getId());
+        int oSpecId = oSpecNameLRUCache.safeGet(request.getTSpecName()).getId();
+        if(oSpecId <= 0) {
+            throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
+        }
+        int adPodId = createAdPod(oSpecId);
         UrlAdPodMapping mapping = new UrlAdPodMapping();
         mapping.setAdPodId(adPodId);
         mapping.setUrlId(url.getId());
         mapping.setWeight((int)request.getWeight());
         campaignDB.addUrlMapping(mapping);
+        String key = generateKey(request.getTSpecName(), request.getId());
+        if(request.getGeocode() != null) {
+            addGeocodeMapping(request.getGeocode(), adPodId, request.getWeight());
+            oSpecSiteGeoAdPodMap.safePut(key, adPodId);
+        }
+        else {
+            addNonGeocodeMapping(adPodId);
+            oSpecSiteNonGeoAdPodMap.safePut(key, adPodId);
+        }
     }
 
-    public void addThemeMapping(String themeName, String tSpecName, float weight) throws TransientDataException {
+    public void addThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
         if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
-        IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(themeName, tSpecName, weight);
+        IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(themeName, tSpecName, weight, geocode);
         synchronized (tSpecName) {
             List<IncorpDeltaMappingRequest<String>> list = themeMapRequest.safeGet(tSpecName);
             if(list == null) {
@@ -351,15 +313,29 @@ public class TransientDataManager {
             theme.setName(request.getId());
             campaignDB.addTheme(theme);
         }
-        int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(request.getTSpecName()).getId());
+        int oSpecId = oSpecNameLRUCache.safeGet(request.getTSpecName()).getId();
+        if(oSpecId <= 0) {
+            throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
+        }
+        int adPodId = createAdPod(oSpecId);
         ThemeAdPodMapping mapping = new ThemeAdPodMapping();
         mapping.setAdPodId(adPodId);
         mapping.setThemeId(theme.getId());
         mapping.setWeight((int)request.getWeight());
         campaignDB.addThemeMapping(mapping);
+        String key = generateKey(request.getTSpecName(), request.getId());
+        if(request.getGeocode() != null) {
+            addGeocodeMapping(request.getGeocode(), adPodId, request.getWeight());
+            oSpecSiteGeoAdPodMap.safePut(key, adPodId);
+        }
+        else {
+            addNonGeocodeMapping(adPodId);
+            oSpecSiteNonGeoAdPodMap.safePut(key, adPodId);
+        }
+
     }
 
-    public void addLocationMapping(String locationIdStr, String tSpecName, float weight) throws TransientDataException {
+    public void addLocationMapping(String locationIdStr, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
         if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
@@ -371,7 +347,7 @@ public class TransientDataManager {
             log.error("Invalid location ID passed in incorp-mapping-delta request");
             throw new TransientDataException("Invalid location ID passed in incorp-mapping-delta request");
         }
-        IncorpDeltaMappingRequest<Integer> request = new IncorpDeltaMappingRequest<Integer>(locationId, tSpecName, weight);
+        IncorpDeltaMappingRequest<Integer> request = new IncorpDeltaMappingRequest<Integer>(locationId, tSpecName, weight, geocode);
         synchronized (tSpecName) {
             List<IncorpDeltaMappingRequest<Integer>> list = locationMapRequest.safeGet(tSpecName);
             if(list == null) {
@@ -394,50 +370,42 @@ public class TransientDataManager {
             location.setId(request.getId());
             campaignDB.addLocation(location);
         }
-        int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(request.getTSpecName()).getId());
+        int oSpecId = oSpecNameLRUCache.safeGet(request.getTSpecName()).getId();
+        if(oSpecId <= 0) {
+            throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
+        }
+        int adPodId = createAdPod(oSpecId);
         LocationAdPodMapping mapping = new LocationAdPodMapping();
         mapping.setAdPodId(adPodId);
         mapping.setLocationId(location.getId());
         campaignDB.addLocationMapping(mapping);
+        String key = generateKey(request.getTSpecName(), request.getId() + "");
+        if(request.getGeocode() != null) {
+            addGeocodeMapping(request.getGeocode(), adPodId, request.getWeight());
+            oSpecSiteGeoAdPodMap.safePut(key, adPodId);
+        }
+        else {
+            addNonGeocodeMapping(adPodId);
+            oSpecSiteNonGeoAdPodMap.safePut(key, adPodId);
+        }
     }
 
-    public void addGeocodeMapping(Geocode geocode, String tSpecName, float weight) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
-            throw new TransientDataException("Ospec for this name doesnt Exist");
-        }
+    public void addGeocodeMapping(Geocode geocode, int adPodId, float weight) throws TransientDataException {
         geocode.setId(idSequence.incrementAndGet());
-        IncorpDeltaMappingRequest<Geocode> request = new IncorpDeltaMappingRequest<Geocode>(geocode, tSpecName, weight);
-        synchronized (tSpecName) {
-            //Here there is a possibility of two concurrent threads stepping into each other and messing each others list
-            //hence made this part of code synchronized by tSpecName. However since this method is synchronized by tSpecName
-            //it is making an assumption that the string is interned, which is true for the clients using this method
-            geocodeMapRequest.safePut(tSpecName, request);
-        }
-
-        addGeocodeMapping(request);
+        campaignDB.addGeocode(geocode);
+        campaignDB.addGeocodeMapping(geocode, adPodId, weight);
     }
 
-    private void addGeocodeMapping(IncorpDeltaMappingRequest<Geocode> request) throws TransientDataException {
-        campaignDB.addGeocode(request.getId());
-        int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(request.getTSpecName()).getId());
-        campaignDB.addGeocodeMapping(request.getId(), adPodId, request.getWeight());
-    }
-
-    public void addNonGeocodeMapping(String tSpecName) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
-            throw new TransientDataException("Ospec for this name doesnt Exist");
-        }
-        int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
+    public void addNonGeocodeMapping(int adPodId) throws TransientDataException {
         campaignDB.addNonGeoAdPod(adPodId);
-        nonGeocodeMapRequest.safePut(tSpecName, tSpecName);
     }
 
 
-    public void deleteUrlMapping(String urlName, String tSpecName, float weight) {
+    public void deleteUrlMapping(String urlName, String tSpecName, float weight, Geocode geocode) {
         List <IncorpDeltaMappingRequest<String>>  urlRequestList      = urlMapRequest.safeGet(tSpecName);
         if(urlRequestList != null && oSpecNameLRUCache.containsKey(tSpecName)) {
             synchronized(urlRequestList) {
-                int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
+                int adPodId = 0;
                 for(int i=0; i<urlRequestList.size(); i++) {
                     IncorpDeltaMappingRequest<String> urlRequest = urlRequestList.get(i);
                     if(urlName.equals(urlRequest.getId())) {
@@ -447,19 +415,30 @@ public class TransientDataManager {
                             campaignDB.deleteUrl(url.getName());
                         }
                         urlRequestList.remove(i);
+                        if(urlRequest.getGeocode() != null) {
+                            adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, urlName));
+                            deleteGeocodeMapping(urlRequest.getGeocode(), adPodId);
+                            oSpecSiteGeoAdPodMap.safeRemove(tSpecName + urlName);
+                        }
+                        else {
+                            adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(tSpecName, urlName));
+                            deleteNonGeocodeMapping(adPodId);
+                            oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(tSpecName, urlName));
+                        }
                         break;
                     }
+
                 }
             }
         }
     }
 
     @SuppressWarnings({"deprecation"})
-    public void deleteThemeMapping(String themeName, String tSpecName, float weight) {
+    public void deleteThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode) {
         List <IncorpDeltaMappingRequest<String>>  themeRequestList      = themeMapRequest.safeGet(tSpecName);
         if(themeRequestList != null) {
             synchronized(themeRequestList) {
-                int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
+                int adPodId = 0;
                 for(int i=0; i<themeRequestList.size(); i++) {
                     IncorpDeltaMappingRequest<String> themeRequest = themeRequestList.get(i);
                     if(themeName.equals(themeRequest.getId())) {
@@ -470,6 +449,16 @@ public class TransientDataManager {
                             campaignDB.deleteTheme(theme.getName());
                         }
                         themeRequestList.remove(i);
+                        if(themeRequest.getGeocode() != null) {
+                            adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, themeName));
+                            deleteGeocodeMapping(themeRequest.getGeocode(), adPodId);
+                            oSpecSiteGeoAdPodMap.safeRemove(generateKey(tSpecName, themeName));
+                        }
+                        else {
+                            adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(tSpecName, themeName));
+                            deleteNonGeocodeMapping(adPodId);
+                            oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(tSpecName, themeName));
+                        }
                         break;
                     }
                 }
@@ -477,7 +466,7 @@ public class TransientDataManager {
         }
     }
 
-    public void deleteLocationMapping(String locationIdStr, String tSpecName, float weight) {
+    public void deleteLocationMapping(String locationIdStr, String tSpecName, float weight, Geocode geocode) {
         List <IncorpDeltaMappingRequest<Integer>>  locationRequestList      = locationMapRequest.safeGet(tSpecName);
         if(locationRequestList != null) {
             int locationId;
@@ -489,7 +478,7 @@ public class TransientDataManager {
                 return;
             }
             synchronized(locationRequestList) {
-                int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
+                int adPodId = 0;
                 for(int i=0; i<locationRequestList.size(); i++) {
                     IncorpDeltaMappingRequest<Integer> locationRequest = locationRequestList.get(i);
                     if(locationId == locationRequest.getId()) {
@@ -499,6 +488,16 @@ public class TransientDataManager {
                             campaignDB.deleteLocation(location.getId());
                         }
                         locationRequestList.remove(i);
+                        if(locationRequest.getGeocode() != null) {
+                            adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, locationIdStr));
+                            deleteGeocodeMapping(locationRequest.getGeocode(), adPodId);
+                            oSpecSiteGeoAdPodMap.safeRemove(generateKey(tSpecName, locationIdStr));
+                        }
+                        else {
+                            adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(tSpecName, locationIdStr));
+                            deleteNonGeocodeMapping(adPodId);
+                            oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(tSpecName, locationIdStr));
+                        }
                         break;
                     }
                 }
@@ -506,21 +505,12 @@ public class TransientDataManager {
         }
     }
 
-    public void deleteGeocodeMapping(String tSpecName) {
-        if(geocodeMapRequest.containsKey(tSpecName) && oSpecNameLRUCache.containsKey(tSpecName)) {
-            IncorpDeltaMappingRequest<Geocode> geocodeRequest  = geocodeMapRequest.safeGet(tSpecName);
-            int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
-            campaignDB.deleteGeocodeMapping(geocodeRequest.getId(), adPodId);
-            geocodeMapRequest.safeRemove(tSpecName);
-        }
+    public void deleteGeocodeMapping(Geocode geocode, int adPodId) {
+        campaignDB.deleteGeocodeMapping(geocode, adPodId);
     }
 
-    public void deleteNonGeocodeMapping(String tSpecName) {
-        if(nonGeocodeMapRequest.containsKey(tSpecName) && oSpecNameLRUCache.containsKey(tSpecName)) {
-            int adPodId = oSpecAdPodMap.safeGet(oSpecNameLRUCache.safeGet(tSpecName).getId());
-            campaignDB.deleteNonGeoAdPod(adPodId);
-            nonGeocodeMapRequest.safeRemove(tSpecName);
-        }
+    public void deleteNonGeocodeMapping(int adPodId) {
+        campaignDB.deleteNonGeoAdPod(adPodId);
     }
 
     @SuppressWarnings({"deprecation"})
@@ -536,15 +526,10 @@ public class TransientDataManager {
         finally {
             oSpecNameLRUCache.writerUnlock();
         }
-        oSpecAdPodMap.remove(oSpec.getId());
         urlMapRequest.safeRemove(oSpec.getName());
         themeMapRequest.safeRemove(oSpec.getName());
         locationMapRequest.safeRemove(oSpec.getName());
-        geocodeMapRequest.safeRemove(oSpec.getName());
-        nonGeocodeMapRequest.safeRemove(oSpec.getName());
 
-        deleteNonGeocodeMapping(oSpec.getName());
-        deleteGeocodeMapping(oSpec.getName());
         if(urlRequestList != null) {
             for (IncorpDeltaMappingRequest<String> urlRequest : urlRequestList) {
                 String urlName = urlRequest.getId();
@@ -552,6 +537,22 @@ public class TransientDataManager {
                 if (url != null) {
                     campaignDB.getUrlAdPodMappingIndex().remove(UrlNormalizer.getNormalizedUrl(url.getName()));
                     campaignDB.deleteUrl(url.getName());
+                }
+                if(urlRequest.getGeocode() != null) {
+                    Integer adPodId;
+                    adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(oSpec.getName(), urlName));
+                    if(adPodId != null) {
+                        deleteGeocodeMapping(urlRequest.getGeocode(), adPodId);
+                        oSpecSiteGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), urlName));
+                    }
+                }
+                else {
+                    Integer adPodId;
+                    adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(oSpec.getName(), urlName));
+                    if(adPodId != null) {
+                        deleteNonGeocodeMapping(adPodId);
+                        oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), urlName));
+                    }
                 }
             }
         }
@@ -564,6 +565,22 @@ public class TransientDataManager {
                     campaignDB.getThemeAdPodMappingIndex().remove(theme.getName());
                     campaignDB.deleteTheme(theme.getName());
                 }
+                if(themeRequest.getGeocode() != null) {
+                    Integer adPodId;
+                    adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(oSpec.getName(), themeName));
+                    if(adPodId != null) {
+                        deleteGeocodeMapping(themeRequest.getGeocode(), adPodId);
+                        oSpecSiteGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), themeName));
+                    }
+                }
+                else {
+                    Integer adPodId;
+                    adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(oSpec.getName(), themeName));
+                    if(adPodId != null) {
+                        deleteNonGeocodeMapping(adPodId);
+                        oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), themeName));
+                    }
+                }
             }
         }
 
@@ -574,7 +591,23 @@ public class TransientDataManager {
                 if (location != null) {
                     campaignDB.getLocationAdPodMappingIndex().remove(location.getId());
                     campaignDB.deleteLocation(location.getId());
-                } 
+                }
+                if(locationRequest.getGeocode() != null) {
+                    Integer adPodId;
+                    adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(oSpec.getName(), locationId + ""));
+                    if(adPodId != null) {
+                        deleteGeocodeMapping(locationRequest.getGeocode(), adPodId);
+                        oSpecSiteGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), locationId + ""));
+                    }
+                }
+                else {
+                    Integer adPodId;
+                    adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(oSpec.getName(), locationId + ""));
+                    if(adPodId != null) {
+                        deleteNonGeocodeMapping(adPodId);
+                        oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), locationId + ""));
+                    }
+                }
             }
         }      
         if(originalOSpecMap.containsKey(oSpec.getId())) {
@@ -670,11 +703,13 @@ public class TransientDataManager {
         private Key id;
         private String tSpecName;
         private float weight;
+        private Geocode geocode;
 
-        public IncorpDeltaMappingRequest(Key id, String tSpecName, float weight) {
-            this.id = id;
+        public IncorpDeltaMappingRequest(Key id, String tSpecName, float weight, Geocode geocode) {
+            this.id        = id;
             this.tSpecName = tSpecName;
-            this.weight = weight;
+            this.weight    = weight;
+            this.geocode   = geocode;
         }
 
         public Key getId() {
@@ -687,6 +722,10 @@ public class TransientDataManager {
 
         public float getWeight() {
             return weight;
+        }
+
+        public Geocode getGeocode() {
+            return geocode;
         }
     }
 

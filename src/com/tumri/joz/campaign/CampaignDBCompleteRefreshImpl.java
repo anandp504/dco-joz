@@ -270,7 +270,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public void deleteGeocodeMapping(Geocode geocode, int adPodId) {
-        if(geocode == null || adPodId <=0 || (geocodeMap.get().safeGet(adPodId) == null)) {
+        if(geocode == null || adPodId <=0) {
             log.error("Invalid geocode/adpodId passed for deleting the geocode mapping");
         }
 
