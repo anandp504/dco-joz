@@ -24,7 +24,7 @@
 		
 		//Retrive average Time
 		long aveReqTime=0;
-		if(0!=totalReqs) {
+		if ( (0 != (totalReqs-totalFailedReqs)) ) {
 			aveReqTime=(pms.getTotalTime()/(totalReqs-totalFailedReqs));
 		}
 	%>
@@ -41,27 +41,74 @@
 	</div>
 	<br>
 	<div>
-		Number of calls:&nbsp;&nbsp;&nbsp <%=totalReqs%>
+		Snapshot at : <%=((new Date()).toString())%>
 	</div>
 	<br>
 	<div>
-		Number of failed calls:&nbsp;&nbsp;&nbsp <%=totalFailedReqs%>
+		<table border="1" cellspacing="0">
+		<tr>
+		<td>Number of calls</td>
+		<td><%=totalReqs%></td>
+		</tr>
+		<tr>
+		<td>Number of failed calls</td>
+		<td><%=totalFailedReqs%></td>
+		</tr>
+		<tr>
+		<td>Best call performance</td>
+		<td>
+		<table border="1" cellpadding="2" cellspacing="0">
+		<tr>
+		<td>Tspec Name:</td>
+		<td><%=(0!=totalReqs)?minTimedTspecName:"Not available"%></td>
+		</tr>
+		<tr>
+		<td>Time:</td>
+		<td><%=(0!=totalReqs)?(minRequestTime/1000000):0%> ms</td>
+		</tr>
+		</table>
+		</td>
+		</tr>
+		<tr>
+		<td>Worst call performance</td>
+		<td>
+		<table border="1" cellpadding="2" cellspacing="0">
+		<tr>
+		<td>Tspec Name:</td>
+		<td><%=(0!=totalReqs)?maxTimedTspecName:"Not available"%></td>
+		</tr>
+		<tr>
+		<td>Time</td>
+		<td><%=(0!=totalReqs)?(maxRequestTime/1000000):0%> ms </td>
+		</tr>
+		</table>
+		</td>
+		</tr>
+		<tr>
+		<td>Average call performance</td>
+		<td><%=(0!=totalReqs)?(aveReqTime/1000000):0%> ms</td>
+		</tr>
+		</table>
 	</div>
 	<br>
 	<div>
-		<strong>Best call performance: </strong> <br>
-		Tspec Name = <%=(0!=totalReqs)?minTimedTspecName:""%><br>
-		Time = <%=(0!=totalReqs)?(minRequestTime/1000000):0%> ms
-	</div>
-	<br>
-	<div>
-		<strong>Worst call performance: </strong> <br>
-		Tspec Name = <%=(0!=totalReqs)?maxTimedTspecName:""%> <br>
-		Time = <%=(0!=totalReqs)?(maxRequestTime/1000000):0%> ms
-	</div>
-	<br>
-	<div>
-		<strong>Average call performance:&nbsp;&nbsp;&nbsp <%=(0!=totalReqs)?(aveReqTime/1000000):0%> ms </strong><br>
+		<%
+			Map<String, Long> failedTspecs=pms.getFailedTspecs();
+			Set keySet=failedTspecs.keySet();
+			Iterator it=keySet.iterator();
+			String tspec=null;
+			Long count=null;
+			for(int i=0;it.hasNext();i++) {
+				if(0==i) {
+					out.print("<strong>Failed Tspecs</strong><br>");
+					out.print("<table border=\"1\" cellspacing=\"0\"><tr><td>Tspec Name</td><td>Count</td></tr>");
+				}
+				tspec=(String)it.next();
+				count=(Long)failedTspecs.get(tspec);
+				out.print("<tr><td>"+tspec+"</td><td>"+count.longValue()+"</td></tr>");
+			}
+			out.print("</table>");
+		%>
 	</div>
 </body>
 </html>
