@@ -273,11 +273,14 @@ public class ProductRequestProcessor {
 
 		//TODO Check if there is a specific  backfills scenario to go agains the entire mup.. we shouldnt run into this case at all
 		if (bKeywordBackfill && pageSize>0 && currSize<pageSize){
-			removeKeywordQuery();
+			//removeKeywordQuery();
+			m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();   
 			//We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
 			int tmpSize = pageSize-currSize+5;
 			m_tSpecQuery.setBounds(tmpSize,0);
 			m_tSpecQuery.setStrict(false);
+			Handle ref = ProductDB.getInstance().genReference();
+			m_tSpecQuery.setReference(ref);
 			SortedSet<Handle> newResults = m_tSpecQuery.exec();
 			backFillProds.addAll(newResults);
 			currSize = currSize + backFillProds.size();
