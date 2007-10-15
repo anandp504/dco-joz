@@ -19,6 +19,8 @@ public abstract class MonitorStatus
 
     protected String name = null;
     protected Date date;
+    protected boolean failed = false;
+    protected String  failedMsg = null;
     protected Map<String, List<String>> data = null;
 
     public  MonitorStatus(String name) 
@@ -71,6 +73,26 @@ public abstract class MonitorStatus
     {
         return data.get(name);
     }
+
+    public void setFailed(boolean failed)
+	{
+		this.failed = failed;
+	}
+
+    public boolean getFailed()
+	{
+		return failed;
+	}
+
+	public void setFailedMessage(String msg)
+	{
+		failedMsg = msg;
+	}
+
+	public String getFailedMessage()
+	{
+		return failedMsg;
+	}
 
     public abstract String toHTML();
     
