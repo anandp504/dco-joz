@@ -29,6 +29,11 @@
 			String getAdExpr=request.getParameter("text_eval_expr");
 			EvalMonitor evalMonitor=new EvalMonitor();
 			EvalMonitorStatus evalMonStatus=(EvalMonitorStatus)evalMonitor.getStatus(getAdExpr);
+			if (evalMonStatus.getFailed() == true) {
+				out.print("<p> <strong> There has been an error in the execution of this command. </strong> </p>"); 
+				out.print("<p>"+evalMonStatus.getFailedMessage()+"</p>");
+				return;
+			}
 			AdDataRequest adDataReq=evalMonStatus.getAdDataRequest();
 			String storeId=adDataReq.get_store_id();
 			String url=adDataReq.get_url();
@@ -60,7 +65,7 @@
 			</tr>
 			<tr>
 			<td>Number of Products</td>
-			<td><%=(null==numProducts)?null:numProducts.longValue()%></td>
+			<td><%=(null==numProducts)?"t":numProducts.longValue()%></td>
 			</tr>
 		</table>
 	</div>
