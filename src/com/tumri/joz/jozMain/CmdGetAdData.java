@@ -295,7 +295,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         b.append("\",c_code:\"");
         b.append(encode(p.getCurrencyStr()));
         b.append("\",offer_type:\"");
-        b.append(encode(p.getProductTypeStr()));
+        b.append(encode(p.getProductTypeStr()).toUpperCase());
         b.append("\"");
 
         b.append("}");
