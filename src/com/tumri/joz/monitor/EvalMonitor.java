@@ -18,6 +18,7 @@ import com.tumri.utils.sexp.SexpIFASLReader;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.joz.jozMain.CmdGetAdData;
+import com.tumri.joz.jozMain.Command;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.jozMain.AdDataRequest;
 
@@ -41,25 +42,39 @@ public class EvalMonitor extends ComponentMonitor
 	}
 
 	public MonitorStatus getStatus(String getAdDataExpr) {
-		AdDataRequest adDataReq=this.getAdDataRequest(getAdDataExpr);
-		Map<String,Long> productMatchMap=this.getNumberOfProducts(getAdDataExpr);
-		((EvalMonitorStatus)status).setAdDataRequest(adDataReq);
-		((EvalMonitorStatus)status).setTotalProductMatch(totalProductMatch);
-		((EvalMonitorStatus)status).setProductMatch(productMatchMap);
-		((EvalMonitorStatus)status).setStrategy(this.strategy);
+		Command cmd = null;
+	    try {
+			cmd = Command.parse(getAdDataExpr);
+		}
+		catch (Exception ex) {
+			((EvalMonitorStatus)status).setFailed(true);
+			((EvalMonitorStatus)status).setFailedMessage("Error - "+ ex.getMessage());
+			return status;
+		}
+		if (cmd instanceof CmdGetAdData) {
+		  	AdDataRequest adDataReq= null;
+			try {
+		  		adDataReq=new AdDataRequest(getSexp(getAdDataExpr));
+			}
+			catch (Exception ex) {
+				((EvalMonitorStatus)status).setFailed(true);
+				((EvalMonitorStatus)status).setFailedMessage("Error - "+ ex.getMessage());
+				return status;
+			}
+			Sexp sexp = executeGetAdData(cmd);
+			Map<String,Long> productMatchMap=getNumberOfProducts(sexp);
+			((EvalMonitorStatus)status).setAdDataRequest(adDataReq);
+			((EvalMonitorStatus)status).setTotalProductMatch(totalProductMatch);
+			((EvalMonitorStatus)status).setProductMatch(productMatchMap);
+			((EvalMonitorStatus)status).setStrategy(this.strategy);
+			((EvalMonitorStatus)status).setFailed(false);
+		}
+		else {
+			((EvalMonitorStatus)status).setFailed(true);
+			((EvalMonitorStatus)status).setFailedMessage("Error: command is NOT supported.");
+		}
+	
 		return status;
-	}
-
-	private AdDataRequest getAdDataRequest(String getAdDataExpr) {
-		Sexp sExp=this.getSexp(getAdDataExpr);
-		AdDataRequest adDataReq=null;
-		try {
-		  adDataReq=new AdDataRequest(sExp);
-		}
-		catch(Exception ex) {
-			; //Dont do anything now. Null returned.
-		}
-		return adDataReq;
 	}
 
 	private Sexp getSexp(String getAdDataExpr) {
@@ -74,13 +89,13 @@ public class EvalMonitor extends ComponentMonitor
 		return sExp;
 	}
 
-	private Sexp executeGetAdData(Sexp sExp) {
+	private Sexp executeGetAdData(Command cmd) {
 		byte[] bytes;
 		Sexp productSexp=null;
 		try {
 			ByteArrayOutputStream out=new ByteArrayOutputStream();
-			CmdGetAdData cmd=new CmdGetAdData(sExp);
-			cmd.process_and_write(out);
+			//CmdGetAdData cmd=new CmdGetAdData(sExp);
+			((CmdGetAdData)cmd).process_and_write(out);
 			bytes=out.toByteArray();
 			ByteArrayInputStream in=new ByteArrayInputStream(bytes);
 			SexpIFASLReader ifaslreader=new SexpIFASLReader(in);
@@ -92,11 +107,9 @@ public class EvalMonitor extends ComponentMonitor
 		return productSexp;
 	}
 
-	private Map<String,Long> getNumberOfProducts(String getAdDataExpr) {
+	private Map<String,Long> getNumberOfProducts(Sexp sExp) {
 		Integer numProducts=null;
 		Map<String,Long> productMatchMap=new HashMap<String,Long>();
-		Sexp sExp=this.getSexp(getAdDataExpr);
-		sExp=this.executeGetAdData(sExp);
 		if (sExp.isSexpList()) {
 			Sexp productData=((SexpList)sExp).get(1); //get Product Data
 			Sexp catDispNames=(((SexpList)((SexpList)sExp).get(4))).get(1);
