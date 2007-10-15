@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Joz Console Home Page</title>
+    <title>Joz Console : Home</title>
   </head>
 
   <body>
@@ -16,21 +16,24 @@
   	<strong>Commands</strong>
   </div>
   <br>
-  <br>
 
   <div>
-  	<a href="get-ad-data.jsp">get-ad-data</a>
+  	<a href="get-ad-data.jsp">Get-ad-data</a>
   </div>
   <br>
 
   <div>
-  	<a href="content-status.jsp">show content status</a>
+  	<a href="content-status.jsp">Content status</a>
   </div>
   <br>
 
   <div>
-    	<a href="performance-stat.jsp">performance statistics</a>
+    	<a href="performance-stat.jsp">Performance statistics</a>
+  </div>
+  <br>  
+
+  <div>
+    	<a href="eval.jsp">Eval</a>
   </div>
   </body>
-
 </html>

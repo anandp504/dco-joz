@@ -8,10 +8,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	  <title>Joz Console Products Page</title>
+	  <title>Joz Console : Products</title>
 	  
 	  <style>
-	    .floatingDiv{  position:absolute; border: solid 1px blue; display:none; width:250px; height:125px; }
+	    .floatingDiv { position:absolute; border: solid 1px blue; display:none; width:250px; height:125px; }
 	  </style>
 	  
 	  <script>

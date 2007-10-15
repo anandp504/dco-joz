@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>Joz Console Product Request Statistics Page</title>
+  <title>Joz Console : Performance Statistics</title>
 </head>
 <body>
 	<%
@@ -37,7 +37,7 @@
   	</div>
   	<br>
   	<div id="links">
-		<strong>get-ad-data call statistics</strong> &nbsp;&nbsp;&nbsp since : <%=(pms.getStartDate()).toString()%>
+		<strong>get-ad-data call performance statistics</strong> &nbsp;&nbsp;&nbsp since : <%=(pms.getStartDate()).toString()%>
 	</div>
 	<br>
 	<div>

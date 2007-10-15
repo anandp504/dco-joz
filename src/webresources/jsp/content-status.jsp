@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	  <title>Joz Console 'content-status' Page</title>
+	  <title>Joz Console : Content Status</title>
   </head>
   <body>
 	 <%
@@ -23,13 +23,12 @@
 		<strong>Joz Console Ver 0.1</strong>
 		<hr/>
 		<div id="homelink" style="text-align: right">
-			<a href="console.jsp">back</a>
 			<a href="console.jsp">home</a>
 		</div>
 	  </div>
 	  <br>
 	  <div id="links">
-		  <strong>content status</strong>
+		  <strong>Content Status</strong>
       </div>
 	  <br>
       <div>
