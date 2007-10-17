@@ -8,6 +8,7 @@ import java.util.SortedSet;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Holds atomic reference to the adpod index.
@@ -92,7 +93,7 @@ public class AtomicAdpodIndex<Key, Value> {
         if(atomicIndex.get() == null) {
             return;
         }
-        atomicIndex.get().remove(key);        
+        atomicIndex.get().remove(key);
     }
 
     public void clear() {
@@ -101,4 +102,11 @@ public class AtomicAdpodIndex<Key, Value> {
       }
       atomicIndex.get().clear();
     }
+
+    public Set<Key> getKeys() {
+		if (atomicIndex.get() == null) {
+			return null;
+		}
+		return atomicIndex.get().getKeys();
+	}
 }
