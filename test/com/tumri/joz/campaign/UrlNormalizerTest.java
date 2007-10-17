@@ -9,6 +9,78 @@ import java.util.List;
 public class UrlNormalizerTest {
 
     @Test
+    public void testGetDomainString() {
+        {
+            String url = "http://www.yahoo.com/sports/baseball";
+            String domainStr = "http://www.yahoo.com";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "www.yahoo.com/sports/baseball";
+            String domainStr = "www.yahoo.com";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "http://www.yahoo.com/sports/baseball?k1=v1&k2=v2";
+            String domainStr = "http://www.yahoo.com";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "yahoo.co/sports/baseball";
+            String domainStr = "yahoo.co";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "http://yahoo.co/sports/baseball";
+            String domainStr = "http://yahoo.co";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "http://";
+            String domainStr = "http://";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "www.yahoo.com/";
+            String domainStr = "www.yahoo.com";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "/";
+            String domainStr = "";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "";
+            String domainStr = "";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "abcd";
+            String domainStr = "abcd";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+        {
+            String url = "abcd/";
+            String domainStr = "abcd";
+            String result = UrlNormalizer.getDomainString(url);
+            assertEquals(result, domainStr);
+        }
+
+    }
+
+
+    @Test
     public void testGetNormalizedURLValid1() {
         String url = "http://www.yahoo.com/sports/baseball";
         String normalizedStr = "com/yahoo/sports/baseball";

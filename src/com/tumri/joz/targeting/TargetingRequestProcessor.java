@@ -9,6 +9,7 @@ import com.tumri.joz.Query.ConjunctQuery;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.AdPodHandle;
+import com.tumri.joz.campaign.UrlNormalizer;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.AdPod;
 import com.tumri.utils.data.SortedArraySet;
@@ -102,7 +103,7 @@ public class TargetingRequestProcessor {
             targetedRealm = locationIdStr;
         }
         else if(urlName != null && !"".equals(urlName)) {
-            targetedRealm = urlName;
+            targetedRealm = UrlNormalizer.getDomainString(urlName);
         }
         else if(themeName != null && !"".equals(themeName)) {
             targetedRealm = themeName;

@@ -57,7 +57,28 @@ public class UrlNormalizer {
         return result;
     }
 
-	public static List<String> getAllPossibleNormalizedUrl(String url){
+    public static String getDomainString(String url) {
+        if(url == null) {
+			return null;
+		}
+        int startIndex = 0;
+        if(url.indexOf("://") != -1 ) {
+            startIndex = url.indexOf("://") + 3;
+        }
+
+        //parse the domain string.
+        // example: 1) www.xyz.com/a/b/c/d -> www.xyz.com , 2) www.xyz.com -> www.xyz.com
+        String domainStr;
+        if(url.indexOf("/", startIndex) != -1) {
+            domainStr = url.substring(0, url.indexOf("/", startIndex));
+        }
+        else {
+            domainStr = url;
+        }
+        return domainStr;
+    }
+
+    public static List<String> getAllPossibleNormalizedUrl(String url){
 		if(url == null) {
 			return null;
 		}
