@@ -1,10 +1,10 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.index.AdpodIndex;
 import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.UrlNormalizer;
+import com.tumri.joz.targeting.TargetingScoreHelper;
 import com.tumri.utils.data.MultiSortedSet;
 import com.tumri.utils.data.SortedArraySet;
 import com.tumri.utils.data.RWLocked;
@@ -86,8 +86,7 @@ public class SiteTargetingQuery extends TargetingQuery {
             AtomicAdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
             List<String> urls = UrlNormalizer.getAllPossibleNormalizedUrl(urlName);
             if(urls != null && urls.size() > 0) {
-                //@todo replace this with more appropriate scoring
-                double urlScore = 0.9;
+                double urlScore = TargetingScoreHelper.getInstance().getUrlScore();
                 double delta    = 0.05;
                 for (String url : urls) {
                     results = index.get(url);
@@ -95,8 +94,10 @@ public class SiteTargetingQuery extends TargetingQuery {
                     if(results != null) {
                         clonedResults = cloneResults(results, urlScore);
                     }
-                    urlScore = urlScore - delta;
-                    if(urlScore < 0.05) {
+                    if(urlScore > delta) {
+                        urlScore = urlScore - delta;
+                    }
+                    else {
                         urlScore = delta;    
                     }
                     if(clonedResults != null) {
@@ -111,7 +112,7 @@ public class SiteTargetingQuery extends TargetingQuery {
 
     private SortedSet<Handle> cloneResults(SortedSet<Handle> results, double urlScore) {
         SortedArraySet<Handle> sortedArraySet = null;
-        ArrayList<Handle> list = null;
+        ArrayList<Handle> list;
         if(results != null) {
             if(results instanceof RWLocked) {
                 ((RWLocked)results).readerLock();
@@ -125,7 +126,7 @@ public class SiteTargetingQuery extends TargetingQuery {
                         handle = handle.createHandle(urlScore);
                         list.add(handle);
                     }
-                    sortedArraySet = new SortedArraySet(list);
+                    sortedArraySet = new SortedArraySet<Handle>(list);
                 }
             }
             finally {
@@ -139,13 +140,12 @@ public class SiteTargetingQuery extends TargetingQuery {
         return sortedArraySet;
     }
     
-    @SuppressWarnings({"unchecked"})
-    private SortedSet<Handle> execRunOfNetworkQuery() {
-        SortedSet<Handle> results;
-        AtomicAdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
-        results = index.get(AdpodIndex.RUN_OF_NETWORK);
-        return results;
-    }
+//    private SortedSet<Handle> execRunOfNetworkQuery() {
+//        SortedSet<Handle> results;
+//        AtomicAdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
+//        results = index.get(AdpodIndex.RUN_OF_NETWORK);
+//        return results;
+//    }
 
     public boolean accept(Handle v) {
         return false;
