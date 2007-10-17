@@ -30,16 +30,22 @@
   <div>
     	<a href="performance-stat.jsp">Performance statistics</a>
   </div>
-  <br>  
+  <br>
 
   <div>
     	<a href="eval.jsp">Eval</a>
   </div>
-  <br>  
+  <br>
+  
+  <div>
+  	<a href="service-multiplexer.jsp">Service multiplexer</a>
+  </div>
+  <br>
 
   <div>
     	<a href="refresh-data.jsp" onclick="return confirm('This will force a data refresh. Do you want to continue?');">Refresh Data</a>
   </div>
+  <br>
 
   </body>
 </html>
