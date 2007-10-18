@@ -37,8 +37,8 @@
         <mkdir dir="${dist.dir}/testsuite"/>
 
         <!-- copy so it gets put into our jar -->
-        <copy file="${src.dir}/log4j.properties"
-              todir="${dist.dir}/testsuite"/>
+        <copy file="${src.dir}/log4j.properties.template"
+              todir="${dist.dir}/testsuite/log4j.properties"/>
         <copy file="${src.dir}/conf/testsuite.properties"
               todir="${dist.dir}/testsuite"/>
 
