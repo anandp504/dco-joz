@@ -6,10 +6,22 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <title>Joz Console : Performance Statistics</title>
+  <script type="text/javascript">
+  	function submitForm(opStr) {
+  		var operation=document.getElementById("operation");
+  		operation.value=opStr;
+  		var perfForm=document.getElementById("perfForm");
+  		perfForm.submit();
+  	}
+  </script>
 </head>
 <body>
 	<%
+		String operation=request.getParameter("operation");
 		PerformanceMonitor performanceMonitor=PerformanceMonitor.getInstance();
+		if ( (operation != null) && ("Reset".equals(operation)) ) {
+			performanceMonitor.reset();
+		}
 		PerformanceMonitorStatus pms=(PerformanceMonitorStatus)performanceMonitor.getStatus("performance");
 		long totalReqs=pms.getTotalRequestCount();
 		long totalFailedReqs=pms.getFailedRequestCount();
@@ -109,6 +121,14 @@
 			}
 			out.print("</table>");
 		%>
+	</div>
+	<br>
+	<div>
+		<form id="perfForm" name="perfForm" method="post" action="performance-stat.jsp">
+			<input type="hidden" id="operation" name="operation" value="Reset"/>
+			<input type="button" id="refresh" name="refresh" value="Refresh" onClick="javascript:submitForm('Refresh')"/>
+			<input type="button" id="reset" name="reset" value="Reset" onClick="javascript:submitForm('Reset')"/>
+		</form>
 	</div>
 </body>
 </html>

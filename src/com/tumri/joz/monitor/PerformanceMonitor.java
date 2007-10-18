@@ -26,7 +26,7 @@ public class PerformanceMonitor extends ComponentMonitor
 	private AtomicReference minTimedTspecName=new AtomicReference();
 	private AtomicReference maxTimedTspecName=new AtomicReference();
 	private ConcurrentHashMap<String,Long> failedTspecsMap=new ConcurrentHashMap<String,Long>();
-	private Date startDate=new Date();
+	private static Date startDate=new Date();
 
     private static Logger log = Logger.getLogger(PerformanceMonitor.class);
 
@@ -91,4 +91,14 @@ public class PerformanceMonitor extends ComponentMonitor
 		((PerformanceMonitorStatus)status).setStartDate(startDate);
 		return status;
     }
+
+    public void reset() {
+		totalRequests.set(0L);
+		failedRequests.set(0L);
+		totalTime.set(0L);
+		minRequestTime.set(0L);
+		maxRequestTime.set(0L);
+		failedTspecsMap.clear();
+		startDate=new Date();
+	}
 }
