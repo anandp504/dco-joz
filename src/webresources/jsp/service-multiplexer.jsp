@@ -74,18 +74,19 @@
 		Collections.sort(urlList);
 		for(int j=0;j<urlList.size();j++) {
 			url=(String)urlList.get(j);
-			out.print("<tr>");
-			out.print("<td valign=\"top\">R</td>");
-			out.print("<td valign=\"top\">"+url+"</td>");
 			values=urlAdPodIndex.get(url);
 			valuesIt=values.iterator();
 			List<String> geoList=new ArrayList<String>();
-			List<String> tspecList=new ArrayList<String>();
 			Iterator geoIt=null;
 			String geoStr=null;
 			SortedSet<AdPodHandle> geoVal=null;
 			while(valuesIt.hasNext()) {
+				out.print("<tr>");
+				out.print("<td valign=\"top\">R</td>");
+				out.print("<td valign=\"top\">"+url+"</td>");
+
 				adPodHandle=(AdPodHandle)valuesIt.next();
+				geoList.clear();
 				
 				geoIt=countryKeys.iterator();
 				while(geoIt.hasNext()) {
@@ -141,29 +142,21 @@
 						geoList.add(geoStr);		
 					}
 				}
+				out.print("<td valign=\"top\"><table>");
+				for(int i=0;i<geoList.size();i++) {
+					out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
+				}
+				out.print("</table></td>");
+
 
 				try {
 					oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
 				}catch(Exception e) {
 					continue;
 				}
-				tspecList.add(oSpec.getName());
-			}
-			out.print("<td valign=\"top\"><table>");
-			for(int i=0;i<geoList.size();i++) {
-				out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
-			}
-			out.print("</table></td>");
-
-			out.print("<td valign=\"top\"><table>");
-			Collections.sort(tspecList);
-			String tspecName=null;
-			for(int i=0;i<tspecList.size();i++) {
-				tspecName=(String)tspecList.get(i);
-				out.print("<tr><td><a href=\"javascript:submitForm('"+tspecName+"')\">"+tspecName+"</td></tr>");
-			}
-			out.print("</table></td>");
-			out.print("</tr>");
+				out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
+				out.print("</tr>");
+			}			
 		}
 		
 		AtomicAdpodIndex themeAdPodIndex=campaignDB.getThemeAdPodMappingIndex();
@@ -182,9 +175,6 @@
 		Collections.sort(themeList);
 		for(int j=0;j<themeList.size();j++) {
 			theme=(String)themeList.get(j);
-			out.print("<tr>");
-			out.print("<td valign=\"top\">T</td>");
-			out.print("<td valign=\"top\">"+theme+"</td>");
 			values=themeAdPodIndex.get(theme);
 			valuesIt=values.iterator();
 			List<String> geoList=new ArrayList<String>();
@@ -193,8 +183,13 @@
 			String geoStr=null;
 			SortedSet<AdPodHandle> geoVal=null;
 			while(valuesIt.hasNext()) {
-				adPodHandle=(AdPodHandle)valuesIt.next();
+				out.print("<tr>");
+				out.print("<td valign=\"top\">T</td>");
+				out.print("<td valign=\"top\">"+theme+"</td>");
 
+				adPodHandle=(AdPodHandle)valuesIt.next();
+				geoList.clear();
+				
 				geoIt=countryKeys.iterator();
 				while(geoIt.hasNext()) {
 					geoStr=(String)geoIt.next();
@@ -250,28 +245,21 @@
 					}
 				}
 				
+				out.print("<td valign=\"top\"><table>");
+				for(int i=0;i<geoList.size();i++) {
+					out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
+				}
+				out.print("</table></td>");
+
+				
 				try {
 					oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
 				}catch(Exception e) {
 					continue;
 				}
-				tspecList.add(oSpec.getName());
+				out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
+				out.print("</tr>");
 			}
-			out.print("<td valign=\"top\"><table>");
-			for(int i=0;i<geoList.size();i++) {
-				out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
-			}
-			out.print("</table></td>");
-
-			out.print("<td valign=\"top\"><table>");
-			Collections.sort(tspecList);
-			String tspecName=null;
-			for(int i=0;i<tspecList.size();i++) {
-				tspecName=(String)tspecList.get(i);
-				out.print("<tr><td><a href=\"javascript:submitForm('"+tspecName+"')\">"+tspecName+"</td></tr>");
-			}
-			out.print("</table></td>");
-			out.print("</tr>");
 		}
 		
 		AtomicAdpodIndex locationAdPodIndex=campaignDB.getLocationAdPodMappingIndex();
@@ -290,10 +278,6 @@
 		Collections.sort(locationList);
 		for(int j=0;j<locationList.size();j++) {
 			location=(Integer)locationList.get(j);
-			out.print("<tr>");
-			out.print("<td valign=\"top\">L</td>");
-			out.print("<td valign=\"top\">"+location.toString()+"</td>");
-			out.print("<td><table>");
 			values=themeAdPodIndex.get(location.intValue());
 			valuesIt=values.iterator();
 			List<String> geoList=new ArrayList<String>();
@@ -302,8 +286,13 @@
 			String geoStr=null;
 			SortedSet<AdPodHandle> geoVal=null;
 			while(valuesIt.hasNext()) {
-				adPodHandle=(AdPodHandle)valuesIt.next();
+				out.print("<tr>");
+				out.print("<td valign=\"top\">L</td>");
+				out.print("<td valign=\"top\">"+location.toString()+"</td>");
 
+				adPodHandle=(AdPodHandle)valuesIt.next();
+				geoList.clear();
+				
 				geoIt=countryKeys.iterator();
 				while(geoIt.hasNext()) {
 					geoStr=(String)geoIt.next();
@@ -359,28 +348,21 @@
 					}
 				}
 				
+				out.print("<td valign=\"top\"><table>");
+				for(int i=0;i<geoList.size();i++) {
+					out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
+				}
+				out.print("</table></td>");
+
+				
 				try {
 					oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
 				}catch(Exception e) {
 					continue;
 				}
-				tspecList.add(oSpec.getName());
+				out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
+				out.print("</tr>");
 			}
-			out.print("<td valign=\"top\"><table>");
-			for(int i=0;i<geoList.size();i++) {
-				out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
-			}
-			out.print("</table></td>");
-
-			out.print("<td valign=\"top\"><table>");
-			Collections.sort(tspecList);
-			String tspecName=null;
-			for(int i=0;i<tspecList.size();i++) {
-				tspecName=(String)tspecList.get(i);
-				out.print("<tr><td><a href=\"javascript:submitForm('"+tspecName+"')\">"+tspecName+"</td></tr>");
-			}
-			out.print("</table></td>");
-			out.print("</tr>");
 		}
 
 	%>
