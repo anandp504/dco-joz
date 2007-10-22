@@ -8,6 +8,15 @@
   <body>
   <div id="desc">
   	<strong>Joz Console Ver 0.1</strong>
+  	<div align="right">
+  	<table>
+  		<tr>
+  		<td>Client:&nbsp;<%=request.getRemoteHost()%></td>
+  		<td>&nbsp;&nbsp;&nbsp</td>
+  		<td>Server:&nbsp;<%=request.getServerName()%></td>
+  		</tr>
+  	</table>
+  	</div>
   	<hr/>
   </div>
   <br>
