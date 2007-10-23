@@ -81,7 +81,10 @@ public class ProductIndex {
     File f = findProductIndex(dir);
     if (f != null) {
       ProductIndex pi = new ProductIndex(f);
+      ProductIndex oldIndex = g_Instance.get();
       g_Instance.set(pi);
+      if (oldIndex != null)
+        oldIndex.m_searcherCache.get().close();
     }
   }
   
@@ -459,8 +462,9 @@ public class ProductIndex {
         index_modifier.addDocument(doc,getAnalyzer(false));
       }
       index_modifier.close();
-      m_searcherCache.get().close();
+      IndexSearcherCache isc = m_searcherCache.get();
       m_searcherCache.set(new IndexSearcherCache(m_index_dir));
+      isc.close();
     } catch (IOException e) {
       log.error("Exception while adding products",e);
     } finally {
@@ -484,8 +488,9 @@ public class ProductIndex {
         index_modifier.deleteDocuments(new Term("id",p.getGId()));
       }
       index_modifier.close();
-      m_searcherCache.get().close();
+      IndexSearcherCache isc = m_searcherCache.get();
       m_searcherCache.set(new IndexSearcherCache(m_index_dir));
+      isc.close();
     } catch (IOException e) {
       log.error("Exception while deleting products",e);
     } finally {
@@ -499,42 +504,52 @@ public class ProductIndex {
 
 class IndexSearcherCache {
   static Logger log = Logger.getLogger(IndexSearcherCache.class);
-  Stack<IndexSearcher> m_stack = new Stack<IndexSearcher>();
+  LinkedList<IndexSearcher> m_list = new LinkedList<IndexSearcher>();
   File m_dir;
   boolean m_close = false;
 
   IndexSearcherCache(File dir) throws IOException {
     m_dir = dir;
-    m_stack.add(new IndexSearcher(new RAMDirectory(m_dir)));
+    m_list.add(new IndexSearcher(new RAMDirectory(m_dir)));
   }
 
+
+  /**
+   * @return IndexSearcher object or NULL
+   */
   IndexSearcher get() {
     IndexSearcher searcher = null;
-    try {
-      searcher = m_stack.pop();
-    } catch (EmptyStackException e) {
-      try {
-        searcher = new IndexSearcher(new RAMDirectory(m_dir));
-      } catch (IOException e1) {
-        log.error("IO exception while initializing IndexSearcher",e1);
+    synchronized (this) {
+      if (!m_list.isEmpty()) {
+        searcher = m_list.removeFirst();
+      } else if (!m_close) {
+        try {
+          searcher = new IndexSearcher(new RAMDirectory(m_dir));
+        } catch (IOException e1) {
+          log.error("IO exception while initializing IndexSearcher", e1);
+        }
       }
     }
     return searcher;
   }
 
   void put(IndexSearcher searcher) {
-    if (!m_close) {
-      m_stack.push(searcher);
-    } else {
-      close(searcher);
+    synchronized (this) {
+      if (!m_close) {
+        m_list.add(searcher);
+      } else {
+        close(searcher);
+      }
     }
   }
 
   void close() {
-    m_close = true;
-    IndexSearcher searcher;
-    while((searcher = get()) != null) {
-      close(searcher);
+    synchronized (this) {
+      m_close = true;
+      IndexSearcher searcher;
+      while((searcher = get()) != null) {
+        close(searcher);
+      }
     }
   }
 
