@@ -520,15 +520,17 @@ public class ProductRequestProcessor {
 			AttributeQuery adWidthQuery = new AttributeQuery(Product.Attribute.kImageWidth, adWidth);
 			clonedTSpecQuery.addSimpleQuery(adWidthQuery);
 		}
-		int numLeadGens = 1;
-		if (minNumLeadGenProds!=null && m_pageSize !=null){
+		int numLeadGens = 0;
+		if (minNumLeadGenProds!=null && m_pageSize !=null && m_pageSize>0){
 			if (m_pageSize >= minNumLeadGenProds) {
 				numLeadGens = m_pageSize.intValue();
 			} else {
 				numLeadGens = minNumLeadGenProds.intValue();
 			}
-		}
-		clonedTSpecQuery.setBounds(numLeadGens, 0);
+		} else if (numLeadGens ==0 && m_pageSize!=null && m_pageSize>0) {
+            numLeadGens = m_pageSize.intValue();
+        }
+        clonedTSpecQuery.setBounds(numLeadGens, 0);
 		SortedSet<Handle> qResult = clonedTSpecQuery.exec();
 		leadGenProds.addAll(qResult);
 		return leadGenProds;

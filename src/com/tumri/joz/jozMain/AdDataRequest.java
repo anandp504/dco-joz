@@ -768,6 +768,14 @@ public class AdDataRequest {
             throw new SexpUtils.BadGetNextException("missing value for "
                     + param_name);
         Sexp e = iter.next();
+        // nil = empty list = null
+        if (e.isSexpList()) {
+            SexpList l = e.toSexpList();
+            if (l.size() == 0)
+                return null;
+            throw new SexpUtils.BadGetNextException("bad value for " + param_name + ": "
+                    + e.toString());
+        }
         if (e.isSexpSymbol()) {
             SexpSymbol s = e.toSexpSymbol();
             if (s.equalsStringIgnoreCase("nil"))
