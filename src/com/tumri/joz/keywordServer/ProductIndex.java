@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -171,11 +172,10 @@ public class ProductIndex {
         }
       } catch (IOException e) {
         searcherCache.close(searcher);
-        searcher = null;
+        searcher = null; // Important to avoid the finally put clause
         log.error("Exception", e);
       } finally {
-        if (searcher != null)
-          searcherCache.put(searcher);
+        searcherCache.put(searcher);
       }
     }
     //System.out.println("returned "+alist.size() + " products");
@@ -437,15 +437,37 @@ public class ProductIndex {
 
   @Test
   public void test() {
-    ProductIndex pi = ProductIndex.getInstance();
     long start = System.currentTimeMillis();
-    for (int i=0;i<1;i++) {
+    for (int i=0;i<10;i++) {
+      ProductIndex.init();
+      ProductIndex pi = ProductIndex.getInstance();
       try {
-        pi.m_searcherCache.get().get().search(createQuery("canon eos 400D"));
+        IndexSearcher searcher = pi.m_searcherCache.get().get();
+        Query q = createQuery("canon eos 400D");
+        TopDocCollector tdc = new TopDocCollector(2000);
+        searcher.search(q, tdc);
+        TopDocs topdocs = tdc.topDocs();
+        if (topdocs != null) {
+          int len = topdocs.scoreDocs.length;
+          for (int j = 0; j < len; j++) {
+            Document doc = searcher.doc(topdocs.scoreDocs[j].doc);
+            String id = doc.get("id");
+            double score = topdocs.scoreDocs[j].score;
+            int oid = Integer.parseInt(id);
+          }
+        }
+        pi.m_searcherCache.get().put(searcher);
       } catch (IOException e) {
       }
     }
     System.out.println("Time is "+(System.currentTimeMillis()-start));
+    Runtime.getRuntime().gc();
+    Runtime.getRuntime().gc();
+    try {
+      Thread.sleep(360);
+    } catch (InterruptedException e) {
+      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    }
   }
 
   /**
@@ -505,12 +527,18 @@ public class ProductIndex {
 class IndexSearcherCache {
   static Logger log = Logger.getLogger(IndexSearcherCache.class);
   LinkedList<IndexSearcher> m_list = new LinkedList<IndexSearcher>();
+  AtomicInteger m_references = new AtomicInteger(0); // number of referers to m_ramDirectory
   File m_dir;
   boolean m_close = false;
+  RAMDirectory m_ramDir;
 
   IndexSearcherCache(File dir) throws IOException {
     m_dir = dir;
-    m_list.add(new IndexSearcher(new RAMDirectory(m_dir)));
+    m_ramDir = new RAMDirectory(m_dir);
+    // m_ramDir.setLockFactory(new NoLockFactory()); @todo this needs to be tested
+    IndexSearcher searcher = createSearcher();
+    if (searcher != null)
+      m_list.add(searcher);
   }
 
 
@@ -520,25 +548,19 @@ class IndexSearcherCache {
   IndexSearcher get() {
     IndexSearcher searcher = null;
     synchronized (this) {
-      if (!m_list.isEmpty()) {
-        searcher = m_list.removeFirst();
-      } else if (!m_close) {
-        try {
-          searcher = new IndexSearcher(new RAMDirectory(m_dir));
-        } catch (IOException e1) {
-          log.error("IO exception while initializing IndexSearcher", e1);
-        }
-      }
+      searcher =  (m_list.isEmpty() ? createSearcher() : m_list.removeFirst());
     }
     return searcher;
   }
 
   void put(IndexSearcher searcher) {
-    synchronized (this) {
-      if (!m_close) {
-        m_list.add(searcher);
-      } else {
-        close(searcher);
+    if (searcher != null) {
+      synchronized (this) {
+        if (!m_close) {
+          m_list.add(searcher);
+        } else {
+          close(searcher);
+        }
       }
     }
   }
@@ -560,5 +582,24 @@ class IndexSearcherCache {
     } catch (IOException e) {
       log.error("IO exception while closing IndexSearcher",e);
     }
+    if (searcher != null && m_references.decrementAndGet() <= 0) {
+      try {
+        m_ramDir.close();
+      } catch (Exception e) {
+      }
+    }
+  }
+
+  IndexSearcher createSearcher() {
+    if (!m_close) {
+      try {
+        IndexSearcher searcher = new IndexSearcher(m_ramDir);
+        m_references.incrementAndGet();
+        return searcher;
+      } catch (IOException e) {
+        log.error("IO exception while creating IndexSearcher",e);
+      }
+    }
+    return null;
   }
 }
