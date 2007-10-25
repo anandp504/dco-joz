@@ -280,13 +280,19 @@ public class ProductDB {
 	  }
 	  if(max-min > 0) {
 		  int rand = g_random.nextInt(max-min) + min;
-		  SortedMap<Integer,IProduct> map = m_map.tailMap(rand);
-		  if (!map.isEmpty()) {
-			  IProduct p = m_map.get(map.firstKey());
-			  if (p != null)
-				  return p.getHandle();
-		  }
-	  }
+          m_map.readerLock();
+          try {
+              SortedMap<Integer,IProduct> map = m_map.tailMap(rand);
+              if (!map.isEmpty()) {
+                  IProduct p = m_map.get(map.firstKey());
+                  if (p != null)
+                      return p.getHandle();
+              }
+          }
+          finally {
+            m_map.readerUnlock();
+          }
+      }
 	  return null;
   }
 }
