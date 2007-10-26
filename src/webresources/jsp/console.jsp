@@ -1,3 +1,5 @@
+<%@ page language="java" import="java.net.*" %>
+<%@ page language="java" import="com.tumri.joz.monitor.*" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -6,19 +8,7 @@
   </head>
 
   <body>
-  <div id="desc">
-  	<strong>Joz Console Ver 0.1</strong>
-  	<div align="right">
-  	<table>
-  		<tr>
-  		<td>Client:&nbsp;<%=request.getRemoteHost()%></td>
-  		<td>&nbsp;&nbsp;&nbsp</td>
-  		<td>Server:&nbsp;<%=request.getServerName()%></td>
-  		</tr>
-  	</table>
-  	</div>
-  	<hr/>
-  </div>
+  <jsp:include page="header.jsp"/>
   <br>
 
   <div id="links">

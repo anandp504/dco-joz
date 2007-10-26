@@ -20,12 +20,9 @@
   	  </script>
   </head>
   <body>
-	<div id="desc">
-		<strong>Joz Console Ver 0.1</strong>
-		<hr/>
-		<div id="homelink" style="text-align: right">
-			<a href="console.jsp">home</a>
-		</div>
+	<jsp:include page="header.jsp"/>
+	<div id="homelink" style="text-align: right">
+		<a href="console.jsp">home</a>
 	</div>
 	<br>
 	<div id="links">

@@ -21,27 +21,24 @@
 			success = (status.lastRunStatus == true? "successful" : "failed");
 			datetime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")).format(status.lastRefreshTime);
 		}
-     %>
-	 <%
+	%>
+	<%
 		if (requestValue == null) {
-	 %>
-	 	<div id="desc">
-			<strong>Joz Console Ver 0.1</strong>
-			<hr/>
-			<div id="homelink" style="text-align: right">
-				<a href="console.jsp">home</a>
-			</div>
-	  	</div>
-	  	<br>
-	  	<div>
-		  	<p>Refresh status:&nbsp;&nbsp; <%=success%> </p>
-		  	<p>Refresh time: &nbsp;&nbsp; <%=datetime%> </p>
-      	</div>
-	  	<br>
-	  <% }
+	%>
+	<jsp:include page="header.jsp"/>
+	<div id="homelink" style="text-align: right">
+		<a href="console.jsp">home</a>
+	</div>
+	<br>
+	<div>
+		<p>Refresh status:&nbsp;&nbsp; <%=success%> </p>
+		<p>Refresh time: &nbsp;&nbsp; <%=datetime%> </p>
+	</div>
+	<br>
+	<% }
 		 else if (requestValue.equals("qac")) {
 			out.print(success);
 		 }
-	  %>
+	%>
   </body>
 </html>

@@ -40,13 +40,10 @@
 			aveReqTime=(pms.getTotalTime()/(totalReqs-totalFailedReqs));
 		}
 	%>
-	<div id="desc">
-		<strong>Joz Console Ver 0.1</strong>
-		<hr/>
-		<div id="homelink" style="text-align: right">
-			<a href="console.jsp">home</a>
-		</div>
-  	</div>
+	<jsp:include page="header.jsp"/>
+	<div id="homelink" style="text-align: right">
+		<a href="console.jsp">home</a>
+	</div>
   	<br>
   	<div id="links">
 		<strong>get-ad-data call performance statistics</strong> &nbsp;&nbsp;&nbsp since : <%=(pms.getStartDate()).toString()%>
@@ -76,7 +73,7 @@
 		</tr>
 		<tr>
 		<td>Time:</td>
-		<td><%=(0!=totalReqs)?(minRequestTime/1000000):0%> ms</td>
+		<td><%=(0!=totalReqs)?(minRequestTime/1000):0%> micro seconds</td>
 		</tr>
 		</table>
 		</td>
@@ -91,14 +88,14 @@
 		</tr>
 		<tr>
 		<td>Time</td>
-		<td><%=(0!=totalReqs)?(maxRequestTime/1000000):0%> ms </td>
+		<td><%=(0!=totalReqs)?(maxRequestTime/1000):0%> micro seconds</td>
 		</tr>
 		</table>
 		</td>
 		</tr>
 		<tr>
 		<td>Average call performance</td>
-		<td><%=(0!=totalReqs)?(aveReqTime/1000000):0%> ms</td>
+		<td><%=(0!=totalReqs)?(aveReqTime/1000):0%> micro seconds</td>
 		</tr>
 		</table>
 	</div>
