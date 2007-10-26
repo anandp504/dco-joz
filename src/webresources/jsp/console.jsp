@@ -1,5 +1,3 @@
-<%@ page language="java" import="java.net.*" %>
-<%@ page language="java" import="com.tumri.joz.monitor.*" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -37,10 +35,10 @@
   <br>
   
   <div>
-  	<a href="service-multiplexer.jsp">Service multiplexer</a>
+  	<a href="service-multiplexer.jsp">Service multiplexer</a> (<a href="sm-test-input.jsp">test</a>)
   </div>
   <br>
-
+  
   <div>
     	<a href="refresh-data.jsp" onclick="return confirm('This will force a data refresh. Do you want to continue?');">Refresh Data</a>
   </div>
