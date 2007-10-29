@@ -20,6 +20,7 @@
 		version=st.nextToken();//label
 		version=st.nextToken();//joz
 		version=st.nextToken();//version format(MjN.MnN.MaN.Bn);
+		version = version.substring(0, version.indexOf(".version.properties"));
 
 		java.net.InetAddress inetAdd=java.net.InetAddress.getByName(request.getRemoteHost());
 		clientHostName=inetAdd.getHostName();
