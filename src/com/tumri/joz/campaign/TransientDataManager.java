@@ -418,7 +418,7 @@ public class TransientDataManager {
                         if(urlRequest.getGeocode() != null) {
                             adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, urlName));
                             deleteGeocodeMapping(urlRequest.getGeocode(), adPodId);
-                            oSpecSiteGeoAdPodMap.safeRemove(tSpecName + urlName);
+                            oSpecSiteGeoAdPodMap.safeRemove(generateKey(tSpecName, urlName));
                         }
                         else {
                             adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(tSpecName, urlName));
