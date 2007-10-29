@@ -5,11 +5,9 @@ import org.junit.Test;
 import com.tumri.joz.campaign.CampaignDBDataLoader;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bpatel
- * Date: Oct 29, 2007
- * Time: 1:48:56 PM
- * To change this template use File | Settings | File Templates.
+ * Test case for regression testing of bug 1354
+ *
+ * @author bpatel
  */
 public class Bug1354Test {
     @BeforeClass
