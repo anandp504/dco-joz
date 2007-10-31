@@ -1,13 +1,19 @@
+<%@ page language="java" import="java.io.*" %>
 <%@ page language="java" import="java.net.*" %>
 <%@ page language="java" import="java.util.*" %>
 <%@ page language="java" import="java.util.zip.*" %>
-<%@ page language="java" import="com.tumri.joz.monitor.*" %>
 <%
 	String clientHostName=null;
 	String version=null;
 	try
 	{
-		ZipFile zf=new ZipFile("../webapps/joz.war");
+		ZipFile zf=null;
+		String catalinaHome=System.getProperty("catalina.home");
+		if (null == catalinaHome) {
+			zf=new ZipFile("../webapps/joz.war");
+		} else {
+			zf=new ZipFile(catalinaHome+File.separator+"webapps/joz.war");
+		}
 		Enumeration e=zf.entries();
 		String verPropFileName=null;
 		ZipEntry ze=null;
@@ -20,10 +26,13 @@
 		version=st.nextToken();//label
 		version=st.nextToken();//joz
 		version=st.nextToken();//version format(MjN.MnN.MaN.Bn);
-		version = version.substring(0, version.indexOf(".version.properties"));
+		version = version.substring(0, version.indexOf(".version.properties"));//Remove rest of the file name.
 
 		java.net.InetAddress inetAdd=java.net.InetAddress.getByName(request.getRemoteHost());
 		clientHostName=inetAdd.getHostName();
+		if (null==clientHostName) {
+			clientHostName=request.getRemoteHost();
+		}
 	}
 	catch(Exception e)
 	{
@@ -35,9 +44,9 @@
 	<div align="right">
 	<table>
 		<tr>
-		<td>Server:&nbsp;<%=request.getServerName()%></td>
-		<td>&nbsp;&nbsp;&nbsp</td>
-		<td>Client:&nbsp;<%=clientHostName%></td>
+			<td>Server:&nbsp;<%=request.getServerName()%></td>
+			<td>&nbsp;&nbsp;&nbsp</td>
+			<td>Client:&nbsp;<%=clientHostName%></td>
 		</tr>
 	</table>
 	</div>
