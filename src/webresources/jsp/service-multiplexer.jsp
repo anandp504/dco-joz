@@ -79,10 +79,6 @@
 				String geoStr=null;
 				SortedSet<AdPodHandle> geoVal=null;
 				while(valuesIt.hasNext()) {
-					out.print("<tr>");
-					out.print("<td valign=\"top\">R</td>");
-					out.print("<td valign=\"top\">"+url+"</td>");
-
 					adPodHandle=(AdPodHandle)valuesIt.next();
 					geoList.clear();
 
@@ -140,18 +136,25 @@
 							geoList.add(geoStr);		
 						}
 					}
+
+					try{
+						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
+					}catch(Exception e){
+						continue;
+					}
+					if (null == oSpec) continue;
+
+					//Now print the data into html.
+					out.print("<tr>");
+					out.print("<td valign=\"top\">R</td>");
+					out.print("<td valign=\"top\">"+url+"</td>");
+					
 					out.print("<td valign=\"top\"><table>");
 					for(int i=0;i<geoList.size();i++) {
 						out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
 					}
 					out.print("</table></td>");
 
-
-					try {
-						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
-					}catch(Exception e) {
-						continue;
-					}
 					out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
 					out.print("</tr>");
 				}
@@ -181,10 +184,6 @@
 				String geoStr=null;
 				SortedSet<AdPodHandle> geoVal=null;
 				while(valuesIt.hasNext()) {
-					out.print("<tr>");
-					out.print("<td valign=\"top\">T</td>");
-					out.print("<td valign=\"top\">"+theme+"</td>");
-
 					adPodHandle=(AdPodHandle)valuesIt.next();
 					geoList.clear();
 
@@ -242,6 +241,18 @@
 							geoList.add(geoStr);		
 						}
 					}
+					
+					try{
+						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
+					}catch(Exception e){
+						continue;
+					}
+					if (null==oSpec) continue;
+					
+					//Now print the data into html.
+					out.print("<tr>");
+					out.print("<td valign=\"top\">T</td>");
+					out.print("<td valign=\"top\">"+theme+"</td>");
 
 					out.print("<td valign=\"top\"><table>");
 					for(int i=0;i<geoList.size();i++) {
@@ -249,12 +260,6 @@
 					}
 					out.print("</table></td>");
 
-
-					try {
-						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
-					}catch(Exception e) {
-						continue;
-					}
 					out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
 					out.print("</tr>");
 				}
@@ -284,10 +289,6 @@
 				String geoStr=null;
 				SortedSet<AdPodHandle> geoVal=null;
 				while(valuesIt.hasNext()) {
-					out.print("<tr>");
-					out.print("<td valign=\"top\">L</td>");
-					out.print("<td valign=\"top\">"+location.toString()+"</td>");
-
 					adPodHandle=(AdPodHandle)valuesIt.next();
 					geoList.clear();
 
@@ -345,6 +346,18 @@
 							geoList.add(geoStr);		
 						}
 					}
+					
+					try{
+						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
+					}catch(Exception e) {
+						continue;
+					}
+					if (null==oSpec) continue;
+
+					//Now print the data into html.
+					out.print("<tr>");
+					out.print("<td valign=\"top\">L</td>");
+					out.print("<td valign=\"top\">"+location.toString()+"</td>");
 
 					out.print("<td valign=\"top\"><table>");
 					for(int i=0;i<geoList.size();i++) {
@@ -352,12 +365,6 @@
 					}
 					out.print("</table></td>");
 
-
-					try {
-						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
-					}catch(Exception e) {
-						continue;
-					}
 					out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
 					out.print("</tr>");
 				}
