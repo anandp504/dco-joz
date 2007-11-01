@@ -70,11 +70,11 @@ public class ProductIndex {
     }
     return pi;
   }
-  
+
   public static void init() {
       init(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR));
   }
-  
+
   public static void init(String dir) {
     if (dir == null || "".equals(dir.trim())) {
         dir = "./";
@@ -88,12 +88,12 @@ public class ProductIndex {
         oldIndex.m_searcherCache.get().close();
     }
   }
-  
+
   private static File findProductIndex(String dir) {
     File f = new File(dir);
     if (!f.exists()) {
       log.error("Directory doesn't exist: " + dir);
-      return null;          
+      return null;
     }
     String cannonicalPath = null;
     try {
@@ -104,11 +104,11 @@ public class ProductIndex {
       return null;
     }
     String luceneSubDir = AppProperties.getInstance().getProperty(LUCENEDIR);
-    String luceneDir = cannonicalPath + (cannonicalPath.endsWith("/")?"":"/") + ((luceneSubDir == null)?"":luceneSubDir); 
+    String luceneDir = cannonicalPath + (cannonicalPath.endsWith("/")?"":"/") + ((luceneSubDir == null)?"":luceneSubDir);
     f = new File(luceneDir);
     if (!f.exists()) {
       log.error("Lucene index dir doesn't exist: "+ luceneDir);
-      return null;          
+      return null;
     }
     return f;
   }
@@ -191,7 +191,7 @@ public class ProductIndex {
       return null;
     }
   }
-  
+
   /**
    * Replace are whitespace control chars or Control-M with spaces
    * @param queryStr
@@ -202,12 +202,12 @@ public class ProductIndex {
   		queryStr = queryStr.replaceAll("[\\^M\\s]", " ");
   	}
   	return queryStr;
-  } 
-  
+  }
+
   /*
    * The following code is used to generate lucene index.
    */
-  
+
   private Set<String> loadDeboostCategories(String file) throws IOException {
       Set<String> deboostSet = new HashSet<String>();
       List<String> lines = readTxtFile(file);
@@ -267,7 +267,7 @@ public class ProductIndex {
         f.setBoost(boost);
       doc.add(f);
     }
-  
+
   private Document getDocument(IProduct p) {
       Document doc = new Document();
       String cat = "";
@@ -289,7 +289,7 @@ public class ProductIndex {
 
       return doc;
     }
-  
+
   private ArrayList<IProduct> getAllProducts(File file) throws IOException {
       ContentProviderFactory f;
       Properties props = new Properties();
@@ -360,6 +360,8 @@ public class ProductIndex {
       // -docDir, etc.
 
       if (arg.equals("-h")) {
+          System.out.println("Usage: " + usage);
+          System.exit(0);
       } else if (arg.equals("-debug")) {
         debug = true;
       } else if (arg.equals("-dumpTokens")) {
@@ -430,7 +432,7 @@ public class ProductIndex {
       System.exit(1);
     }
   }
-  
+
   public static void main(String[] args) {
       new ProductIndex().index(args);
     }
