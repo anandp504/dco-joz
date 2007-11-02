@@ -115,7 +115,7 @@ public class ProductRequestProcessor {
 
 			//4. Determine Random vs. Deterministic behaviour: Randomize results only when there is no keyword search, and there is no pagination
 			Handle ref = null;
-			if (((mMineUrls == SexpUtils.MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null) && !hasKeywords(m_currOSpec))
+			if (((mMineUrls == SexpUtils.MaybeBoolean.FALSE) && (request.get_keywords() ==null) && (request.get_script_keywords() ==null))
 					|| ((m_currentPage==null) && (m_pageSize==null))) {
 				ref = ProductDB.getInstance().genReference ();
 			}

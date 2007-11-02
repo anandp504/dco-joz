@@ -119,20 +119,23 @@ public class ProductQueryProcessor extends QueryProcessor {
           kq1 = (KeywordQuery)q;
       }
     }
-    if (kq0 == null && kq1 == null)
-      return;
-    if (kq1 == null) {
-      aIntersector.includeRankedSet(kq0.rawResults(),kq0.getWeight());
-    } else {
-      if (kq0.isInternal()) {
-        aIntersector.include(kq0.exec(),kq0.getWeight());
-        aIntersector.includeRankedSet(kq1.rawResults(),kq1.getWeight());
-      } else {
-        aIntersector.includeRankedSet(kq0.rawResults(),kq0.getWeight());
-        aIntersector.include(kq1.exec(),kq1.getWeight());
-      }
+    if (kq0 !=null) {
+       if (kq0.isInternal()) {
+            aIntersector.include(kq0.exec(),kq0.getWeight());
+       } else {
+            aIntersector.includeRankedSet(kq0.rawResults(),kq0.getWeight());
+       }
     }
+
+    if (kq1 !=null) {
+       if (kq1.isInternal()) {
+           aIntersector.include(kq1.exec(),kq1.getWeight());
+       } else {
+           aIntersector.includeRankedSet(kq1.rawResults(),kq1.getWeight());
+       }
+    } 
   }
+
   /**
    * Computes the set differences of exclude category if include category yields a MultiSortedSet.
    * The excluded category set is simply removed from include category set using subset level differences
