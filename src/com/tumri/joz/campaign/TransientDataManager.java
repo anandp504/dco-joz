@@ -499,11 +499,6 @@ public class TransientDataManager {
                 for(int i=0; i<urlRequestList.size(); i++) {
                     IncorpDeltaMappingRequest<String> urlRequest = urlRequestList.get(i);
                     if(urlName.equals(urlRequest.getId())) {
-                        Url url = campaignDB.getUrl(urlName);
-                        if(url != null) {
-                            campaignDB.deleteUrlMapping(urlName, adPodId);
-                            campaignDB.deleteUrl(url.getName());
-                        }
                         if(urlRequest.getGeocode() != null && geocode != null) {
                             adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, urlName));
                             deleteGeocodeMapping(urlRequest.getGeocode(), adPodId);
@@ -517,6 +512,11 @@ public class TransientDataManager {
                             oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(tSpecName, urlName));
                             urlRequestList.remove(i);
                             break;
+                        }
+                        Url url = campaignDB.getUrl(urlName);
+                        if(url != null && adPodId > 0) {
+                            campaignDB.deleteUrlMapping(urlName, adPodId);
+                            campaignDB.deleteUrl(url.getName());
                         }
                     }
                 }
@@ -533,12 +533,6 @@ public class TransientDataManager {
                 for(int i=0; i<themeRequestList.size(); i++) {
                     IncorpDeltaMappingRequest<String> themeRequest = themeRequestList.get(i);
                     if(themeName.equals(themeRequest.getId())) {
-                        Theme theme = campaignDB.getTheme(themeName);
-                        if(theme != null) {
-
-                            campaignDB.deleteThemeMapping(theme.getName(), adPodId);
-                            campaignDB.deleteTheme(theme.getName());
-                        }
                         if(themeRequest.getGeocode() != null && geocode != null) {
                             adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, themeName));
                             deleteGeocodeMapping(themeRequest.getGeocode(), adPodId);
@@ -552,6 +546,12 @@ public class TransientDataManager {
                             oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(tSpecName, themeName));
                             themeRequestList.remove(i);
                             break;
+                        }
+                        Theme theme = campaignDB.getTheme(themeName);
+                        if(theme != null && adPodId > 0) {
+
+                            campaignDB.deleteThemeMapping(theme.getName(), adPodId);
+                            campaignDB.deleteTheme(theme.getName());
                         }
                     }
                 }
@@ -575,11 +575,6 @@ public class TransientDataManager {
                 for(int i=0; i<locationRequestList.size(); i++) {
                     IncorpDeltaMappingRequest<Integer> locationRequest = locationRequestList.get(i);
                     if(locationId == locationRequest.getId()) {
-                        Location location = campaignDB.getLocation(locationId);
-                        if(location != null) {
-                            campaignDB.deleteLocationMapping(location.getId(), adPodId);
-                            campaignDB.deleteLocation(location.getId());
-                        }
                         if(locationRequest.getGeocode() != null && geocode != null) {
                             adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, locationIdStr));
                             deleteGeocodeMapping(locationRequest.getGeocode(), adPodId);
@@ -593,6 +588,11 @@ public class TransientDataManager {
                             oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(tSpecName, locationIdStr));
                             locationRequestList.remove(i);
                             break;
+                        }
+                        Location location = campaignDB.getLocation(locationId);
+                        if(location != null && adPodId > 0) {
+                            campaignDB.deleteLocationMapping(location.getId(), adPodId);
+                            campaignDB.deleteLocation(location.getId());
                         }
                     }
                 }
