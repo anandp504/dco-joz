@@ -337,20 +337,18 @@ public class TransientDataManager {
         List <IncorpDeltaMappingRequest<String>>  themeRequestList      = themeMapRequest.safeGet(request.getTSpecName());
         IncorpDeltaMappingRequest<String> result = null;
         if(themeRequestList != null) {
-            for(int i=0; i<themeRequestList.size(); i++) {
-                IncorpDeltaMappingRequest<String> themeRequest = themeRequestList.get(i);
+            for (IncorpDeltaMappingRequest<String> themeRequest : themeRequestList) {
                 String themeName = themeRequest.getId();
                 String tSpecName = themeRequest.getTSpecName();
                 Geocode geocode = themeRequest.getGeocode();
-                if(themeName.equals(request.getId()) && tSpecName.equals(request.getTSpecName())) {
-                    if(request.getGeocode() != null) {
-                        if(geocode != null) {
+                if (themeName.equals(request.getId()) && tSpecName.equals(request.getTSpecName())) {
+                    if (request.getGeocode() != null) {
+                        if (geocode != null) {
                             result = themeRequest;
                             break;
                         }
-                    }
-                    else {
-                        if(geocode == null) {
+                    } else {
+                        if (geocode == null) {
                             result = themeRequest;
                             break;
                         }
@@ -368,20 +366,18 @@ public class TransientDataManager {
         List <IncorpDeltaMappingRequest<String>>  urlRequestList      = urlMapRequest.safeGet(request.getTSpecName());
         IncorpDeltaMappingRequest<String> result = null;
         if(urlRequestList != null) {
-            for(int i=0; i<urlRequestList.size(); i++) {
-                IncorpDeltaMappingRequest<String> urlRequest = urlRequestList.get(i);
+            for (IncorpDeltaMappingRequest<String> urlRequest : urlRequestList) {
                 String urlName = urlRequest.getId();
                 String tSpecName = urlRequest.getTSpecName();
                 Geocode geocode = urlRequest.getGeocode();
-                if(urlName.equals(request.getId()) && tSpecName.equals(request.getTSpecName())) {
-                    if(request.getGeocode() != null) {
-                        if(geocode != null) {
+                if (urlName.equals(request.getId()) && tSpecName.equals(request.getTSpecName())) {
+                    if (request.getGeocode() != null) {
+                        if (geocode != null) {
                             result = urlRequest;
                             break;
                         }
-                    }
-                    else {
-                        if(geocode == null) {
+                    } else {
+                        if (geocode == null) {
                             result = urlRequest;
                             break;
                         }
@@ -399,20 +395,18 @@ public class TransientDataManager {
         List <IncorpDeltaMappingRequest<Integer>>  locationRequestList      = locationMapRequest.safeGet(request.getTSpecName());
         IncorpDeltaMappingRequest<Integer> result = null;
         if(locationRequestList != null) {
-            for(int i=0; i<locationRequestList.size(); i++) {
-                IncorpDeltaMappingRequest<Integer> locationRequest = locationRequestList.get(i);
+            for (IncorpDeltaMappingRequest<Integer> locationRequest : locationRequestList) {
                 Integer locationId = locationRequest.getId();
                 String tSpecName = locationRequest.getTSpecName();
                 Geocode geocode = locationRequest.getGeocode();
-                if(locationId != null && locationId.equals(request.getId()) && tSpecName.equals(request.getTSpecName())) {
-                    if(request.getGeocode() != null) {
-                        if(geocode != null) {
+                if (locationId != null && locationId.equals(request.getId()) && tSpecName.equals(request.getTSpecName())) {
+                    if (request.getGeocode() != null) {
+                        if (geocode != null) {
                             result = locationRequest;
                             break;
                         }
-                    }
-                    else {
-                        if(geocode == null) {
+                    } else {
+                        if (geocode == null) {
                             result = locationRequest;
                             break;
                         }
@@ -513,12 +507,14 @@ public class TransientDataManager {
                             urlRequestList.remove(i);
                             break;
                         }
-                        Url url = campaignDB.getUrl(urlName);
-                        if(url != null && adPodId > 0) {
-                            campaignDB.deleteUrlMapping(urlName, adPodId);
-                            campaignDB.deleteUrl(url.getName());
-                        }
                     }
+                }
+                if(urlName != null && adPodId > 0) {
+                    campaignDB.deleteUrlMapping(urlName, adPodId);
+                    //Note: Url is not deleted from campaignDB, instead the unused url will get removed during the campaign data refresh
+                    //In future, if we do decide to delete url then we will have to keep track of all the related mappings and selectively
+                    //delete url if there are no more mappings to it and it was created as a part of incorp-delta request
+                    //campaignDB.deleteUrl(url.getName());
                 }
             }
         }
@@ -547,13 +543,14 @@ public class TransientDataManager {
                             themeRequestList.remove(i);
                             break;
                         }
-                        Theme theme = campaignDB.getTheme(themeName);
-                        if(theme != null && adPodId > 0) {
-
-                            campaignDB.deleteThemeMapping(theme.getName(), adPodId);
-                            campaignDB.deleteTheme(theme.getName());
-                        }
                     }
+                }
+                if(themeName != null && adPodId > 0) {
+                    campaignDB.deleteThemeMapping(themeName, adPodId);
+                    //Note: Theme is not deleted from campaignDB, instead the unused theme will get removed during the campaign data refresh
+                    //In future, if we do decide to delete theme then we will have to keep track of all the related mappings and selectively
+                    //delete theme if there are no more mappings to it and it was created as a part of incorp-delta request
+                    //campaignDB.deleteTheme(theme.getName());
                 }
             }
         }
@@ -589,12 +586,14 @@ public class TransientDataManager {
                             locationRequestList.remove(i);
                             break;
                         }
-                        Location location = campaignDB.getLocation(locationId);
-                        if(location != null && adPodId > 0) {
-                            campaignDB.deleteLocationMapping(location.getId(), adPodId);
-                            campaignDB.deleteLocation(location.getId());
-                        }
                     }
+                }
+                if(locationId > 0 && adPodId > 0) {
+                    campaignDB.deleteLocationMapping(locationId, adPodId);
+                    //Note: Location is not deleted from campaignDB, instead the unused location will get removed during the campaign data refresh
+                    //In future, if we do decide to delete location then we will have to keep track of all the related mappings and selectively
+                    //delete location if there are no more mappings to it and it was created as a part of incorp-delta request                    
+                    //campaignDB.deleteLocation(location.getId());
                 }
             }
         }

@@ -46,6 +46,34 @@ public class TransientDataTestUtil {
         }
     }
 
+    public static void validateOSpecResultforGetAdDataRequest(String getStr, String[] expectedOSpecNameArray) {
+        OSpec oSpec = null;
+        try {
+            oSpec = testTargetingRequest(getStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Error occured while making get-ad-data request");
+        }
+        if(expectedOSpecNameArray == null) {
+            if(oSpec != null) {
+                if(!oSpec.equals(CampaignDB.getInstance().getDefaultOSpec())) {
+                    fail("Invalid OSpec returned for given get-ad-data request");
+                }
+            }
+        }
+        else {
+            assertNotNull(oSpec);
+            boolean success = false;
+            for(int i=0; i<expectedOSpecNameArray.length; i++) {
+                if(oSpec.getName().equals(expectedOSpecNameArray[i])) {
+                    success = true;
+                    break;
+                }
+            }
+            assertEquals(success, true);
+        }
+    }
+
     public static void addNewTSpec(String name) {
         //1. Create a new tspec TSPEC-joz-test2
         String tSpecAddStr = "(t-spec-add :name ' |" + name + "| :version -1 :include-categories '(|GLASSVIEW.TUMRI_14215| |GLASSVIEW.TUMRI_14209| |GLASSVIEW.TUMRI_14208| |GLASSVIEW.TUMRI_14214| |GLASSVIEW.TUMRI_14217| |GLASSVIEW.TUMRI_14227| ) :ref-price-constraints '(10.0 146.0) )";
