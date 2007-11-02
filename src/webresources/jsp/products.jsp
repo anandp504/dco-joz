@@ -4,6 +4,7 @@
 <%@ page language="java" import="com.tumri.joz.products.JOZTaxonomy" %>
 <%@ page language="java" import="com.tumri.content.data.Category" %>
 <%@ page language="java" import="com.tumri.cma.domain.*" %>
+<%@ page language="java" import="com.tumri.joz.utils.*" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -66,25 +67,29 @@
 		List<ProductInfo> excludedProducts = tspec.getExcludedProducts();
 		List<ProductInfo> includedProducts = tspec.getIncludedProducts();
 		List<KeywordInfo> includedKeywords = tspec.getIncludedKeywords();
-		String imageUrlPrefix="http://images.tumri.net/iCornerStore";
+		String imageUrlPrefix="http://images.tumri.net/iCornerStore"; //Default pointing to US.
+		String region=((AppProperties.getInstance()).getProperty("com.tumri.campaign.data.region.name")).trim();
+		if (region.equals("UK")) {
+			imageUrlPrefix="http://images-emea.tumri.net/iCornerStore";
+		}
 	%>
 
 	<!-- Sample Product Data
-	display_category_name Plants & Shrubs 
-	merchant_id REDENVELOPE 
-	picture_url |177|150|source-images/shopping.com/images/di/6c/38/53/495131755145336347484170747966377a6741-177x150-0-0.jpg 
-	thumbnailraw |090|076|thumbnails/shopping.com/images/di/6c/38/53/495131755145336347484170747966377a6741-177x150-0-0.jpg 
-	merchantlogo |219|045|logos/merchants/redenvelope-logo.gif 
-	product_url http://stat.dealtime.com/DealFrame/DealFrame.cmp?BEFID=41187&acode=793&code=793&aon=^&crawler_id=424771&dealId=l8SIQ1uQE3cGHAptyf7zgA%3D%3D&prjID=ds&url=http%3A%2F%2Fre14.cpcmanager.com%2F197%2F%3F27808391&DealName=Large%20Money%20Tree&MerchantID=424771&HasLink=yes&frameId=0&category=&MT=nyc-pmt1-3&DB=sdcprod&MN=MT&AR=6&RR=1&NG=5&GR=6&ND=1&FPT=DSP&NDS=5&NMS=5&NDP=5&MRS=5&CT=6&linkin_id=8002028&DMT=205&VK=&searchID=2ad3f5352bec883cf0a2057d&IsFtr=0&IsSmart=0&crn=USD&istrsmrc=0&isathrsl=0&dlprc=81.95 
-	id _1293.US5840260 
-	brand RedEnvelope 
-	offer_type Product 
-	c_code USD 
-	price 65.00 
-	discount_price 65.00 
-	description Large Money Tree 
-	ship_promo  
-	provider REDENVELOPE 
+		display_category_name Plants & Shrubs 
+		merchant_id REDENVELOPE 
+		picture_url |177|150|source-images/shopping.com/images/di/6c/38/53/495131755145336347484170747966377a6741-177x150-0-0.jpg 
+		thumbnailraw |090|076|thumbnails/shopping.com/images/di/6c/38/53/495131755145336347484170747966377a6741-177x150-0-0.jpg 
+		merchantlogo |219|045|logos/merchants/redenvelope-logo.gif 
+		product_url http://stat.dealtime.com/DealFrame/DealFrame.cmp?BEFID=41187&acode=793&code=793&aon=^&crawler_id=424771&dealId=l8SIQ1uQE3cGHAptyf7zgA%3D%3D&prjID=ds&url=http%3A%2F%2Fre14.cpcmanager.com%2F197%2F%3F27808391&DealName=Large%20Money%20Tree&MerchantID=424771&HasLink=yes&frameId=0&category=&MT=nyc-pmt1-3&DB=sdcprod&MN=MT&AR=6&RR=1&NG=5&GR=6&ND=1&FPT=DSP&NDS=5&NMS=5&NDP=5&MRS=5&CT=6&linkin_id=8002028&DMT=205&VK=&searchID=2ad3f5352bec883cf0a2057d&IsFtr=0&IsSmart=0&crn=USD&istrsmrc=0&isathrsl=0&dlprc=81.95 
+		id _1293.US5840260 
+		brand RedEnvelope 
+		offer_type Product 
+		c_code USD 
+		price 65.00 
+		discount_price 65.00 
+		description Large Money Tree 
+		ship_promo  
+		provider REDENVELOPE 
 	-->
 
 	<jsp:include page="header.jsp"/>
