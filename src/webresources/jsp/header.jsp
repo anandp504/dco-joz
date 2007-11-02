@@ -26,12 +26,18 @@
 		version=st.nextToken();//label
 		version=st.nextToken();//joz
 		version=st.nextToken();//version format(MjN.MnN.MaN.Bn);
-		version = version.substring(0, version.indexOf(".version.properties"));//Remove rest of the file name.
+		int index=version.indexOf(".version.properties");
+		if ( -1 != index) {
+			version = version.substring(0, index);//Remove rest of the file name.
+		}
 
+		clientHostName=request.getRemoteHost();//By default assign remote host value.
 		java.net.InetAddress inetAdd=java.net.InetAddress.getByName(request.getRemoteHost());
-		clientHostName=inetAdd.getHostName();
-		if (null==clientHostName) {
-			clientHostName=request.getRemoteHost();
+		if ( null != inetAdd ) {
+			clientHostName=inetAdd.getHostName();
+			if (null==clientHostName) {
+				clientHostName=request.getRemoteHost();
+			}
 		}
 	}
 	catch(Exception e)
