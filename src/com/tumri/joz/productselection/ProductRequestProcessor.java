@@ -1,10 +1,6 @@
 package com.tumri.joz.productselection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -30,6 +26,7 @@ import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.targeting.TargetingRequestProcessor;
 import com.tumri.utils.sexp.SexpUtils;
+import com.tumri.utils.data.SortedArraySet;
 
 /**
  * Processes the get-ad-data request, and creates the result set
@@ -45,7 +42,6 @@ public class ProductRequestProcessor {
 	private Integer m_NumProducts = null;
 	private Integer m_currentPage = null;
 	private Integer m_pageSize = null;
-	private boolean m_productLeadgenRequest = false;
 	private boolean m_revertToDefaultRealm = false;
 	private HashMap<String, String> m_jozFeaturesMap = new HashMap<String, String>();
 	
@@ -68,9 +64,9 @@ public class ProductRequestProcessor {
 	 * 		<li>3. Select Tspec for the request </li>
 	 * 		<li>4. Determine Random vs. Deterministic behaviour </li>
 	 * 		<li>5. Determine backfill of products </li>
-	 * 		<li>6. Do the Product Selection </li>
-	 * 		<li>7. Add leadgen products if needed </li>
-	 * 		<li>8. Add outer disjuncted products if needed </li>
+     * 		<li>6. Add leadgen products if needed </li>
+     * 		<li>7. Add outer disjuncted products if needed </li>
+	 * 		<li>8. Do the Product Selection </li>
 	 * 		<li>9. Return the right number of results </li>
 	 * 	 </ul>
 	 * @param request
@@ -128,7 +124,17 @@ public class ProductRequestProcessor {
 				m_pageSize = numProducts;
 			}
 
-			//5. Determine backfill of products
+            //Set pagination bounds for TSpec Query
+            if ((m_pageSize!=null) && (m_currentPage !=null)) {
+                m_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
+            } else {
+                //Default
+                m_pageSize = new Integer(0);
+                m_currentPage = new Integer(0);
+                m_tSpecQuery.setBounds(0,0);
+            }
+
+            //5. Determine backfill of products
 			SexpUtils.MaybeBoolean mAllowTooFewProducts = request.get_allow_too_few_products();
 			boolean revertToDefaultRealm = (request.get_revert_to_default_realm()!=null)?request.get_revert_to_default_realm().booleanValue():false;
 
@@ -140,39 +146,55 @@ public class ProductRequestProcessor {
 				m_revertToDefaultRealm = true;
 			}
 
-			//6. Product selection
-			rResult = doProductSelection(request);
-
-			ArrayList<Handle> backFillProds = null;
-			if (m_NumProducts!=null && rResult!=null){
-				backFillProds = doBackFill(request, m_NumProducts,rResult.size());
-			}
 
 			resultAL = new ArrayList<Handle>();
 
-			//7.Add leadgens if needed
-			if (m_productLeadgenRequest) {
-				Integer minNumLeadGenProds = request.get_min_num_leadgens();
-				Integer adHeight = request.get_ad_height();
-				Integer adWeight = request.get_ad_width();
-				ArrayList<Handle> leadGenAL = getLeadGenProducts(minNumLeadGenProds, adHeight, adWeight);
-				//Append to the top of the results
-				resultAL.addAll(leadGenAL);
-			}
+            ArrayList<Handle> includedProds = new ArrayList<Handle>();
 
-			//8. Do Outer Disjunction
+            //6. Add leadgens for ad-Offer-Type product-leadgen
+            AdOfferType offerType = request.get_ad_offer_type();
+            if (AdOfferType.PRODUCT_LEADGEN.equals(offerType)) {
+                Integer minNumLeadGenProds = request.get_min_num_leadgens();
+                Integer adHeight = request.get_ad_height();
+                Integer adWeight = request.get_ad_width();
+                ArrayList<Handle> leadGenAL = getLeadGenProducts(minNumLeadGenProds, adHeight, adWeight);
+                if (leadGenAL!=null && leadGenAL.size() > 0){
+                    includedProds.addAll(leadGenAL);
+                }
+            }
+            
+            //7. Do Outer Disjunction
 			ArrayList<Handle> disjunctedProds = OSpecHelper.getIncludedProducts(m_currOSpec);
 
-			if (disjunctedProds!=null){
-				resultAL.addAll(disjunctedProds);
-			} 
-
-			resultAL.addAll(rResult);
-
-			if (backFillProds!=null && backFillProds.size()>0){
-				resultAL.addAll(backFillProds);
+			if (disjunctedProds!=null && disjunctedProds.size() > 0){
+				includedProds.addAll(disjunctedProds);
 			}
 
+            if (m_pageSize> 0 && m_currentPage> 0 && (includedProds.size() > m_pageSize*(m_currentPage +1))) {
+                resultAL.addAll(includedProds);
+            } else {
+                //8. Product selection
+                if (includedProds.size() > 0 && m_pageSize > 0) {
+                    int pageSize = m_pageSize*(m_currentPage +1);
+                    m_tSpecQuery.setBounds(0,pageSize);
+                }
+
+                rResult = doProductSelection(request);
+
+                if (includedProds.size() > 0) {
+                    includedProds.addAll(rResult);
+                    rResult = paginateResults(m_pageSize, m_currentPage, includedProds);
+                }
+                
+                ArrayList<Handle> backFillProds = null;
+                if (m_NumProducts!=null && rResult!=null){
+                    backFillProds = doBackFill(request, m_pageSize,rResult.size());
+                }
+                resultAL.addAll(rResult);
+                if (backFillProds!=null && backFillProds.size()>0){
+                    resultAL.addAll(backFillProds);
+                }
+            }
 			
 			//9. Cull the result by num products
 			if ((resultAL!=null) && (m_NumProducts!=null) && (resultAL.size() > m_NumProducts)){
@@ -199,11 +221,10 @@ public class ProductRequestProcessor {
 	 * 		<li> 1. Request Keywords search, if yes then construct Keyword query, ignoring the TSpec query  </li>
 	 * 	    <li> 2. Script keywords, if present determine scope. If against MUP, then create new query - or specialize TSpec otherwise </li>
 	 * 		<li> 3. URL keywords, if present determine scope. If against MUP - then create new query - or specialize TSpec otherwise </li>
-	 * 		<li> 4. Set pagination bound for TSpec squery</li>
-	 * 		<li> 5. Include request category into TSpec query</li>
-	 * 		<li> 6. Include Product Type request into TSpec query</li>
-	 * 		<li> 7. Excecute TSpec query</li>
-	 * 		<li> 8. Return the result in the sorted order of score</li>
+	 * 		<li> 4. Include request category into TSpec query</li>
+	 * 		<li> 5. Include Product Type request into TSpec query</li>
+	 * 		<li> 6. Execute TSpec query</li>
+	 * 		<li> 7. Return the result in the sorted order of score</li>
 	 * </ul>
 	 * @param request
 	 * @param tSpecQuery
@@ -221,26 +242,16 @@ public class ProductRequestProcessor {
 		//3. URL keywords
 		doURLKeywordSearch(request);
 
-		//4. Set pagination bounds for TSpec Query
-		if ((m_pageSize!=null) && (m_currentPage !=null)) {
-			m_tSpecQuery.setBounds(m_pageSize.intValue(),m_currentPage.intValue() );
-		} else {
-			//Default
-			m_pageSize = new Integer(0);
-			m_currentPage = new Integer(0);
-			m_tSpecQuery.setBounds(0,0);
-		}
-
-		//5. Request Category
+		//4. Request Category
 		String requestCategory = request.get_category();
 		if ((requestCategory!=null)&&(!"".equals(requestCategory))) {
 			addRequestCategoryQuery(requestCategory);
 		}
 
-		//6. Product Type
+		//5. Product Type
 		addProductTypeQuery(request);
 
-		//7. Exec TSpec query
+		//6. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
 
 
@@ -273,8 +284,7 @@ public class ProductRequestProcessor {
 
 		//TODO Check if there is a specific  backfills scenario to go agains the entire mup.. we shouldnt run into this case at all
 		if (bKeywordBackfill && pageSize>0 && currSize<pageSize){
-			//removeKeywordQuery();
-			m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();   
+			m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
 			//We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
 			int tmpSize = pageSize-currSize+5;
 			m_tSpecQuery.setBounds(tmpSize,0);
@@ -305,24 +315,6 @@ public class ProductRequestProcessor {
 		return backFillProds;
 	}
 
-	/**
-	 * Helper method used to remove the keyword query from the CNFQuery
-	 * Note that this does not clone the query - but it works off the current query.
-	 *
-	 */
-	private void removeKeywordQuery(){
-		List<ConjunctQuery> queries = m_tSpecQuery.getQueries();
-		for (ConjunctQuery query : queries) {
-			List<SimpleQuery> sQueries = query.getQueries();
-			for (int i=0;i< sQueries.size();i++){
-				SimpleQuery query2 = sQueries.get(i);
-				if ((query2.getType() == SimpleQuery.Type.kKeyword) && !((KeywordQuery)query2).isInternal()) {
-					sQueries.remove(query2);
-					break;
-				}
-			}
-		}
-	}
 	/**
 	 * Category may be passed in from the request. If this is the case we always intersect with the TSpec results
 	 * Assumption is that the Category is a "included" condition and not excluded condition
@@ -381,10 +373,7 @@ public class ProductRequestProcessor {
 		} else if (offerType==AdOfferType.PRODUCT_ONLY || offerType==AdOfferType.PRODUCT_LEADGEN){
 			ptQuery.setNegation(true);
 			m_tSpecQuery.addSimpleQuery(ptQuery);
-			if (offerType == AdOfferType.PRODUCT_LEADGEN) {
-				m_productLeadgenRequest = true;
-			}
-		} 
+		}
 	}
 
 	/**
@@ -505,11 +494,27 @@ public class ProductRequestProcessor {
 	 */
 	private ArrayList<Handle> getLeadGenProducts(Integer minNumLeadGenProds, Integer adHeight, Integer adWidth) {
 		ArrayList<Handle> leadGenProds = new ArrayList<Handle>();
-		DictionaryManager dm = DictionaryManager.getInstance ();
+        //If there are no queries in the selected tspec - do not get lead gen prods
+        boolean bSimpleQueries = false;
+		ArrayList<ConjunctQuery> _conjQueryAL = m_tSpecQuery.getQueries();
+		for (int i=0;i<_conjQueryAL.size();i++) {
+			ConjunctQuery conjQuery = _conjQueryAL.get(0);
+			ArrayList<SimpleQuery> simpleQueryAL = conjQuery.getQueries();
+			if (simpleQueryAL.size()!=0) {
+				bSimpleQueries = true;
+				break;
+			}
+		}
+		if (!bSimpleQueries) {
+			return leadGenProds;
+		}
+
+        DictionaryManager dm = DictionaryManager.getInstance ();
 		Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
 		ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
 		CNFQuery clonedTSpecQuery = (CNFQuery)OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
-		clonedTSpecQuery.addSimpleQuery(ptQuery);
+
+        clonedTSpecQuery.addSimpleQuery(ptQuery);
 		clonedTSpecQuery.setStrict(true);
 		clonedTSpecQuery.setReference(null);
 		if (adHeight!=null) {
@@ -520,19 +525,45 @@ public class ProductRequestProcessor {
 			AttributeQuery adWidthQuery = new AttributeQuery(Product.Attribute.kImageWidth, adWidth);
 			clonedTSpecQuery.addSimpleQuery(adWidthQuery);
 		}
-		int numLeadGens = 0;
-		if (minNumLeadGenProds!=null && m_pageSize !=null && m_pageSize>0){
-			if (m_pageSize >= minNumLeadGenProds) {
-				numLeadGens = m_pageSize.intValue();
-			} else {
-				numLeadGens = minNumLeadGenProds.intValue();
-			}
-		} else if (numLeadGens ==0 && m_pageSize!=null && m_pageSize>0) {
-            numLeadGens = m_pageSize.intValue();
-        }
-        clonedTSpecQuery.setBounds(numLeadGens, 0);
+        clonedTSpecQuery.setBounds(0, 0);
 		SortedSet<Handle> qResult = clonedTSpecQuery.exec();
 		leadGenProds.addAll(qResult);
 		return leadGenProds;
 	}
+
+    /**
+     * Helper method to paginate thru the results
+     * @param pageSize
+     * @param currPage
+     * @param resultsAL
+     * @return
+     */
+    private SortedArraySet<Handle> paginateResults(int pageSize, int currPage, ArrayList<Handle> resultsAL) {
+        //Paginate
+        ArrayList<Handle> pageResults = null;
+        if (pageSize > 0) {
+            pageResults = new ArrayList<Handle>(pageSize);
+            int start = (currPage * pageSize) + 1;
+            int end = start + pageSize;
+            int i = 0;
+            for (Handle handle : resultsAL) {
+                i++;
+                if (i < start) {
+                    continue;
+                } else if ((i >= start) && (i < end)) {
+                    pageResults.add(handle);
+                } else {
+                    break;
+                }
+            }
+        } else {
+            pageResults = new ArrayList<Handle>(pageSize);
+            for (Handle handle : resultsAL) {
+                pageResults.add(handle);
+            }
+        }
+
+        return new SortedArraySet<Handle>(pageResults, true);
+
+    }
 }
