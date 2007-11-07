@@ -25,6 +25,12 @@
   <br>
 
   <div>
+  	<a href="cma-content-status.jsp">Campaign Content status</a>
+  </div>
+  <br>
+
+
+  <div>
     	<a href="performance-stat.jsp">Performance statistics</a>
   </div>
   <br>
@@ -41,6 +47,11 @@
   
   <div>
     	<a href="refresh-data.jsp" onclick="return confirm('This will force a data refresh. Do you want to continue?');">Refresh Data</a>
+  </div>
+   <br>
+  
+  <div>
+    	<a href="cma-refresh-data.jsp" onclick="return confirm('This will force a cma data refresh. Do you want to continue?');">Refresh Campaign Data</a>
   </div>
   <br>
 

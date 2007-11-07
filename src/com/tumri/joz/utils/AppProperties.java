@@ -18,8 +18,11 @@ import java.util.Properties;
 public class AppProperties {
   private static Logger log = Logger.getLogger(AppProperties.class);
   public static String g_AppPropertyFile = "joz.properties";
+  public static String g_JozVersionPropertiesFile = "joz_version.properties";
+  private static final String CONFIG_JOZ_VERSION_PROPERTIES_FILE_NAME = "com.tumri.joz.version.file.name";
   private static AppProperties g_properties;
-
+  private Properties m_jozVersionProperties;
+    
   private Properties m_properties;
 
   public static AppProperties getInstance() {
@@ -46,7 +49,19 @@ public class AppProperties {
   }
   
   public Properties getProperties() {
-      return m_properties;
+    return m_properties;
+  }
+
+  public String getVersionProperty(String attr) {
+    return m_jozVersionProperties.getProperty(attr);
+  }
+
+  public String getVersionProperty(String attr, String def) {
+    return m_jozVersionProperties.getProperty(attr, def);
+  }
+
+  public Properties getVersionProperties() {
+    return m_jozVersionProperties;
   }
 
   /**
@@ -67,6 +82,23 @@ public class AppProperties {
     } else if (m_properties == null) {
       m_properties = new Properties();
     }
+
+    InputStream versionIs = getJozVersionInputStream();
+      if (versionIs != null) {
+        try {
+          Properties p = new Properties();
+          BufferedInputStream bis = new BufferedInputStream(versionIs);
+          p.load(bis);
+          m_jozVersionProperties = p; // @todo This should be atomic
+        } catch(Exception e) {
+          e.printStackTrace();  
+        } finally {
+          is.close();
+        }
+      } else if (m_jozVersionProperties == null) {
+        m_jozVersionProperties = new Properties();
+      }
+
   }
 
   private static InputStream getInputStream() {
@@ -101,4 +133,12 @@ public class AppProperties {
     return is;
   }
 
+  private static InputStream getJozVersionInputStream() {
+    String jozVersionFile = getInstance().getProperty(CONFIG_JOZ_VERSION_PROPERTIES_FILE_NAME);
+    if (jozVersionFile == null || "".equals(jozVersionFile)) {
+        jozVersionFile = g_JozVersionPropertiesFile;
+    }
+    InputStream is =  AppProperties.class.getClassLoader().getResourceAsStream(jozVersionFile);
+    return is;
+  }
 }

@@ -3,6 +3,9 @@ package com.tumri.joz.campaign;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import org.apache.log4j.Logger;
 
@@ -53,13 +56,32 @@ public class CMAContentPoller {
 	 * Method to load the campaign data
 	 * The logic to check if the refresh is needed, can be implemented inside the Campaign Delta Provider impl.
 	 *
-	 */
-	private void loadCampaignData() throws CampaignDataLoadingException {
-		log.info("Going to refresh campaign data.");
-		long startTime = System.currentTimeMillis();
-		CampaignDBDataLoader.getInstance().loadData();
-		log.info("Campaign data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
-	}
+     */
+    private void loadCampaignData() throws CampaignDataLoadingException {
+        log.info("Going to refresh campaign data.");
+        long startTime = System.currentTimeMillis();
+        try {
+            CampaignDBDataLoader.getInstance().loadData();
+            CMAContentProviderStatus.getInstance().lastSuccessfulRefreshTime = startTime;
+            CMAContentProviderStatus.getInstance().lastRunStatus = true;
+            CMAContentProviderStatus.getInstance().addRunHistory(startTime, true, "Refresh successful." +
+                    " Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
+            CMAContentProviderStatus.getInstance().lastRefreshTime = startTime;
+        } catch (CampaignDataLoadingException e) {
+            Writer errorDetails = new StringWriter();
+            PrintWriter pw = new PrintWriter(errorDetails);
+            e.printStackTrace(pw);
+            CMAContentProviderStatus.getInstance().addRunHistory(startTime, false, "Refresh Failed. " +
+                    " Details : " + errorDetails.toString());
+            CMAContentProviderStatus.getInstance().lastError = e;
+            CMAContentProviderStatus.getInstance().lastErrorRunTime = startTime;
+            CMAContentProviderStatus.getInstance().lastRunStatus = false;
+            CMAContentProviderStatus.getInstance().lastRefreshTime = startTime;
+            LogUtils.getFatalLog().fatal("Exception caught during campaign data load", e);
+        }
+
+        log.info("Campaign data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
+    }
 	
 	/**
 	 * Perform the initialization tasks for Campaign Data Loading
@@ -79,7 +101,8 @@ public class CMAContentPoller {
 			if (repeat > 0 && minutes < 60) {
 				repeatIntervalMins = repeat;
 			}
-		} catch(NumberFormatException e) {
+            CMAContentProviderStatus.getInstance().refreshInterval = repeatIntervalMins;
+        } catch(NumberFormatException e) {
 		}
 		
 		startTimer();	
