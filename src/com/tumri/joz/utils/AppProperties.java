@@ -23,8 +23,11 @@ public class AppProperties {
 
   private static final String CONFIG_PROPERTY_JOZ_BUILD_VERSION = "build_version";
   private static final String CONFIG_PROPERTY_JOZ_CODE_LABEL = "code_label";
+  private static final String CONFIG_PROPERTY_JOZ_RELEASE_VERSION = "release_version";
+
   private static final String CONFIG_JOZ_VERSION_PROPERTIES_FILE_NAME = "com.tumri.joz.version.file.name";
   private static final String CONFIG_JOZ_BUILD_VERSION_PROPERTY_NAME = "com.tumri.joz.build.version.property";
+  private static final String CONFIG_JOZ_RELEASE_VERSION_PROPERTY_NAME = "com.tumri.joz.release.version.property";
   private static final String CONFIG_JOZ_CODE_LABEL_PROPERTY_NAME= "com.tumri.joz.code.label.property";
 
   private static AppProperties g_properties;
@@ -77,6 +80,14 @@ public class AppProperties {
         jozBuildVersionPropName = CONFIG_PROPERTY_JOZ_BUILD_VERSION;
      }
      return getVersionProperty(jozBuildVersionPropName);
+  }
+
+  public String getJozReleaseVersion() {
+     String jozReleaseVersionPropName = getProperty(CONFIG_JOZ_RELEASE_VERSION_PROPERTY_NAME);
+     if (jozReleaseVersionPropName==null){
+        jozReleaseVersionPropName = CONFIG_PROPERTY_JOZ_RELEASE_VERSION;
+     }
+     return getVersionProperty(jozReleaseVersionPropName);
   }
 
   public String getJozCodeLabel() {

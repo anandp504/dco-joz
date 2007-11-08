@@ -27,6 +27,7 @@ com.tumri.campaign.file.polling.mode=calendar
 
 com.tumri.joz.code.label.property=code_label
 com.tumri.joz.build.version.property=build_version
+com.tumri.joz.release.version.property=release_version
 com.tumri.joz.version.file.name=joz_version.properties
 
 #Targeting related score

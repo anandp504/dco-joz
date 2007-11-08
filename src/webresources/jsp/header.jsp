@@ -8,8 +8,11 @@
     String version = null;
     try {
         //Get the Joz version from the classpath
-        version = AppProperties.getInstance().getJozBuildVersion() + "&nbsp;Code&nbsp;Label:&nbsp;"
-                + AppProperties.getInstance().getJozCodeLabel();
+        version = AppProperties.getInstance().getJozBuildVersion()
+                + "&nbsp;Code&nbsp;Label:&nbsp;"
+                + AppProperties.getInstance().getJozCodeLabel()
+                + "&nbsp;Release&nbsp;Version:&nbsp;"
+                + AppProperties.getInstance().getJozReleaseVersion();
 
         if (version == null || "".equals(version)) {
             ZipFile zf = null;
