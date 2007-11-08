@@ -107,9 +107,9 @@
 		     includes="**/*.class"
 		     excludes="com/tumri/joz/testsuite/*.class"/>
             <fileset dir="${stage.dir}/Joz"/>
-			<!--  JMN - to include the *.version.properties file. -->
-            <fileset dir="${dist.dir}/META-INF/"
-            	includes="${version_properties_file_dest}" />
+			<!-- JMN - Include both *_version.properties and label file. -->
+			<fileset dir="${dist.dir}" includes="${version_properties_file_dest}" />
+			<fileset dir="${dist.dir}" includes="${label_file}" />
             <manifest>
                 <attribute name="Main-Class" value="com.tumri.joz.keywordServer.ProductIndex"/>
             </manifest>
@@ -121,56 +121,72 @@
 
     <target name="build-Joz-war" depends="build-Joz-jar">
 
-	<war destfile="${dist.dir}/joz.war" 
-		webxml="${src.dir}/webresources/WEB-INF/web.xml">
-		<fileset dir="${src.dir}/webresources/">
-			<exclude name="WEB-INF"/>
-		</fileset>
-		<!-- JMN - to include the *.version.properties file. -->
-		<fileset dir="${dist.dir}/META-INF/">
-			<include name="${version_properties_file_dest}"/>
-		</fileset>
-	    <lib dir="${dist.dir}" includes="joz.jar"/>
-	    <lib dir="${ext.lib.dir}" includes="*.jar">
-	    	<exclude name="log4j*.jar"/>
-	    	<exclude name="servlet-api.jar"/>
-        <exclude name="mysql-connector-java-3.1.14-bin.jar"/>        
-      </lib>
-	    <lib dir="${zini.lib.dir}" includes="zini.catalog.api.jar"/>
-	    <lib dir="${utils.lib.dir}" includes="utils.jar"/>
-	    <lib dir="${cma.lib.dir}" includes="cma.jar"/>
-      <lib dir="${cma.lib.dir}" includes="jyaml-1.2.jar"/>
-      <lib dir="${cma.lib.dir}" includes="ibatis-2.3.0.677.jar"/>
-      <lib dir="${caa.lib.dir}" includes="caa.jar"/>
-	</war>
+		<war destfile="${dist.dir}/joz.war" 
+			webxml="${src.dir}/webresources/WEB-INF/web.xml">
+			<fileset dir="${src.dir}/webresources/">
+				<exclude name="WEB-INF"/>
+			</fileset>
+	    	<lib dir="${dist.dir}" includes="joz.jar"/>
+	    	<lib dir="${ext.lib.dir}" includes="*.jar">
+	    		<exclude name="log4j*.jar"/>
+	    		<exclude name="servlet-api.jar"/>
+				<exclude name="mysql-connector-java-3.1.14-bin.jar"/>        
+      		</lib>
+	    	<lib dir="${zini.lib.dir}" includes="zini.catalog.api.jar"/>
+	    	<lib dir="${utils.lib.dir}" includes="utils.jar"/>
+	    	<lib dir="${cma.lib.dir}" includes="cma.jar"/>
+      		<lib dir="${cma.lib.dir}" includes="jyaml-1.2.jar"/>
+      		<lib dir="${cma.lib.dir}" includes="ibatis-2.3.0.677.jar"/>
+      		<lib dir="${caa.lib.dir}" includes="caa.jar"/>
+			<!-- JMN - Include both *_version.properties and label file. -->
+			<classes dir="${dist.dir}" includes="${version_properties_file_dest}" />
+			<fileset dir="${dist.dir}" includes="${label_file}" />
+		</war>
 
     </target>
 
 	<!-- ****************************************************************** -->		
 	<!-- JMN - A target to generate product version information. -->
 	<target name="version">
-	    <property file="${root.dir}/build/joz_version.properties"/>
-		
-		<mkdir dir="${dist.dir}/META-INF/"/>
-		<copy file="${top.root.dir}/build/${version_properties_file_src}" 
-			tofile="${dist.dir}/META-INF/${version_properties_file_dest}"/>
-		
-	    <!-- JMN - To be implemented and utilized after 10/9/07.
-		<manifest>
+		<property file="${root.dir}/build/joz_version.properties" />
+		<!-- Copy *_version.properties over and create a label file. -->
+		<copy
+			file="${top.root.dir}/build/${version_properties_file_src}"
+			tofile="${dist.dir}/${version_properties_file_dest}" />
+		<touch file="${dist.dir}/${label_file}" />
+		<echo file="${dist.dir}/${label_file}"># code_label=${code_label}${line.separator} </echo>
+
+		<!-- Replace all variables in the *_version.properties with actual values. -->
+		<replace file="${dist.dir}/${version_properties_file_dest}" > 
+			<replacefilter token="{" value="@" />
+			<replacefilter token="}" value="@" />
+		</replace>
+		<replace file="${dist.dir}/${version_properties_file_dest}" >			
+			<replacefilter token="$@major_number@" value="${major_number}" />
+			<replacefilter token="$@minor_number@" value="${minor_number}" />
+			<replacefilter token="$@maintenance_number@" value="${maintenance_number}" />
+			<replacefilter token="$@build_number@" value="${build_number}" />
+			<replacefilter token="$@release_id@" value="${release_id}" />
+			<replacefilter token="$@release_candidate@" value="${release_candidate}" />		
+			<replacefilter token="$@code_label@" value="${code_label}"	/>	
+		</replace>
+					
+		<!-- JMN - To be implemented and utilized in the future.
+			<manifest>
 			<section name="common">
-				<attribute name="Specification-Title" value="${product_name}"/>
-				<attribute name="Specification-Vendor" value="${vendor}"/>
-				<attribute name="Specification-Version" value="${major_number}.${minor_number}.${maintenance_number}"/>
-				<attribute name="Implementation-Title" value="${product_name}"/>
-				<attribute name="Implementation-Vendor" value="${vendor}"/>
-				<attribute name="Implementation-Version" value="${version}"/>
+			<attribute name="Specification-Title" value="${product_name}"/>
+			<attribute name="Specification-Vendor" value="${vendor}"/>
+			<attribute name="Specification-Version" value="${major_number}.${minor_number}.${maintenance_number}"/>
+			<attribute name="Implementation-Title" value="${product_name}"/>
+			<attribute name="Implementation-Vendor" value="${vendor}"/>
+			<attribute name="Implementation-Version" value="${version}"/>
 			</section>
-		</manifest>
-		<metainf dir="${dist.dir}/META-INF/">
+			</manifest>
+			<metainf dir="${dist.dir}/META-INF/">
 			<copy file="${top.root.dir}/build/${version_properties_file_src}" 
-				tofile="${dist.dir}/META-INF/${version_properties_file_dest}"/>
+			tofile="${dist.dir}/META-INF/${version_properties_file_dest}"/>
 			<include name="${version_properties_file_dest}"/>
-		</metainf>
+			</metainf>
 		-->
 	</target>
 

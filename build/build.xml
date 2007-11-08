@@ -21,7 +21,7 @@
          DO NOT change.  -->
     <property file="${root.dir}/build/build.properties"/>
 
-    <!-- JMN - This property file contains various parameters that change in general. -->
+    <!-- JMN - This property file contains various parameters related to build and release. -->
     <property file="${top.root.dir}/build/joz_version.properties"/>
 	
     <import file="joz.xml"/>
