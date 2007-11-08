@@ -8,7 +8,9 @@
     String version = null;
     try {
         //Get the Joz version from the classpath
-        version = AppProperties.getInstance().getVersionProperty("version");
+        version = AppProperties.getInstance().getJozBuildVersion() + "&nbsp;Code&nbsp;Label:&nbsp;"
+                + AppProperties.getInstance().getJozCodeLabel();
+
         if (version == null || "".equals(version)) {
             ZipFile zf = null;
             String catalinaHome = System.getProperty("catalina.home");

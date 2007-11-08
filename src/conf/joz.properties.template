@@ -25,6 +25,10 @@ com.tumri.campaign.file.polling.mode=calendar
 #com.tumri.content.file.taxonomy.dataDir=
 #com.tumri.content.file.merchant_data.dataDir=
 
+com.tumri.joz.code.label.property=code_label
+com.tumri.joz.build.version.property=build_version
+com.tumri.joz.version.file.name=joz_version.properties
+
 #Targeting related score
 com.tumri.targeting.locationScore = 1.0
 com.tumri.targeting.themeScore    = 0.9

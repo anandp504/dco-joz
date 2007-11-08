@@ -17,9 +17,16 @@ import java.util.Properties;
  */
 public class AppProperties {
   private static Logger log = Logger.getLogger(AppProperties.class);
+
   public static String g_AppPropertyFile = "joz.properties";
   public static String g_JozVersionPropertiesFile = "joz_version.properties";
+
+  private static final String CONFIG_PROPERTY_JOZ_BUILD_VERSION = "build_version";
+  private static final String CONFIG_PROPERTY_JOZ_CODE_LABEL = "code_label";
   private static final String CONFIG_JOZ_VERSION_PROPERTIES_FILE_NAME = "com.tumri.joz.version.file.name";
+  private static final String CONFIG_JOZ_BUILD_VERSION_PROPERTY_NAME = "com.tumri.joz.build.version.property";
+  private static final String CONFIG_JOZ_CODE_LABEL_PROPERTY_NAME= "com.tumri.joz.code.label.property";
+
   private static AppProperties g_properties;
   private Properties m_jozVersionProperties;
     
@@ -64,6 +71,22 @@ public class AppProperties {
     return m_jozVersionProperties;
   }
 
+  public String getJozBuildVersion() {
+     String jozBuildVersionPropName = getProperty(CONFIG_JOZ_BUILD_VERSION_PROPERTY_NAME);
+     if (jozBuildVersionPropName==null){
+        jozBuildVersionPropName = CONFIG_PROPERTY_JOZ_BUILD_VERSION;
+     }
+     return getVersionProperty(jozBuildVersionPropName);
+  }
+
+  public String getJozCodeLabel() {
+     String jozCodeLabelPropName = getProperty(CONFIG_JOZ_CODE_LABEL_PROPERTY_NAME);
+     if (jozCodeLabelPropName==null){
+        jozCodeLabelPropName = CONFIG_PROPERTY_JOZ_CODE_LABEL;
+     }
+     return getVersionProperty(jozCodeLabelPropName);
+  }
+    
   /**
    * This method can be called to read the property file again
    * @throws IOException
