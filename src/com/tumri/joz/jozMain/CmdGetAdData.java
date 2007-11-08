@@ -257,6 +257,9 @@ public class CmdGetAdData extends CommandOwnWriting {
         if (cat != null) {
         	b.append(encode(cat.getName()));
         }
+        b.append("\",name:\"");
+        String name = p.getProductName();
+        b.append(encode(name));
         b.append("\",price:\"");
         b.append(encode_price(p.getPrice()));
         b.append("\",discount_price:\"");
