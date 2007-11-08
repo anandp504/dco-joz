@@ -7,6 +7,7 @@ import com.tumri.content.data.Product;
 import com.tumri.content.impl.file.FileContentConfigValues;
 import com.tumri.joz.products.*;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.FSUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -37,7 +38,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ProductIndex {
   static Logger log = Logger.getLogger(ProductIndex.class);
   private static final String LUCENEDIR = "com.tumri.content.luceneDir";
+  private static final String LUCENETMPDIR = "com.tumri.content.luceneTmpDir";
   private static AtomicReference<ProductIndex> g_Instance = new AtomicReference<ProductIndex>();
+  private static String tmpDir = System.getProperty("java.io.tmpdir") + File.separator + "lucene";
 
   private boolean debug = false;
   private String indexDir = "lucene";
@@ -126,8 +129,15 @@ public class ProductIndex {
     try {
       if (f.exists() && f.isDirectory()) {
         m_index_dir = f;
-        log.info("Loading keyword index from " + f.getAbsolutePath());
-        m_searcherCache.set(new IndexSearcherCache(f));
+        File tmpDir = FSUtils.createTMPDir(getTmpDir(),f.getName());
+        try {
+          FSUtils.copyDir(f,tmpDir);
+          m_index_dir = tmpDir;
+        } catch (IOException e) {
+          log.fatal("Failed to create a temporary directory for lucene.");
+        }
+        log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
+        m_searcherCache.set(new IndexSearcherCache(m_index_dir));
       } else {
         log.error("Bad index directory: " + f.getAbsolutePath());
         log.error("Keyword searching disbled.");
@@ -524,6 +534,23 @@ public class ProductIndex {
       }
     }
   }
+
+  private static String getTmpDir() {
+    return tmpDir;
+  }
+
+  /**
+   * Recursively delete all the files in the lucene tmp directory
+   */
+  static {
+    String str = AppProperties.getInstance().getProperty(LUCENETMPDIR);
+    if (str != null && "".equals(str.trim())) {
+      tmpDir = str;
+    }
+    File f = new File(getTmpDir());
+    FSUtils.removeFiles(f,true);  // rm -r /tmp/lucene/*
+  }
+
 }
 
 class IndexSearcherCache {
