@@ -1,8 +1,5 @@
-<%@ page language="java" import="java.io.*" %>
-<%@ page language="java" import="java.net.*" %>
-<%@ page language="java" import="java.util.*" %>
-<%@ page language="java" import="java.util.zip.*" %>
-<%@ page import="com.tumri.joz.utils.AppProperties" %>
+<%@ page language="java" import="com.tumri.joz.utils.AppProperties" %>
+
 <%
     String clientHostName = "";
     String buildVersion = "";
@@ -39,7 +36,7 @@
 <div id="desc">
 	<strong>Joz Console</strong>
     <div>
-    <table style="font-style: italic; font-size: 80%;">
+    <table style="font-style: italic; font-size: 90%;">
         <tr>
             <td><strong>Build Version:</strong>&nbsp;<%=buildVersion%></td>
             <td><strong>Release Version:</strong>&nbsp;<%=releaseVersion%></td>
@@ -49,7 +46,7 @@
     </div>
 
 	<div align="right">
-	<table style="font-style: italic; font-size: 80%;">
+	<table style="font-style: italic; font-size: 90%;">
 		<tr>
 			<td>Server:&nbsp;<%=request.getServerName()%></td>
 			<td>&nbsp;&nbsp;&nbsp</td>
