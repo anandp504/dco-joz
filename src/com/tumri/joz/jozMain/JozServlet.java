@@ -4,6 +4,7 @@ package com.tumri.joz.jozMain;
 
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpIFASLWriter;
+import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -64,8 +65,18 @@ public class JozServlet extends HttpServlet {
             log.info("Response time: " + ((end_time - start_time) / 1000.0)
                     + " usecs");
         } catch (Exception e) {
-            log.info("Bad command: ", e);
-            // ??? Protocol apparently says to return nothing. True?
+            log.error("Exception caught when parsing the command, going to show default realm : " + query);
+            log.error("Exception details :", e);
+            //Show default realm if this is a get-ad-data request
+            if (query!=null && query.indexOf("get-ad-data") > -1) {
+                String defaultRealmQuery = AppProperties.getInstance().getDefaultRealmGetAdDataCommandStr();
+                try {
+                    Command cmd = Command.parse(defaultRealmQuery);
+                    cmd.process_and_write(out);
+                } catch (Exception ex){
+                    log.error("Could not execute default realm query", ex);
+                }
+            }
         }
     }
     

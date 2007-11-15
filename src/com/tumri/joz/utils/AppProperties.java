@@ -29,7 +29,8 @@ public class AppProperties {
   private static final String CONFIG_JOZ_BUILD_VERSION_PROPERTY_NAME = "com.tumri.joz.build.version.property";
   private static final String CONFIG_JOZ_RELEASE_VERSION_PROPERTY_NAME = "com.tumri.joz.release.version.property";
   private static final String CONFIG_JOZ_CODE_LABEL_PROPERTY_NAME= "com.tumri.joz.code.label.property";
-
+  private static final String CONFIG_JOZ_DEFAULT_REALM_GET_AD_DATA_STRING = "com.tumri.targeting.default.realm.getaddata.string";
+    
   private static AppProperties g_properties;
   private Properties m_jozVersionProperties;
     
@@ -96,6 +97,14 @@ public class AppProperties {
         jozCodeLabelPropName = CONFIG_PROPERTY_JOZ_CODE_LABEL;
      }
      return getVersionProperty(jozCodeLabelPropName);
+  }
+
+  public String getDefaultRealmGetAdDataCommandStr() {
+     String defaultGetAdDataCmd = getProperty(CONFIG_JOZ_DEFAULT_REALM_GET_AD_DATA_STRING);
+     if (defaultGetAdDataCmd == null) {
+         defaultGetAdDataCmd = "(get-ad-data :t-spec '|T-SPEC-http://default-realm/| :num-products 12)";
+     }
+     return defaultGetAdDataCmd;
   }
     
   /**
