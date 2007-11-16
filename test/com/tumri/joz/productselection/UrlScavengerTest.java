@@ -28,8 +28,8 @@ public class UrlScavengerTest {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	@Test
 	public void testRequestStopWords() {
 		String queryStr = "(get-ad-data :url \"http://www.photography.com/camera/canon/nikon/test\")";
@@ -43,10 +43,33 @@ public class UrlScavengerTest {
 		} catch(Exception e) {
 			System.out.println("Could not parse the request and mine the url");
 			e.printStackTrace();
-		}	
+		}
 	}
-	
-	@Test
+
+    @Test
+	public void testExciteUKIssue() {
+		String queryStr = "(get-ad-data :url \"http://www.excite.co.uk/shopping/categories/briefcases_and_attache_cases?cid=8533&mid=&bid=&\")";
+		try {
+			AdDataRequest rqst = createRequestFromCommandString(queryStr);
+			ArrayList<String> requestStopWordsAl = new ArrayList<String>();
+			requestStopWordsAl.add("excite");
+			requestStopWordsAl.add("co");
+            requestStopWordsAl.add("uk");
+            requestStopWordsAl.add("shopping");
+            requestStopWordsAl.add("cid");
+            requestStopWordsAl.add("categories");
+            requestStopWordsAl.add("bid");
+            requestStopWordsAl.add("mid");
+            String keywords = URLScavenger.mineKeywords(rqst, requestStopWordsAl, null);
+			Assert.assertTrue((keywords!=null)&&(keywords.indexOf("excite")==-1));
+			System.out.println("The mined keywords are : " + keywords);
+		} catch(Exception e) {
+			System.out.println("Could not parse the request and mine the url");
+			e.printStackTrace();
+		}
+	}
+
+    @Test
 	public void testRequestQueryNames() {
 		String queryStr = "(get-ad-data :url \"http://www.photography.com/camera/canon/nikon/test?nipun=test,camera=nikon&testquery=blah\")";
 		try {
@@ -61,7 +84,7 @@ public class UrlScavengerTest {
 		} catch(Exception e) {
 			System.out.println("Could not parse the request and mine the url");
 			e.printStackTrace();
-		}	
+		}
 	}
 	
 	/**
