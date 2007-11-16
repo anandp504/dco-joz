@@ -38,7 +38,7 @@ public class URLScavenger {
 	 * Returns the list of keywords for a given urls
 	 * @param request - the Ad data request object
 	 * @param reqStopWords - the list of request Stop words as retrived from the oSpec/tSpec
-	 * @param req
+	 * @param reqQueryNames
 	 * @return
 	 */
 	public static String mineKeywords(AdDataRequest request, ArrayList<String> reqStopWords, ArrayList<String> reqQueryNames) {
@@ -92,14 +92,28 @@ public class URLScavenger {
 					case ',':
 						builtUpKeywords.append(' ');
 						break;    
+                    case '&':
+                        break;
 					case '/':
 						builtUpKeywords.append(' ');
 						break;    
 					case '.':
 						builtUpKeywords.append(' ');
-						break;    
-					case StreamTokenizer.TT_NUMBER:
-						int num = (int)st.ttype;
+						break;
+                    case '+':
+                        builtUpKeywords.append(' ');
+                        break;
+                    case '-':
+                        builtUpKeywords.append(' ');
+                        break;
+                    case '_':
+                        builtUpKeywords.append(' ');
+                        break;
+                    case '|':
+                        builtUpKeywords.append(' ');
+                        break;
+                    case StreamTokenizer.TT_NUMBER:
+						int num = (int)st.nval;
 						builtUpKeywords.append(num);
 						break;
 					case ':':
@@ -134,7 +148,7 @@ public class URLScavenger {
 	/**
 	 * returns a string of the keywords built by looking up the query name values in the string
 	 * @param request
-	 * @param requestQueryNames
+	 * @param reqQueryNames
 	 * @return
 	 */
 	private String buildKeywordsUsingQueryNames(AdDataRequest request, ArrayList<String> reqQueryNames) {
@@ -207,7 +221,7 @@ public class URLScavenger {
 							builtUpKeywords.append(' ');
 							break;  
 						case StreamTokenizer.TT_NUMBER:
-							int num = (int)st.ttype;
+							int num = (int)st.nval;
 							builtUpKeywords.append(num);
 							break;
 						case ':':
