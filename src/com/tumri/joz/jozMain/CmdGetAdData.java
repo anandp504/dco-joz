@@ -269,7 +269,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         b.append("\",merchant_id:\"");
         b.append(encode(p.getSupplierStr()));
         b.append("\",provider:\"");
-        b.append(encode(p.getSupplierStr()));
+        b.append(encode(p.getProviderStr()));
         MerchantData md = MerchantDB.getInstance().getMerchantData()
                 .getMerchant(p.getSupplierStr());
         b.append("\",merchantlogo:\"");
