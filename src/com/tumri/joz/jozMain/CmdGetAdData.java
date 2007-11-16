@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.text.StringCharacterIterator;
-import java.text.CharacterIterator;
 
 import org.apache.log4j.Logger;
 
@@ -253,7 +251,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         try {
         	cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(p.getCategory());
         } catch (NullPointerException npe) {
-        	log.warn("The category specified for product is invalid for the current taxonomy :" + p.getCategoryStr());
+        	log.warn("The category specified for product is valid for the current taxonomy :" + p.getCategoryStr());
         }
         // Use the first parent as the category.
         if (cat != null) {
@@ -316,30 +314,30 @@ public class CmdGetAdData extends CommandOwnWriting {
     }
 
     /**
-     * Escape characters for text appearing in Javascript.
+     * Escape the single and double quote chars
      *
+     * @param s
+     * @return
      */
-    private String encode(String aText) {
-        if (aText == null)
+    private String encode(String s) {
+        // FIXME: wip
+        if (s == null)
             return "";
-        final StringBuilder result = new StringBuilder();
-        final StringCharacterIterator iterator = new StringCharacterIterator(aText);
-        char character =  iterator.current();
-        while (character != CharacterIterator.DONE ){
-            if (character == '"') {
-                result.append("\\\"");
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0, len = s.length(); i < len; i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"':
+                    sb.append("&#34;");
+                    break;
+                case '\'':
+                    sb.append("&#39;");
+                    break;
+                default:
+                    sb.append(c);
             }
-            else if (character == '\'') {
-                result.append("\\\'");
-            }
-            else {
-                //the char is not a special one
-                //add it to the result as is
-                result.append(character);
-            }
-            character = iterator.next();
         }
-        return result.toString();
+        return sb.toString();
     }
 
     private String encode_price(Float f) {
@@ -400,16 +398,13 @@ public class CmdGetAdData extends CommandOwnWriting {
         return b.toString();
     }
 
-    /**
-     * Returns the list of categories in an arrayList in the same order of the products
-     * @param product_handles
-     * @return
-     */
+    // Return uniqified list of all categories in {product_handles}.
+
     private static List<Category> products_to_cat_list(
             ArrayList<Handle> product_handles) {
         ProductDB pdb = ProductDB.getInstance();
-        ArrayList<Category> categories = new ArrayList<Category>();
-        HashMap<String,String> catNames = new  HashMap<String,String>();
+        HashSet<Category> categories = new HashSet<Category>();
+
         for (Handle h : product_handles) {
             int id = h.getOid();
             IProduct p = pdb.get(id);
@@ -417,14 +412,16 @@ public class CmdGetAdData extends CommandOwnWriting {
             Category cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(
                     p.getCategory());
             if (cat != null) {
-                if (catNames.get(cat.getGlassIdStr())==null) {
-                    catNames.put(cat.getGlassIdStr(),cat.getGlassIdStr());
-                    categories.add(cat);
-                }
+                categories.add(cat);
             }
         }
 
-        return categories;
+        List<Category> l = new ArrayList<Category>();
+
+        for (Category c : categories)
+            l.add(c);
+
+        return l;
     }
 
     private String cat_list_to_result_categories(List<Category> cats) {
