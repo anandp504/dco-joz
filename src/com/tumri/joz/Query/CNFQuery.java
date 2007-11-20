@@ -1,6 +1,8 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.ProductDB;
 import com.tumri.utils.data.MultiSortedSet;
 import com.tumri.utils.data.SortedArraySet;
 
@@ -15,6 +17,7 @@ import java.util.SortedSet;
 public class CNFQuery implements Query, Cloneable {
   private ArrayList<ConjunctQuery> m_queries = new ArrayList<ConjunctQuery>();
   private Handle m_reference;
+  private Handle m_cache_reference = null;
   private int m_pagesize = 12;
   private int m_currentPage = 0;
   private boolean bPaginate = false;
@@ -31,13 +34,30 @@ public class CNFQuery implements Query, Cloneable {
     m_queries.add(q);
   }
 
-
   public Handle getReference() {
-    return m_reference;
+      return m_reference;
+  }
+
+  public Handle getCacheReference() {
+      return m_cache_reference;
+  }
+
+  public void setCacheReference(Handle aReference) {
+      m_cache_reference = aReference;
   }
 
   public void setReference(Handle aReference) {
-    m_reference = aReference;
+    if (aReference!= null && m_cache_reference != null) {
+        //Generate a new reference point
+        IProduct iProdHandle = ProductDB.getInstance().get(m_cache_reference.getOid()+1);
+        if (iProdHandle!=null) {
+            m_reference = iProdHandle.getHandle();
+        } else {
+            m_reference = aReference;
+        }
+    } else {
+        m_reference = aReference;
+    }
   }
 
   // Clear the internal results of last computation
@@ -72,6 +92,9 @@ public class CNFQuery implements Query, Cloneable {
         if (i < start) {
           continue;
         } else if ((i >= start) && (i < end)) {
+          if (i==1) {
+              m_cache_reference = handle;
+          }
           pageResults.add(handle);
         } else {
           break;
@@ -79,7 +102,12 @@ public class CNFQuery implements Query, Cloneable {
       }
     } else {
         pageResults = new ArrayList<Handle>(m_pagesize);
+        boolean bFirst = true;
         for (Handle handle : results) {
+            if (bFirst) {
+                m_cache_reference = handle;
+                bFirst = false;
+            }
             pageResults.add(handle);
         }
     }

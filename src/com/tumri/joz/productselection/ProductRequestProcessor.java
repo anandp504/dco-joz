@@ -254,8 +254,12 @@ public class ProductRequestProcessor {
 		//6. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
 
-
-		return qResult;
+        //Set the cached reference for randomization
+        if (m_tSpecQuery.getCacheReference() != null) {
+            CNFQuery cachedQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
+            cachedQuery.setCacheReference(m_tSpecQuery.getCacheReference());
+        }
+        return qResult;
 	}
 
 	/**
@@ -283,7 +287,7 @@ public class ProductRequestProcessor {
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
 
 		//TODO Check if there is a specific  backfills scenario to go agains the entire mup.. we shouldnt run into this case at all
-		if (bKeywordBackfill && pageSize>0 && currSize<pageSize){
+		if (m_revertToDefaultRealm && bKeywordBackfill && pageSize>0 && currSize<pageSize){
 			m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
 			//We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
 			int tmpSize = pageSize-currSize+5;
