@@ -255,9 +255,9 @@ public class ProductRequestProcessor {
 		qResult = m_tSpecQuery.exec();
 
         //Set the cached reference for randomization
-        if (m_tSpecQuery.getCacheReference() != null) {
+        if (m_tSpecQuery.getReference() != null && qResult.size() >0 ) {
             CNFQuery cachedQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
-            cachedQuery.setCacheReference(m_tSpecQuery.getCacheReference());
+            cachedQuery.setCacheReference(qResult.last());
         }
         return qResult;
 	}

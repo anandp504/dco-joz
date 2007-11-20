@@ -38,10 +38,6 @@ public class CNFQuery implements Query, Cloneable {
       return m_reference;
   }
 
-  public Handle getCacheReference() {
-      return m_cache_reference;
-  }
-
   public void setCacheReference(Handle aReference) {
       m_cache_reference = aReference;
   }
@@ -92,9 +88,6 @@ public class CNFQuery implements Query, Cloneable {
         if (i < start) {
           continue;
         } else if ((i >= start) && (i < end)) {
-          if (i==1) {
-              m_cache_reference = handle;
-          }
           pageResults.add(handle);
         } else {
           break;
@@ -102,12 +95,7 @@ public class CNFQuery implements Query, Cloneable {
       }
     } else {
         pageResults = new ArrayList<Handle>(m_pagesize);
-        boolean bFirst = true;
         for (Handle handle : results) {
-            if (bFirst) {
-                m_cache_reference = handle;
-                bFirst = false;
-            }
             pageResults.add(handle);
         }
     }
