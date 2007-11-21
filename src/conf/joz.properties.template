@@ -1,5 +1,5 @@
 #Template file for joz properties
-com.tumri.content.file.refreshInterval=5
+com.tumri.content.file.refreshInterval=-1
 com.tumri.content.file.sourceDir=/opt/joz/data/caa/current
 com.tumri.content.file.dataDir=data
 com.tumri.content.luceneDir=lucene
