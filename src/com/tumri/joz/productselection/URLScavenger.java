@@ -1,10 +1,10 @@
 package com.tumri.joz.productselection;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StreamTokenizer;
-import java.io.StringReader;
+import java.io.*;
 import java.util.ArrayList;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 
 import org.apache.log4j.Logger;
 
@@ -65,6 +65,8 @@ public class URLScavenger {
         StringBuilder builtUpKeywords = new StringBuilder();
         try {
             String publisherUrl = request.get_url();
+            publisherUrl = tmpScavenger.cleanseURL(publisherUrl);
+
             if (bQueryNames) {
                 //Select the keywords using the querynames - we can ignore everything until the first '?'
                 if (publisherUrl.indexOf("?") > -1) {
@@ -75,6 +77,8 @@ public class URLScavenger {
                 StreamTokenizer st = new StreamTokenizer(new BufferedReader(new StringReader(publisherUrl)));
                 st.ordinaryChar('/');
                 st.ordinaryChar('.');
+                st.ordinaryChar('-');
+                st.ordinaryChar(' ');
                 st.ordinaryChar(',');
                 st.ordinaryChar('?');
                 st.eolIsSignificant(true);
@@ -133,6 +137,9 @@ public class URLScavenger {
                         case '-':
                             builtUpKeywords.append(' ');
                             break;
+                        case ' ':
+                            builtUpKeywords.append(' ');
+                            break;
                         case '_':
                             builtUpKeywords.append(' ');
                             break;
@@ -170,6 +177,38 @@ public class URLScavenger {
             //
         }
         return builtUpKeywords.toString();
+    }
+
+    /**
+     * Cleanse the url by decoding it, and then removing all the stop words from it.
+     * @param url
+     * @return
+     */
+    private String cleanseURL(String url) {
+        if (url == null || "".equals(url)) {
+            return "";
+        }
+        try {
+            //Sort the stopwords AL by descending order of length
+            String[] stopWordsArr = stopWordsAL.toArray(new String[0]);
+            String temp;
+            for(int i=0; i<stopWordsArr.length; i++) {
+                for(int j=0; j<stopWordsArr.length-1-i; j++) {
+                    if(stopWordsArr[j].length() < stopWordsArr[j+1].length()) {
+                        temp = stopWordsArr[j];
+                        stopWordsArr[j] = stopWordsArr[j+1];
+                        stopWordsArr[j+1] = temp;
+                    }
+                }
+            }
+            url = URLDecoder.decode(url, "utf-8");
+            for (int i=0;i<stopWordsArr.length;i++) {
+                url = url.replaceAll(stopWordsArr[i], " ");
+            }
+        } catch (UnsupportedEncodingException e) {
+
+        }
+        return url;
     }
 
 }

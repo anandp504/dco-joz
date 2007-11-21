@@ -70,14 +70,55 @@ public class UrlScavengerTest {
 	}
 
     @Test
+    public void testShopInternet() {
+		//String queryStr = "(get-ad-data :url \"http://shop.internet.com/index.php?/SF-6/BEFID-9006/keyword-Flat+Panel+LCD\")";
+
+        //String queryStr = "(get-ad-data :url \"http://shop.internet.com/index.php?/BEFID-96252/SF-6/keyword=plasma\")";
+
+        //String queryStr = "(get-ad-data :url \"http://shop.internet.com/index.php?IC_ic=1&IC_query_search=1&IC_QueryText=Sharp+Aguus&SUBMIT.x=0&SUBMIT.y=0&SUBMIT=Find\")";
+
+        String queryStr = "(get-ad-data :url \"http://shop.internet.com/index.php?/SF-7/BEFID-96252/keyword-Sharp%20Aquos/dnatrs-price_range_1300_1650\")";
+
+        try {
+			AdDataRequest rqst = createRequestFromCommandString(queryStr);
+			ArrayList<String> requestStopWordsAl = new ArrayList<String>();
+            requestStopWordsAl.add("-");
+            requestStopWordsAl.add("//");
+            requestStopWordsAl.add("shop");
+			requestStopWordsAl.add("internet");
+            requestStopWordsAl.add("SF-6");
+            requestStopWordsAl.add("SF-7");
+            requestStopWordsAl.add("index.php");
+            requestStopWordsAl.add("keyword");
+            requestStopWordsAl.add("dnatrs");
+            requestStopWordsAl.add("IC_ic");
+            requestStopWordsAl.add("IC_query_search");
+            requestStopWordsAl.add("IC_Query_text");
+            requestStopWordsAl.add("SUBMIT");
+            requestStopWordsAl.add("BEFID");
+            requestStopWordsAl.add("price_range");
+            requestStopWordsAl.add("brand");
+            requestStopWordsAl.add("sf-6");
+            requestStopWordsAl.add("sf-7");
+            requestStopWordsAl.add("index");
+            requestStopWordsAl.add("php");
+            String keywords = URLScavenger.mineKeywords(rqst, requestStopWordsAl, null);
+			Assert.assertTrue((keywords!=null));
+			System.out.println("The mined keywords are : " + keywords);
+		} catch(Exception e) {
+			System.out.println("Could not parse the request and mine the url");
+			e.printStackTrace();
+		}        
+    }
+    @Test
 	public void testRequestQueryNames() {
 		String queryStr = "(get-ad-data :url \"http://www.photography.com/camera/canon/nikon/test?nipun=test,camera=nikon&testquery=blah\")";
 		try {
 			AdDataRequest rqst = createRequestFromCommandString(queryStr);
 			ArrayList<String> requestQueryNamesAl = new ArrayList<String>();
 			requestQueryNamesAl.add("camera");
-			requestQueryNamesAl.add("testquery");
-			requestQueryNamesAl.add("nipun");
+			//requestQueryNamesAl.add("testquery");
+			//requestQueryNamesAl.add("nipun");
 			String keywords = URLScavenger.mineKeywords(rqst, null, requestQueryNamesAl);
 			System.out.println("The mined keywords using query names are : " + keywords);
 			Assert.assertTrue((keywords!=null)&&(keywords.indexOf("nikon")!=-1));
