@@ -29,8 +29,21 @@ public class UrlScavengerTest {
 		}
 	}
 
+    @Test
+	public void testnullURL() {
+		String queryStr = "(get-ad-data :url \"\")";
+		try {
+			AdDataRequest rqst = createRequestFromCommandString(queryStr);
+			String keywords = URLScavenger.mineKeywords(rqst, null, null);
+			Assert.assertTrue(keywords.equals(""));
+			System.out.println("The mined keywords are : " + keywords);
+		} catch(Exception e) {
+			System.out.println("Could not parse the request and mine the url");
+			e.printStackTrace();
+		}
+	}
 
-	@Test
+    @Test
 	public void testRequestStopWords() {
 		String queryStr = "(get-ad-data :url \"http://www.photography.com/camera/canon/nikon/test\")";
 		try {

@@ -176,7 +176,7 @@ public class URLScavenger {
         } catch (IOException e) {
             //
         }
-        return builtUpKeywords.toString();
+        return builtUpKeywords.toString().trim();
     }
 
     /**
