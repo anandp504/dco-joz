@@ -44,6 +44,7 @@ public class ProductQueryMonitor extends ComponentMonitor
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Sexp sexp = createSexp(arg);
+            ((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(sexp.toString());
             CmdGetAdData cmd = new CmdGetAdData(sexp);
             cmd.process_and_write(out);
             bytes = out.toByteArray();
@@ -63,20 +64,19 @@ public class ProductQueryMonitor extends ComponentMonitor
 
     private List<Map<String, String>> getProductData(Sexp sexpr) throws JozMonitorException
     {
-        List<Map<String, String>> products = new ArrayList<Map<String,String>>();
+        List<Map<String, String>> products=new ArrayList<Map<String,String>>();
         if (!sexpr.isSexpList())
            throw new JozMonitorException("Expected sexp is not a list.");
-        Sexp  tmp;
-        // get Product Data
-        tmp = ((SexpList)sexpr).get(1);
 
+        ((ProductQueryMonitorStatus)status.getStatus()).setProductRawData(sexpr.toString());
+        //get Product Data
+        Sexp tmp=((SexpList)sexpr).get(1);
         if (tmp == null)
             throw new JozMonitorException("Products not found. Null encountered.");
-
         if (!tmp.isSexpList())
            throw new JozMonitorException("Expected sexp is not a list.");
-        tmp = ((SexpList)tmp).get(1);
-        // tmp should be a SexpString.
+        tmp=((SexpList)tmp).get(1);
+        //tmp should be a SexpString.
         if (!tmp.isSexpString())
            throw new JozMonitorException("Expected sexp is not a string.");
 
@@ -106,7 +106,7 @@ public class ProductQueryMonitor extends ComponentMonitor
             }
         }
         catch (Exception ex) {
-            throw new JozMonitorException("Unexpected Json library error."); 
+            throw new JozMonitorException("Unexpected Json library error.");
         }
 
         return products;
@@ -119,7 +119,7 @@ public class ProductQueryMonitor extends ComponentMonitor
        if (tspec == null)
           tspec = defaultTspec;
        Sexp e = null;
-       String s = "(:get-ad-data :revert-to-default-realm t :t-spec '|"+tspec+"|)";
+       String s = "(:get-ad-data :revert-to-default-realm t :t-spec '|"+tspec+"| :num-products 100)";
        SexpReader r = new SexpReader(new StringReader(s));
        try {
           e = r.read();

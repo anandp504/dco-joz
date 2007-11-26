@@ -17,7 +17,9 @@ import org.apache.log4j.Logger;
  */
 public class ProductQueryMonitorStatus extends MonitorStatus
 {
-    private List<Map<String, String>> products = null;
+    private List<Map<String, String>> products=null;
+    private String adDataQueryString=null;
+    private String adDataRawOutput=null;
 
     public  ProductQueryMonitorStatus(String name)
     {
@@ -33,6 +35,22 @@ public class ProductQueryMonitorStatus extends MonitorStatus
     {
        return products;
     }
+
+    public void setProductQuery(String queryString) {
+		this.adDataQueryString=queryString;
+	}
+
+	public String getProductQuery() {
+		return this.adDataQueryString;
+	}
+
+	public void setProductRawData(String adDataRawOutput) {
+		this.adDataRawOutput=adDataRawOutput;
+	}
+
+	public String getProductRawData() {
+		return this.adDataRawOutput;
+	}
 
     public String toHTML()
     {
