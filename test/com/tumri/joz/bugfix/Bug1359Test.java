@@ -2,7 +2,13 @@ package com.tumri.joz.bugfix;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import com.tumri.joz.campaign.CampaignDBDataLoader;
+import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.UrlNormalizer;
+import com.tumri.joz.products.Handle;
+
+import java.util.SortedSet;
 
 /**
  * Unit Test case for Bug 1359
@@ -51,27 +57,39 @@ public class Bug1359Test {
     @Test
     public void testDuplicateThemeMappingIssue() {
         //1. Create a new tspec TSPEC-joz-test2
-        String tSpecName = "TSPEC-joz-test2";
+        String tSpecName = "AATSPEC-joz-test2";
+        String themeName = "AAtheme-test-joz";
         TransientDataTestUtil.addNewTSpec(tSpecName);
 
         //2. Add new theme mapping with geo location
-        String mappingWithGeoStr = "(incorp-mapping-deltas '((:add (:theme \"theme-test-joz\")  ((:zip \"99005\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        String mappingWithGeoStr = "(incorp-mapping-deltas '((:add (:theme \"" + themeName + "\")  ((:zip \"99005\"))  nil |AATSPEC-joz-test2| 1.0f0 30942626)))";
         TransientDataTestUtil.addNewMapping(mappingWithGeoStr);
-
+        SortedSet<Handle> handle = CampaignDB.getInstance().getThemeAdPodMappingIndex().get(themeName);
+        int size = handle.size();
+        assertEquals(size, 1);
         //3. Add new theme mapping with geo location
-        String duplicateMappingWithGeoStr = "(incorp-mapping-deltas '((:add (:theme \"theme-test-joz\")  ((:zip \"99005\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        String duplicateMappingWithGeoStr = "(incorp-mapping-deltas '((:add (:theme \"" + themeName + "\")  ((:zip \"99005\"))  nil |AATSPEC-joz-test2| 1.0f0 30942626)))";
         TransientDataTestUtil.addNewMapping(duplicateMappingWithGeoStr);
+        handle = CampaignDB.getInstance().getThemeAdPodMappingIndex().get(themeName);
+        size = handle.size();
+        assertEquals(size, 1);
 
         //4. Add new theme mapping without geo location
-        String mappingWithoutGeoStr = "(incorp-mapping-deltas '((:add (:theme \"theme-test-joz\")  nil  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        String mappingWithoutGeoStr = "(incorp-mapping-deltas '((:add (:theme \"" + themeName + "\")  nil  nil |AATSPEC-joz-test2| 1.0f0 30942626)))";
         TransientDataTestUtil.addNewMapping(mappingWithoutGeoStr);
+        handle = CampaignDB.getInstance().getThemeAdPodMappingIndex().get(themeName);
+        size = handle.size();
+        assertEquals(size, 2);
 
         //5. Add new theme mapping without geo location
-        String duplicateMappingWithoutGeoStr = "(incorp-mapping-deltas '((:add (:theme \"theme-test-joz\")  nil  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        String duplicateMappingWithoutGeoStr = "(incorp-mapping-deltas '((:add (:theme \"" + themeName + "\")  nil  nil |AATSPEC-joz-test2| 1.0f0 30942626)))";
         TransientDataTestUtil.addNewMapping(duplicateMappingWithoutGeoStr);
+        handle = CampaignDB.getInstance().getThemeAdPodMappingIndex().get(themeName);
+        size = handle.size();
+        assertEquals(size, 2);
 
         //6. Make a get-ad-data request for theme using geo
-        String tSpecGetGeoStr = "(get-ad-data :zip-code \"99005\" :theme \"theme-test-joz\")";        
+        String tSpecGetGeoStr = "(get-ad-data :zip-code \"99005\" :theme \"" + themeName + "\")";
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr, tSpecName);
 
     }
@@ -80,31 +98,51 @@ public class Bug1359Test {
     public void testDuplicateUrlMappingIssue() {
         //1. Create a new tspec TSPEC-joz-test2
         String tSpecName = "TSPEC-joz-test2";
+        String urlName   = "http://test-joz.com";
         TransientDataTestUtil.addNewTSpec(tSpecName);
 
         //2. Add new mapping with geo location
-        String mappingWithGeoStr = "(incorp-mapping-deltas '((:add (:realm \"http://test-joz.com\")  ((:zip \"99005\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        String mappingWithGeoStr = "(incorp-mapping-deltas '((:add (:realm \"" + urlName + "\")  ((:zip \"99005\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
         TransientDataTestUtil.addNewMapping(mappingWithGeoStr);
+        SortedSet<Handle> handle = CampaignDB.getInstance().getUrlAdPodMappingIndex().get(UrlNormalizer.getNormalizedUrl(urlName));
+        int size = handle.size();
+        assertEquals(size, 1);
 
         //3. Make a get-ad-data request for url using geo
-        String tSpecGetGeoStr = "(get-ad-data :zip-code \"99005\" :url \"http://test-joz.com\")";
+        String tSpecGetGeoStr = "(get-ad-data :zip-code \"99005\" :url \"" + urlName + "\")";
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr, tSpecName);
 
         //4. Make a get-ad-data request for url without geo
-        String tSpecGetUrlMappingStr = "(get-ad-data :url \"http://test-joz.com\")";
+        String tSpecGetUrlMappingStr = "(get-ad-data :url \"" + urlName + "\")";
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetUrlMappingStr, null);
 
         //5. Add new mapping with geo location
-        String duplicateMappingWithGeoStr = "(incorp-mapping-deltas '((:add (:realm \"http://test-joz.com\")  ((:zip \"99999\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        String duplicateMappingWithGeoStr = "(incorp-mapping-deltas '((:add (:realm \"" + urlName + "\")  ((:zip \"99999\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
         TransientDataTestUtil.addNewMapping(duplicateMappingWithGeoStr);
-        
+        handle = CampaignDB.getInstance().getUrlAdPodMappingIndex().get(UrlNormalizer.getNormalizedUrl(urlName));
+        size = handle.size();
+        assertEquals(size, 1);
+
         //6. Make a get-ad-data request for url using geo
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr, null);
 
         //7. Make a get-ad-data request for url using geo
-        String tSpecGetGeoStr2 = "(get-ad-data :zip-code \"99999\" :url \"http://test-joz.com\")";        
+        String tSpecGetGeoStr2 = "(get-ad-data :zip-code \"99999\" :url \"" + urlName + "\")";
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr2, tSpecName);
 
+        //8. Add new mapping without geo location
+        String mappingStr = "(incorp-mapping-deltas '((:add (:realm \"" + urlName + "\")  nil  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        TransientDataTestUtil.addNewMapping(mappingStr);
+        handle = CampaignDB.getInstance().getUrlAdPodMappingIndex().get(UrlNormalizer.getNormalizedUrl(urlName));
+        size = handle.size();
+        assertEquals(size, 2);
+
+        //9. Add duplicate mapping without geo location
+        String duplicateMappingStr = "(incorp-mapping-deltas '((:add (:realm \"" + urlName + "\")  nil  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        TransientDataTestUtil.addNewMapping(duplicateMappingStr);
+        handle = CampaignDB.getInstance().getUrlAdPodMappingIndex().get(UrlNormalizer.getNormalizedUrl(urlName));
+        size = handle.size();
+        assertEquals(size, 2);
     }
 
     @Test
@@ -112,30 +150,50 @@ public class Bug1359Test {
         //1. Create a new tspec TSPEC-joz-test2
         String tSpecName = "TSPEC-joz-test2";
         TransientDataTestUtil.addNewTSpec(tSpecName);
+        int storeId = 919191;
 
         //2. Add new mapping with geo location
-        String mappingWithGeoStr = "(incorp-mapping-deltas '((:add (:store-ID \"919191\")  ((:zip \"99005\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        String mappingWithGeoStr = "(incorp-mapping-deltas '((:add (:store-ID \"" + storeId + "\")  ((:zip \"99005\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
         TransientDataTestUtil.addNewMapping(mappingWithGeoStr);
+        SortedSet<Handle> handle = CampaignDB.getInstance().getLocationAdPodMappingIndex().get(storeId);
+        int size = handle.size();
+        assertEquals(size, 1);
 
         //3. Make a get-ad-data request for url using geo
-        String tSpecGetGeoStr = "(get-ad-data :zip-code \"99005\" :store-ID \"919191\")";
+        String tSpecGetGeoStr = "(get-ad-data :zip-code \"99005\" :store-ID \"" + storeId + "\")";
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr, tSpecName);
 
         //4. Make a get-ad-data request for url without geo
-        String tSpecGetUrlMappingStr = "(get-ad-data :store-ID \"919191\")";
+        String tSpecGetUrlMappingStr = "(get-ad-data :store-ID \"" + storeId + "\")";
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetUrlMappingStr, null);
 
         //5. Add new mapping with geo location
-        String duplicateMappingWithGeoStr = "(incorp-mapping-deltas '((:add (:store-ID \"919191\")  ((:zip \"99999\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        String duplicateMappingWithGeoStr = "(incorp-mapping-deltas '((:add (:store-ID \"" + storeId + "\")  ((:zip \"99999\"))  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
         TransientDataTestUtil.addNewMapping(duplicateMappingWithGeoStr);
+        handle = CampaignDB.getInstance().getLocationAdPodMappingIndex().get(storeId);
+        size = handle.size();
+        assertEquals(size, 1);
 
         //6. Make a get-ad-data request for url using geo
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr, null);
 
         //7. Make a get-ad-data request for url using geo
-        String tSpecGetGeoStr2 = "(get-ad-data :zip-code \"99999\" :store-ID \"919191\")";
+        String tSpecGetGeoStr2 = "(get-ad-data :zip-code \"99999\" :store-ID \"" + storeId + "\")";
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr2, tSpecName);
 
+        //8. Add new mapping without geo location
+        String mappingStr = "(incorp-mapping-deltas '((:add (:store-ID \"" + storeId + "\")  nil  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        TransientDataTestUtil.addNewMapping(mappingStr);
+        handle = CampaignDB.getInstance().getLocationAdPodMappingIndex().get(storeId);
+        size = handle.size();
+        assertEquals(size, 2);
+
+        //8. Add new mapping without geo location
+        String duplicateMappingStr = "(incorp-mapping-deltas '((:add (:store-ID \"" + storeId + "\")  nil  nil |TSPEC-joz-test2| 1.0f0 30942626)))";
+        TransientDataTestUtil.addNewMapping(duplicateMappingStr);
+        handle = CampaignDB.getInstance().getLocationAdPodMappingIndex().get(storeId);
+        size = handle.size();
+        assertEquals(size, 2);
     }
 
 }

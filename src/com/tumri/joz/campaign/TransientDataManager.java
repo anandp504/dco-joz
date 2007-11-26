@@ -16,8 +16,9 @@ import org.apache.log4j.Logger;
  * into the CamapaignDB maps and indices. The reason for caching the requests is that the CampaignDB data gets reloaded
  * periodically and this transient data will get erased in that process. By holding on to request objects, the manager
  * can re-add all these objects during the CampaignDB reloading process. <BR/>
- * It internally maintains an LRU cache for transient campaign data <BR/>
- * There are two ways by which the data gets removed from the cache: <BR/>
+ *
+ * This class internally maintains an LRU cache for transient campaign data <BR/>
+ * There are two ways by which the data gets removed from the internal cache: <BR/>
  *
  * 1. When delete tspec/delete mapping command is made by portal clients
  * 2. The maximum size of the LRU cache is exceeded.
@@ -38,7 +39,7 @@ public class TransientDataManager {
 
     private RWLockedTreeMap<Integer, OSpec> originalOSpecMap = new RWLockedTreeMap<Integer, OSpec>();
 
-    //This low bound is set this high so that the IDs assigned to transient objects doesnt collide with the database generated IDs for other objects
+    //The low bound is set to a high value so that the IDs assigned to transient objects dont collide with the database generated IDs for other objects
     private final static int lowBound  = 999000000;
     private final static int highBound = 999999999;
     private final static AtomicInteger idSequence = new AtomicInteger(lowBound);
@@ -50,116 +51,108 @@ public class TransientDataManager {
     }
 
     public void reloadInCampaignDB() {
-        reloadOSpec();
-        reloadUrlMappings();
-        reloadThemeMappings();
-        reloadLocationMappings();
+        //Important: Since multiple read locks are acquired in this method, care must be taken in future if there is
+        //a need to acquire multiple write locks anywhere else within the class. Acquiring write locks in any other
+        //order then below can lead to deadlocks
+        oSpecNameLRUCache.readerLock();
+        urlMapRequest.readerLock();
+        themeMapRequest.readerLock();
+        locationMapRequest.readerLock();
+        try {
+            reloadOSpec();
+            reloadUrlMappings();
+            reloadThemeMappings();
+            reloadLocationMappings();
+        }
+        finally {
+            locationMapRequest.readerUnlock();
+            themeMapRequest.readerUnlock();
+            urlMapRequest.readerUnlock();
+            oSpecNameLRUCache.readerUnlock();
+        }
     }
 
     private void reloadOSpec() {
-        oSpecNameLRUCache.readerLock();
-        try {
-            Iterator iterator = oSpecNameLRUCache.values().iterator();
-            if(iterator != null && iterator.hasNext()) {
-                while(iterator.hasNext()) {
-                    OSpec oSpec = (OSpec)iterator.next();
-                    addOSpecToCampaignDB(oSpec);
-                }
+        Iterator iterator = oSpecNameLRUCache.values().iterator();
+        if(iterator != null && iterator.hasNext()) {
+            while(iterator.hasNext()) {
+                OSpec oSpec = (OSpec)iterator.next();
+                addOSpecToCampaignDB(oSpec);
             }
-        }
-        finally {
-            oSpecNameLRUCache.readerUnlock();
         }
     }
 
     @SuppressWarnings({"unchecked"})
     private void reloadUrlMappings() {
-        urlMapRequest.readerLock();
-        try {
-            Iterator iterator = urlMapRequest.values().iterator();
-            if(iterator != null && iterator.hasNext()) {
-                while(iterator.hasNext()) {
-                    List<IncorpDeltaMappingRequest<String>> requestList = (List<IncorpDeltaMappingRequest<String>>)iterator.next();
-                    if(requestList != null) {
-                        for (IncorpDeltaMappingRequest<String> request : requestList) {
-                            try {
-                                addUrlMapping(request);
-                            }
-                            catch (TransientDataException e) {
-                                log.error("Error occured while reloading urlmapping in TransientDataManager", e);
-                            }
+        Iterator iterator = urlMapRequest.values().iterator();
+        if(iterator != null && iterator.hasNext()) {
+            while(iterator.hasNext()) {
+                List<IncorpDeltaMappingRequest<String>> requestList = (List<IncorpDeltaMappingRequest<String>>)iterator.next();
+                if(requestList != null) {
+                    for (IncorpDeltaMappingRequest<String> request : requestList) {
+                        try {
+                            addUrlMapping(request);
+                        }
+                        catch (TransientDataException e) {
+                            log.error("Error occured while reloading urlmapping in TransientDataManager", e);
                         }
                     }
                 }
             }
-        }
-        finally {
-            urlMapRequest.readerUnlock();
         }
     }
 
     @SuppressWarnings({"unchecked"})
     private void reloadThemeMappings() {
-        themeMapRequest.readerLock();
-        try {
-            Iterator iterator = themeMapRequest.values().iterator();
-            if(iterator != null && iterator.hasNext()) {
-                while(iterator.hasNext()) {
-                    List<IncorpDeltaMappingRequest<String>> requestList = (List<IncorpDeltaMappingRequest<String>>)iterator.next();
-                    if(requestList != null) {
-                        for (IncorpDeltaMappingRequest<String> request : requestList) {
-                            try {
-                                addThemeMapping(request);
-                            }
-                            catch (TransientDataException e) {
-                                log.error("Error occured while reloading thememapping in TransientDataManager", e);
-                            }
+        Iterator iterator = themeMapRequest.values().iterator();
+        if(iterator != null && iterator.hasNext()) {
+            while(iterator.hasNext()) {
+                List<IncorpDeltaMappingRequest<String>> requestList = (List<IncorpDeltaMappingRequest<String>>)iterator.next();
+                if(requestList != null) {
+                    for (IncorpDeltaMappingRequest<String> request : requestList) {
+                        try {
+                            addThemeMapping(request);
+                        }
+                        catch (TransientDataException e) {
+                            log.error("Error occured while reloading thememapping in TransientDataManager", e);
                         }
                     }
                 }
             }
-        }
-        finally {
-            themeMapRequest.readerUnlock();
         }
     }
 
     @SuppressWarnings({"unchecked"})
     private void reloadLocationMappings() {
-        locationMapRequest.readerLock();
-        try {
-            Iterator iterator = locationMapRequest.values().iterator();
-            if(iterator != null && iterator.hasNext()) {
-                while(iterator.hasNext()) {
-                    List<IncorpDeltaMappingRequest<Integer>> requestList = (List<IncorpDeltaMappingRequest<Integer>>)iterator.next();
-                    if(requestList != null) {
-                        for (IncorpDeltaMappingRequest<Integer> request : requestList) {
-                            try {
-                                addLocationMapping(request);
-                            }
-                            catch (TransientDataException e) {
-                                log.error("Error occured while reloading thememapping in TransientDataManager", e);
-                            }
+        Iterator iterator = locationMapRequest.values().iterator();
+        if(iterator != null && iterator.hasNext()) {
+            while(iterator.hasNext()) {
+                List<IncorpDeltaMappingRequest<Integer>> requestList = (List<IncorpDeltaMappingRequest<Integer>>)iterator.next();
+                if(requestList != null) {
+                    for (IncorpDeltaMappingRequest<Integer> request : requestList) {
+                        try {
+                            addLocationMapping(request);
+                        }
+                        catch (TransientDataException e) {
+                            log.error("Error occured while reloading thememapping in TransientDataManager", e);
                         }
                     }
                 }
             }
         }
-        finally {
-            locationMapRequest.readerUnlock();
-        }
     }
 
     public void addOSpec(OSpec oSpec) throws TransientDataException {
         //Check if the oSpec already exists
-        if(campaignDB.getOspec(oSpec.getName()) != null && !oSpecNameLRUCache.containsKey(oSpec.getName())) {
-            //copy the original ospec object to temporary area, for being replaced later on once the delete-tspec is called
+        if(campaignDB.getOspec(oSpec.getName()) != null && !oSpecNameLRUCache.safeContainsKey(oSpec.getName())) {
+            //Copy the original ospec object from CampaignDB into temporary area, so it can be replaced later on
+            //when the delete-tspec from portals is called
             OSpec origOSpec = campaignDB.getOspec(oSpec.getName());
             originalOSpecMap.safePut(origOSpec.getId(), origOSpec);
         }
         int oSpecId;
-        if(oSpecNameLRUCache.containsKey(oSpec.getName())) {
-            oSpecId = oSpecNameLRUCache.get(oSpec.getName()).getId();
+        if(oSpecNameLRUCache.safeContainsKey(oSpec.getName())) {
+            oSpecId = oSpecNameLRUCache.safeGet(oSpec.getName()).getId();
         }
         else {
             //create OSpec ID
@@ -168,7 +161,7 @@ public class TransientDataManager {
         oSpec.setId(oSpecId);
 
         //Add to LRU cache
-        oSpecNameLRUCache.put(oSpec.getName(), oSpec);
+        oSpecNameLRUCache.safePut(oSpec.getName(), oSpec);
         addOSpecToCampaignDB(oSpec);
 
         //reset the idSequence if highBound is exceeded
@@ -183,7 +176,7 @@ public class TransientDataManager {
     }
 
     public void deleteOSpec(String oSpecName) {
-        OSpec oSpec = oSpecNameLRUCache.get(oSpecName);
+        OSpec oSpec = oSpecNameLRUCache.safeGet(oSpecName);
         if(oSpec != null) {
             deleteDependencies(oSpec);
         }
@@ -220,7 +213,7 @@ public class TransientDataManager {
      * @throws TransientDataException - Gets thrown for invalid condition
      */
     public void addUrlMapping(String urlName, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
+        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.safeContainsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(urlName, tSpecName, weight, geocode);
@@ -228,18 +221,18 @@ public class TransientDataManager {
         if(existingRequest != null) {
             deleteUrlMapping(existingRequest.getId(), existingRequest.getTSpecName(), 1.0f, existingRequest.getGeocode());
         }
-        synchronized (tSpecName) {
-            List<IncorpDeltaMappingRequest<String>> list = urlMapRequest.safeGet(tSpecName);
+        urlMapRequest.writerLock();
+        try {
+            List<IncorpDeltaMappingRequest<String>> list = urlMapRequest.get(tSpecName);
             if(list == null) {
                 list = new ArrayList<IncorpDeltaMappingRequest<String>>();
             }
             list.add(request);
-            //Here there is a possibility of two concurrent threads stepping into each other and messing each others list
-            //hence made this part of code synchronized by tSpecName. However since this method is synchronized by tSpecName
-            //it is making an assumption that the string is interned, which is true for the clients using this method
-            urlMapRequest.safePut(tSpecName, list);
+            urlMapRequest.put(tSpecName, list);
         }
-
+        finally {
+            urlMapRequest.writerUnlock();
+        }
         addUrlMapping(request);
     }
 
@@ -275,7 +268,7 @@ public class TransientDataManager {
     }
 
     public void addThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
+        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.safeContainsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(themeName, tSpecName, weight, geocode);
@@ -284,16 +277,17 @@ public class TransientDataManager {
             deleteThemeMapping(existingRequest.getId(), existingRequest.getTSpecName(), 1.0f, existingRequest.getGeocode());
         }
 
-        synchronized (tSpecName) {
-            List<IncorpDeltaMappingRequest<String>> list = themeMapRequest.safeGet(tSpecName);
+        themeMapRequest.writerLock();
+        try {
+            List<IncorpDeltaMappingRequest<String>> list = themeMapRequest.get(tSpecName);
             if(list == null) {
                 list = new ArrayList<IncorpDeltaMappingRequest<String>>();
             }
             list.add(request);
-            //Here there is a possibility of two concurrent threads stepping into each other and messing each others list
-            //hence made this part of code synchronized by tSpecName. However since this method is synchronized by tSpecName
-            //it is making an assumption that the string is interned, which is assumed to be true for the clients using this method
-            themeMapRequest.safePut(tSpecName, list);
+            themeMapRequest.put(tSpecName, list);
+        }
+        finally {
+            themeMapRequest.writerUnlock();
         }
         addThemeMapping(request);
     }
@@ -418,7 +412,7 @@ public class TransientDataManager {
     }
 
     public void addLocationMapping(String locationIdStr, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.containsKey(tSpecName)) {
+        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.safeContainsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         int locationId;
@@ -434,16 +428,17 @@ public class TransientDataManager {
         if(existingRequest != null) {
             deleteLocationMapping(existingRequest.getId() +"", existingRequest.getTSpecName(), 1.0f, existingRequest.getGeocode());
         }
-        synchronized (tSpecName) {
-            List<IncorpDeltaMappingRequest<Integer>> list = locationMapRequest.safeGet(tSpecName);
+        locationMapRequest.writerLock();
+        try {
+            List<IncorpDeltaMappingRequest<Integer>> list = locationMapRequest.get(tSpecName);
             if(list == null) {
                 list = new ArrayList<IncorpDeltaMappingRequest<Integer>>();
             }
             list.add(request);
-            //Here there is a possibility of two concurrent threads stepping into each other and messing each others list
-            //hence made this part of code synchronized by tSpecName. However since this method is synchronized by tSpecName
-            //it is making an assumption that the string is interned, which is assumed to be true for the clients using this method
-            locationMapRequest.safePut(tSpecName, list);
+            locationMapRequest.put(tSpecName, list);
+        }
+        finally {
+            locationMapRequest.writerUnlock();
         }
         addLocationMapping(request);
     }
@@ -487,7 +482,7 @@ public class TransientDataManager {
 
     public void deleteUrlMapping(String urlName, String tSpecName, float weight, Geocode geocode) {
         List <IncorpDeltaMappingRequest<String>>  urlRequestList      = urlMapRequest.safeGet(tSpecName);
-        if(urlRequestList != null && oSpecNameLRUCache.containsKey(tSpecName)) {
+        if(urlRequestList != null && oSpecNameLRUCache.safeContainsKey(tSpecName)) {
             synchronized(urlRequestList) {
                 int adPodId = 0;
                 for(int i=0; i<urlRequestList.size(); i++) {
@@ -613,13 +608,7 @@ public class TransientDataManager {
         List <IncorpDeltaMappingRequest<String>>  themeRequestList    = themeMapRequest.safeGet(oSpec.getName());
         List <IncorpDeltaMappingRequest<Integer>> locationRequestList = locationMapRequest.safeGet(oSpec.getName());
 
-        oSpecNameLRUCache.writerLock();
-        try {
-            oSpecNameLRUCache.remove(oSpec.getName());
-        }
-        finally {
-            oSpecNameLRUCache.writerUnlock();
-        }
+        oSpecNameLRUCache.safeRemove(oSpec.getName());
         urlMapRequest.safeRemove(oSpec.getName());
         themeMapRequest.safeRemove(oSpec.getName());
         locationMapRequest.safeRemove(oSpec.getName());
@@ -759,16 +748,24 @@ public class TransientDataManager {
             return false;
         }
 
-        public OSpec safeGet(Object key) {
-            OSpec oSpec;            
+        public boolean safeContainsKey(Object key) {
             readerLock();
             try {
-                oSpec = super.get(key);
+                return super.containsKey(key);
             }
             finally {
                 readerUnlock();
             }
-            return oSpec;
+        }
+
+        public OSpec safeGet(Object key) {
+            readerLock();
+            try {
+                return super.get(key);
+            }
+            finally {
+                readerUnlock();
+            }
         }
 
         public OSpec safePut(String key, OSpec value) {
@@ -785,6 +782,16 @@ public class TransientDataManager {
             writerLock();
             try {
                 super.putAll(map);
+            }
+            finally {
+                writerLock();
+            }
+        }
+
+        public OSpec safeRemove(String key) {
+            writerLock();
+            try {
+                return super.remove(key);
             }
             finally {
                 writerLock();
