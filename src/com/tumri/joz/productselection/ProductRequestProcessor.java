@@ -311,8 +311,11 @@ public class ProductRequestProcessor {
 					defaultRealmTSpec.setBounds(tmpSize,0);
 					Handle ref = ProductDB.getInstance().genReference ();
 					defaultRealmTSpec.setReference(ref);
-					SortedSet<Handle> newResults = defaultRealmTSpec.exec();
-					backFillProds.addAll(newResults);
+                    SortedSet<Handle> newResults = defaultRealmTSpec.exec();
+                    if (ref !=null && newResults.size() >0 ) {
+                        defaultRealmTSpec.setCacheReference(newResults.last());
+                    }
+                    backFillProds.addAll(newResults);
 				}
 			}
 		}
