@@ -90,11 +90,17 @@ public class UrlScavengerTest {
 
         //String queryStr = "(get-ad-data :url \"http://shop.internet.com/index.php?IC_ic=1&IC_query_search=1&IC_QueryText=Sharp+Aguus&SUBMIT.x=0&SUBMIT.y=0&SUBMIT=Find\")";
 
-        String queryStr = "(get-ad-data :url \"http://shop.internet.com/index.php?/SF-7/BEFID-96252/keyword-Sharp%20Aquos/dnatrs-price_range_1300_1650\")";
+        //String queryStr = "(get-ad-data :url \"http://shop.internet.com/index.php?/SF-7/BEFID-96252/keyword-Sharp%20Aquos/dnatrs-price_range_1300_1650\")";
+
+        //String queryStr = "(get-ad-data :url \"http://alatest.com/Digital_SLR_Cameras/248/?v1=brand%7EPentax%7EL\")";
+
+        String queryStr = "(get-ad-data :url \"http://alatest.com/Global_Positioning_Systems_GPS/15/?v1=brand%7EMagellan+Navigation%7EL\")";
+
 
         try {
 			AdDataRequest rqst = createRequestFromCommandString(queryStr);
 			ArrayList<String> requestStopWordsAl = new ArrayList<String>();
+            requestStopWordsAl.add("~");
             requestStopWordsAl.add("-");
             requestStopWordsAl.add("//");
             requestStopWordsAl.add("shop");
@@ -124,6 +130,23 @@ public class UrlScavengerTest {
 		}        
     }
     @Test
+	public void testRequestExciteQueryNames() {
+		String queryStr = "(get-ad-data :url \"http://excite.co.uk/search?q=camera\")";
+		try {
+			AdDataRequest rqst = createRequestFromCommandString(queryStr);
+			ArrayList<String> requestQueryNamesAl = new ArrayList<String>();
+			requestQueryNamesAl.add("q");
+			//requestQueryNamesAl.add("testquery");
+			//requestQueryNamesAl.add("nipun");
+			String keywords = URLScavenger.mineKeywords(rqst, null, requestQueryNamesAl);
+			System.out.println("The mined keywords using query names are : " + keywords);
+			Assert.assertTrue((keywords!=null)&&(keywords.indexOf("camera")!=-1));
+		} catch(Exception e) {
+			System.out.println("Could not parse the request and mine the url");
+			e.printStackTrace();
+		}
+	}
+    @Test
 	public void testRequestQueryNames() {
 		String queryStr = "(get-ad-data :url \"http://www.photography.com/camera/canon/nikon/test?nipun=test,camera=nikon&testquery=blah\")";
 		try {
@@ -140,7 +163,6 @@ public class UrlScavengerTest {
 			e.printStackTrace();
 		}
 	}
-	
 	/**
 	 * Returns the constructed Ad Data request - used for test methods
 	 * @param adDataCmdStr
