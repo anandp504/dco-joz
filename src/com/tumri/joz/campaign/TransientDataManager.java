@@ -1,13 +1,14 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
-import com.tumri.utils.data.RWLockedTreeMap;
 import com.tumri.utils.data.RWLocked;
+import com.tumri.utils.data.RWLockedTreeMap;
+import org.apache.log4j.Logger;
+
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.log4j.Logger;
 
 /**
  * This class manages the transient data request from add-tspec, delete-tspec and incorp-mapping-delta requests from
@@ -774,7 +775,7 @@ public class TransientDataManager {
                 return super.put(key, value);
             }
             finally {
-                writerLock();
+                writerUnlock();
             }
         }
 
@@ -784,7 +785,7 @@ public class TransientDataManager {
                 super.putAll(map);
             }
             finally {
-                writerLock();
+                writerUnlock();
             }
         }
 
@@ -794,7 +795,7 @@ public class TransientDataManager {
                 return super.remove(key);
             }
             finally {
-                writerLock();
+                writerUnlock();
             }
         }
     }
