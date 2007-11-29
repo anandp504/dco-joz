@@ -144,20 +144,23 @@ public class TransientDataManager {
     }
 
     public void addOSpec(OSpec oSpec) throws TransientDataException {
+        int oSpecId = 0;
         //Check if the oSpec already exists
         if(campaignDB.getOspec(oSpec.getName()) != null && !oSpecNameLRUCache.safeContainsKey(oSpec.getName())) {
             //Copy the original ospec object from CampaignDB into temporary area, so it can be replaced later on
             //when the delete-tspec from portals is called
             OSpec origOSpec = campaignDB.getOspec(oSpec.getName());
             originalOSpecMap.safePut(origOSpec.getId(), origOSpec);
+            oSpecId = origOSpec.getId();
         }
-        int oSpecId;
-        if(oSpecNameLRUCache.safeContainsKey(oSpec.getName())) {
-            oSpecId = oSpecNameLRUCache.safeGet(oSpec.getName()).getId();
-        }
-        else {
-            //create OSpec ID
-            oSpecId = idSequence.incrementAndGet();
+        if(oSpecId == 0) {
+            if(oSpecNameLRUCache.safeContainsKey(oSpec.getName())) {
+                oSpecId = oSpecNameLRUCache.safeGet(oSpec.getName()).getId();
+            }
+            else {
+                //create OSpec ID
+                oSpecId = idSequence.incrementAndGet();
+            }
         }
         oSpec.setId(oSpecId);
 
