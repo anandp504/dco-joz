@@ -32,9 +32,9 @@ public class ProductRequestProcessorTest {
 	}
 
 	@Test
-	public void testHybridAdPod() {
+	public void testDefaultRealmTSpec() {
 		try {
-			String queryStr = "(get-ad-data :url \"http://default-realm/\")";
+			String queryStr = "(get-ad-data :url \"http://default-realm/\" :num-products 12)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
@@ -48,8 +48,11 @@ public class ProductRequestProcessorTest {
 	@Test
 	public void testTSpecAdPod() {
 		try {
-			String queryStr = "(get-ad-data :t-spec 'T-SPEC-TPP_H_1 :num-products 12 :ad-offer-type :product-leadgen)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
+			//String queryStr = "(get-ad-data :t-spec 'media-leadgen-offers :num-products 12 :ad-offer-type :product-leadgen)";
+            String queryStr = "(get-ad-data  :t-spec '|ReviewCentre|  :ad-offer-type :product-leadgen " +
+                    " :revert-to-default-realm nil :ad-width nil  :ad-height nil  " +
+                    ":output-format :js-friendly)";
+            ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
 			System.out.println("Exception caught during test run");
@@ -97,9 +100,9 @@ public class ProductRequestProcessorTest {
 	}
 
 	@Test
-	public void testPagination() {
+	public void testBug1430() {
 		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :which-row 2 :row-size 12)";
+			String queryStr = "(get-ad-data :url \"http://www.testbug1430.com/\" :ad-offer-type :product-leadgen :which-row 1 :row-size 12)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
@@ -123,7 +126,7 @@ public class ProductRequestProcessorTest {
 	}
 
 	@Test
-	public void testRevertToDefaultRealm() {
+	public void testNilRevertToDefaultRealm() {
 		try {
 			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :revert-to-default-realm nil)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
@@ -138,7 +141,7 @@ public class ProductRequestProcessorTest {
 	@Test
 	public void testLeadgenOnly() {
 		try {
-			String queryStr = "(get-ad-data :t-spec \"T-SPEC-NBC Lead Gen\" :ad-offer-type :leadgen-only :ad-height 600 :ad-width 120)";
+			String queryStr = "(get-ad-data :t-spec '|test-lenovo| :ad-offer-type :leadgen-only :num-products 50 :revert-to-default-realm t)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
@@ -151,7 +154,7 @@ public class ProductRequestProcessorTest {
 	@Test
 	public void testProductOnly() {
 		try {
-			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm nil)";
+			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm t)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
@@ -165,7 +168,7 @@ public class ProductRequestProcessorTest {
 	@Test
 	public void testHybrid() {
 		try {
-			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-leadgen :revert-to-default-realm nil)";
+			String queryStr =  "(get-ad-data :t-spec '|lenovo-t1| :ad-offer-type :product-leadgen :which-row 1 :row-size 12)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
@@ -175,10 +178,24 @@ public class ProductRequestProcessorTest {
 		}
 	}
 
+    	@Test
+	public void testIncludedProducts() {
+		try {
+			String queryStr =  "(get-ad-data :t-spec '|lenovo-t1| :ad-offer-type :product-leadgen)";
+			ArrayList<Handle> result = testProcessRequest(queryStr);
+			assertNotNull(result);
+		} catch(Exception e){
+			System.out.println("Exception caught during test run");
+			e.printStackTrace();
+			assert(false);
+		}
+	}
+
+
 	@Test
 	public void testKeywordSearch() {
 		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :keywords \"nikon\" :revert-to-default-realm nil)";
+			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"\"Firefox Mozilla Netscape browser Internet Thunderbird CSS HTML wysiwyg editor Linux Mac Rich Text Editor http://forums.delphiforums.com/n/nav/start.asp?webtag=gofirefox\" :revert-to-default-realm t)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
