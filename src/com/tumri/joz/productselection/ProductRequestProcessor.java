@@ -163,7 +163,8 @@ public class ProductRequestProcessor {
 			}
 
             if (m_pageSize > 0 && m_currentPage > 0 && (includedProds.size() > m_pageSize *(m_currentPage +1))) {
-                resultAL.addAll(includedProds);
+                rResult = paginateResults(m_pageSize, m_currentPage, includedProds);
+                resultAL.addAll(rResult);
             } else {
                 //8. Product selection
                 if (includedProds.size() > 0 && m_pageSize > 0) {
