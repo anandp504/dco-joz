@@ -16,6 +16,7 @@ com.tumri.campaign.file.sourceDir=/opt/joz/data/cma
 com.tumri.campaign.file.trigger.monitorInterval=5
 com.tumri.campaign.file.tspecFileNamePattern=t-specs.lisp
 com.tumri.campaign.file.mappingFileNamePattern=mapping.lisp
+com.tumri.campaign.file.refresh.enabled=true
 com.tumri.campaign.file.refresh.time.minutes=40
 com.tumri.campaign.file.refresh.interval.minutes=60
 com.tumri.campaign.file.triggerLoadFileName=cmaload.txt

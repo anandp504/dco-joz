@@ -28,7 +28,8 @@ public class CMAContentPoller {
 
 	private static final String CONFIG_WALL_CLOCK_MINUTES = "com.tumri.campaign.file.refresh.time.minutes";
 	private static final String CONFIG_CMA_REFRESH_INTERVAL_MINUTES = "com.tumri.campaign.file.refresh.interval.minutes";
-	private static CMAContentPoller g_cmaContentPoller = null;
+    private static final String CONFIG_CMA_REFRESH_ENABLED = "com.tumri.campaign.file.refresh.enabled";
+    private static CMAContentPoller g_cmaContentPoller = null;
 	
 	private CMAContentPoller() {
 		super();
@@ -104,9 +105,11 @@ public class CMAContentPoller {
             CMAContentProviderStatus.getInstance().refreshInterval = repeatIntervalMins;
         } catch(NumberFormatException e) {
 		}
-		
-		startTimer();	
-	}
+		String refreshEnabled = AppProperties.getInstance().getProperty(CONFIG_CMA_REFRESH_ENABLED);
+        if (!"false".equalsIgnoreCase(refreshEnabled)) {
+            startTimer();
+        }
+    }
 
 	/**
 	 * Shutdown the timer task
