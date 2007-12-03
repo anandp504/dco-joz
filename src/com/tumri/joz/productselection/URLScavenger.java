@@ -196,31 +196,35 @@ public class URLScavenger {
                 }
             }
         }
+        String decodedURL;
         try {
-            url = URLDecoder.decode(url, "utf-8");
-
-            //Sort the stopwords AL by descending order of length
-            String[] stopWordsArr = this.stopWordsAL.toArray(new String[0]);
-            String temp;
-            for(int i=0; i<stopWordsArr.length; i++) {
-                for(int j=0; j<stopWordsArr.length-1-i; j++) {
-                    if(stopWordsArr[j].length() < stopWordsArr[j+1].length()) {
-                        temp = stopWordsArr[j];
-                        stopWordsArr[j] = stopWordsArr[j+1];
-                        stopWordsArr[j+1] = temp;
-                    }
+            decodedURL = URLDecoder.decode(url, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            log.error("Could not decode the url to mine the keywords", e);
+            decodedURL = url;
+        } catch (IllegalArgumentException e) {
+            log.error("Could not decode the url to mine the keywords", e);
+            decodedURL = url;
+        }
+        //Sort the stopwords AL by descending order of length
+        String[] stopWordsArr = this.stopWordsAL.toArray(new String[0]);
+        String temp;
+        for(int i=0; i<stopWordsArr.length; i++) {
+            for(int j=0; j<stopWordsArr.length-1-i; j++) {
+                if(stopWordsArr[j].length() < stopWordsArr[j+1].length()) {
+                    temp = stopWordsArr[j];
+                    stopWordsArr[j] = stopWordsArr[j+1];
+                    stopWordsArr[j+1] = temp;
                 }
             }
-
-            for (String stpWord : stopWordsArr) {
-                url = replace(url.toLowerCase(),stpWord, " ");
-            }
-
-        } catch (UnsupportedEncodingException e) {
-           log.error("Could not decode the url to mine the keywords", e);
-           url = "";
         }
-        return url.trim();
+
+        for (String stpWord : stopWordsArr) {
+            decodedURL = replace(decodedURL.toLowerCase(),stpWord, " ");
+        }
+
+
+        return decodedURL.trim();
     }
 
     /**

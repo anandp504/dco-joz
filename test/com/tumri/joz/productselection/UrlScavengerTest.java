@@ -413,12 +413,12 @@ public class UrlScavengerTest {
             System.out.println("Unsuppported encoding excpetion caught");
             e.printStackTrace();
         }
-        String queryStr = "(get-ad-data :url \"" + url + "\")";
+        String queryStr = "(get-ad-data :keywords \"bagsakan\" :url \"" + url + "\")";
         AdDataRequest rqst = createRequestFromCommandString(queryStr);
         String keywords = URLScavenger.mineKeywords(rqst, stopWords, queryNames);
         return keywords;
     }
-    
+
     /**
 	 * Returns the constructed Ad Data request - used for test methods
 	 * @param adDataCmdStr
