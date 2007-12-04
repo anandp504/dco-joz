@@ -98,7 +98,13 @@
 	  }
 	  </script>
   </head>
-  <body>  
+  <body>
+  	<jsp:include page="header.jsp"/>
+  	<div id="links" style="text-align: right">
+  		<a href="get-ad-data.jsp">get-ad-data</a>
+  		<a href="console.jsp">home</a>
+  	</div>
+
 	<%
 	CampaignDB campaignDB=CampaignDB.getInstance();
 	String tspecName = request.getParameter("selTspec");
@@ -107,6 +113,10 @@
 	else
 	session.setAttribute("selTspec", tspecName);
 	OSpec ospec = campaignDB.getOspec(tspecName);
+	if (null == ospec) {
+		out.print("T-spec <strong>"+tspecName+"</strong> not found.");
+		return;
+	}
 	List<TSpec> tspecs = ospec.getTspecs();
 	TSpec tspec = tspecs.get(0);
 	List<BrandInfo> excludedBrands = tspec.getExcludedBrands();
@@ -146,11 +156,6 @@
 		name Plants
 	-->
 
-	<jsp:include page="header.jsp"/>
-	<div id="links" style="text-align: right">
-		<a href="get-ad-data.jsp">get-ad-data</a>
-		<a href="console.jsp">home</a>
-	</div>
 	<div id="productattr" style="text-align: left">
 		<p>Select product attributes for display:&nbsp;&nbsp;&nbsp;
 		<input id="selectAll" name="selectAll" type="radio" onClick="javascript:selAllAttr(1);"/>Select All
