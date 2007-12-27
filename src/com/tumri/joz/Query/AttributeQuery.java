@@ -75,6 +75,7 @@ public class AttributeQuery extends MUPQuery {
       m_filter = ProductDB.getInstance().getFilter(getAttribute());
       m_filter.setValue(m_values);
       m_filter.setNegation(isNegation());
+      m_filter.setQuery(this);
     }
     return m_filter;
   }

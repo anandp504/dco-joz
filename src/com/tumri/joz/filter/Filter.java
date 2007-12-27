@@ -1,6 +1,11 @@
 package com.tumri.joz.filter;
 
+import com.tumri.joz.Query.SimpleQuery;
+import com.tumri.joz.Query.MUPQuery;
+import com.tumri.joz.products.Handle;
+
 import java.util.ArrayList;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,6 +17,7 @@ public abstract class Filter<Value> implements IFilter<Value> {
   private ArrayList<Integer> m_values = new ArrayList<Integer>();
   private double m_min;
   private double m_max;
+  private MUPQuery m_query;
 
   /**
    * Given a handle object, check if it meets the filter criterion
@@ -28,6 +34,14 @@ public abstract class Filter<Value> implements IFilter<Value> {
     m_values.addAll(f.m_values);
     m_min = f.m_min;
     m_max = f.m_max;
+  }
+
+  public MUPQuery getQuery() {
+    return m_query;
+  }
+
+  public void setQuery(MUPQuery aQuery) {
+    m_query = aQuery;
   }
 
   public boolean isNegation() {
@@ -79,4 +93,9 @@ public abstract class Filter<Value> implements IFilter<Value> {
     return (m_min <= value && value < m_max);
   }
 
+
+  public boolean accept(Value v) {
+    SortedSet<Handle> set = m_query.exec();
+    return ((set != null && set.contains(v)) ^ m_negation);
+  }
 }

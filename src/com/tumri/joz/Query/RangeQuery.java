@@ -76,6 +76,7 @@ public class RangeQuery extends MUPQuery {
       m_filter = ProductDB.getInstance().getFilter(getAttribute());
       m_filter.setNegation(isNegation());
       m_filter.setBounds(m_min, m_max);
+      m_filter.setQuery(this);
     }
     return m_filter;
   }
