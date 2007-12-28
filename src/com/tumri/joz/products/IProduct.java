@@ -11,7 +11,7 @@ import com.tumri.content.data.Product;
 /**
  * Defines the interface object called IProduct
  */
-public interface IProduct extends Product, Comparable<IProduct> {
+public interface IProduct extends Product, Comparable {
     
     public Handle getHandle();
 

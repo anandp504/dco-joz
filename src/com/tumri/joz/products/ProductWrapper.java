@@ -24,10 +24,11 @@ import com.tumri.content.data.Product;
  * Created by Bhavin Doshi (bdoshi@tumri.com) on Aug 30, 2007
  * Company: Tumri Inc.
  */
-public class ProductWrapper implements IProduct, Comparable<IProduct> {
+public class ProductWrapper implements IProduct {
     
     protected Product prod = null;
     protected ProductHandle handle = null;
+    private int id;
     
     public ProductWrapper(Product p) {
         super();
@@ -36,6 +37,7 @@ public class ProductWrapper implements IProduct, Comparable<IProduct> {
         }
         prod = p;
         handle = new ProductHandle(this, 1.0);
+        id = p.getId();
     }
     
     public ProductHandle getHandle() {
@@ -173,10 +175,12 @@ public class ProductWrapper implements IProduct, Comparable<IProduct> {
     public String getThumbnail() {
         return prod.getThumbnail();
     }
-    
-    public int compareTo(IProduct o) {
-        return (getId() < o.getId() ? -1 :
-            getId() == o.getId() ? 0 : 1);
+
+
+    public int compareTo(Object ip) {
+        ProductWrapper o = (ProductWrapper)ip;
+        return (id < o.id ? -1 :
+            id == o.id ? 0 : 1);
     }
     
     public boolean equals(Object o) {
