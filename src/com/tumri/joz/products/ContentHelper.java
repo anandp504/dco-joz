@@ -17,19 +17,7 @@
  */
 package com.tumri.joz.products;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.SortedSet;
-
-import org.apache.log4j.Logger;
-
-import com.tumri.content.ContentListener;
-import com.tumri.content.ContentProvider;
-import com.tumri.content.ContentProviderFactory;
-import com.tumri.content.InvalidConfigException;
-import com.tumri.content.ProductProvider;
+import com.tumri.content.*;
 import com.tumri.content.data.Content;
 import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.joz.campaign.OSpecQueryCache;
@@ -37,6 +25,9 @@ import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.utils.data.SortedArraySet;
+import org.apache.log4j.Logger;
+
+import java.util.*;
 
 /**
  *
@@ -48,7 +39,7 @@ public class ContentHelper implements ContentListener {
     protected static Logger log = Logger.getLogger(ContentHelper.class); 
     
     public static void init() {
-        try {
+        try { 
             load(getContentProvider());
         } catch (InvalidConfigException e) {
             LogUtils.getFatalLog().fatal("Error during initialization of content",e);
@@ -186,15 +177,15 @@ public class ContentHelper implements ContentListener {
         }
         
         SortedSet<Handle> currProdsSet = pdb.getAll();        
+        SortedSet<IProduct> allProdsSet = new SortedArraySet<IProduct>(allProds);
         Iterator<Handle> currProdsIt = null;
-        if (currProdsSet == null) {
-            retVal[0].addAll(allProds);
+        if (currProdsSet == null || currProdsSet.size() == 0) {
+            retVal[0].addAll(allProdsSet);
             return retVal;
         } else {
             currProdsIt = currProdsSet.iterator();
         }
 
-        SortedSet<IProduct> allProdsSet = new SortedArraySet<IProduct>(allProds);
         Iterator<IProduct> allProdsIt = allProdsSet.iterator();
                 
         boolean end = false;
