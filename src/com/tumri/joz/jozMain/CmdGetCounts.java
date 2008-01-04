@@ -17,33 +17,21 @@
 
 package com.tumri.joz.jozMain;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-
-import org.apache.log4j.Logger;
-
 import com.tumri.cma.domain.OSpec;
 import com.tumri.content.data.Category;
+import com.tumri.content.data.Product;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecHelper;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.ProductDB;
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpInteger;
-import com.tumri.utils.sexp.SexpList;
-import com.tumri.utils.sexp.SexpString;
-import com.tumri.utils.sexp.SexpSymbol;
+import com.tumri.utils.sexp.*;
+import org.apache.log4j.Logger;
+
+import java.util.*;
 
 public class CmdGetCounts extends CommandDeferWriting {
 
@@ -214,7 +202,7 @@ public class CmdGetCounts extends CommandDeferWriting {
 
         while (product_handles.hasNext()) {
             Handle h = product_handles.next();
-            IProduct p = pdb.get(h);
+            Product p = pdb.get(h);
             Counter ctr = null;
             
             // Create information about the counts.

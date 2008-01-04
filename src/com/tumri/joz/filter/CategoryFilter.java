@@ -1,9 +1,9 @@
 package com.tumri.joz.filter;
 
 import com.tumri.content.data.Category;
+import com.tumri.content.data.Product;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.utils.data.SortedArraySet;
@@ -31,12 +31,12 @@ public class CategoryFilter extends Filter<Handle> {
   }
 
   public boolean accept(Handle h) {
-    IProduct p = ProductDB.getInstance().get(h);
-    if (p != null) {
-      boolean match = getDescendants().contains(p.getCategory());
-      return (match ^ isNegation());
+    if (!ProductDB.hasProductInfo()) {
+      return super.accept(h);
+    } else {
+      Product p = ProductDB.getInstance().get(h);
+      return (p != null && (getDescendants().contains(p.getCategory()) ^ isNegation()));
     }
-    return false;
   }
 
   private void computeDescendants() {
@@ -56,13 +56,13 @@ public class CategoryFilter extends Filter<Handle> {
     if (c != null) {
       Category[] categories = c.getChildren();
       if (categories != null) {
-        for(Category cat : categories) {
+        for (Category cat : categories) {
           children.add(cat.getGlassId());
-          computeChildren(children,cat.getGlassId());
+          computeChildren(children, cat.getGlassId());
         }
       }
     } else {
-      log.warn("Error in t-spec category not found in taxonomy "+parent);
+      log.warn("Error in t-spec category not found in taxonomy " + parent);
     }
   }
 

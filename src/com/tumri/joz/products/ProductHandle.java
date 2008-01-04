@@ -14,7 +14,18 @@ public class ProductHandle implements Handle {
   public ProductHandle(IProduct aProduct, double aScore) {
     m_product = aProduct;
     m_score = aScore;
-    m_oid = m_product.getId();
+    m_oid = aProduct.getId();
+  }
+
+
+  protected ProductHandle(double aScore, int aOid) {
+    m_score = aScore;
+    m_oid = aOid;
+  }
+
+  private ProductHandle(ProductHandle handle, double aScore) {
+    m_score = aScore;
+    m_oid = handle.getOid();
   }
 
   public int getOid() {
@@ -64,6 +75,6 @@ public class ProductHandle implements Handle {
   }
 
   public Handle createHandle(double score) {
-    return (score != m_score ? new ProductHandle(m_product,score) : this);
+    return (score != m_score ? new ProductHandle(this,score) : this);
   }
 }

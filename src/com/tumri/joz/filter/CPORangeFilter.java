@@ -1,7 +1,7 @@
 package com.tumri.joz.filter;
 
+import com.tumri.content.data.Product;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 
 /**
@@ -21,8 +21,12 @@ public class CPORangeFilter extends Filter<Handle> {
   }
 
   public boolean accept(Handle h) {
-    IProduct p = ProductDB.getInstance().get(h);
-    return ((p != null) && (inRange(p.getCPO()) ^ isNegation()));
+    if (!ProductDB.hasProductInfo()) {
+      return super.accept(h);
+    } else {
+      Product p = ProductDB.getInstance().get(h);
+      return ((p != null) && (inRange(p.getCPO()) ^ isNegation()));
+    }
   }
 
   public Filter<Handle> clone() {

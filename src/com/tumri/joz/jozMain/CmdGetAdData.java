@@ -3,23 +3,12 @@
  */
 package com.tumri.joz.jozMain;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.text.StringCharacterIterator;
-import java.text.CharacterIterator;
-
-import org.apache.log4j.Logger;
-
 import com.tumri.cma.domain.OSpec;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.MerchantData;
+import com.tumri.content.data.Product;
+import com.tumri.joz.monitor.PerformanceMonitor;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.productselection.ProductRequestProcessor;
@@ -29,7 +18,16 @@ import com.tumri.utils.sexp.SexpIFASLWriter;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpString;
 import com.tumri.utils.strings.EString;
-import com.tumri.joz.monitor.PerformanceMonitor;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class CmdGetAdData extends CommandOwnWriting {
 
@@ -240,8 +238,7 @@ public class CmdGetAdData extends CommandOwnWriting {
 
     public String toAdDataResultString(Handle h, int maxProdDescLength) {
         ProductDB pdb = ProductDB.getInstance();
-        int id = h.getOid();
-        IProduct p = pdb.get(id);
+        Product p = pdb.get(h);
 
         StringBuilder b = new StringBuilder();
 
@@ -392,8 +389,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         for (Handle h : product_handles) {
             if (done_one)
                 b.append(",");
-            int id = h.getOid();
-            IProduct p = pdb.get(id);
+            Product p = pdb.get(h);
             b.append(p.getIdSymbol());
             done_one = true;
         }
@@ -412,8 +408,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         ArrayList<Category> categories = new ArrayList<Category>();
         HashMap<String,String> catNames = new  HashMap<String,String>();
         for (Handle h : product_handles) {
-            int id = h.getOid();
-            IProduct p = pdb.get(id);
+            Product p = pdb.get(h);
             // FIXME: Don't think this records _all_ parents.
             Category cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(
                     p.getCategory());
