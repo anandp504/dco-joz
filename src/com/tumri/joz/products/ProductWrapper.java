@@ -39,7 +39,11 @@ public class ProductWrapper implements IProduct {
         handle = new ProductHandle(this, 1.0);
         id = p.getId();
     }
-    
+
+    public Product getProduct() {
+      return prod;
+    }
+
     public ProductHandle getHandle() {
           return handle;
     }
