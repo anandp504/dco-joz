@@ -13,6 +13,8 @@ import com.tumri.joz.jozMain.JozData;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.campaign.CampaignDBDataLoader;
+import com.tumri.joz.campaign.CampaignDataLoadingException;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpReader;
@@ -29,12 +31,18 @@ public class ProductRequestProcessorTest {
 	@BeforeClass
 	public static void initialize() {
 		JozData.init ();
-	}
+        CampaignDBDataLoader loader = CampaignDBDataLoader.getInstance();
+        try {
+            loader.loadData();
+        } catch (CampaignDataLoadingException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
 
 	@Test
 	public void testDefaultRealmTSpec() {
 		try {
-			String queryStr = "(get-ad-data :url \"http://default-realm/\" :num-products 12)";
+			String queryStr = "(get-ad-data :url \"http://www.letsgodigital.org/en/2007/epson/review1.html/\" :num-products 12)";
 			ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
@@ -49,7 +57,7 @@ public class ProductRequestProcessorTest {
 	public void testTSpecAdPod() {
 		try {
 			//String queryStr = "(get-ad-data :t-spec 'media-leadgen-offers :num-products 12 :ad-offer-type :product-leadgen)";
-            String queryStr = "(get-ad-data  :t-spec '|ReviewCentre|  :ad-offer-type :product-leadgen " +
+            String queryStr = "(get-ad-data  :t-spec '|TSPEC-geckoseiya-1192593613232|  :ad-offer-type :product-leadgen " +
                     " :revert-to-default-realm nil :ad-width nil  :ad-height nil  " +
                     ":output-format :js-friendly)";
             ArrayList<Handle> result = testProcessRequest(queryStr);
@@ -231,7 +239,35 @@ public class ProductRequestProcessorTest {
 		}
 	}
 
-	private ArrayList<Handle> testProcessRequest(String getAdDataCommandStr) throws Exception {
+	@Test
+	public void testTestBug1451() {
+		try {
+			//String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
+            String queryStr = "(get-ad-data :url \"http://www.letsgodigital.org/en/2007/epson/review1.html\" :t-spec |'letsgodigital-keyword-targeting| :num-products 12 :revert-to-default-realm nil :ad-width 300 :ad-height 250 :ad-offer-type \"PRODUCT_LEADGEN\" :min-num-leadgens 1 :output-format \"JS_FRIENDLY\" :max-prod-desc-len 32)";
+            ArrayList<Handle> result = testProcessRequest(queryStr);
+			assertNotNull(result);
+		} catch(Exception e){
+			System.out.println("Exception caught during test run");
+			e.printStackTrace();
+			assert(false);
+		}
+	}
+    
+    
+    public void testTestBug1451Url() {
+        try {
+            //String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
+            String queryStr = "(get-ad-data :url http://www.letsgodigital.org/en/2007/epson/review1.html :theme null :store-id null :category null :referrer null :zip-code null :num-products 12 :row-size null :which-row null :revert-to-default-realm false :keywords null :script-keywords null :include-cat-counts false :seed null :psychographics-p null :mine-pub-url-p null :allow-too-few-products null :ad-width 300 :ad-height 250 :ad-offer-type PRODUCT_LEADGEN :min-num-leadgens 1 :output-format JS_FRIENDLY :output-order null :output-order-noise-stddev 0.1 :max-prod-desc-len 32 :country-name null :region null :city null :dma null :area-code null)";
+            ArrayList<Handle> result = testProcessRequest(queryStr);
+            assertNotNull(result);
+        } catch(Exception e){
+            System.out.println("Exception caught during test run");
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    private ArrayList<Handle> testProcessRequest(String getAdDataCommandStr) throws Exception {
 		ProductRequestProcessor prodRequest = new ProductRequestProcessor();
 		Reader r = new StringReader (getAdDataCommandStr);
 		ArrayList<Handle> results = null;
