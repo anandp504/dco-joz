@@ -44,7 +44,7 @@ public class Handle32 implements Handle {
             m_data == lHandle.m_data ? 0 : 1);
   }
 
-  public int getOid() {
+  public long getOid() {
     return (m_data & k_IDMASK);
   }
 
@@ -71,7 +71,7 @@ public class Handle32 implements Handle {
   }
 
   public String toString() {
-    return Integer.toString(getOid());
+    return Long.toString(getOid());
   }
 
   public double getScore() {

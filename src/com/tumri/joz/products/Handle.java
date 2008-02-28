@@ -12,7 +12,7 @@ public interface Handle extends Comparable, Comparator {
    * Returns the underlying object id to this handle
    * @return
    */
-  public int getOid();
+  public long getOid();
   public double getScore();
   public Handle createHandle(double score);
 }

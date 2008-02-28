@@ -2,6 +2,7 @@
 <%@ page language="java" import="com.tumri.content.ContentProviderFactory" %>
 <%@ page language="java" import="com.tumri.content.ContentProvider" %>
 <%@ page language="java" import="java.text.SimpleDateFormat" %>
+<%@ page import="com.tumri.joz.products.ProductDB" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -9,19 +10,22 @@
 	  <title>Joz Console : Refresh-Data</title>
   </head>
   <body>
-	 <% 
-		String success = null;
-		String  datetime = null;
-		String requestValue = request.getQueryString();
-		if ((requestValue == null) || requestValue.equals("qac")) {
-			ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
-			ContentProvider cp = f.getContentProvider();
-			cp.refresh();
-			ContentProviderStatus status = cp.getStatus();
-			success = (status.lastRunStatus == true? "successful" : "failed");
-			datetime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")).format(status.lastRefreshTime);
-		}
-	%>
+	 <%
+         String success = null;
+         String datetime = null;
+         String requestValue = request.getQueryString();
+         if (request.getParameter("full-load") !=null) {
+             ProductDB.getInstance().clearProductDB();
+         }
+         if ((requestValue == null) || requestValue.contains("qac")) {
+             ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
+             ContentProvider cp = f.getContentProvider();
+             cp.refresh();
+             ContentProviderStatus status = cp.getStatus();
+             success = (status.lastRunStatus == true ? "successful" : "failed");
+             datetime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")).format(status.lastRefreshTime);
+         } 
+     %>
 	<%
 		if (requestValue == null) {
 	%>
@@ -36,7 +40,7 @@
 	</div>
 	<br>
 	<% }
-		 else if (requestValue.equals("qac")) {
+		 else if (requestValue.contains("qac")) {
 			out.print(success);
 		 }
 	%>

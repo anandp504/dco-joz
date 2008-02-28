@@ -200,18 +200,18 @@ public class ProductRequestProcessorTest {
 	}
 
 
-	@Test
-	public void testKeywordSearch() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"\"Firefox Mozilla Netscape browser Internet Thunderbird CSS HTML wysiwyg editor Linux Mac Rich Text Editor http://forums.delphiforums.com/n/nav/start.asp?webtag=gofirefox\" :revert-to-default-realm t)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
+//	@Test
+//	public void testKeywordSearch() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"\"Firefox Mozilla Netscape browser Internet Thunderbird CSS HTML wysiwyg editor Linux Mac Rich Text Editor http://forums.delphiforums.com/n/nav/start.asp?webtag=gofirefox\" :revert-to-default-realm t)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
 
 	@Test
 	public void testScriptKeywordSearch() {
@@ -243,7 +243,7 @@ public class ProductRequestProcessorTest {
 	public void testTestBug1451() {
 		try {
 			//String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
-            String queryStr = "(get-ad-data :url \"http://www.letsgodigital.org/en/2007/epson/review1.html\" :t-spec |'letsgodigital-keyword-targeting| :num-products 12 :revert-to-default-realm nil :ad-width 300 :ad-height 250 :ad-offer-type \"PRODUCT_LEADGEN\" :min-num-leadgens 1 :output-format \"JS_FRIENDLY\" :max-prod-desc-len 32)";
+            String queryStr = "(get-ad-data :url \"http://www.letsgodigital.org/en/2007/epson/review1.html\" :t-spec |'letsgodigital-keyword-targeting| :num-products 12 :revert-to-default-realm nil :ad-width 300 :ad-height 250 :ad-offer-type :product-leadgen :min-num-leadgens 1 :output-format :js-friendly :max-prod-desc-len 32)";
             ArrayList<Handle> result = testProcessRequest(queryStr);
 			assertNotNull(result);
 		} catch(Exception e){
@@ -296,11 +296,15 @@ public class ProductRequestProcessorTest {
 				results = presults.getResults();
 				for (Handle res : results)
 				{
-					int id = res.getOid ();
+					long id = res.getOid ();
 					IProduct ip = pdb.get (id);
-					String name = ip.getProductName ();
-					String desc = ip.getDescription ();
-					System.out.println(id + " Type = " + ip.getProductTypeStr() + " " + name + "    " + desc);
+                    String name= "", desc = "", productType = "";
+                    if (ip !=null) {
+                        name = ip.getProductName ();
+                        desc = ip.getDescription ();
+                        productType =  ip.getProductTypeStr();
+                    }
+					System.out.println(id + " Type = " + productType + " " + name + "    " + desc);
 				}
 
 			} else {

@@ -10,7 +10,14 @@ com.tumri.content.luceneDir=lucene
 #com.tumri.content.file.disableMerchantData=true
 com.tumri.content.file.batchReadSize=5000
 com.tumri.content.file.batchReadInterval=1
-#Note that the com.tumri.campaign.file.sourceDir can be set to a comma separated list of directories that are all used to look for the tspec and mapping lisp files. 
+
+com.tumri.content.jozindexDir=jozIndex
+com.tumri.joz.index.reader.debug=false
+com.tumri.joz.index.reader.debug.outdir=/tmp
+com.tumri.joz.index.reader.indexFileNamePattern=.*_jozindex_.*.bin
+com.tumri.content.file.enableJozIndex=true
+
+#Note that the com.tumri.campaign.file.sourceDir can be set to a comma separated list of directories that are all used to look for the tspec and mapping lisp files.
 com.tumri.campaign.querycache.size=2000
 com.tumri.campaign.file.sourceDir=/opt/joz/data/cma
 com.tumri.campaign.file.trigger.monitorInterval=5

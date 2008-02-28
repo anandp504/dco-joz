@@ -6,19 +6,11 @@ package com.tumri.joz.products;
  * To change this template use File | Settings | File Templates.
  */
 public class ProductHandle implements Handle {
-  private IProduct m_product;
   private double m_score;
-  private int m_oid;
+  private long m_oid;
 
 
-  public ProductHandle(IProduct aProduct, double aScore) {
-    m_product = aProduct;
-    m_score = aScore;
-    m_oid = aProduct.getId();
-  }
-
-
-  protected ProductHandle(double aScore, int aOid) {
+  public ProductHandle(double aScore, long aOid) {
     m_score = aScore;
     m_oid = aOid;
   }
@@ -28,7 +20,7 @@ public class ProductHandle implements Handle {
     m_oid = handle.getOid();
   }
 
-  public int getOid() {
+  public long getOid() {
     return m_oid;
   }
 
@@ -36,10 +28,6 @@ public class ProductHandle implements Handle {
     return m_score;
   }
 
-
-  public IProduct getProduct() {
-    return m_product;
-  }
 
   public int compareTo(Object handle) {
     ProductHandle ph = (ProductHandle)handle;
@@ -60,7 +48,7 @@ public class ProductHandle implements Handle {
   }
 
   public int hashCode() {
-    return m_oid;
+    return (int)m_oid;
   }
 
 

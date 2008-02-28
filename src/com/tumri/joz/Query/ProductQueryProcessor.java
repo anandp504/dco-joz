@@ -28,8 +28,13 @@ public class ProductQueryProcessor extends QueryProcessor {
     if (aQueries.size() != 0) {
       for (SimpleQuery aQuery : aQueries) {
         MUPQuery mq = (MUPQuery) aQuery;
-        if (mq.getAttribute() == IProduct.Attribute.kKeywords)
-          aIntersector.includeRankedSet(((KeywordQuery)mq).rawResults(), AttributeWeights.getWeight(IProduct.Attribute.kKeywords));
+        if (mq.getAttribute() == IProduct.Attribute.kKeywords) {
+          if (((KeywordQuery)mq).isInternal()) {
+            aIntersector.includeRankedSet(mq.exec(), AttributeWeights.getWeight(IProduct.Attribute.kKeywords));
+          } else {
+            aIntersector.includeRankedSet(((KeywordQuery)mq).rawResults(), AttributeWeights.getWeight(IProduct.Attribute.kKeywords));
+          }
+        }
         else
         aIntersector.addFilter(mq.getFilter(), mq.getWeight());
       }

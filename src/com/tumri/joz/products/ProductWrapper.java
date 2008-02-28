@@ -28,7 +28,7 @@ public class ProductWrapper implements IProduct {
     
     protected Product prod = null;
     protected ProductHandle handle = null;
-    private int id;
+    private long id;
     
     public ProductWrapper(Product p) {
         super();
@@ -36,8 +36,9 @@ public class ProductWrapper implements IProduct {
             throw new NullPointerException("Product cannot be null for the wrapper");
         }
         prod = p;
-        handle = new ProductHandle(this, 1.0);
+        //handle = new ProductHandle(this, 1.0);
         id = p.getId();
+        handle = new ProductHandle( new Double(1.0).doubleValue(), id);
     }
 
     public Product getProduct() {
@@ -116,7 +117,7 @@ public class ProductWrapper implements IProduct {
         return prod.getGId();
     }
     
-    public int getId() {
+    public long getId() {
         return prod.getId();
     }
     

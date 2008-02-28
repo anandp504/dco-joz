@@ -24,6 +24,7 @@ import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.utils.LogUtils;
+import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.data.SortedArraySet;
 import org.apache.log4j.Logger;
 
@@ -80,8 +81,20 @@ public class ContentHelper implements ContentListener {
 
             if (!st.mupDisabled) {
                 initProductsDatabase(data);
-            } 
-            
+            }
+
+            boolean bJozIndexDisabled = false;
+
+            try {
+                bJozIndexDisabled = Boolean.parseBoolean(AppProperties.getInstance().getProperty("com.tumri.content.file.disableJozIndex"));
+            } catch (Exception e) {
+                bJozIndexDisabled = false;
+            }
+
+            if (!bJozIndexDisabled) {
+                updateJozIndexes(true);
+            }
+
             ContentHelper h = new ContentHelper(p);
             p.addContentListener(h);
             
@@ -145,15 +158,36 @@ public class ContentHelper implements ContentListener {
                 // Apply Deltas
                 pdb.addProduct(deltas[0]);
                 pdb.addProduct(deltas[1]); // Update is also done through Add.
-                
+
                 // Need to update the lucene index before deleting old products.
-                initLucene();
+                boolean bJozIndexDisabled = false;
+
+                try {
+                    bJozIndexDisabled = Boolean.parseBoolean(AppProperties.getInstance().getProperty("com.tumri.content.file.disableJozIndex"));
+                } catch (Exception e) {
+                    bJozIndexDisabled = false;
+                }
+
+                if (bJozIndexDisabled) {
+                    initLucene();
+                }
 
                 pdb.deleteProduct(deltas[2]);
                 
                 // Clear all Ospec Query Cache.
                 OSpecQueryCache.getInstance().clear();
             }
+    }
+
+
+    protected static void updateJozIndexes(boolean bColdStart) {
+        //Load Joz Indexes
+        JozIndexHelper.getInstance(bColdStart).loadJozIndex();
+        // Need to update the lucene index before deleting old products.
+        initLucene();
+        // Clear all Ospec Query Cache.
+        OSpecQueryCache.getInstance().clear();
+
     }
     
     /**
@@ -262,14 +296,39 @@ public class ContentHelper implements ContentListener {
         }
         try {
             Content data = provider.getContent();
-            initMerchantDataDatabase(data);
-            initTaxonomyDatabase(data);
-            initProductsDatabase(data);
+            ContentProviderStatus st = provider.getStatus();
+            boolean bColdStart = false;
+            //Need to check for revert mode.
+            if (ProductDB.getInstance().isEmpty()) {
+                bColdStart = true;
+            }
+
+            if (!st.merchantDataDisabled) {
+                initMerchantDataDatabase(data);
+            }
+
+            if (!st.taxonomyDisabled) {
+                initTaxonomyDatabase(data);
+            }
+
+            if (!st.mupDisabled) {
+                initProductsDatabase(data);
+            }
+            boolean bJozIndexDisabled = false;
+
+            try {
+                bJozIndexDisabled = Boolean.parseBoolean(AppProperties.getInstance().getProperty("com.tumri.content.file.disableJozIndex"));
+            } catch (Exception e) {
+                bJozIndexDisabled = false;
+            }
+
+            if (!bJozIndexDisabled) {
+               updateJozIndexes(bColdStart);
+            }
+
         } catch (InvalidConfigException e) {
             log.error("Error while updating content",e);
             LogUtils.getFatalLog().error("Error while updating content",e);
         }
     }
-    
-    
 }

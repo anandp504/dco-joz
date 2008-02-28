@@ -23,7 +23,7 @@ public class AdPodHandle implements Handle {
       this.oid = oid;
   }
 
-  public int getOid() {
+  public long getOid() {
     return oid;
   }
 
@@ -49,12 +49,12 @@ public class AdPodHandle implements Handle {
   }
 
   public int hashCode() {
-    return getOid();
+    return (int)getOid();
   }
 
 
   public int compareTo(Object handle) {
-    int loid = ((AdPodHandle)handle).getOid();
+    int loid = (int)((AdPodHandle)handle).getOid();
     return (oid < loid ? -1 :
             oid == loid ? 0 : 1);
   }

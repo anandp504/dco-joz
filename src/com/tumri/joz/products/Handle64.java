@@ -19,7 +19,7 @@ public class Handle64 implements Handle {
   // ----------------------------------
   private long m_data;
 
-  public Handle64(int id, int rank) {
+  public Handle64(long id, int rank) {
     setValue(rank,id);
   }
 
@@ -44,15 +44,15 @@ public class Handle64 implements Handle {
             m_data == lHandle.m_data ? 0 : 1);
   }
 
-  public int getOid() {
-    return (int)(m_data & k_IDMASK);
+  public long getOid() {
+    return (m_data & k_IDMASK);
   }
 
   private int getRank() {
     return (int)((m_data & k_RANKMASK) >> k_RANK);
   }
 
-  private void setValue(int rank, int id) {
+  private void setValue(int rank, long id) {
     m_data = ((((long)weightedRank(rank)) << k_RANK) & k_RANKMASK) |
              ((long)id);
   }

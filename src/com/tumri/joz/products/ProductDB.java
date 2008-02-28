@@ -6,6 +6,7 @@ import com.tumri.content.ProductProvider;
 import com.tumri.content.data.Product;
 import com.tumri.joz.filter.*;
 import com.tumri.joz.index.*;
+import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.data.RWLockedSortedArraySet;
 import com.tumri.utils.data.RWLockedTreeMap;
 import org.apache.log4j.Logger;
@@ -22,7 +23,7 @@ public class ProductDB {
 
   private static ProductDB g_DB;
   // Map m_map maintains map from product id -> Product
-  private RWLockedTreeMap<Integer, IProduct> m_map = new RWLockedTreeMap<Integer, IProduct>();
+  private RWLockedTreeMap<Long, IProduct> m_map = new RWLockedTreeMap<Long, IProduct>();
   // Map m_allproducts maintains set of all product handles
   private RWLockedSortedArraySet<Handle> m_allProducts = new RWLockedSortedArraySet<Handle>();
   // All indices are maintained in the class in a hashtable
@@ -32,6 +33,9 @@ public class ProductDB {
 
   private ProductProvider m_productProvider = null;
   private static Random g_random = new Random(System.currentTimeMillis());
+
+  private ArrayList<Handle> m_newProducts = new ArrayList<Handle>();
+  private boolean disableJozIndexLoad = false;
 
   public static ProductDB getInstance() {
     if (g_DB == null) {
@@ -79,6 +83,11 @@ public class ProductDB {
   }
 
   private ProductDB() {
+    try {
+       disableJozIndexLoad = Boolean.parseBoolean(AppProperties.getInstance().getProperty("com.tumri.content.file.disableJozIndex"));
+    } catch (Exception e) {
+       disableJozIndexLoad = false;
+    }
   }
 
   /**
@@ -87,7 +96,7 @@ public class ProductDB {
    * @return true if the DB has product Information
    */
   public static boolean hasProductInfo() {
-    return true;
+    return false;
   }
 
   // Add sequence is follows:
@@ -96,7 +105,9 @@ public class ProductDB {
   // Step 3. Add Id->IProduct mapping to m_map
   // Step 4. Update all indices in a sequence
   public ArrayList<Handle> addProduct(ArrayList<IProduct> products) {
-    checkUpdate(products);
+    if (disableJozIndexLoad) {
+        checkUpdate(products);
+    }
     ArrayList<Handle> handles = new ArrayList<Handle>();
     for (IProduct product : products) {
       handles.add(product.getHandle());
@@ -118,7 +129,9 @@ public class ProductDB {
       m_map.writerUnlock();
     }
     // Step 4.
-    buildMap(products);
+    if (disableJozIndexLoad) {
+        buildMap(products);
+    }
     return handles;
   }
 
@@ -150,6 +163,10 @@ public class ProductDB {
    */
   public ArrayList<Handle> deleteProduct(ArrayList<IProduct> products) {
     ArrayList<Handle> handles = new ArrayList<Handle>();
+      if (!disableJozIndexLoad) {
+          return handles;
+      }
+
     for (IProduct product : products) {
       handles.add(product.getHandle());
     }
@@ -177,14 +194,15 @@ public class ProductDB {
 
 
   public IProduct get(Handle handle) {
-    return (handle instanceof ProductHandle) ? ((ProductHandle)handle).getProduct() : get(handle.getOid());
+    //return (handle instanceof ProductHandle) ? ((ProductHandle)handle).getProduct() : get(handle.getOid());
+    return get(handle.getOid());
   }
 
   public Handle get(IProduct p) {
     return p.getHandle();
   }
 
-  public IProduct get(int id) {
+  public IProduct get(long id) {
     m_map.readerLock();
     try {
       return m_map.get(id);
@@ -198,7 +216,7 @@ public class ProductDB {
    * @param id
    * @return IProduct
    */
-  public IProduct getInt(int id) {
+  public IProduct getInt(long id) {
     return m_map.get(id);
   }
 
@@ -367,19 +385,84 @@ public class ProductDB {
       }
     }
     {
-      ((ProductAttributeIndex<Integer, Handle>) m_indices.get(IProduct.Attribute.kProvider)).add(mprovider);
-      ((ProductAttributeIndex<Integer, Handle>) m_indices.get(IProduct.Attribute.kSupplier)).add(msupplier);
-      ((ProductAttributeIndex<Integer, Handle>) m_indices.get(IProduct.Attribute.kCategory)).add(mcategory);
-      ((ProductAttributeIndex<Integer, Handle>) m_indices.get(IProduct.Attribute.kBrand)).add(mbrand);
+      updateIntegerIndex(IProduct.Attribute.kProvider, mprovider);
+      updateIntegerIndex(IProduct.Attribute.kSupplier, msupplier);
+      updateIntegerIndex(IProduct.Attribute.kCategory, mcategory);
+      updateIntegerIndex(IProduct.Attribute.kBrand, mbrand);
 
-      ((ProductAttributeIndex<Double, Handle>) m_indices.get(IProduct.Attribute.kPrice)).add(mprice);
-      ((ProductAttributeIndex<Double, Handle>) m_indices.get(IProduct.Attribute.kCPC)).add(mcpc);
-      ((ProductAttributeIndex<Double, Handle>) m_indices.get(IProduct.Attribute.kCPO)).add(mcpo);
+      updateDoubleIndex(IProduct.Attribute.kPrice, mprice);
+      updateDoubleIndex(IProduct.Attribute.kCPC, mcpc);
+      updateDoubleIndex(IProduct.Attribute.kCPO, mcpo);
 
-
-      ((ProductAttributeIndex<Integer, Handle>) m_indices.get(IProduct.Attribute.kProductType)).add(mptype);
-      ((ProductAttributeIndex<Integer, Handle>) m_indices.get(IProduct.Attribute.kImageWidth)).add(miheight);
-      ((ProductAttributeIndex<Integer, Handle>) m_indices.get(IProduct.Attribute.kImageHeight)).add(miwidth);
+      updateIntegerIndex(IProduct.Attribute.kProductType, mprovider);
+      updateIntegerIndex(IProduct.Attribute.kImageWidth, miwidth);
+      updateIntegerIndex(IProduct.Attribute.kImageHeight, miheight);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  public void updateIntegerIndex(IProduct.Attribute type, TreeMap<Integer, ArrayList<Handle>> mindex) {
+     ((ProductAttributeIndex<Integer, Handle>) m_indices.get(type)).add(mindex); 
+  }
+
+  @SuppressWarnings("unchecked")
+  public void updateDoubleIndex(IProduct.Attribute type, TreeMap<Double, ArrayList<Handle>> mindex) {
+     ((ProductAttributeIndex<Double, Handle>) m_indices.get(type)).add(mindex);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void deleteIntegerIndex(IProduct.Attribute type, TreeMap<Integer, ArrayList<Handle>> mindex) {
+     ((ProductAttributeIndex<Integer, Handle>) m_indices.get(type)).delete(mindex);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void deleteDoubleIndex(IProduct.Attribute type, TreeMap<Double, ArrayList<Handle>> mindex) {
+     ((ProductAttributeIndex<Double, Handle>) m_indices.get(type)).delete(mindex);
+  }
+
+
+    /**
+     * Return a handle given a product id.
+      * @param pid
+     * @return
+     */
+  public Handle getHandle(Long pid) {
+   //Check if the prod exists - else create and return handle.
+   ProductHandle p = new ProductHandle(0.0, pid.longValue());
+   Handle ph = m_allProducts.find(p);
+   if (ph !=null) {
+        p = (ProductHandle) ph;
+   } else {
+       //Create a new product
+       m_newProducts.add(p);
+   }
+    return p;
+  }
+
+    
+  public boolean isEmpty() {
+    return m_allProducts.isEmpty();  
+  }
+
+    /**
+     * Add the new products into the database.
+      */
+  public void addNewProducts() {
+    if (!m_newProducts.isEmpty()) {
+      log.debug("Adding : " + m_newProducts.size() + " new products to the Product DB");
+      m_allProducts.addAll(m_newProducts);
+      m_newProducts.clear();
+    }
+  }
+
+    /**
+     * Clears the indices and the maps
+      */
+  public void clearProductDB() {
+      for (ProductAttributeIndex<?, Handle> lIndex : m_indices.values()) {
+        lIndex.clear();
+      }
+       m_allProducts.clear();
+       m_map.clear();
   }
 }
