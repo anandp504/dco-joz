@@ -153,11 +153,11 @@ public class TargetingRequestProcessor {
         }
         else if(list.size() == 1) {
             handle = list.get(0);
-            oSpec = CampaignDB.getInstance().getOSpecForAdPod(handle.getOid());
+            oSpec = CampaignDB.getInstance().getOSpecForAdPod((int)handle.getOid());
         }
         else {
             handle = selectAdPodHandle(list);
-            oSpec = CampaignDB.getInstance().getOSpecForAdPod(handle.getOid());
+            oSpec = CampaignDB.getInstance().getOSpecForAdPod((int)handle.getOid());
         }
 
         return oSpec;
