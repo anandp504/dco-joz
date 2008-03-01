@@ -97,7 +97,7 @@ public class ContentHelper implements ContentListener {
 
             ContentHelper h = new ContentHelper(p);
             p.addContentListener(h);
-            
+
         } catch (InvalidConfigException e) {
             e.printStackTrace();
         }
@@ -284,7 +284,7 @@ public class ContentHelper implements ContentListener {
     
     protected ContentProvider provider = null;
     
-    private ContentHelper(ContentProvider p) {
+    public ContentHelper(ContentProvider p) {
         super();
         provider = p; 
     }

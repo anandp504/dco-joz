@@ -159,7 +159,7 @@ public class ProviderIndexBuilder {
         }
         //Write the del
         if (!delIndexMap.isEmpty()) {
-            Set<String> indexDetailsSet = addModifiedIndexMap.keySet();
+            Set<String> indexDetailsSet = delIndexMap.keySet();
             ArrayList<String> sortedIndexVals = new ArrayList<String>();
             sortedIndexVals.addAll(indexDetailsSet);
             Collections.sort(sortedIndexVals);

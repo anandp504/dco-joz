@@ -56,6 +56,21 @@ public class JozIndexUpdater {
     }
 
     /**
+     * To be used by the test framework
+     */
+    public static void setInstance(boolean coldStart, boolean bDebug, String outDir) {
+        _instance = new JozIndexUpdater(bDebug, coldStart);
+        File debugDir = new File(outDir);
+        if (!debugDir.exists()) {
+            throw new RuntimeException("Directory does not exist : " + debugDir);
+        }
+        debugOutFile = new File(outDir + "/jozIndexDebugFile.txt");
+        if (debugOutFile.exists()) {
+            debugOutFile.delete();
+        }
+    }
+
+    /**
      * Public method to handle a set of lines
      * @param indexName Name of the index that is being updated
      * @param pids Current set of products

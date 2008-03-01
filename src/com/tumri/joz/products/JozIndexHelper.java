@@ -30,7 +30,10 @@ public class JozIndexHelper {
         return new JozIndexHelper(coldStart);
     }
 
+    private JozIndexHelper() {
 
+    }
+    
     private JozIndexHelper(boolean cs) {
         coldStart = cs;
         init();
@@ -42,8 +45,6 @@ public class JozIndexHelper {
         indexDirName = indexDirName + "/" + AppProperties.getInstance().getProperty("com.tumri.content.jozindexDir");
     }
 
-    //TODO: Also do the full reload - for the QAC revert content scenario.
-    
     /**
      * Load the Joz index from the given dir
      */
@@ -108,6 +109,17 @@ public class JozIndexHelper {
 
     public static boolean isColdStart() {
         return coldStart;
+    }
+
+    /**
+     * Used by the test framework
+     * @param idxDir
+     */
+    public static void loadIndex(String idxDir) {
+        JozIndexHelper jh = new JozIndexHelper();
+        jh.indexDirName = idxDir;
+        coldStart = true;
+        jh.loadJozIndex();
     }
 
     /**

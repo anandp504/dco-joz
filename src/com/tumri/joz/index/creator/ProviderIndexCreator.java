@@ -25,7 +25,7 @@ public class ProviderIndexCreator {
     private String outDirPath = "/tmp";
     int chunkId = 0;
     private static Logger log = Logger.getLogger(ProviderIndexCreator.class);
-    
+
     /**
      * Default constructor. Note that if f2 is null, then it is assumed that we are not building an incremental index.
      * ie., the resulting joz index file will not contain any DELETE or NO CHANGE specifications.
@@ -75,12 +75,12 @@ public class ProviderIndexCreator {
         } catch (IOException e) {
             log.error("Exception caught during the init of the ProviderIndexCreator", e);
         } catch (Exception e) {
-           log.error("Exception caught during the init of the ProviderIndexCreator", e);
+            log.error("Exception caught during the init of the ProviderIndexCreator", e);
         } finally {
             try {
                 is.close();
             } catch(Exception e) {
-              log.error("Exception caught", e);
+                log.error("Exception caught", e);
             }
         }
     }
@@ -101,7 +101,7 @@ public class ProviderIndexCreator {
      */
     public void createIndicesForProvider() throws IOException {
         if (!newFile.exists()) {
-           log.debug("Cannot create the Joz index, the new mup file is missing :" + newFile.getAbsolutePath());
+            log.debug("Cannot create the Joz index, the new mup file is missing :" + newFile.getAbsolutePath());
         }
         log.debug("Going to load the product info from file : " + newFile.getName());
 
@@ -124,20 +124,15 @@ public class ProviderIndexCreator {
                 isr2 = new InputStreamReader(fir2, "utf8");
                 br2 = new BufferedReader(isr2);
             }
-            boolean eof1 = false;
+            boolean eof1 = false, eof2 = false;
             String line1 = null, line2= null;
             String pid1 = null, pid2= null;
             HashMap<String, String> prodDetailsMap1 = null;
             HashMap<String, String> prodDetailsMap2 = null;
+            boolean bReadSecondFile = true;
+            Long pid2Dbl = null;
 
             while(!eof1) {
-                line1 = null;
-                line2= null;
-                pid1 = null;
-                pid2= null;
-                prodDetailsMap1 = null;
-                prodDetailsMap2 = null;
-
                 line1 = readLine(br1);
                 lineCount++;
                 if (line1 == null) {
@@ -148,37 +143,51 @@ public class ProviderIndexCreator {
                     prodDetailsMap1 = convertLine(line1);
                 }
                 Long pid1Dbl = new Long(pid1);
-
                 if (!bAddMode) {
-                    boolean bReadSecondFile = true;
+
+                    if (!bReadSecondFile) {
+                        //The old file was not read, compare and act on the line from first file
+                        if (pid1Dbl.equals(pid2Dbl)) {
+                            //Product appears in both MUPs
+                            compareAndUpdateIndices(pid1Dbl, prodDetailsMap1, prodDetailsMap2);
+                        } else if (pid1Dbl>pid2Dbl){
+                            bReadSecondFile = true;
+                        } else {
+                            //pid1 is a new product in MUP
+                            addIndices(prodDetailsMap1, pid1Dbl);
+                        }
+                    }
+
 
                     while (!bAddMode && bReadSecondFile) {
                         line2 = readLine(br2);
                         if (line2 == null) {
                             //This means that the rest of the products in new file will be all ADDED
                             bAddMode = true;
+                            eof2 = true;
                             break;
                         }
                         pid2 = getProductID(line2);
                         prodDetailsMap2 = convertLine(line2);
-                        Long pid2Dbl = new Long(pid2);
+                        pid2Dbl = new Long(pid2);
 
                         if (pid1Dbl.equals(pid2Dbl)) {
                             //Product appears in both MUPs
                             compareAndUpdateIndices(pid1Dbl, prodDetailsMap1, prodDetailsMap2);
                             bReadSecondFile = false;
-                            continue;
-                        } else if (pid1Dbl<pid2Dbl){
+                        } else if (pid1Dbl>pid2Dbl){
                             //pid2 has been deleted from MUP
-                            bReadSecondFile = false;
                             deleteIndices(prodDetailsMap2, pid2Dbl);
-                            continue;
                         } else {
                             //pid1 is a new product in MUP
+                            bReadSecondFile = false;
                             addIndices(prodDetailsMap1, pid1Dbl);
                         }
                     }
-                } else {
+
+                }
+
+                if (bAddMode) {
                     //pid1 is a new product in MUP
                     addIndices(prodDetailsMap1, pid1Dbl);
                 }
@@ -186,6 +195,27 @@ public class ProviderIndexCreator {
                 if (lineCount>= maxPidEntriesPerChunk) {
                     lineCount = 0;
                     writeChunkToFile();
+                }
+            }
+
+            if (!eof2 && br2!=null) {
+                // We have more entries in second file that needs to be deleted
+                while (!eof2) {
+                    lineCount++;
+                    line2 = readLine(br2);
+                    if (line2 == null) {
+                        eof2 = true;
+                        break;
+                    }
+                    pid2 = getProductID(line2);
+                    pid2Dbl = new Long(pid2);
+                    prodDetailsMap2 = convertLine(line2);
+                    //pid2 has been deleted from MUP
+                    deleteIndices(prodDetailsMap2, pid2Dbl);
+                    if (lineCount>= maxPidEntriesPerChunk) {
+                        lineCount = 0;
+                        writeChunkToFile();
+                    }
                 }
             }
 
@@ -239,7 +269,7 @@ public class ProviderIndexCreator {
      * @param line
      * @return
      */
-     protected HashMap<String,String> convertLine(String line) {
+    protected HashMap<String,String> convertLine(String line) {
         HashMap<String,String> retVal = null;
         if (mupConfig==null) {
             return null;
@@ -250,11 +280,11 @@ public class ProviderIndexCreator {
             ArrayList<String> strings = str.getTokens();
             retVal = new HashMap<String,String>();
             for (int i=0;i<strings.size();i++) {
-               if (indexPosSet.contains(new Integer(i).toString())) {
-                   String val = strings.get(i);
-                   String key = mupConfig.getProperty(new Integer(i).toString());
-                   retVal.put(key,val);
-               }
+                if (indexPosSet.contains(new Integer(i).toString())) {
+                    String val = strings.get(i);
+                    String key = mupConfig.getProperty(new Integer(i).toString());
+                    retVal.put(key,val);
+                }
             }
         }
         return (retVal);

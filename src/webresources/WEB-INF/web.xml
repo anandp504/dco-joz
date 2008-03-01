@@ -23,6 +23,11 @@
 	<servlet-class>com.tumri.joz.monitor.JozMonitorServlet</servlet-class>
     </servlet>
 
+    <servlet>
+	<servlet-name>JozRefreshData</servlet-name>
+	<servlet-class>com.tumri.joz.monitor.JozRefreshDataServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
 	<servlet-name>Joz</servlet-name>
 	<url-pattern>/init</url-pattern>
@@ -36,6 +41,11 @@
     <servlet-mapping>
 	<servlet-name>JozMonitor</servlet-name>
 	<url-pattern>/HC</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+	<servlet-name>JozRefreshData</servlet-name>
+	<url-pattern>/refresh</url-pattern>
     </servlet-mapping>
 
 </web-app>

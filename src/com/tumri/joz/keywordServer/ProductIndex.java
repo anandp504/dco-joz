@@ -134,7 +134,7 @@ public class ProductIndex {
      * The public method for constructor should not be used
      * Use getInstance() to get an instance of the class
      */
-    private ProductIndex() {
+    public ProductIndex() {
         super();
     }
 
@@ -368,7 +368,7 @@ public class ProductIndex {
     /**
      * Index all text files under a directory.
      */
-    private void index(String[] args) {
+    public void index(String[] args) {
         String usage = "java -jar joz.jar [-h] [-debug] [-dumpTokens] [-deboostCategoryFile XXX] [-currentDocDir XXX] [-previousDocDir XXX] [-indexDir XXX] [-jozIndexDir XXX] [-maxLinesPerChunk XX] [-mergeFactor nnn] [-boostField name value]";
 
         File f = new File(getTmpDir());
