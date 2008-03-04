@@ -19,10 +19,10 @@ import java.util.TreeSet;
  */
 public class PersistantIndex implements Serializable{
 
-    static final long serialVersionUID = 1L; 
+    static final long serialVersionUID = 1L;
     private String indexName;
     private int numLines;
-    
+
     private TreeSet<PersistantIndexLine> details;
 
     public String getIndexName() {
@@ -57,21 +57,23 @@ public class PersistantIndex implements Serializable{
      * @throws IOException
      */
     private void writeObject(ObjectOutputStream out) throws IOException {
-       out.writeInt(indexName.length());
-       out.writeChars(indexName);
-       numLines = details.size();
-       out.writeInt(numLines);
-       for (PersistantIndexLine line: details) {
-           //out.writeObject(line);
-           out.writeObject(line.getOperation());
-           out.writeInt(line.getIndexValue().length());
-           out.writeChars(line.getIndexValue());
-           Long[] pidsArr = line.getPids();
-           out.writeInt(pidsArr.length);
-           for (int i=0;i< pidsArr.length;i++){
-               out.writeLong(pidsArr[i]);
-           }
-       }
+        if (indexName!=null && details!=null && details.size() > 0) {
+            out.writeInt(indexName.length());
+            out.writeChars(indexName);
+            numLines = details.size();
+            out.writeInt(numLines);
+            for (PersistantIndexLine line: details) {
+                //out.writeObject(line);
+                out.writeObject(line.getOperation());
+                out.writeInt(line.getIndexValue().length());
+                out.writeChars(line.getIndexValue());
+                Long[] pidsArr = line.getPids();
+                out.writeInt(pidsArr.length);
+                for (int i=0;i< pidsArr.length;i++){
+                    out.writeLong(pidsArr[i]);
+                }
+            }
+        }
     }
 
     /**
@@ -100,10 +102,10 @@ public class PersistantIndex implements Serializable{
                 int numPids = in.readInt();
                 ArrayList<Handle> currPids = new ArrayList<Handle>(numPids);
                 for (int k=0;k<numPids;k++) {
-                   long pid = in.readLong();
+                    long pid = in.readLong();
                     //Get the handle
-                   Handle p = ProductDB.getInstance().getHandle(pid);
-                   currPids.add(p);
+                    Handle p = ProductDB.getInstance().getHandle(pid);
+                    currPids.add(p);
                 }
                 //Now add these to the index
                 JozIndexUpdater.getInstance().handleLine(indexName, indexVal, currPids, op);
