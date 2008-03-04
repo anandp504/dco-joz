@@ -98,7 +98,7 @@
     %>
   	<jsp:include page="header.jsp"/>
 	<div id="homelink" style="text-align: right">
-		<a href="console.jsp">home</a>
+		<a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/jsp/console.jsp">home</a>
 	</div>
 	<br>
 	<div id="links">
@@ -141,7 +141,7 @@
          <% } %>
         <br>
         <p class="label">
-            <a href="cma-content-status.jsp?reload" onclick="return confirm('This will force a campaign data refresh. Do you want to continue?');">Click to force Reload</a>
+            <a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/jsp/cma-content-status.jsp?reload" onclick="return confirm('This will force a campaign data refresh. Do you want to continue?');">Click to force Reload</a>
         </p>
         <br>
         <% if (status.runHistory != null && status.runHistory.size() > 0) { %>

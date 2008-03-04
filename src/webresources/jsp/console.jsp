@@ -46,12 +46,12 @@
   <br>
   
   <div>
-    	<a href="refresh-data.jsp" onclick="return confirm('This will force a data refresh. Do you want to continue?');">Refresh Data</a>
+    	<a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/refresh?type=listing&jspMode=true" onclick="return confirm('This will force a data refresh. Do you want to continue?');">Refresh Data</a>
   </div>
    <br>
   
   <div>
-    	<a href="cma-refresh-data.jsp" onclick="return confirm('This will force a cma data refresh. Do you want to continue?');">Refresh Campaign Data</a>
+    	<a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/refresh?type=campaign&jspMode=true" onclick="return confirm('This will force a cma data refresh. Do you want to continue?');">Refresh Campaign Data</a>
   </div>
   <br>
 

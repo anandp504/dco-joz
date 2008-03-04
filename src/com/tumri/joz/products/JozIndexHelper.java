@@ -55,19 +55,21 @@ public class JozIndexHelper {
             Date start = new Date();
             File indexDir = new File(indexDirName);
             if (!indexDir.exists()) {
-                throw new RuntimeException("Directory does not exist : " + indexDirName);
+                log.error("Directory does not exist : " + indexDirName);
             }
 
             //Look for any Joz index files
             File[] files = indexDir.listFiles();
             List<File> indexFiles = new ArrayList<File>();
-            for (File f: files) {
-                if (f.getName().matches(JOZ_INDEX_FILE_PATTERN)) {
-                    indexFiles.add(f);
+            if (files != null) {
+                for (File f: files) {
+                    if (f.getName().matches(JOZ_INDEX_FILE_PATTERN)) {
+                        indexFiles.add(f);
+                    }
                 }
             }
             if (indexFiles.size() == 0) {
-                throw new RuntimeException("No joz index files found in directory: " + indexDir.getAbsolutePath());
+                log.error("No joz index files found in directory: " + indexDir.getAbsolutePath());
             }
 
             for (File f: indexFiles) {

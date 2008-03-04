@@ -21,7 +21,7 @@
 	%>
   	<jsp:include page="header.jsp"/>
 	<div id="homelink" style="text-align: right">
-		<a href="console.jsp">home</a>
+		<a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/jsp/console.jsp">home</a>
 	</div>
 	<br>
 	<div id="links">

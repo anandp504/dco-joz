@@ -36,29 +36,33 @@ public class JozRefreshDataServlet extends HttpServlet {
     protected void doService (HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         String result = "";
-        String textMode = request.getParameter("text");
+        String jspMode = request.getParameter("jspMode");
         String responseJSP = "";
-        try {
-            String dataType = request.getParameter("type");
-            if ("listing".equalsIgnoreCase(dataType)) {
-                String revertMode = request.getParameter("full-load");
+        String dataType = request.getParameter("type");
+        if ("listing".equalsIgnoreCase(dataType)) {
+            String revertMode = request.getParameter("full-load");
+            try {
                 result = doRefreshListingData(revertMode);
-                responseJSP = "/jsp/content-status.jsp";
-            } else if ("campaign".equalsIgnoreCase(dataType)) {
-                result = doRefreshCampaignData();
-                responseJSP = "/jsp/cma-content-status.jsp";
+            } catch (Exception e) {
+                result = "failed";
             }
+            responseJSP = "/jsp/content-status.jsp";
+        } else if ("campaign".equalsIgnoreCase(dataType)) {
+            try {
+                result = doRefreshCampaignData();
+            } catch (Exception e) {
+                result = "failed";
+            }
+            responseJSP = "/jsp/cma-content-status.jsp";
         }
-        catch (Exception e) {
-            result = "failed";
-        }
-        if (textMode!=null) {
+        //By default send non verbose output
+        if (jspMode!=null) {
+            //Forward to JSP page
+            getServletConfig().getServletContext().getRequestDispatcher(responseJSP).forward(request, response);
+        } else {
             response.setContentType ("text/plain");
             PrintWriter out = response.getWriter();
             out.print(result);
-        } else {
-            //Forward to JSP page
-            getServletConfig().getServletContext().getRequestDispatcher(responseJSP).forward(request, response);
         }
     }
 
@@ -71,10 +75,6 @@ public class JozRefreshDataServlet extends HttpServlet {
         }
         ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
         ContentProvider cp = f.getContentProvider();
-        if (((FileContentProviderImpl) cp).lst.isEmpty()) {
-            ContentHelper h = new ContentHelper(cp);
-            cp.addContentListener(h);
-        }
         cp.refresh();
         ContentProviderStatus status = cp.getStatus();
         String success = (status.lastRunStatus == true ? "success" : "failed");
@@ -88,7 +88,7 @@ public class JozRefreshDataServlet extends HttpServlet {
         CMAContentRefreshMonitor.getInstance().loadCampaignData();
         CMAContentProviderStatus status = CMAContentProviderStatus.getInstance();
         String success = (status.lastRunStatus == true? "success" : "failed");
-        return success;      
+        return success;
     }
 
 }
