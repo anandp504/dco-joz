@@ -149,7 +149,7 @@ public class JozIndexCreator {
             //Create the index for this provider
             String providerName = getProviderFromFileName(f.getName());
             log.info("Creating joz index for provider : " + providerName);
-            ProviderIndexCreator ic = new ProviderIndexCreator(providerName,indexDir,f,oldFile,MAX_LINES_PER_CHUNK);
+            ProviderIndexCreator ic = new ProviderIndexCreator(getJozIndexFileNamePrefix(f.getName()),indexDir,f,oldFile,MAX_LINES_PER_CHUNK);
             ic.createIndicesForProvider();
         }
 
@@ -182,6 +182,19 @@ public class JozIndexCreator {
         StringTokenizer st = new StringTokenizer(fileName, "_");
         st.nextToken(); // Ignore first
         fileNamePrefix =st.nextToken() ;
+        return fileNamePrefix;
+    }
+
+    /**
+     * Helper method to get the provider from file name
+     * @return
+     */
+    private static String getJozIndexFileNamePrefix(String fileName) {
+        String fileNamePrefix = "";
+        int idx = fileName.indexOf("_provider-content_");
+        if (fileName != null && idx > 0) {
+            fileNamePrefix = fileName.substring(0,idx);
+        }
         return fileNamePrefix;
     }
 }
