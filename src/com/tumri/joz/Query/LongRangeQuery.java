@@ -5,6 +5,7 @@ import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.filter.Filter;
+import com.tumri.joz.filter.LongFilter;
 import com.tumri.utils.index.IIndex;
 
 import java.util.SortedSet;
@@ -17,6 +18,7 @@ public class LongRangeQuery extends MUPQuery {
   private long m_min;
   private long m_max;
   private int m_count = kMax;
+  protected LongFilter<Handle> m_filter;
 
   public Type getType() {
     return Type.kRange;
@@ -70,9 +72,9 @@ public class LongRangeQuery extends MUPQuery {
     return m_results;
   }
 
-  public Filter<Handle> getFilter() {
+  public LongFilter<Handle> getFilter() {
     if (m_filter == null) {
-      m_filter = ProductDB.getInstance().getFilter(getAttribute());
+      m_filter = ProductDB.getInstance().getLongFilter(getAttribute());
       m_filter.setNegation(isNegation());
       m_filter.setBounds(m_min, m_max);
       m_filter.setQuery(this);

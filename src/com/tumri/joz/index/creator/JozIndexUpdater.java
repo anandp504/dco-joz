@@ -231,10 +231,22 @@ public class JozIndexUpdater {
             if (details != null) {
                 CategoryAttributeDetails.DataType type = details.getFieldtype();
                 if (type != null) {
-                    String fieldValStr = indexVal.substring(indexVal.indexOf("|") +1, indexVal.length());
-                    int fieldValId = IndexUtils.getIndexIdFromDictionary(Product.Attribute.kCategoryField1, fieldValStr);
-                    long key = IndexUtils.createIndexKeyForCategory(catId, idxAttr, fieldValId);
                     TreeMap<Long, ArrayList<Handle>> mindex = new TreeMap<Long, ArrayList<Handle>>();
+                    String fieldValStr = indexVal.substring(indexVal.indexOf("|") +1, indexVal.length());
+                    int fieldValId = 0;
+                    if (type == CategoryAttributeDetails.DataType.kText) {
+                        fieldValId = IndexUtils.getIndexIdFromDictionary(idxAttr, fieldValStr);
+                    } else  if (type == CategoryAttributeDetails.DataType.kInteger) {
+                        //Multiply by 100 to support upto 2 decimal places
+                        if (fieldValStr.indexOf('.')>-1) {
+                            //Double value
+                            Double tmpDbl = Double.parseDouble(fieldValStr)*100;
+                            fieldValId = tmpDbl.intValue();
+                        } else {
+                            fieldValId = Integer.parseInt(fieldValStr)*100;
+                        }
+                    }
+                    long key = IndexUtils.createIndexKeyForCategory(catId, idxAttr, fieldValId);
                     mindex.put(key, pids);
 
                     if (operation == PersistantIndexLine.IndexOperation.kAdd ||

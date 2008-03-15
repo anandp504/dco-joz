@@ -76,9 +76,9 @@ public class OSpecQueryCacheHelper {
                                     CategoryAttributeDetails.DataType dt = cad.getFieldtype();
                                     Product.Attribute fieldPos = cad.getFieldPos();
                                     if (dt == CategoryAttributeDetails.DataType.kInteger) {
-                                        //range query
-                                        int lowRangeValId = IndexUtils.getIndexIdFromDictionary(fieldPos, new Double(lowRangeValue).toString());
-                                        int highRangeValId = IndexUtils.getIndexIdFromDictionary(fieldPos, new Double(highRangeValue).toString());
+                                        //range query - we multiply by 100 to support upto 2 decimal places
+                                        int lowRangeValId = new Double(lowRangeValue).intValue()*100;
+                                        int highRangeValId = new Double(highRangeValue).intValue()*100;
                                         long lowRangekey = IndexUtils.createIndexKeyForCategory(cId, fieldPos, lowRangeValId);
                                         long highRangekey = IndexUtils.createIndexKeyForCategory(cId, fieldPos, highRangeValId);
                                         SimpleQuery csq = new LongRangeQuery (IProduct.Attribute.kCategoryNumericField,lowRangekey, highRangekey);
@@ -168,7 +168,7 @@ public class OSpecQueryCacheHelper {
 
                 //State Filter
                 String stateFilter = theTSpec.getStateFilter();
-                if (countryFilter!= null && !"".equals(countryFilter)) {
+                if (stateFilter!= null && !"".equals(stateFilter)) {
                     SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kState, stateFilter, false);
                      _cjquery.addQuery(sq);
                 }
