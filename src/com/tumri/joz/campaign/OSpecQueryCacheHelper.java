@@ -1,9 +1,13 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
+import com.tumri.content.data.CategoryAttributeDetails;
+import com.tumri.content.data.Product;
 import com.tumri.joz.Query.*;
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.products.IProduct;
+import com.tumri.joz.utils.IndexUtils;
+import com.tumri.joz.index.DictionaryManager;
+import com.tumri.utils.strings.StringTokenizer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -51,7 +55,49 @@ public class OSpecQueryCacheHelper {
                 if (cinList != null) {
                     SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cinList, false);
                     _cjquery.addQuery(sq);
+
+                    //Category Field Attributes
+                    for (CategoryInfo ci: cinList) {
+                        String catId = ci.getName();
+                        CategoryInfoAttributes cia = ci.getAttribs();
+                        if (cia != null) {
+                            //There are attribs for this query
+                            List<CategoryAttribute> attribs = cia.getAttribs();
+                            for (CategoryAttribute attr : attribs) {
+                                String categoryFieldName = attr.getName();
+                                String categoryFieldValue = attr.getTextValue();
+                                double lowRangeValue = attr.getLowRangeValue();
+                                double highRangeValue = attr.getHighRangeValue();
+
+                                DictionaryManager dm = DictionaryManager.getInstance ();
+                                Integer cId = dm.getId (IProduct.Attribute.kCategory, catId);
+                                CategoryAttributeDetails cad = IndexUtils.getDetailsForCategoryFieldName(cId, categoryFieldName);
+                                if (cad != null) {
+                                    CategoryAttributeDetails.DataType dt = cad.getFieldtype();
+                                    Product.Attribute fieldPos = cad.getFieldPos();
+                                    if (dt == CategoryAttributeDetails.DataType.kInteger) {
+                                        //range query
+                                        int lowRangeValId = IndexUtils.getIndexIdFromDictionary(fieldPos, new Double(lowRangeValue).toString());
+                                        int highRangeValId = IndexUtils.getIndexIdFromDictionary(fieldPos, new Double(highRangeValue).toString());
+                                        long lowRangekey = IndexUtils.createIndexKeyForCategory(cId, fieldPos, lowRangeValId);
+                                        long highRangekey = IndexUtils.createIndexKeyForCategory(cId, fieldPos, highRangeValId);
+                                        SimpleQuery csq = new LongRangeQuery (IProduct.Attribute.kCategoryNumericField,lowRangekey, highRangekey);
+                                        _cjquery.addQuery(csq);
+                                    } else if (dt == CategoryAttributeDetails.DataType.kText) {
+                                        //simple query
+                                        int fieldValId = IndexUtils.getIndexIdFromDictionary(fieldPos, categoryFieldValue);
+                                        long key = IndexUtils.createIndexKeyForCategory(cId, fieldPos, fieldValId);
+                                        SimpleQuery csq = new CategoryAttributeQuery (IProduct.Attribute.kCategoryTextField, key);
+                                       _cjquery.addQuery(csq);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
                 }
+
+
 
                 //Excluded cats
                 List<CategoryInfo> cexList = theTSpec.getExcludedCategories();
@@ -113,6 +159,55 @@ public class OSpecQueryCacheHelper {
                     _cjquery.addQuery(sq);
                 }
 
+                //Country Filter
+                String countryFilter = theTSpec.getCountryFilter();
+                if (countryFilter!= null && !"".equals(countryFilter)) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCountry, countryFilter, false);
+                     _cjquery.addQuery(sq);
+                }
+
+                //State Filter
+                String stateFilter = theTSpec.getStateFilter();
+                if (countryFilter!= null && !"".equals(countryFilter)) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kState, stateFilter, false);
+                     _cjquery.addQuery(sq);
+                }
+
+                //City Filter
+                String cityFilter = theTSpec.getCityFilter();
+                if (cityFilter!= null && !"".equals(cityFilter)) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCity, cityFilter, false);
+                     _cjquery.addQuery(sq);
+                }
+
+                //Zip Code Filter
+                String zipCodeFilter = theTSpec.getZipCodeFilter();
+                if (zipCodeFilter!= null && !"".equals(zipCodeFilter)) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kZip, zipCodeFilter, false);
+                     _cjquery.addQuery(sq);
+                }
+
+                //DMA Code Filter
+                String dmaCodeFilter = theTSpec.getDmaCodeFilter();
+                if (dmaCodeFilter!= null && !"".equals(dmaCodeFilter)) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kDMA, dmaCodeFilter, false);
+                     _cjquery.addQuery(sq);
+                }
+
+                //Area Code Filter
+                String areaCodeFilter = theTSpec.getAreaCodeFilter();
+                if (areaCodeFilter!= null && !"".equals(areaCodeFilter)) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kArea, areaCodeFilter, false);
+                     _cjquery.addQuery(sq);
+                }
+
+                //Global ID - list of globals
+                String globalID = theTSpec.getGlobalId();
+                if (globalID != null && !"".equals(globalID)) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGlobalId, globalID, false);
+                     _cjquery.addQuery(sq);
+                }
+
             }
         }
 
@@ -157,5 +252,30 @@ public class OSpecQueryCacheHelper {
 		sq.setNegation(bNegation);
 		return sq;
 	}
+
+    /**
+     * Helper method to build attribiute query for a comma separated list of string values
+     * @param type
+     * @param values
+     * @param bNegation
+     * @return
+     */
+    private static SimpleQuery buildAttributeQuery(IProduct.Attribute type, String values, boolean bNegation) {
+        ArrayList<Integer> valueIdList = new ArrayList<Integer>();
+        if (values != null) {
+            StringTokenizer st = new StringTokenizer(values, ',');
+            ArrayList<String> valueStrList = st.getTokens();
+            for (int i=0;i<valueStrList.size();i++){
+                String valueStr = valueStrList.get(i);
+                DictionaryManager dm = DictionaryManager.getInstance ();
+                Integer id = dm.getId (type, valueStr);
+                valueIdList.add(id);
+            }
+        }
+        SimpleQuery sq = new AttributeQuery (type, valueIdList);
+        sq.setNegation(bNegation);
+        return sq;
+
+    }
 
 }

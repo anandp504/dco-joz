@@ -1,19 +1,20 @@
 package com.tumri.joz.index.creator;
 
-import com.tumri.content.data.dictionary.DictionaryManager;
+import com.tumri.content.data.CategorySpec;
 import com.tumri.content.data.Product;
+import com.tumri.content.data.CategoryAttributeDetails;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.JozIndexHelper;
+import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.IndexUtils;
+import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.TreeMap;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import org.apache.log4j.Logger;
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 /**
  * Implementation class that will handle the update of Joz Indexes, or write a debug file if required.
@@ -164,7 +165,7 @@ public class JozIndexUpdater {
                 return;
             }
         }
-        updateIndex(operation, getAttribute(indexType), indexName, pids);
+        updateIndex(operation, IndexUtils.getAttribute(indexType), indexName, pids);
 
     }
 
@@ -176,6 +177,14 @@ public class JozIndexUpdater {
      */
     private static void updateIndex(PersistantIndexLine.IndexOperation operation, Product.Attribute idxAttr,
                                     String indexVal, ArrayList<Handle> pids) {
+        if (indexVal == null || "".equals(indexVal)) {
+            return;
+        }
+        //Handle the Provider Category using the same Category index - since Joz does not differentiate between these
+        if (idxAttr == Product.Attribute.kProviderCategory ) {
+            idxAttr = Product.Attribute.kCategory;
+        }
+
         if (idxAttr == Product.Attribute.kCPC || idxAttr == Product.Attribute.kCPO || idxAttr == Product.Attribute.kPrice) {
             //Double
             TreeMap<Double, ArrayList<Handle>> mindex = new TreeMap<Double, ArrayList<Handle>>();
@@ -186,10 +195,24 @@ public class JozIndexUpdater {
             } else if (operation == PersistantIndexLine.IndexOperation.kDelModified || operation == PersistantIndexLine.IndexOperation.kDelete){
                 ProductDB.getInstance().deleteDoubleIndex(idxAttr, mindex);
             }
-        }  else {
+        }  else if (idxAttr == Product.Attribute.kCategory ||
+                idxAttr == Product.Attribute.kBrand ||
+                idxAttr == Product.Attribute.kSupplier ||
+                idxAttr == Product.Attribute.kProvider ||
+                idxAttr == Product.Attribute.kImageWidth ||
+                idxAttr == Product.Attribute.kImageHeight ||
+                idxAttr == Product.Attribute.kProductType ||
+                idxAttr == Product.Attribute.kCountry ||
+                idxAttr == Product.Attribute.kState ||
+                idxAttr == Product.Attribute.kCity ||
+                idxAttr == Product.Attribute.kZip ||
+                idxAttr == Product.Attribute.kDMA ||
+                idxAttr == Product.Attribute.kArea ||
+                idxAttr == Product.Attribute.kProviderCategory ||
+                idxAttr == Product.Attribute.kGlobalId) {
             //Integer
             TreeMap<Integer, ArrayList<Handle>> mindex = new TreeMap<Integer, ArrayList<Handle>>();
-            mindex.put(getIndexIdFromDictionary(idxAttr, indexVal), pids);
+            mindex.put(IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal), pids);
             if (operation == PersistantIndexLine.IndexOperation.kAdd || operation == PersistantIndexLine.IndexOperation.kAddModified
                     || operation == PersistantIndexLine.IndexOperation.kNoChange) {
                 ProductDB.getInstance().updateIntegerIndex(idxAttr, mindex);
@@ -197,83 +220,50 @@ public class JozIndexUpdater {
                 ProductDB.getInstance().deleteIntegerIndex(idxAttr, mindex);
             }
 
+        } else if (idxAttr == Product.Attribute.kCategoryField1 ||
+                idxAttr == Product.Attribute.kCategoryField2 ||
+                idxAttr == Product.Attribute.kCategoryField3 ||
+                idxAttr == Product.Attribute.kCategoryField4 ||
+                idxAttr == Product.Attribute.kCategoryField5) {
+            String catIdStr = indexVal.substring(0,indexVal.indexOf("|"));
+            int catId = IndexUtils.getIndexIdFromDictionary(Product.Attribute.kCategory, catIdStr);
+            CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(catId, idxAttr);
+            if (details != null) {
+                CategoryAttributeDetails.DataType type = details.getFieldtype();
+                if (type != null) {
+                    String fieldValStr = indexVal.substring(indexVal.indexOf("|") +1, indexVal.length());
+                    int fieldValId = IndexUtils.getIndexIdFromDictionary(Product.Attribute.kCategoryField1, fieldValStr);
+                    long key = IndexUtils.createIndexKeyForCategory(catId, idxAttr, fieldValId);
+                    TreeMap<Long, ArrayList<Handle>> mindex = new TreeMap<Long, ArrayList<Handle>>();
+                    mindex.put(key, pids);
+
+                    if (operation == PersistantIndexLine.IndexOperation.kAdd ||
+                            operation == PersistantIndexLine.IndexOperation.kAddModified
+                            || operation == PersistantIndexLine.IndexOperation.kNoChange) {
+                        if (type == CategoryAttributeDetails.DataType.kText) {
+                            //Text index
+                            ProductDB.getInstance().updateLongIndex(Product.Attribute.kCategoryTextField, mindex);
+                        } else  if (type == CategoryAttributeDetails.DataType.kInteger) {
+                            //Range Index
+                            ProductDB.getInstance().updateLongIndex(Product.Attribute.kCategoryNumericField, mindex);
+                        }
+                    } else if (operation == PersistantIndexLine.IndexOperation.kDelModified ||
+                            operation == PersistantIndexLine.IndexOperation.kDelete){
+                        if (type == CategoryAttributeDetails.DataType.kText) {
+                            //Text index
+                            ProductDB.getInstance().deleteLongIndex(Product.Attribute.kCategoryTextField, mindex);
+                        } else  if (type == CategoryAttributeDetails.DataType.kInteger) {
+                            //Range Index
+                            ProductDB.getInstance().deleteLongIndex(Product.Attribute.kCategoryNumericField, mindex);
+                        }
+                    }
+
+
+                }
+            }
+
         }
 
 
     }
-
-    /**
-     * Maps the given index name string to the equivalent dictionary id
-     * @return
-     */
-    private static Integer getIndexIdFromDictionary(Product.Attribute attr, String indexVal) {
-        Integer id = null;
-
-        switch(attr) {
-            case kCategory:
-                id = DictionaryManager.getId(Product.Attribute.kCategory, indexVal);
-                break;
-            case kPrice:
-                id = DictionaryManager.getId(Product.Attribute.kPrice, indexVal);
-                break;
-            case kBrand:
-                id = DictionaryManager.getId(Product.Attribute.kBrand, indexVal);
-                break;
-            case kSupplier:
-                id = DictionaryManager.getId(Product.Attribute.kSupplier, indexVal);
-                break;
-            case kProvider:
-                id = DictionaryManager.getId(Product.Attribute.kProvider, indexVal);
-                break;
-            case kImageWidth:
-                id = DictionaryManager.getId(Product.Attribute.kImageWidth, indexVal);
-                break;
-            case kImageHeight:
-                id = DictionaryManager.getId(Product.Attribute.kImageHeight, indexVal);
-                break;
-            case kCPC:
-                id = DictionaryManager.getId(Product.Attribute.kCPC, indexVal);
-                break;
-            case kProductType:
-                id = DictionaryManager.getId(Product.Attribute.kProductType, indexVal);
-                break;
-            case kCPO:
-                id = DictionaryManager.getId(Product.Attribute.kCPO, indexVal);
-                break;
-        }
-        return id;
-    }
-
-
-    /**
-     * Maps the given index name string to the equivalent Product Attribute
-     * @return
-     */
-    private static Product.Attribute getAttribute(String indexType) {
-        Product.Attribute id = null;
-        if (indexType.equals("category")) {
-            id =Product.Attribute.kCategory;
-        } else if (indexType.equals("price")) {
-            id = Product.Attribute.kPrice;
-        } else if (indexType.equals("brand")) {
-            id = Product.Attribute.kBrand;
-        } else if (indexType.equals("supplier")) {
-            id =Product.Attribute.kSupplier;
-        } else if (indexType.equals("provider")) {
-            id = Product.Attribute.kProvider;
-        } else if (indexType.equals("imagewidth")) {
-            id = Product.Attribute.kImageWidth;
-        } else if (indexType.equals("imageheight")) {
-            id = Product.Attribute.kImageHeight;
-        } else if (indexType.equals("cpc")) {
-            id = Product.Attribute.kCPC;
-        } else if (indexType.equals("producttype")) {
-            id = Product.Attribute.kProductType;
-        } else if (indexType.equals("cpo")) {
-            id = Product.Attribute.kCPO;
-        }
-        return id;
-    }
-
-
 }

@@ -43,7 +43,7 @@ public class TestProductSelection {
       ProductDB.getInstance();
       buildCNFQueries(iter);
       //setup();
-      test0();
+      //test0();
       test1();
     } catch (RepositoryException e) {
       e.printStackTrace();

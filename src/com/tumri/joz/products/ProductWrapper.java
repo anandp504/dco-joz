@@ -52,7 +52,155 @@ public class ProductWrapper implements IProduct {
     public String getBaseProductNumber() {
         return prod.getBaseProductNumber();
     }
-    
+
+    public Object getValue(Attribute type) {
+        return prod.getValue(type);
+    }
+
+    public Integer getCountry() {
+        return prod.getCountry();
+    }
+
+    public String getCountryStr() {
+        return prod.getCountryStr();
+    }
+
+    public Integer getState() {
+        return prod.getState();
+    }
+
+    public String getStateStr() {
+        return prod.getStateStr();
+    }
+
+    public Integer getCity() {
+        return prod.getCity();
+    }
+
+    public String getCityStr() {
+        return prod.getCityStr();
+    }
+
+    public Integer getZip() {
+        return prod.getZip();
+    }
+
+    public String getZipStr() {
+        return prod.getZipStr();
+    }
+
+    public Integer getDmaCode() {
+        return prod.getDmaCode();
+    }
+
+    public String getDmaCodeStr() {
+        return prod.getDmaCodeStr();
+    }
+
+    public Integer getAreaCode() {
+        return getAreaCode();
+    }
+
+    public String getAreaCodeStr() {
+        return prod.getAreaCodeStr();  
+    }
+
+    public Integer getProviderCategory() {
+        return prod.getProviderCategory();
+    }
+
+    public String getProviderCategoryStr() {
+        return prod.getProviderCategoryStr();
+    }
+
+    public Integer getGlobalId() {
+        return prod.getGlobalId();
+    }
+
+    public String getGlobalIdStr() {
+        return prod.getGlobalIdStr();
+    }
+
+    public Integer getCategoryField1() {
+        return prod.getCategoryField1();
+    }
+
+    public String getCategoryField1Str() {
+        return prod.getCategoryField1Str();
+    }
+
+    public Integer getCategoryField2() {
+        return prod.getCategoryField2();
+    }
+
+    public String getCategoryField2Str() {
+        return prod.getCategoryField2Str();
+    }
+
+    public Integer getCategoryField3() {
+        return prod.getCategoryField3();
+    }
+
+    public String getCategoryField3Str() {
+        return prod.getCategoryField3Str();
+    }
+
+    public Integer getCategoryField4() {
+        return prod.getCategoryField4();
+    }
+
+    public String getCategoryField4Str() {
+        return prod.getCategoryField4Str();
+    }
+
+    public Integer getCategoryField5() {
+        return prod.getCategoryField5();
+    }
+
+    public String getCategoryField5Str() {
+        return prod.getCategoryField5Str();
+    }
+
+    public Integer getPassThrough1() {
+        return prod.getPassThrough1();
+    }
+
+    public String getPassThrough1Str() {
+        return  prod.getPassThrough1Str();
+    }
+
+    public Integer getPassThrough2() {
+        return  prod.getPassThrough2();
+    }
+
+    public String getPassThrough2Str() {
+        return  prod.getPassThrough2Str();
+    }
+
+    public Integer getPassThrough3() {
+        return  prod.getPassThrough3();
+    }
+
+    public String getPassThrough3Str() {
+        return  prod.getPassThrough3Str();
+    }
+
+    public Integer getPassThrough4() {
+        return  prod.getPassThrough4();
+    }
+
+    public String getPassThrough4Str() {
+        return  prod.getPassThrough4Str();
+    }
+
+    public Integer getPassThrough5() {
+        return  prod.getPassThrough5();
+    }
+
+    public String getPassThrough5Str() {
+        return  prod.getPassThrough5Str();
+    }
+
     public Integer getBlackWhiteListStatus() {
         return prod.getBlackWhiteListStatus();
     }

@@ -510,7 +510,7 @@ public class ProductIndex {
         }
         List<File> taxonomyFiles = new ArrayList<File>();
         for (File f: files) {
-            if (f.getName().matches(".*_Taxonomy_.*.utf8")) {
+            if (f.getName().matches(".*_Taxonomy_.*.utf8") || f.getName().matches(".*-CategorySpec_.*.utf8")) {
                 taxonomyFiles.add(f);
             }
         }

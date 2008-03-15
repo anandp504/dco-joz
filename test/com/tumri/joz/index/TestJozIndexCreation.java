@@ -27,64 +27,75 @@ public class TestJozIndexCreation {
     private static final String baseDir = "/tmp/joztest";
     private static final String taxonomyDir = "/tmp/taxonomy";
     private static File _baseDir = null;
-    private static File _taxonomyDir = null;
 
     @BeforeClass
     public static void init() {
         _baseDir = new File(baseDir);
         if (!_baseDir.exists()) {
+            _baseDir.delete();
             _baseDir.mkdir();
-        }
-        _taxonomyDir = new File(taxonomyDir);
-        if (!_taxonomyDir.exists()) {
-            throw new RuntimeException("Cannot find the taxonomy files to load indexes");
         }
         setupDataDirs();
     }
 
     /**
-     * Create the instances of the products, and write the MUP file out to the base dir/data
+     * Create the mup and taxonomy files
      */
     private static void setupDataDirs() {
-        //1. Create the mup files
         TestProductData.writeMupFiles(_baseDir);
-
-        //2. Copy the Support files
-        try {
-            FSUtils.copyDir(_taxonomyDir, new File (_baseDir.getAbsolutePath()+ "/new/data"));
-            FSUtils.copyDir(_taxonomyDir,new File (_baseDir.getAbsolutePath()+ "/old/data"));
-        } catch (IOException e) {
-            System.err.println("ERROR : Could not copy the taxonomy files over");
-        }
-        
+        TestProductData.writeTaxonomy(_baseDir);
     }
 
     @Test
     public void testIndexing() {
         //Invoke the creation of indexes
-        String[] args0 = {"-currentDocDir","/tmp/joztest/old","-indexDir","/tmp/joztest/old/lucene","-jozIndexDir","/tmp/joztest/old/jozIndex"};
-        new ProductIndex().index(args0);
-
-        String[] args1 = {"-currentDocDir","/tmp/joztest/new","-previousDocDir","/tmp/joztest/old",
-                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
-//        String[] args1 = {"-currentDocDir","/tmp/joztest/new",
+//        String[] args0 = {"-currentDocDir","/tmp/joztest/old","-indexDir","/tmp/joztest/old/lucene","-jozIndexDir","/tmp/joztest/old/jozIndex"};
+//        new ProductIndex().index(args0);
+//
+//        //Invoke the validation of index
+//        assert(new File("/tmp/joztest/old/lucene").exists());
+//        assert(new File("/tmp/joztest/old/jozIndex").exists());
+//
+//        String[] args1 = {"-currentDocDir","/tmp/joztest/new","-previousDocDir","/tmp/joztest/old",
 //                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
-        new ProductIndex().index(args1);
-        
-        //Invoke the validation of index
-        assert(new File("/tmp/joztest/new/lucene").exists());
-        assert(new File("/tmp/joztest/new/jozIndex").exists());
+////        String[] args1 = {"-currentDocDir","/tmp/joztest/new",
+////                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
+//        new ProductIndex().index(args1);
+//
+//        //Invoke the validation of index
+//        assert(new File("/tmp/joztest/new/lucene").exists());
+//        assert(new File("/tmp/joztest/new/jozIndex").exists());
 
         //Produce the debug file
         JozIndexUpdater.setInstance(true, true, "/tmp/joztest");
         JozIndexHelper.loadIndex("/tmp/joztest/new/jozIndex");
 
-        assert(true);
+        assert(new File("/tmp/joztest/jozIndexDebugFile.txt").exists());
     }
 
     @Test
-    public void testJozQueries() {
-        //Test if Joz tspec works
+    public void testCreateSingleIndex() {
+        
+    }
+
+    @Test
+    public void testIncrementalIndexNoChange() {
+
+    }
+
+    @Test
+    public void testIncrementalIndexNewFileLarger() {
+
+    }
+
+    @Test
+    public void testIncrementalIndexOldFileLarger() {
+
+    }
+
+    @Test
+    public void testIncrementalIndexNoCommon() {
+
     }
 
 }

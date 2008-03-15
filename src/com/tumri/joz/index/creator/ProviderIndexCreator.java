@@ -1,6 +1,7 @@
 package com.tumri.joz.index.creator;
 
 import com.tumri.utils.strings.StringTokenizer;
+import com.tumri.joz.utils.FSUtils;
 
 import java.io.*;
 import java.util.*;
@@ -57,8 +58,10 @@ public class ProviderIndexCreator {
      */
     public void init() {
         log.debug("Going to create the provider index for " + currProvider + ". Using new mup file " + newFile.getAbsolutePath());
+        sortFile(newFile.getParentFile().getAbsolutePath(), newFile.getName());
         if (oldFile!=null) {
             log.debug("Old mup used for comparison is : " + oldFile.getAbsolutePath());
+            sortFile(oldFile.getParentFile().getAbsolutePath(), oldFile.getName());
         }
         InputStream is = null;
         try {
@@ -279,11 +282,21 @@ public class ProviderIndexCreator {
             StringTokenizer str = new StringTokenizer(line,'\t');
             ArrayList<String> strings = str.getTokens();
             retVal = new HashMap<String,String>();
+            String currCat = "";
             for (int i=0;i<strings.size();i++) {
                 if (indexPosSet.contains(new Integer(i).toString())) {
                     String val = strings.get(i);
                     String key = mupConfig.getProperty(new Integer(i).toString());
-                    retVal.put(key,val);
+                    if (key.equals("category")) {
+                        currCat = val;
+                    }
+                    if (key.startsWith("categoryfield")) {
+                        if (currCat != null && !currCat.equals(""))  {
+                            retVal.put(key,currCat + "|" + val);
+                        }
+                    } else {
+                        retVal.put(key,val);
+                    }
                 }
             }
         }
@@ -311,7 +324,10 @@ public class ProviderIndexCreator {
         while (indexIter.hasNext()) {
             String indexName = (String)indexIter.next();
             ProviderIndexBuilder currIndex = indexMap.get(indexName);
-            currIndex.handleAdd((String)entry.get(indexName),pid);
+            String value = entry.get(indexName);
+            if (value != null) {
+                currIndex.handleAdd(value,pid);
+            }
         }
     }
 
@@ -325,7 +341,11 @@ public class ProviderIndexCreator {
         while (indexIter.hasNext()) {
             String indexName = (String)indexIter.next();
             ProviderIndexBuilder currIndex = indexMap.get(indexName);
-            currIndex.handleDelete((String)entry.get(indexName),pid);
+            String value = entry.get(indexName);
+            if (value != null) {
+                currIndex.handleDelete(value,pid);
+            }
+
         }
     }
 
@@ -337,7 +357,9 @@ public class ProviderIndexCreator {
      */
     private void addNoChangeIndices(String indexName,Long pid,String addIndexVal) {
         ProviderIndexBuilder currIdx = indexMap.get(indexName);
-        currIdx.handleNoChange(addIndexVal, pid);
+        if (addIndexVal != null) {
+            currIdx.handleNoChange(addIndexVal, pid);
+        }
     }
 
     /**
@@ -349,8 +371,12 @@ public class ProviderIndexCreator {
      */
     private void handleChangeEvent(String indexName,Long pid,String addIndexVal, String delIndexVal) {
         ProviderIndexBuilder currIdx = indexMap.get(indexName);
-        currIdx.handleAddModified(addIndexVal, pid);
-        currIdx.handleDeleteModified(delIndexVal, pid);
+        if (addIndexVal != null) {
+            currIdx.handleAddModified(addIndexVal, pid);
+        }
+        if ( delIndexVal != null) {
+            currIdx.handleDeleteModified(delIndexVal, pid);
+        }
     }
 
     /**
@@ -399,7 +425,9 @@ public class ProviderIndexCreator {
                 String indexName = (String)indexIter.next();
                 ProviderIndexBuilder currIndex = indexMap.get(indexName);
                 PersistantIndex pIndex = currIndex.serializeIndex();
-                pindices.add(pIndex);
+                if (pIndex.getDetails() != null) {
+                    pindices.add(pIndex);
+                }
             }
             provIndex.setIndices(pindices.toArray(new PersistantIndex[0]));
             out.writeObject(provIndex);
@@ -415,4 +443,38 @@ public class ProviderIndexCreator {
 
     }
 
+    /**
+     * Helper method to invoke the unix sort on the file
+     */
+    private static boolean sortFile(String filePath, String fileName) {
+        File currentFile = new File(filePath + fileName);
+        if (!currentFile.exists()) {
+           return false;
+        }
+
+        File tmpFile = new File(filePath + "tmp" + fileName);
+
+        String[] args = new String[]{"sh", "-c", "sort " + currentFile.getAbsolutePath() + " > " + tmpFile.getAbsolutePath()};
+        boolean bSuccess = false;
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process proc = rt.exec(args);
+            int rc = proc.waitFor();
+            if (rc == 0) {
+                bSuccess = true;
+                //Copy the tmp file back to the orig file
+                FSUtils.copyFile(tmpFile, currentFile);
+                tmpFile.delete();
+            }
+        } catch (IOException e) {
+           bSuccess = false;
+        } catch (InterruptedException e) {
+           bSuccess = false;
+        }
+        if (!bSuccess) {
+            log.warn("Sort failed for the file : " + fileName);
+        }
+
+        return bSuccess;
+    }
 }

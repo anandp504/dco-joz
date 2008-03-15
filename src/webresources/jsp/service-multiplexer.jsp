@@ -138,7 +138,7 @@
 					}
 
 					try{
-						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
+						oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
 					}catch(Exception e){
 						continue;
 					}
@@ -243,7 +243,7 @@
 					}
 					
 					try{
-						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
+						oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
 					}catch(Exception e){
 						continue;
 					}
@@ -348,7 +348,7 @@
 					}
 					
 					try{
-						oSpec=campaignDB.getOSpecForAdPod(adPodHandle.getOid());
+						oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
 					}catch(Exception e) {
 						continue;
 					}

@@ -20,6 +20,15 @@ abstract public class AttributeWeights implements IWeight<Handle> {
   private static double kProductType = 1.2;
   private static double kImageHeight = 1.2;
   private static double kImageWidth = 1.2;
+  private static double kCountry = 1.2;
+  private static double kState = 1.2;
+  private static double kCity = 1.2;
+  private static double kZipCode = 1.2;
+  private static double kDmaCode = 1.2;
+  private static double kAreaCode = 1.2;
+  private static double kGlobalId = 1.2;
+  private static double kCategoryTextField = 1.2;
+  private static double kCategoryNumericField = 1.2;
   private static double kNone = 1.0;
 
 
@@ -41,6 +50,15 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kProductType: return ProductTypeWeight.getInstance();
       case kImageHeight: return ProductTypeWeight.getInstance();
       case kImageWidth: return ProductTypeWeight.getInstance();
+      case kCountry: return CountryWeight.getInstance();
+      case kState: return StateWeight.getInstance();
+      case kCity: return CityWeight.getInstance();
+      case kZip: return ZipCodeWeight.getInstance();
+      case kArea: return AreaCodeWeight.getInstance();
+      case kDMA: return DmaCodeWeight.getInstance();
+      case kGlobalId: return GlobalIdWeight.getInstance();
+      case kCategoryTextField: return CategoryTextFieldWeight.getInstance();
+      case kCategoryNumericField: return CategoryNumericFieldWeight.getInstance();
       case kNone:
       default: return NeutralWeight.getInstance();
     }
@@ -59,6 +77,15 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kProductType: return kProductType;
       case kImageHeight: return kImageHeight;
       case kImageWidth: return kImageWidth;
+      case kCountry: return kCountry;
+      case kState: return kState;
+      case kCity: return kCity;
+      case kZip: return kZipCode;
+      case kDMA: return kDmaCode;
+      case kArea: return kAreaCode;
+      case kGlobalId: return kGlobalId;
+      case kCategoryTextField: return kCategoryTextField;
+      case kCategoryNumericField: return kCategoryNumericField;
       case kNone: return kNone;
       default:
     }
