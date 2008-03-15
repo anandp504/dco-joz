@@ -3,10 +3,12 @@ package com.tumri.joz.products;
 import com.tumri.content.ContentProviderFactory;
 import com.tumri.content.InvalidConfigException;
 import com.tumri.content.ProductProvider;
+import com.tumri.content.data.CategoryAttributeDetails;
 import com.tumri.content.data.Product;
 import com.tumri.joz.filter.*;
 import com.tumri.joz.index.*;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.IndexUtils;
 import com.tumri.utils.data.RWLockedSortedArraySet;
 import com.tumri.utils.data.RWLockedTreeMap;
 import org.apache.log4j.Logger;
@@ -30,6 +32,9 @@ public class ProductDB {
   private Hashtable<IProduct.Attribute, ProductAttributeIndex<?, Handle>> m_indices = new Hashtable<IProduct.Attribute, ProductAttributeIndex<?, Handle>>();
   // table of all filters associated with attributes
   private Hashtable<IProduct.Attribute, Filter<Handle>> m_filters = new Hashtable<IProduct.Attribute, Filter<Handle>>();
+
+  // table of all long filters associated with attributes
+  private Hashtable<IProduct.Attribute, LongFilter<Handle>> m_longFilters = new Hashtable<IProduct.Attribute, LongFilter<Handle>>();
 
   private ProductProvider m_productProvider = null;
   private static Random g_random = new Random(System.currentTimeMillis());
@@ -80,6 +85,34 @@ public class ProductDB {
 
     pdb.addIndex(IProduct.Attribute.kImageHeight, new ImageHeightIndex());
     pdb.registerFilter(IProduct.Attribute.kImageHeight, new ImageHeightFilter());
+
+    pdb.addIndex(IProduct.Attribute.kCountry, new CountryIndex());
+    pdb.registerFilter(IProduct.Attribute.kCountry, new CountryFilter());
+
+    pdb.addIndex(IProduct.Attribute.kState, new StateIndex());
+    pdb.registerFilter(IProduct.Attribute.kState, new StateFilter());
+
+    pdb.addIndex(IProduct.Attribute.kCity, new CityIndex());
+    pdb.registerFilter(IProduct.Attribute.kCity, new CityFilter());
+
+    pdb.addIndex(IProduct.Attribute.kZip, new ZipCodeIndex());
+    pdb.registerFilter(IProduct.Attribute.kZip, new ZipCodeFilter());
+
+    pdb.addIndex(IProduct.Attribute.kDMA, new DmaCodeIndex());
+    pdb.registerFilter(IProduct.Attribute.kDMA, new DmaCodeFilter());
+
+    pdb.addIndex(IProduct.Attribute.kArea, new AreaCodeIndex());
+    pdb.registerFilter(IProduct.Attribute.kArea, new AreaCodeFilter());
+
+    pdb.addIndex(IProduct.Attribute.kGlobalId, new GlobalIdIndex());
+    pdb.registerFilter(IProduct.Attribute.kGlobalId, new GlobalIdFilter());
+
+    pdb.addIndex(IProduct.Attribute.kCategoryTextField, new TextIndexImpl(IProduct.Attribute.kCategoryTextField));
+    pdb.registerLongFilter(IProduct.Attribute.kCategoryTextField, new TextFilterImpl(IProduct.Attribute.kCategoryTextField));
+
+    pdb.addIndex(IProduct.Attribute.kCategoryNumericField, new RangeIndexImpl(IProduct.Attribute.kCategoryNumericField));
+    pdb.registerLongFilter(IProduct.Attribute.kCategoryNumericField, new RangeFilterImpl(IProduct.Attribute.kCategoryNumericField));
+
   }
 
   private ProductDB() {
@@ -252,8 +285,17 @@ public class ProductDB {
     m_filters.put(aAttribute, filter);
   }
 
+  public void registerLongFilter(IProduct.Attribute aAttribute, LongFilter<Handle> filter) {
+    m_longFilters.put(aAttribute, filter);
+  }
+
   public Filter<Handle> getFilter(IProduct.Attribute aAttribute) {
     Filter<Handle> filter = m_filters.get(aAttribute);
+    return ((filter != null) ? filter.clone() : filter);
+  }
+
+  public LongFilter<Handle> getLongFilter(IProduct.Attribute aAttribute) {
+    LongFilter<Handle> filter = m_longFilters.get(aAttribute);
     return ((filter != null) ? filter.clone() : filter);
   }
 
@@ -290,6 +332,17 @@ public class ProductDB {
     TreeMap<Integer, ArrayList<Handle>> mptype = new TreeMap<Integer, ArrayList<Handle>>();
     TreeMap<Integer, ArrayList<Handle>> miheight = new TreeMap<Integer, ArrayList<Handle>>();
     TreeMap<Integer, ArrayList<Handle>> miwidth = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mcountry = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mstate= new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mcity = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mzip = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mdma = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> marea = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mprovcategory = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mglobalid = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Long, ArrayList<Handle>> mcategorytextattr = new TreeMap<Long, ArrayList<Handle>>();
+    TreeMap<Long, ArrayList<Handle>> mcategorynumattr = new TreeMap<Long, ArrayList<Handle>>();
+
     for (IProduct prod : products) {
       Handle h = prod.getHandle();
       Product p = ((ProductWrapper) prod).getProduct();
@@ -383,6 +436,199 @@ public class ProductDB {
         }
         list.add(h);
       }
+      {
+        Integer k = p.getCountry();
+        ArrayList<Handle> list = mcountry.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mcountry.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getState();
+        ArrayList<Handle> list = mstate.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mstate.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getCity();
+        ArrayList<Handle> list = mcity.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mcity.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getZip();
+        ArrayList<Handle> list = mzip.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mzip.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getDmaCode();
+        ArrayList<Handle> list = mdma.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mdma.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getAreaCode();
+        ArrayList<Handle> list = marea.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          marea.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getProviderCategory();
+        ArrayList<Handle> list = mprovcategory.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mprovcategory.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getGlobalId();
+        ArrayList<Handle> list = mglobalid.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mglobalid.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getCategoryField1();
+        Integer c = p.getCategory();
+        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField1,k);
+        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField1);
+        CategoryAttributeDetails.DataType type = details.getFieldtype();
+        if (type != null) {
+            if (type == CategoryAttributeDetails.DataType.kText) {
+                ArrayList<Handle> list = mcategorytextattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorytextattr.put(key, list);
+                }
+                list.add(h);
+            }  else {
+                ArrayList<Handle> list = mcategorynumattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorynumattr.put(key, list);
+                }
+                list.add(h);
+            }
+        }
+      }
+      {
+        Integer k = p.getCategoryField2();
+        Integer c = p.getCategory();
+        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField2,k);
+        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField2);
+        CategoryAttributeDetails.DataType type = details.getFieldtype();
+
+        if (type != null) {
+            if (type == CategoryAttributeDetails.DataType.kText) {
+                ArrayList<Handle> list = mcategorytextattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorytextattr.put(key, list);
+                }
+                list.add(h);
+            }  else {
+                ArrayList<Handle> list = mcategorynumattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorynumattr.put(key, list);
+                }
+                list.add(h);
+            }
+        }
+      }
+      {
+        Integer k = p.getCategoryField3();
+        Integer c = p.getCategory();
+        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField3,k);
+        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField3);
+        CategoryAttributeDetails.DataType type = details.getFieldtype();
+        if (type != null) {
+            if (type == CategoryAttributeDetails.DataType.kText) {
+                ArrayList<Handle> list = mcategorytextattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorytextattr.put(key, list);
+                }
+                list.add(h);
+            }  else {
+                ArrayList<Handle> list = mcategorynumattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorynumattr.put(key, list);
+                }
+                list.add(h);
+            }
+        }
+      }
+      {
+        Integer k = p.getCategoryField4();
+        Integer c = p.getCategory();
+        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField4,k);
+        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField4);
+        CategoryAttributeDetails.DataType type = details.getFieldtype();
+        if (type != null) {
+            if (type == CategoryAttributeDetails.DataType.kText) {
+                ArrayList<Handle> list = mcategorytextattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorytextattr.put(key, list);
+                }
+                list.add(h);
+            }  else {
+                ArrayList<Handle> list = mcategorynumattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorynumattr.put(key, list);
+                }
+                list.add(h);
+            }
+        }
+      }
+      {
+        Integer k = p.getCategoryField5();
+        Integer c = p.getCategory();
+        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField5,k);
+        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField5);
+        CategoryAttributeDetails.DataType type = details.getFieldtype();
+        if (type != null) {
+            if (type == CategoryAttributeDetails.DataType.kText) {
+                ArrayList<Handle> list = mcategorytextattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorytextattr.put(key, list);
+                }
+                list.add(h);
+            }  else {
+                ArrayList<Handle> list = mcategorynumattr.get(k);
+                if (list == null) {
+                  list = new ArrayList<Handle>();
+                  mcategorynumattr.put(key, list);
+                }
+                list.add(h);
+            }
+        }
+      }
     }
     {
       updateIntegerIndex(IProduct.Attribute.kProvider, mprovider);
@@ -397,6 +643,19 @@ public class ProductDB {
       updateIntegerIndex(IProduct.Attribute.kProductType, mprovider);
       updateIntegerIndex(IProduct.Attribute.kImageWidth, miwidth);
       updateIntegerIndex(IProduct.Attribute.kImageHeight, miheight);
+
+      updateIntegerIndex(IProduct.Attribute.kCountry, mcountry);
+      updateIntegerIndex(IProduct.Attribute.kState, mstate);
+      updateIntegerIndex(IProduct.Attribute.kCity, mcity);
+      updateIntegerIndex(IProduct.Attribute.kZip, mzip);
+      updateIntegerIndex(IProduct.Attribute.kDMA, mdma);
+      updateIntegerIndex(IProduct.Attribute.kArea, marea);
+      updateIntegerIndex(IProduct.Attribute.kProviderCategory, mprovcategory);
+      updateIntegerIndex(IProduct.Attribute.kGlobalId, mglobalid);
+
+      updateLongIndex(IProduct.Attribute.kCategoryTextField, mcategorytextattr);
+      updateLongIndex(IProduct.Attribute.kCategoryNumericField, mcategorynumattr);
+
     }
   }
 
@@ -411,6 +670,11 @@ public class ProductDB {
   }
 
   @SuppressWarnings("unchecked")
+  public void updateLongIndex(IProduct.Attribute type, TreeMap<Long, ArrayList<Handle>> mindex) {
+     ((ProductAttributeIndex<Long, Handle>) m_indices.get(type)).add(mindex);
+  }
+
+  @SuppressWarnings("unchecked")
   public void deleteIntegerIndex(IProduct.Attribute type, TreeMap<Integer, ArrayList<Handle>> mindex) {
      ((ProductAttributeIndex<Integer, Handle>) m_indices.get(type)).delete(mindex);
   }
@@ -418,6 +682,11 @@ public class ProductDB {
   @SuppressWarnings("unchecked")
   public void deleteDoubleIndex(IProduct.Attribute type, TreeMap<Double, ArrayList<Handle>> mindex) {
      ((ProductAttributeIndex<Double, Handle>) m_indices.get(type)).delete(mindex);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void deleteLongIndex(IProduct.Attribute type, TreeMap<Long, ArrayList<Handle>> mindex) {
+     ((ProductAttributeIndex<Long, Handle>) m_indices.get(type)).delete(mindex);
   }
 
 
