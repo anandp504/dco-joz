@@ -49,28 +49,29 @@ public class TestJozIndexCreation {
     @Test
     public void testIndexing() {
         //Invoke the creation of indexes
-//        String[] args0 = {"-currentDocDir","/tmp/joztest/old","-indexDir","/tmp/joztest/old/lucene","-jozIndexDir","/tmp/joztest/old/jozIndex"};
-//        new ProductIndex().index(args0);
-//
-//        //Invoke the validation of index
-//        assert(new File("/tmp/joztest/old/lucene").exists());
-//        assert(new File("/tmp/joztest/old/jozIndex").exists());
-//
-//        String[] args1 = {"-currentDocDir","/tmp/joztest/new","-previousDocDir","/tmp/joztest/old",
+        String[] args0 = {"-currentDocDir","/tmp/joztest/old","-indexDir","/tmp/joztest/old/lucene","-jozIndexDir","/tmp/joztest/old/jozIndex"};
+        new ProductIndex().index(args0);
+
+        //Invoke the validation of index
+        assert(new File("/tmp/joztest/old/lucene").exists());
+        assert(new File("/tmp/joztest/old/jozIndex").exists());
+
+        String[] args1 = {"-currentDocDir","/tmp/joztest/new","-previousDocDir","/tmp/joztest/old",
+                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
+//        String[] args1 = {"-currentDocDir","/tmp/joztest/new",
 //                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
-////        String[] args1 = {"-currentDocDir","/tmp/joztest/new",
-////                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
-//        new ProductIndex().index(args1);
-//
-//        //Invoke the validation of index
-//        assert(new File("/tmp/joztest/new/lucene").exists());
-//        assert(new File("/tmp/joztest/new/jozIndex").exists());
+        new ProductIndex().index(args1);
+
+        //Invoke the validation of index
+        assert(new File("/tmp/joztest/new/lucene").exists());
+        assert(new File("/tmp/joztest/new/jozIndex").exists());
 
         //Produce the debug file
         JozIndexUpdater.setInstance(true, true, "/tmp/joztest");
         JozIndexHelper.loadIndex("/tmp/joztest/new/jozIndex");
 
         assert(new File("/tmp/joztest/jozIndexDebugFile.txt").exists());
+        //TODO: Validate the file.
     }
 
     @Test

@@ -85,10 +85,13 @@ public class JozIndexUpdater {
     }
 
     /**
-     * Write the current set of lines to the console. Do not update the Joz Index
+     * Write the current set of lines to the console. Do not update the Joz Index.
+     * The output file will be a tab delimited file of the format:
+     * <Index Name> <Index Val> <MODE>  <Comma separated product IDs>
      */
     private void handleDebug(String indexType, String indexVal, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation) {
         FileWriter fw = null;
+        char _delim = '\t';
 
         if (debugOutFile == null) {
             String debugFileDir = AppProperties.getInstance().getProperty("com.tumri.joz.index.reader.debug.outdir");
@@ -96,7 +99,7 @@ public class JozIndexUpdater {
             if (!debugDir.exists()) {
                 throw new RuntimeException("Directory does not exist : " + debugDir);
             }
-            debugOutFile = new File(debugDir.getAbsolutePath() + "/jozIndexDebugFile.txt");
+            debugOutFile = new File(debugDir.getAbsolutePath() + "/jozIndex.txt");
             if (debugOutFile.exists()) {
                 //Delete the file if it already exists
                 debugOutFile.delete();
@@ -108,34 +111,40 @@ public class JozIndexUpdater {
             String mode = "";
             switch(operation) {
                 case kAdd:
-                    mode = "Add";
+                    mode = "ADD";
                     break;
                 case kAddModified:
-                    mode = "Add Mod";
+                    mode = "ADD-MOD";
                     break;
                 case kDelete:
-                    mode = "Delete";
+                    mode = "DELETE";
                     break;
                 case kDelModified:
-                    mode = "Del Mod";
+                    mode = "DELETE-MOD";
                     break;
                 case kNoChange:
-                    mode = "No Change";
+                    mode = "NO-CHANGE";
                     break;
             }
+            StringBuffer line = new StringBuffer();
+            String preFix = indexType + _delim + indexVal + _delim + mode + _delim;
 
-            fw.write(indexType + ": \n");
-            fw.write(indexVal + " " + mode + " : \n");
             int count = 0;
+            boolean bNewLine = true;
             for (Handle p:pids) {
-                fw.write(p.getOid() + ",");
+                if (bNewLine) {
+                   line.append(preFix);
+                    bNewLine = false;
+                }
+                line.append(p.getOid() + ",");
                 count++;
                 if (count>24){
                     count =0;
-                    fw.write("\n");
+                    bNewLine = true;
                 }
             }
-            fw.write("\n");
+            line.append("\n");
+            fw.write(line.toString());
 
         } catch (IOException e) {
             log.error("Could not write to debug file", e);

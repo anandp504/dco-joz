@@ -9,8 +9,11 @@ import org.apache.log4j.Logger;
 import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.campaign.CMAContentRefreshMonitor;
 import com.tumri.joz.products.ContentHelper;
+import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
+import com.tumri.lls.client.ListingLookupDataProviderImpl;
+import com.tumri.lls.client.main.LlcListingProviderImpl;
 
 public class JozData {
     
@@ -19,6 +22,10 @@ public class JozData {
         AppProperties props = AppProperties.getInstance();
         loadContent(props.getProperties());
         loadCampaignData();
+        //This call will instantiate the listings provider class
+        ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+                        MerchantDB.getInstance().getMerchantData());
+
     }
     
     /*

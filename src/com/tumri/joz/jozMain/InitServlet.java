@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import com.tumri.joz.campaign.CMAContentPoller;
+import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.utils.Polling;
 
 public class InitServlet extends HttpServlet {
@@ -53,6 +54,8 @@ public class InitServlet extends HttpServlet {
     public void destroy() {
         Polling.getInstance().shutdown();  
         CMAContentPoller.getInstance().shutdown();
+        ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+                MerchantDB.getInstance().getMerchantData()).shutdown();
     }
     
     private static String getLog4JConfigFilePath() {

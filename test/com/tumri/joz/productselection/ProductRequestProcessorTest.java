@@ -39,171 +39,10 @@ public class ProductRequestProcessorTest {
         }
     }
 
-	@Test
-	public void testDefaultRealmTSpec() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.letsgodigital.org/en/2007/epson/review1.html/\" :num-products 12)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-	
-	
-	@Test
-	public void testTSpecAdPod() {
-		try {
-			//String queryStr = "(get-ad-data :t-spec 'media-leadgen-offers :num-products 12 :ad-offer-type :product-leadgen)";
-            String queryStr = "(get-ad-data  :t-spec '|TSPEC-geckoseiya-1192593613232|  :ad-offer-type :product-leadgen " +
-                    " :revert-to-default-realm nil :ad-width nil  :ad-height nil  " +
-                    ":output-format :js-friendly)";
-            ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-	@Test
-	public void testDefaultRealm() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://default-realm/\")";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testVanillaGetAdData() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\")";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testNumProducts() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :num-products 30)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testBug1430() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.testbug1430.com/\" :ad-offer-type :product-leadgen :which-row 1 :row-size 12)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testAllowTooFewProducts() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :leadgen-only :allow-too-few-products t)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testNilRevertToDefaultRealm() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testLeadgenOnly() {
-		try {
-			String queryStr = "(get-ad-data :t-spec '|test-lenovo| :ad-offer-type :leadgen-only :num-products 50 :revert-to-default-realm t)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testProductOnly() {
-		try {
-			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm t)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-
-	@Test
-	public void testHybrid() {
-		try {
-			String queryStr =  "(get-ad-data :t-spec '|lenovo-t1| :ad-offer-type :product-leadgen :which-row 1 :row-size 12)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-    	@Test
-	public void testIncludedProducts() {
-		try {
-			String queryStr =  "(get-ad-data :t-spec '|lenovo-t1| :ad-offer-type :product-leadgen)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-
 //	@Test
-//	public void testKeywordSearch() {
+//	public void testDefaultRealmTSpec() {
 //		try {
-//			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"\"Firefox Mozilla Netscape browser Internet Thunderbird CSS HTML wysiwyg editor Linux Mac Rich Text Editor http://forums.delphiforums.com/n/nav/start.asp?webtag=gofirefox\" :revert-to-default-realm t)";
+//			String queryStr = "(get-ad-data :url \"http://www.letsgodigital.org/en/2007/epson/review1.html/\" :num-products 12)";
 //			ArrayList<Handle> result = testProcessRequest(queryStr);
 //			assertNotNull(result);
 //		} catch(Exception e){
@@ -212,52 +51,228 @@ public class ProductRequestProcessorTest {
 //			assert(false);
 //		}
 //	}
-
-	@Test
-	public void testScriptKeywordSearch() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"nikon\" :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testIncludedCategories() {
-		try {
-			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
-			ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-
-	@Test
-	public void testTestBug1451() {
-		try {
-			//String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
-            String queryStr = "(get-ad-data :url \"http://www.letsgodigital.org/en/2007/epson/review1.html\" :t-spec |'letsgodigital-keyword-targeting| :num-products 12 :revert-to-default-realm nil :ad-width 300 :ad-height 250 :ad-offer-type :product-leadgen :min-num-leadgens 1 :output-format :js-friendly :max-prod-desc-len 32)";
-            ArrayList<Handle> result = testProcessRequest(queryStr);
-			assertNotNull(result);
-		} catch(Exception e){
-			System.out.println("Exception caught during test run");
-			e.printStackTrace();
-			assert(false);
-		}
-	}
-    
-    
-    public void testTestBug1451Url() {
+//
+//
+//	@Test
+//	public void testTSpecAdPod() {
+//		try {
+//			//String queryStr = "(get-ad-data :t-spec 'media-leadgen-offers :num-products 12 :ad-offer-type :product-leadgen)";
+//            String queryStr = "(get-ad-data  :t-spec '|TSPEC-geckoseiya-1192593613232|  :ad-offer-type :product-leadgen " +
+//                    " :revert-to-default-realm nil :ad-width nil  :ad-height nil  " +
+//                    ":output-format :js-friendly)";
+//            ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//	@Test
+//	public void testDefaultRealm() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://default-realm/\")";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testVanillaGetAdData() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://www.photography.com/\")";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testNumProducts() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :num-products 30)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testBug1430() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://www.testbug1430.com/\" :ad-offer-type :product-leadgen :which-row 1 :row-size 12)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testAllowTooFewProducts() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :leadgen-only :allow-too-few-products t)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testNilRevertToDefaultRealm() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :revert-to-default-realm nil)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testLeadgenOnly() {
+//		try {
+//			String queryStr = "(get-ad-data :t-spec '|test-lenovo| :ad-offer-type :leadgen-only :num-products 50 :revert-to-default-realm t)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testProductOnly() {
+//		try {
+//			String queryStr =  "(get-ad-data :url \"http://www.photography.com/\" :ad-offer-type :product-only :revert-to-default-realm t)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//
+//	@Test
+//	public void testHybrid() {
+//		try {
+//			String queryStr =  "(get-ad-data :t-spec '|lenovo-t1| :ad-offer-type :product-leadgen :which-row 1 :row-size 12)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//    	@Test
+//	public void testIncludedProducts() {
+//		try {
+//			String queryStr =  "(get-ad-data :t-spec '|lenovo-t1| :ad-offer-type :product-leadgen)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//
+////	@Test
+////	public void testKeywordSearch() {
+////		try {
+////			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"\"Firefox Mozilla Netscape browser Internet Thunderbird CSS HTML wysiwyg editor Linux Mac Rich Text Editor http://forums.delphiforums.com/n/nav/start.asp?webtag=gofirefox\" :revert-to-default-realm t)";
+////			ArrayList<Handle> result = testProcessRequest(queryStr);
+////			assertNotNull(result);
+////		} catch(Exception e){
+////			System.out.println("Exception caught during test run");
+////			e.printStackTrace();
+////			assert(false);
+////		}
+////	}
+//
+//	@Test
+//	public void testScriptKeywordSearch() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :script-keywords \"nikon\" :revert-to-default-realm nil)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testIncludedCategories() {
+//		try {
+//			String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
+//			ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//	@Test
+//	public void testTestBug1451() {
+//		try {
+//			//String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
+//            String queryStr = "(get-ad-data :url \"http://www.letsgodigital.org/en/2007/epson/review1.html\" :t-spec |'letsgodigital-keyword-targeting| :num-products 12 :revert-to-default-realm nil :ad-width 300 :ad-height 250 :ad-offer-type :product-leadgen :min-num-leadgens 1 :output-format :js-friendly :max-prod-desc-len 32)";
+//            ArrayList<Handle> result = testProcessRequest(queryStr);
+//			assertNotNull(result);
+//		} catch(Exception e){
+//			System.out.println("Exception caught during test run");
+//			e.printStackTrace();
+//			assert(false);
+//		}
+//	}
+//
+//
+//    public void testTestBug1451Url() {
+//        try {
+//            //String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
+//            String queryStr = "(get-ad-data :url http://www.letsgodigital.org/en/2007/epson/review1.html :theme null :store-id null :category null :referrer null :zip-code null :num-products 12 :row-size null :which-row null :revert-to-default-realm false :keywords null :script-keywords null :include-cat-counts false :seed null :psychographics-p null :mine-pub-url-p null :allow-too-few-products null :ad-width 300 :ad-height 250 :ad-offer-type PRODUCT_LEADGEN :min-num-leadgens 1 :output-format JS_FRIENDLY :output-order null :output-order-noise-stddev 0.1 :max-prod-desc-len 32 :country-name null :region null :city null :dma null :area-code null)";
+//            ArrayList<Handle> result = testProcessRequest(queryStr);
+//            assertNotNull(result);
+//        } catch(Exception e){
+//            System.out.println("Exception caught during test run");
+//            e.printStackTrace();
+//            assert(false);
+//        }
+//    }
+    @Test
+    public void testCatAttrQuery1() {
         try {
-            //String queryStr = "(get-ad-data :url \"http://www.photography.com/\" :category \"GLASSVIEW.TUMRI_14172\" :revert-to-default-realm nil)";
-            String queryStr = "(get-ad-data :url http://www.letsgodigital.org/en/2007/epson/review1.html :theme null :store-id null :category null :referrer null :zip-code null :num-products 12 :row-size null :which-row null :revert-to-default-realm false :keywords null :script-keywords null :include-cat-counts false :seed null :psychographics-p null :mine-pub-url-p null :allow-too-few-products null :ad-width 300 :ad-height 250 :ad-offer-type PRODUCT_LEADGEN :min-num-leadgens 1 :output-format JS_FRIENDLY :output-order null :output-order-noise-stddev 0.1 :max-prod-desc-len 32 :country-name null :region null :city null :dma null :area-code null)";
+            //String queryStr = "(get-ad-data :t-spec |TestCatAttrText| :revert-to-default-realm nil)";
+            //String queryStr = "(get-ad-data :t-spec |TestCatAttrNumeric| :revert-to-default-realm nil)";
+            String queryStr = "(get-ad-data :t-spec |TestGeoCountry| :revert-to-default-realm nil)";
+            //String queryStr = "(get-ad-data :t-spec |TSPEC-geckoseiya-1192593613232| :revert-to-default-realm nil)";
             ArrayList<Handle> result = testProcessRequest(queryStr);
             assertNotNull(result);
         } catch(Exception e){

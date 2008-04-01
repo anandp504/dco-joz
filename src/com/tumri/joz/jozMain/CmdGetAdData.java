@@ -4,30 +4,23 @@
 package com.tumri.joz.jozMain;
 
 import com.tumri.cma.domain.OSpec;
-import com.tumri.content.data.Category;
-import com.tumri.content.data.MerchantData;
-import com.tumri.content.data.Product;
 import com.tumri.joz.monitor.PerformanceMonitor;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.JOZTaxonomy;
-import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.productselection.ProductRequestProcessor;
 import com.tumri.joz.productselection.ProductSelectionResults;
+import com.tumri.lls.client.main.ListingProvider;
+import com.tumri.lls.client.response.ListingResponse;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpIFASLWriter;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpString;
-import com.tumri.utils.strings.EString;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 public class CmdGetAdData extends CommandOwnWriting {
 
@@ -153,29 +146,25 @@ public class CmdGetAdData extends CommandOwnWriting {
 
         // This is a big part of the result, write directly.
         w.startList(2);
+        long[] pids = new long[product_handles.size()];
+
+        for (int i=0;i<product_handles.size();i++){
+            pids[i] = product_handles.get(i).getOid();
+        }
+
+        ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+                        MerchantDB.getInstance().getMerchantData());
+        ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0);
         w.writeString8("PRODUCTS");
-        write_products(w, product_handles,
-                (maxDescLength != null) ? maxDescLength.intValue() : 0);
-        w.endList();
-
-        // PERF: pdb.get (id) called twice
-
-        String product_ids = products_to_id_list(product_handles);
-        write_elm(w, "PROD-IDS", product_ids);
-
-        List<Category> cat_list = products_to_cat_list(product_handles);
-        String categories = cat_list_to_result_categories(cat_list);
-        write_elm(w, "CATEGORIES", categories);
-        String cat_names = cat_list_to_result_cat_names(cat_list);
-        write_elm(w, "CAT-NAMES", cat_names);
+        w.writeString(response.getListingDetails());
+        write_elm(w, "PROD-IDS", response.getProductIdList());
+        write_elm(w, "CATEGORIES", response.getCatDetails());
+        write_elm(w, "CAT-NAMES", response.getCatIdList());
 
         String targetedOSpecName = "";
-        String targetedRealm = "";
         if (ospec != null) {
             targetedOSpecName = ospec.getName();
         }
-		//@todo: The targeting and product requestProcessor should add the data to response object. So that piece of code
-        //needs to be refactored across the request processors
         write_elm(w, "REALM", rqst.getTargetedRealm()); // FIXME: wip
         write_elm(w, "STRATEGY", targetedOSpecName); // FIXME: wip
 
@@ -187,171 +176,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         w.endList();
 
         w.endDocument();
-    }
 
-    // Write the list of selected products to {out}.
-    // This is the biggest part of the result of get-ad-data, so we write
-    // each product out individually instead of building an object describing
-    // all of them and then write that out.
-    // Things are complicated because the value that is written is a single
-    // string containing all the products.
-
-    private void write_products(SexpIFASLWriter w,
-            ArrayList<Handle> product_handles, int maxDescLength)
-            throws IOException {
-        Iterator<Handle> iter = product_handles.iterator();
-        StringBuilder b = new StringBuilder();
-
-        // Ahh!!! The IFASL format requires a leading length of the
-        // string. That means we pretty much have to build the entire string
-        // of all products' data before we can send it.
-
-        b.append("[");
-
-        boolean done1 = false;
-        while (iter.hasNext()) {
-            if (done1)
-                b.append(",");
-            Handle h = iter.next();
-            b.append(toAdDataResultString(h, maxDescLength));
-            done1 = true;
-        }
-
-        b.append("]");
-
-        String s = b.toString();
-
-        // Don't construct huge string unnecessarily.
-        if (log.isDebugEnabled())
-            log.debug("Product string: " + s);
-
-        w.writeString(s);
-    }
-
-    // Subroutine of {write_products} to simplify it.
-    // Return a string suitable for passing back to the client.
-    // See soz-product-selector.lisp:morph-product-list-into-sexpr-js-friendly.
-    //
-    // NOTE: If there is any RFC1630-like encoding that is needed, do it here.
-    // Not everything needs to be encoded, and some things may need to be
-    // encoded differently.
-
-    public String toAdDataResultString(Handle h, int maxProdDescLength) {
-        ProductDB pdb = ProductDB.getInstance();
-        Product p = pdb.get(h);
-
-        StringBuilder b = new StringBuilder();
-
-        b.append("{");
-        b.append("id:\"");
-        b.append(encode(p.getIdSymbol()));
-        b.append("\",display_category_name:\"");
-        Category cat = null;
-        try {
-        	cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(p.getCategory());
-        } catch (NullPointerException npe) {
-        	log.warn("The category specified for product is valid for the current taxonomy :" + p.getCategoryStr());
-        }
-        // Use the first parent as the category.
-        if (cat != null) {
-        	b.append(encode(cat.getName()));
-        }
-        b.append("\",name:\"");
-        String name = p.getProductName();
-        b.append(encode(name));
-        b.append("\",price:\"");
-        b.append(encode_price(p.getPrice()));
-        b.append("\",discount_price:\"");
-        b.append(encode_price(p.getDiscountPrice()));
-        b.append("\",brand:\"");
-        b.append(encode(p.getBrandStr()));
-        b.append("\",merchant_id:\"");
-        b.append(encode(p.getSupplierStr()));
-        b.append("\",provider:\"");
-        b.append(encode(p.getProviderStr()));
-        MerchantData md = MerchantDB.getInstance().getMerchantData()
-                .getMerchant(p.getSupplierStr());
-        b.append("\",merchantlogo:\"");
-        if (md != null) {
-            b.append(encode(md.getLogoUrl()));
-        }
-        b.append("\",ship_promo:\"");
-        if (md != null) {
-            b.append(encode(md.getShippingPromotionText()));
-        }
-        b.append("\",description:\"");
-        String desc = p.getDescription();
-        if (maxProdDescLength > 0) {
-            if (desc.length() < maxProdDescLength) {
-                maxProdDescLength = desc.length();
-            }
-            desc = desc.substring(0, maxProdDescLength);
-        }
-        b.append(encode(desc));
-        b.append("\",thumbnailraw:\"");
-        b.append(encode(p.getThumbnail()));
-        b.append("\",product_url:\"");
-        b.append(encode(p.getPurchaseUrl()));
-        b.append("\",picture_url:\"");
-        b.append(encode(p.getImageUrl()));
-        b.append("\",c_code:\"");
-        b.append(encode(p.getCurrencyStr()));
-        b.append("\",offer_type:\"");
-        b.append(encode(p.getProductTypeStr()).toUpperCase());
-        b.append("\"");
-
-        b.append("}");
-
-        return b.toString();
-    }
-
-    private String encode(EString es) {
-        // FIXME: wip
-        if (es == null)
-            return "";
-        return es.toString();
-    }
-
-    /**
-     * Escape characters for text appearing in Javascript.
-     *
-     */
-    private String encode(String aText) {
-        if (aText == null)
-            return "";
-        final StringBuilder result = new StringBuilder();
-        final StringCharacterIterator iterator = new StringCharacterIterator(aText);
-        char character =  iterator.current();
-        while (character != CharacterIterator.DONE ){
-            if (character == '"') {
-                result.append("\\\"");
-            }
-            else if (character == '\'') {
-                result.append("\\\'");
-            }
-            else {
-                //the char is not a special one
-                //add it to the result as is
-                result.append(character);
-            }
-            character = iterator.next();
-        }
-        return result.toString();
-    }
-
-
-    private String encode_price(Float f) {
-        // FIXME: wip
-        if (f == null)
-            return "";
-        return String.format("%.2f", f);
-    }
-
-    private String encode_price(Double d) {
-        // FIXME: wip
-        if (d == null)
-            return "";
-        return String.format("%.2f", d);
     }
 
     // Write an element of the result.
@@ -381,83 +206,4 @@ public class CmdGetAdData extends CommandOwnWriting {
         w.endList();
     }
 
-    private static String products_to_id_list(ArrayList<Handle> product_handles) {
-        ProductDB pdb = ProductDB.getInstance();
-        StringBuilder b = new StringBuilder();
-        boolean done_one = false;
-
-        for (Handle h : product_handles) {
-            if (done_one)
-                b.append(",");
-            Product p = pdb.get(h);
-            b.append(p.getIdSymbol());
-            done_one = true;
-        }
-
-        return b.toString();
-    }
-
-    /**
-     * Returns the list of categories in an arrayList in the same order of the products
-     * @param product_handles
-     * @return
-     */
-    private static List<Category> products_to_cat_list(
-            ArrayList<Handle> product_handles) {
-        ProductDB pdb = ProductDB.getInstance();
-        ArrayList<Category> categories = new ArrayList<Category>();
-        HashMap<String,String> catNames = new  HashMap<String,String>();
-        for (Handle h : product_handles) {
-            Product p = pdb.get(h);
-            // FIXME: Don't think this records _all_ parents.
-            Category cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(
-                    p.getCategory());
-            if (cat != null) {
-                if (catNames.get(cat.getGlassIdStr())==null) {
-                    catNames.put(cat.getGlassIdStr(),cat.getGlassIdStr());
-                    categories.add(cat);
-                }
-            }
-        }
-
-        return categories;
-    }
-
-    private String cat_list_to_result_categories(List<Category> cats) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("[");
-        boolean done_one = false;
-
-        for (Category c : cats) {
-            if (done_one)
-                sb.append(",");
-            sb.append("{categoryName:\"");
-            sb.append(c.getGlassIdStr());
-            sb.append("\",categoryDisplayName:\"");
-            sb.append(encode(c.getName()));
-            sb.append("\"}");
-            done_one = true;
-        }
-
-        sb.append("]");
-
-        return sb.toString();
-    }
-
-    private String cat_list_to_result_cat_names(List<Category> cats) {
-        StringBuilder sb = new StringBuilder();
-
-        boolean done_one = false;
-
-        for (Category c : cats) {
-            if (done_one)
-                sb.append("||");
-            // FIXME: See soz-taxonomy.lisp:print-name, what's this about?
-            sb.append(encode(c.getName()));
-            done_one = true;
-        }
-
-        return sb.toString();
-    }
 }

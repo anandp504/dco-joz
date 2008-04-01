@@ -29,29 +29,17 @@ public class TestProductData {
         //SUMMARY : 4. Updated the category and CPC for product 10000002
         //SUMMARY : 5. Updated the CPO for product 10000003
 
-        //newProducts.add("US1000000,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,BRAND,APPLEUS,APPLEUS,P1 NAME, P1 DESC,0,tnurl1,purl1,iurl1,400,100,0,USD,USD,1,Product,0,US1000000");
-        newProducts.add("US1000001,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P2 NAME, P2 DESC,0,tnurl2,purl2,iurl2,400,100,0,USD,USD,1,Product,0,US1000001");
-        newProducts.add("US1000002,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl3,purl3,iurl2,400,100,0,USD,USD,1,Product,0,US1000002");
-        newProducts.add("US1000003,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl4,purl4,iurl2,400,100,0,USD,USD,1,Product,0,US1000003");
-        newProducts.add("US1000004,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl5,purl5,iurl2,400,100,0,USD,USD,1,Product,0,US1000004");
-
         oldProducts.add("US1000000,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P1 NAME, P1 DESC,0,tnurl1,purl1,iurl1,400,100,0,USD,USD,1,Product,0,US1000000");
         oldProducts.add("US1000001,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P2 NAME, P2 DESC,0,tnurl2,purl2,iurl2,400,100,0,USD,USD,1,Product,0,US1000001");
         oldProducts.add("US1000002,Catalog,ID,GLASSVIEW.TUMRI_14166,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl3,purl3,iurl2,400,100,5,USD,USD,1,Product,0,US1000002");
         oldProducts.add("US1000003,Catalog,ID,GLASSVIEW.TUMRI_14166,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl4,purl4,iurl2,400,100,0,USD,USD,1,Product,20,US1000003");
         //oldProducts.add("US1000004,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl5,purl5,iurl2,400,100,0,USD,USD,1,Product,0,US1000004");
-
-//        oldProducts.add("US1000001,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,Brand1,APPLEUS,APPLEUS,P2 NAME, P2 DESC,0,tnurl2,purl2,iurl2,400,100,0,USD,USD,1,Product,0,US1000001");
-//        oldProducts.add("US1000002,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl3,purl3,iurl2,400,100,0,USD,USD,1,Product,0,US1000002");
-//        oldProducts.add("US1000003,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl4,purl4,iurl2,400,100,0,USD,USD,1,Product,0,US1000003");
-//        oldProducts.add("US1000004,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl5,purl5,iurl2,400,100,0,USD,USD,1,Product,0,US1000004");
-//
-//        //oldProducts.add("US1000000,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,Brand1,APPLEUS,APPLEUS,P1 NAME, P1 DESC,0,tnurl1,purl1,iurl1,400,100,0,USD,USD,1,Product,0,US1000000");
-//        //oldProducts.add("US1000001,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,Brand1,APPLEUS,APPLEUS,P2 NAME, P2 DESC,0,tnurl2,purl2,iurl2,400,100,0,USD,USD,1,Product,0,US1000001");
-//        newProducts.add("US1000002,Catalog,ID,GLASSVIEW.TUMRI_14162,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl3,purl3,iurl2,400,100,5,USD,USD,1,Product,0,US1000002");
-//        //oldProducts.add("US1000003,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl4,purl4,iurl2,400,100,0,USD,USD,1,Product,20,US1000003");
-//        //oldProducts.add("US1000004,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl5,purl5,iurl2,400,100,0,USD,USD,1,Product,0,US1000004");
-
+        
+        //newProducts.add("US1000000,Catalog,ID,GLASSVIEW.TUMRI_14164,100,0,BRAND,APPLEUS,APPLEUS,P1 NAME, P1 DESC,0,tnurl1,purl1,iurl1,400,100,0,USD,USD,1,Product,0,US1000000");
+        newProducts.add("US1000001,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P2 NAME, P2 DESC,0,tnurl2,purl2,iurl2,400,100,0,USD,USD,1,Product,0,US1000001");
+        newProducts.add("US1000002,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl3,purl3,iurl2,400,100,0,USD,USD,1,Product,0,US1000002");
+        newProducts.add("US1000003,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl4,purl4,iurl2,400,100,0,USD,USD,1,Product,0,US1000003");
+        newProducts.add("US1000004,Catalog,ID,GLASSVIEW.TUMRI_14165,100,0,Brand1,APPLEUS,APPLEUS,P3 NAME, P4 DESC,0,tnurl5,purl5,iurl2,400,100,0,USD,USD,1,Product,0,US1000004");
 
         taxonomy.add("TUMRI_14165,Game Software,TUMRI_14164,Software");
         taxonomy.add("TUMRI_14166,Office Applications,TUMRI_14164,Software");

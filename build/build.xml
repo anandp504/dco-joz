@@ -43,6 +43,9 @@
  	<fileset dir="${caa.lib.dir}">
              <include name="*.jar"/>
    	</fileset>	
+    <fileset dir="${llc.lib.dir}">
+             <include name="llc.jar"/>
+    </fileset>
 	<fileset dir="${dist.dir}">
 	    <include name="*.jar"/>
 	</fileset>

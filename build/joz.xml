@@ -19,6 +19,7 @@
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-core-2.1.0.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-memory-2.1.0.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${caa.lib.dir}/caa.jar"/>
+		<copy todir="${stage.dir}/IndexCreator" file="${llc.lib.dir}/llc.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/cma.jar"/>
 	    <copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/jyaml-1.2.jar"/>
 	    <copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/ibatis-2.3.0.677.jar"/>
@@ -138,6 +139,7 @@
       		<lib dir="${cma.lib.dir}" includes="jyaml-1.2.jar"/>
       		<lib dir="${cma.lib.dir}" includes="ibatis-2.3.0.677.jar"/>
       		<lib dir="${caa.lib.dir}" includes="caa.jar"/>
+      		<lib dir="${llc.lib.dir}" includes="llc.jar"/>
 			<!-- JMN - Include both *_version.properties and label file. -->
 			<classes dir="${dist.dir}" includes="${version_properties_file_dest}" />
 			<fileset dir="${dist.dir}" includes="${label_file}" />
