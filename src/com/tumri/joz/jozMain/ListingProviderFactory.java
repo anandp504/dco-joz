@@ -56,6 +56,20 @@ public class ListingProviderFactory {
         return listingProvider;
     }
 
+    /**
+     * Handle the content refresh
+     * @param tax
+     * @param m
+     */
+    public static void refreshData(Taxonomy tax, MerchantDataProvider m){
+        if (!initialized) {
+            throw new RuntimeException("Cannot refresh Listing Provider without initializing");
+        }
+        synchronized(ListingProviderFactory.class) {
+            listingProvider.doContentRefresh(tax, m);
+        }
+    }
+
     private static void instantiateFactory() throws RuntimeException {
         String factoryClassName = AppProperties.getInstance().getProperty(PROVIDER_CLASS_NAME);
 

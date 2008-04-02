@@ -76,9 +76,9 @@ public class ProviderIndexCreator {
                 indexMap.put(indexName, new ProviderIndexBuilder(indexName));
             }
         } catch (IOException e) {
-            log.error("Exception caught during the init of the ProviderIndexCreator", e);
+            log.error("Exception caught during the setTaxonomyAndMerchantData of the ProviderIndexCreator", e);
         } catch (Exception e) {
-            log.error("Exception caught during the init of the ProviderIndexCreator", e);
+            log.error("Exception caught during the setTaxonomyAndMerchantData of the ProviderIndexCreator", e);
         } finally {
             try {
                 is.close();

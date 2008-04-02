@@ -5,15 +5,9 @@ import com.tumri.content.MerchantDataProvider;
 import com.tumri.content.ContentProviderFactory;
 import com.tumri.content.InvalidConfigException;
 import com.tumri.content.impl.file.FileContentConfigValues;
-import com.tumri.lls.client.main.LlcListingProviderImpl;
 import com.tumri.lls.client.main.ListingProvider;
 import com.tumri.lls.client.response.ListingResponse;
-import com.tumri.joz.jozMain.JozData;
 import com.tumri.joz.jozMain.ListingProviderFactory;
-import com.tumri.joz.jozMain.MerchantDB;
-import com.tumri.joz.utils.AppProperties;
-import com.tumri.joz.products.JOZTaxonomy;
-import com.tumri.joz.products.ContentHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.AfterClass;
@@ -43,10 +37,10 @@ public class TestJozLlcListingProviderImpl {
             initContent(new File(dataDir));
         } catch(IOException e){
             System.out.println("INIT FAILED  : Could not load the merchant and taxonomy information");
-            throw new RuntimeException("Test init failed");
+            throw new RuntimeException("Test setTaxonomyAndMerchantData failed");
         }
         initLlc();
-        System.out.println("Done init..");
+        System.out.println("Done setTaxonomyAndMerchantData..");
     }
 
     @Test

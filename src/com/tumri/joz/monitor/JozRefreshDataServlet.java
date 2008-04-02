@@ -9,6 +9,9 @@ import com.tumri.joz.campaign.CMAContentProviderStatus;
 import com.tumri.joz.campaign.CMAContentRefreshMonitor;
 import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.jozMain.ListingProviderFactory;
+import com.tumri.joz.jozMain.MerchantDB;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -76,6 +79,9 @@ public class JozRefreshDataServlet extends HttpServlet {
         ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
         ContentProvider cp = f.getContentProvider();
         cp.refresh();
+        //Invoke the content refresh on Listings Data client
+        ListingProviderFactory.refreshData(JOZTaxonomy.getInstance().getTaxonomy(),
+                        MerchantDB.getInstance().getMerchantData());
         ContentProviderStatus status = cp.getStatus();
         String success = (status.lastRunStatus == true ? "success" : "failed");
         return success;
