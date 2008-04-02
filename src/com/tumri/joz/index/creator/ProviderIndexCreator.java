@@ -18,7 +18,7 @@ public class ProviderIndexCreator {
 
     private Properties mupConfig = null;
     private int maxPidEntriesPerChunk = 10000;
-    private String mupConfigFileName = "mupFileConfig.properties";
+    private String mupConfigFileName = "jozindex.properties";
     private File newFile = null;
     private File oldFile = null;
     private HashMap<String, ProviderIndexBuilder> indexMap = new HashMap<String, ProviderIndexBuilder>();

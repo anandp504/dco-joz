@@ -42,14 +42,12 @@ public class ProductIndex {
     static Logger log = Logger.getLogger(ProductIndex.class);
     private static final String LUCENEDIR = "com.tumri.content.luceneDir";
     private static final String LUCENETMPDIR = "com.tumri.content.luceneTmpDir";
-    private static final String JOZINDEXDIR = "com.tumri.content.jozindexDir";
 
     private static AtomicReference<ProductIndex> g_Instance = new AtomicReference<ProductIndex>();
     private static String tmpDir = System.getProperty("java.io.tmpdir") + File.separator + "lucene";
 
     private boolean debug = false;
     private String indexDir = "lucene";
-    private String jozIndexDir = "jozIndex";
     private String currentDocDir = ".";
     private String prevDocDir = null;
     protected static final String MUP_FILE_FORMAT = ".*_provider-content_.*.utf8";
@@ -67,7 +65,6 @@ public class ProductIndex {
 
     private String deboostCategoryFile = null;
     private File m_index_dir;
-    private File m_jozIndex_dir;
 
     private AtomicReference<IndexSearcherCache> m_searcherCache = new AtomicReference<IndexSearcherCache>();
 
@@ -369,7 +366,8 @@ public class ProductIndex {
      * Index all text files under a directory.
      */
     public void index(String[] args) {
-        String usage = "java -jar joz.jar [-h] [-debug] [-dumpTokens] [-deboostCategoryFile XXX] [-currentDocDir XXX] [-previousDocDir XXX] [-indexDir XXX] [-jozIndexDir XXX] [-maxLinesPerChunk XX] [-mergeFactor nnn] [-boostField name value]";
+        String usage = "java -jar joz.jar [-h] [-debug] [-dumpTokens] [-deboostCategoryFile XXX] [-docDir XXX] [-previousDocDir XXX] [-indexDir XXX] [-jozindexDir XXX] [-maxLinesPerChunk XX] [-mergeFactor nnn] [-boostField name value]";
+        String jozIndexDir = null;
 
         File f = new File(getTmpDir());
         f.mkdir();
@@ -395,13 +393,13 @@ public class ProductIndex {
                 dumpTokens = true;
             } else if (arg.equals("-deboostCategoryFile")) {
                 deboostCategoryFile = args[++i];
-            } else if (arg.equals("-currentDocDir")) {
+            } else if (arg.equals("-docDir")) {
                 currentDocDir = args[++i];
             } else if (arg.equals("-previousDocDir")) {
                 prevDocDir = args[++i];
             } else if (arg.equals("-indexDir")) {
                 indexDir = args[++i];
-            } else if (arg.equals("-jozIndexDir")) {
+            } else if (arg.equals("-jozindexDir")) {
                 jozIndexDir = args[++i];
             } else if (arg.equals("-mergeFactor")) {
                 mergeFactor = Integer.parseInt(args[++i]);
@@ -446,32 +444,41 @@ public class ProductIndex {
             log.fatal("Document directory '" + currdocDirF.getAbsolutePath() + " does not exist or is not readable, please check the path");
             System.exit(1);
         }
-        File jozindexDirF = new File(jozIndexDir);
-        if (!jozindexDirF.exists())
-        {
-            log.info("Creating dir '" +jozindexDirF+ "'");
-            jozindexDirF.mkdirs();
-        } else {
-            log.fatal("Joz Index directory '" +jozindexDirF.getAbsolutePath()+ "' exists already - please delete it or provide a new dir");
-            System.exit(1);
-        }
-
+        boolean bBuildJozIndex = false;
+        File jozindexDirF = null;
         File oldDataDocDirF = null;
-        if (prevDocDir!=null) {
-            oldDataDocDirF = new File(prevDocDir);
-            if (!oldDataDocDirF.exists() || !oldDataDocDirF.canRead())
+
+        if (jozIndexDir!=null) {
+            //Building the Joz Indexes
+            bBuildJozIndex = true;
+            jozindexDirF = new File(jozIndexDir);
+            if (!jozindexDirF.exists())
             {
-                log.info("Previous Document directory '" +prevDocDir+ "' does not exist, indexing will not use previous content data");
-                oldDataDocDirF = null;
+                log.info("Creating dir '" +jozindexDirF+ "'");
+                jozindexDirF.mkdirs();
+            } else {
+                //Clear the directory
+                FSUtils.removeFiles(jozindexDirF, true);
+            }
+            if (prevDocDir!=null) {
+                oldDataDocDirF = new File(prevDocDir);
+                if (!oldDataDocDirF.exists() || !oldDataDocDirF.canRead())
+                {
+                    log.info("Previous Document directory '" +prevDocDir+ "' does not exist, indexing will not use previous content data");
+                    oldDataDocDirF = null;
+                }
             }
         }
+
 
         try {
             Date start = new Date();
             log.info("Creating lucene indexes");
             createLuceneIndexes(currdocDirF, oldDataDocDirF, luceneIdxDirF , dumpTokens);
-            log.info("Creating joz indexes");
-            createJozIndexes(currentDocDir, prevDocDir, jozIndexDir, maxLinesPerChunk);
+            if (bBuildJozIndex) {
+                log.info("Creating joz indexes");
+                createJozIndexes(currentDocDir, prevDocDir, jozIndexDir, maxLinesPerChunk);
+            }
             log.info("Completed in : " + ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes");
         }
         catch (IOException e) {
@@ -541,7 +548,7 @@ public class ProductIndex {
             String providerName = getProviderFromFileName(f.getName());
             if (prevDoc!=null) {
                 File oldFile = findOldMupFile(f, oldMupFiles);
-                if (oldFile.getName().equals(f.getName())) {
+                if (oldFile!=null && oldFile.getName().equals(f.getName())) {
                     File prevLuceneDir = new File(prevDoc.getAbsolutePath() + "/provLucene/");
                     File provLuceneIndex = null;
                     if (prevLuceneDir.exists()) {
@@ -760,7 +767,12 @@ public class ProductIndex {
      * Recursively delete all the files in the lucene tmp directory
      */
     static {
-        String str = AppProperties.getInstance().getProperty(LUCENETMPDIR);
+        String str = null;
+        try {
+            str = AppProperties.getInstance().getProperty(LUCENETMPDIR);
+        } catch (Exception e) {
+            //Ignore
+        }
         if (str != null && "".equals(str.trim())) {
             tmpDir = str;
         }
