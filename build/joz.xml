@@ -32,10 +32,16 @@
 		<touch file="${stage.dir}/IndexCreator/createIndex.sh"/>
 
 		<echo file="${stage.dir}/IndexCreator/createIndex.sh">#!/bin/sh</echo>
-		<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx1g -classpath joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:caa.jar:jyaml-1.2.jar:ibatis-2.3.0.677.jar:cma.jar:utils.jar:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
+		<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx1g -classpath .:joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:caa.jar:jyaml-1.2.jar:ibatis-2.3.0.677.jar:cma.jar:utils.jar:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
 		<chmod file="${stage.dir}/IndexCreator/createIndex.sh" perm="a+x"></chmod>
 
-		<delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
+        <touch file="${stage.dir}/IndexCreator/log4j.properties"/>
+        <echo file="${stage.dir}/IndexCreator/log4j.properties">log4j.rootLogger=INFO,A1
+log4j.appender.A1=org.apache.log4j.ConsoleAppender
+log4j.appender.A1.layout=org.apache.log4j.PatternLayout
+log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
+
+        <delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
 
 		<tar destfile="${stage.dir}/IndexCreator/IndexCreator.tar">
 		    <tarfileset dir="${stage.dir}/IndexCreator">
@@ -43,7 +49,8 @@
 		    </tarfileset>
 		    <tarfileset dir="${stage.dir}/IndexCreator" mode="755">
 			<include name="*.sh"/>
-		    </tarfileset>
+            <include name="*.properties"/>
+            </tarfileset>
 		</tar>
 
 		<gzip zipfile="${stage.dir}/IndexCreator/IndexCreator.tgz" src="${stage.dir}/IndexCreator/IndexCreator.tar"/>
@@ -111,6 +118,10 @@
 			<!-- JMN - Include both *_version.properties and label file. -->
 			<fileset dir="${dist.dir}" includes="${version_properties_file_dest}" />
 			<fileset dir="${dist.dir}" includes="${label_file}" />
+            <fileset dir="${src.dir}/conf">
+                <include name="jozindex.properties"/>
+            </fileset>
+
             <manifest>
                 <attribute name="Main-Class" value="com.tumri.joz.keywordServer.ProductIndex"/>
             </manifest>
