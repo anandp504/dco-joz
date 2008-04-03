@@ -56,8 +56,7 @@ public class ProductTypeQuery extends MUPQuery {
       ProductAttributeIndex<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
       if (m_productType.equals(m_productTypeLeadgen)) {
           m_results = (index != null) ? index.get(m_productTypeLeadgen) : tableScan();
-      } else if (m_productType.equals(m_productTypeProd)) { // This is most likely a bug: sandeep 12/25/07
-    	  setNegation(true); // As the negation on index is not handled by setintersector 12/25/07
+      } else if (m_productType.equals(m_productTypeProd)) {
     	  m_results = (index != null) ? index.get(m_productTypeLeadgen) : tableScan();
       } else if (m_productType.equals(m_productTypeBoth)) {
     	  //TODO: Verify if null or empty set needs to be passed for no results
