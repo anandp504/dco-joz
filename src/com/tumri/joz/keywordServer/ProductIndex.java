@@ -377,6 +377,7 @@ public class ProductIndex {
         fieldBoosts.put("parents", new Float(2.0));
         fieldBoosts.put("superclasses", new Float(1.5));
         int maxLinesPerChunk = 50000;
+        boolean bDisableLucene = false;
 
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
@@ -410,6 +411,8 @@ public class ProductIndex {
                 fieldBoosts.put(field, boost);
             } else if (arg.equals ("-maxLinesPerChunk")) {
                 maxLinesPerChunk = Integer.parseInt(args[++i]);
+            } else if (arg.equals ("-disableLucene")) {
+                bDisableLucene = true;
             } else {
                 log.info("Usage: " + usage);
                 System.exit(1);
@@ -434,19 +437,25 @@ public class ProductIndex {
             }
         }
 
-        File luceneIdxDirF = new File(indexDir);
-        if (luceneIdxDirF.exists()) {
-            log.fatal("Cannot save lucene index to '" + indexDir + "' directory, please delete it first");
-            System.exit(1);
+        boolean bBuildJozIndex = false;
+        File jozindexDirF = null;
+        File oldDataDocDirF = null;
+        File luceneIdxDirF = null;
+
+        if (!bDisableLucene) {
+            luceneIdxDirF = new File(indexDir);
+            if (luceneIdxDirF.exists()) {
+                log.fatal("Cannot save lucene index to '" + indexDir + "' directory, please delete it first");
+                System.exit(1);
+            }
         }
+
         final File currdocDirF = new File(currentDocDir);
         if (!currdocDirF.exists() || !currdocDirF.canRead()) {
             log.fatal("Document directory '" + currdocDirF.getAbsolutePath() + " does not exist or is not readable, please check the path");
             System.exit(1);
         }
-        boolean bBuildJozIndex = false;
-        File jozindexDirF = null;
-        File oldDataDocDirF = null;
+
 
         if (jozIndexDir!=null) {
             //Building the Joz Indexes
@@ -470,11 +479,12 @@ public class ProductIndex {
             }
         }
 
-
         try {
             Date start = new Date();
-            log.info("Creating lucene indexes");
-            createLuceneIndexes(currdocDirF, oldDataDocDirF, luceneIdxDirF , dumpTokens);
+            if (!bDisableLucene) {
+                log.info("Creating lucene indexes");
+                createLuceneIndexes(currdocDirF, oldDataDocDirF, luceneIdxDirF , dumpTokens);
+            }
             if (bBuildJozIndex) {
                 log.info("Creating joz indexes");
                 createJozIndexes(currentDocDir, prevDocDir, jozIndexDir, maxLinesPerChunk);
@@ -486,6 +496,7 @@ public class ProductIndex {
             // If we fail we must exit with a non-zero error code.
             System.exit(1);
         }
+
     }
 
     private static void createJozIndexes(String newDataDir, String oldDataDir, String indexDir, int maxLinesPerChunk) {
