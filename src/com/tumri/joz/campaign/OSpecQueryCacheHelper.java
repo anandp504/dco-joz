@@ -84,11 +84,21 @@ public class OSpecQueryCacheHelper {
                                         SimpleQuery csq = new LongRangeQuery (IProduct.Attribute.kCategoryNumericField,lowRangekey, highRangekey);
                                         _cjquery.addQuery(csq);
                                     } else if (dt == CategoryAttributeDetails.DataType.kText) {
-                                        //simple query
-                                        int fieldValId = IndexUtils.getIndexIdFromDictionary(fieldPos, categoryFieldValue);
-                                        long key = IndexUtils.createIndexKeyForCategory(cId, fieldPos, fieldValId);
-                                        SimpleQuery csq = new CategoryAttributeQuery (IProduct.Attribute.kCategoryTextField, key);
-                                       _cjquery.addQuery(csq);
+                                        //categoryFieldValue might comma separated list of values
+                                        if (categoryFieldValue != null) {
+                                            ArrayList<Long> valueIdList = new ArrayList<Long>();
+                                            StringTokenizer st = new StringTokenizer(categoryFieldValue, ',');
+                                            ArrayList<String> valueStrList = st.getTokens();
+                                            for (int i=0;i<valueStrList.size();i++){
+                                                String valueStr = valueStrList.get(i);
+                                                int fieldValId = IndexUtils.getIndexIdFromDictionary(fieldPos, valueStr);
+                                                long key = IndexUtils.createIndexKeyForCategory(cId, fieldPos, fieldValId);
+                                                valueIdList.add(key);
+                                            }
+                                            //simple query
+                                            SimpleQuery csq = new CategoryAttributeQuery (IProduct.Attribute.kCategoryTextField, valueIdList);
+                                           _cjquery.addQuery(csq);
+                                        }
                                     }
                                 }
 
@@ -198,6 +208,16 @@ public class OSpecQueryCacheHelper {
                 String areaCodeFilter = theTSpec.getAreaCodeFilter();
                 if (areaCodeFilter!= null && !"".equals(areaCodeFilter)) {
                     SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kArea, areaCodeFilter, false);
+                     _cjquery.addQuery(sq);
+                }
+
+                //Geo Enabled Flag
+                boolean isGeoEnabled = theTSpec.isGeoEnabledFlag();
+                if (isGeoEnabled) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGeoEnabledFlag, "true", false);
+                     _cjquery.addQuery(sq);
+                } else {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGeoEnabledFlag, "false", false);
                      _cjquery.addQuery(sq);
                 }
 
