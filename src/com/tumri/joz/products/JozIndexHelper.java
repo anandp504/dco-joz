@@ -98,7 +98,8 @@ public class JozIndexHelper {
             PersistantProviderIndex pProvIndex = (PersistantProviderIndex)in.readObject();
             in.close();
             //Add any new products into the db
-            ProductDB.getInstance().addNewProducts();
+            ProductDB.getInstance().addNewProducts(ProductHandleFactory.getInstance().getProducts());
+            ProductHandleFactory.getInstance().clearProducts();
 
         } catch (IOException ex) {
             log.error("Could not load index file.");

@@ -39,7 +39,6 @@ public class ProductDB {
   private ProductProvider m_productProvider = null;
   private static Random g_random = new Random(System.currentTimeMillis());
 
-  private ArrayList<Handle> m_newProducts = new ArrayList<Handle>();
   private boolean disableJozIndexLoad = false;
 
   public static ProductDB getInstance() {
@@ -103,6 +102,9 @@ public class ProductDB {
 
     pdb.addIndex(IProduct.Attribute.kArea, new AreaCodeIndex());
     pdb.registerFilter(IProduct.Attribute.kArea, new AreaCodeFilter());
+
+    pdb.addIndex(IProduct.Attribute.kGeoEnabledFlag, new GeoEnabledIndex());
+    pdb.registerFilter(IProduct.Attribute.kGeoEnabledFlag, new GeoEnabledFilter());
 
     pdb.addIndex(IProduct.Attribute.kGlobalId, new GlobalIdIndex());
     pdb.registerFilter(IProduct.Attribute.kGlobalId, new GlobalIdFilter());
@@ -338,6 +340,7 @@ public class ProductDB {
     TreeMap<Integer, ArrayList<Handle>> mzip = new TreeMap<Integer, ArrayList<Handle>>();
     TreeMap<Integer, ArrayList<Handle>> mdma = new TreeMap<Integer, ArrayList<Handle>>();
     TreeMap<Integer, ArrayList<Handle>> marea = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mgeoenabled = new TreeMap<Integer, ArrayList<Handle>>();
     TreeMap<Integer, ArrayList<Handle>> mprovcategory = new TreeMap<Integer, ArrayList<Handle>>();
     TreeMap<Integer, ArrayList<Handle>> mglobalid = new TreeMap<Integer, ArrayList<Handle>>();
     TreeMap<Long, ArrayList<Handle>> mcategorytextattr = new TreeMap<Long, ArrayList<Handle>>();
@@ -487,6 +490,15 @@ public class ProductDB {
         if (list == null) {
           list = new ArrayList<Handle>();
           marea.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        Integer k = p.getGeoEnabled();
+        ArrayList<Handle> list = mgeoenabled.get(k);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mgeoenabled.put(k, list);
         }
         list.add(h);
       }
@@ -650,6 +662,7 @@ public class ProductDB {
       updateIntegerIndex(IProduct.Attribute.kZip, mzip);
       updateIntegerIndex(IProduct.Attribute.kDMA, mdma);
       updateIntegerIndex(IProduct.Attribute.kArea, marea);
+      updateIntegerIndex(IProduct.Attribute.kGeoEnabledFlag, mgeoenabled);
       updateIntegerIndex(IProduct.Attribute.kProviderCategory, mprovcategory);
       updateIntegerIndex(IProduct.Attribute.kGlobalId, mglobalid);
 
@@ -696,14 +709,14 @@ public class ProductDB {
      * @return
      */
   public Handle getHandle(Long pid) {
-   //Check if the prod exists - else create and return handle.
+   //Check if the prod exists - else return null
    ProductHandle p = new ProductHandle(0.0, pid.longValue());
    Handle ph = m_allProducts.find(p);
    if (ph !=null) {
         p = (ProductHandle) ph;
    } else {
-       //Create a new product
-       m_newProducts.add(p);
+       //return null
+       p = null;
    }
     return p;
   }
@@ -713,15 +726,11 @@ public class ProductDB {
     return m_allProducts.isEmpty();  
   }
 
-    /**
-     * Add the new products into the database.
-      */
-  public void addNewProducts() {
-    if (!m_newProducts.isEmpty()) {
-      log.debug("Adding : " + m_newProducts.size() + " new products to the Product DB");
-      m_allProducts.addAll(m_newProducts);
-      m_newProducts.clear();
-    }
+ /**
+  * Add the new products into the database.
+  */
+  public void addNewProducts(SortedSet<Handle> newProducts) {
+      m_allProducts.addAll(newProducts);
   }
 
     /**

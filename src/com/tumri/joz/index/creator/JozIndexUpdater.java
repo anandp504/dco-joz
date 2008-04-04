@@ -217,6 +217,7 @@ public class JozIndexUpdater {
                 idxAttr == Product.Attribute.kZip ||
                 idxAttr == Product.Attribute.kDMA ||
                 idxAttr == Product.Attribute.kArea ||
+                idxAttr == Product.Attribute.kGeoEnabledFlag ||
                 idxAttr == Product.Attribute.kProviderCategory ||
                 idxAttr == Product.Attribute.kGlobalId) {
             //Integer

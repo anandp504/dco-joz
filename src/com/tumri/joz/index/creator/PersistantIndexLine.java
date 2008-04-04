@@ -13,6 +13,12 @@ public class PersistantIndexLine implements Serializable, Comparable {
     private String indexValue;
     private Long[] pids;
 
+    public PersistantIndexLine(String value, IndexOperation op, Long[] ids) {
+        this.indexValue = value;
+        this.operation = op;
+        this.pids = ids;
+    }
+
     public Long[] getPids() {
         return pids;
     }

@@ -267,11 +267,49 @@ public class ProductRequestProcessorTest {
 //        }
 //    }
     @Test
-    public void testCatAttrQuery1() {
+    public void testCatAttrQueryText() {
         try {
-            //String queryStr = "(get-ad-data :t-spec |TestCatAttrText| :revert-to-default-realm nil)";
-            //String queryStr = "(get-ad-data :t-spec |TestCatAttrNumeric| :revert-to-default-realm nil)";
+            String queryStr = "(get-ad-data :t-spec |TestCatAttrText| :revert-to-default-realm nil)";
+            ArrayList<Handle> result = testProcessRequest(queryStr);
+            assertNotNull(result);
+        } catch(Exception e){
+            System.out.println("Exception caught during test run");
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    @Test
+    public void testCatAttrNumeric() {
+        try {
+            String queryStr = "(get-ad-data :t-spec |TestCatAttrNumeric| :revert-to-default-realm nil)";
+            ArrayList<Handle> result = testProcessRequest(queryStr);
+            assertNotNull(result);
+        } catch(Exception e){
+            System.out.println("Exception caught during test run");
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    @Test
+    public void testGeoCountry() {
+        try {
             String queryStr = "(get-ad-data :t-spec |TestGeoCountry| :revert-to-default-realm nil)";
+            //String queryStr = "(get-ad-data :t-spec |TSPEC-geckoseiya-1192593613232| :revert-to-default-realm nil)";
+            ArrayList<Handle> result = testProcessRequest(queryStr);
+            assertNotNull(result);
+        } catch(Exception e){
+            System.out.println("Exception caught during test run");
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+    @Test
+    public void testGeoFlag() {
+        try {
+            String queryStr = "(get-ad-data :t-spec |TestGeoFlag| :country-name \"US\" :city \"Redwood\" :revert-to-default-realm nil)";
             //String queryStr = "(get-ad-data :t-spec |TSPEC-geckoseiya-1192593613232| :revert-to-default-realm nil)";
             ArrayList<Handle> result = testProcessRequest(queryStr);
             assertNotNull(result);

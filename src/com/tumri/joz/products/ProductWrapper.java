@@ -105,6 +105,14 @@ public class ProductWrapper implements IProduct {
         return prod.getAreaCodeStr();  
     }
 
+    public Integer getGeoEnabled() {
+        return prod.getGeoEnabled();
+    }
+
+    public String getGeoEnabledStr() {
+        return prod.getGeoEnabledStr();
+    }
+
     public Integer getProviderCategory() {
         return prod.getProviderCategory();
     }

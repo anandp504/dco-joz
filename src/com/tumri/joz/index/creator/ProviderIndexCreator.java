@@ -75,10 +75,12 @@ public class ProviderIndexCreator {
                 String indexName = (String)(mupConfig.get(indexNameIter.next()));
                 indexMap.put(indexName, new ProviderIndexBuilder(indexName));
             }
+            //Adding the geoEnabled column as a separate index
+            indexMap.put("geoenabled", new ProviderIndexBuilder("geoenabled"));
         } catch (IOException e) {
-            log.error("Exception caught during the setTaxonomyAndMerchantData of the ProviderIndexCreator", e);
+            log.error("Exception caught during the init of the ProviderIndexCreator", e);
         } catch (Exception e) {
-            log.error("Exception caught during the setTaxonomyAndMerchantData of the ProviderIndexCreator", e);
+            log.error("Exception caught during the init of the ProviderIndexCreator", e);
         } finally {
             try {
                 is.close();
@@ -296,6 +298,15 @@ public class ProviderIndexCreator {
                         }
                     } else {
                         retVal.put(key,val);
+                    }
+                    //If the product is geo filtered - then update the flag accordingly.
+                    if (key.equals("country") || key.equals("state") || key.equals("city") ||
+                            key.equals("dma") || key.equals("area")) {
+                        if (val != null && !val.equals("")) {
+                            retVal.put("geoenabled","true");
+                        } else {
+                            retVal.put("geoenabled","false");
+                        }
                     }
                 }
             }

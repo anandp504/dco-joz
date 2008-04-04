@@ -170,6 +170,9 @@ public class IndexUtils {
             case kArea:
                 id = DictionaryManager.getId(Product.Attribute.kArea, indexVal);
                 break;
+            case kGeoEnabledFlag:
+                id = DictionaryManager.getId(Product.Attribute.kGeoEnabledFlag, indexVal);
+                break;
             case kProviderCategory:
                 id = DictionaryManager.getId(Product.Attribute.kProviderCategory, indexVal);
                 break;
@@ -234,6 +237,8 @@ public class IndexUtils {
             id = Product.Attribute.kDMA;
         } else if (indexType.equals("area")) {
             id = Product.Attribute.kArea;
+        } else if (indexType.equals("geoenabled")) {
+            id = Product.Attribute.kGeoEnabledFlag;
         } else if (indexType.equals("providercategory")) {
             id = Product.Attribute.kProviderCategory;
         } else if (indexType.equals("globalid")) {

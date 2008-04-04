@@ -19,14 +19,6 @@ public class ProviderIndexBuilder {
     private HashMap<String, ArrayList<Long>> ncIndexMap = null;
     private HashMap<String, ArrayList<Long>> delIndexMap = null;
 
-    public String getIndexName() {
-        return indexName;
-    }
-
-    public void setIndexName(String indexName) {
-        this.indexName = indexName;
-    }
-
     /**
      * Default constructor for the Index builder.
      */
@@ -111,10 +103,8 @@ public class ProviderIndexBuilder {
             TreeSet<PersistantIndexLine> lines = new TreeSet<PersistantIndexLine>();
             for (String s: sortedIndexVals) {
                 ArrayList<Long> pids = addIndexMap.get(s);
-                PersistantIndexLine pline = new PersistantIndexLine();
-                pline.setIndexValue(s);
-                pline.setOperation(PersistantIndexLine.IndexOperation.kAdd);
-                pline.setPids(pids.toArray(new Long[0]));
+                PersistantIndexLine pline = new PersistantIndexLine(s,PersistantIndexLine.IndexOperation.kAdd,
+                        pids.toArray(new Long[0]));
                 lines.add(pline);
             }
             pIndex.addDetails(lines);
@@ -129,10 +119,8 @@ public class ProviderIndexBuilder {
             TreeSet<PersistantIndexLine> lines = new TreeSet<PersistantIndexLine>();
             for (String s: sortedIndexVals) {
                 ArrayList<Long> pids = delModifiedIndexMap.get(s);
-                PersistantIndexLine pline = new PersistantIndexLine();
-                pline.setIndexValue(s);
-                pline.setOperation(PersistantIndexLine.IndexOperation.kDelModified);
-                pline.setPids(pids.toArray(new Long[0]));
+                PersistantIndexLine pline = new PersistantIndexLine(s,PersistantIndexLine.IndexOperation.kDelModified,
+                        pids.toArray(new Long[0]));
                 lines.add(pline);
             }
             pIndex.addDetails(lines);
@@ -147,10 +135,8 @@ public class ProviderIndexBuilder {
             TreeSet<PersistantIndexLine> lines = new TreeSet<PersistantIndexLine>();
             for (String s: sortedIndexVals) {
                 ArrayList<Long> pids = addModifiedIndexMap.get(s);
-                PersistantIndexLine pline = new PersistantIndexLine();
-                pline.setIndexValue(s);
-                pline.setOperation(PersistantIndexLine.IndexOperation.kAddModified);
-                pline.setPids(pids.toArray(new Long[0]));
+                PersistantIndexLine pline = new PersistantIndexLine(s,PersistantIndexLine.IndexOperation.kAddModified,
+                        pids.toArray(new Long[0]));
                 lines.add(pline);
             }
             pIndex.addDetails(lines);
@@ -166,10 +152,8 @@ public class ProviderIndexBuilder {
             TreeSet<PersistantIndexLine> lines = new TreeSet<PersistantIndexLine>();
             for (String s: sortedIndexVals) {
                 ArrayList<Long> pids = delIndexMap.get(s);
-                PersistantIndexLine pline = new PersistantIndexLine();
-                pline.setIndexValue(s);
-                pline.setOperation(PersistantIndexLine.IndexOperation.kDelete);
-                pline.setPids(pids.toArray(new Long[0]));
+                PersistantIndexLine pline = new PersistantIndexLine(s,PersistantIndexLine.IndexOperation.kDelete,
+                        pids.toArray(new Long[0]));
                 lines.add(pline);
             }
             pIndex.addDetails(lines);
@@ -185,10 +169,8 @@ public class ProviderIndexBuilder {
             TreeSet<PersistantIndexLine> lines = new TreeSet<PersistantIndexLine>();
             for (String s: sortedIndexVals) {
                 ArrayList<Long> pids = ncIndexMap.get(s);
-                PersistantIndexLine pline = new PersistantIndexLine();
-                pline.setIndexValue(s);
-                pline.setOperation(PersistantIndexLine.IndexOperation.kNoChange);
-                pline.setPids(pids.toArray(new Long[0]));
+                PersistantIndexLine pline = new PersistantIndexLine(s,PersistantIndexLine.IndexOperation.kNoChange,
+                        pids.toArray(new Long[0]));
                 lines.add(pline);
             }
             pIndex.addDetails(lines);

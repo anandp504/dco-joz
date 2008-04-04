@@ -27,50 +27,50 @@ public class TestJozIndexCreation {
     private static final String baseDir = "/tmp/joztest";
     private static final String taxonomyDir = "/tmp/taxonomy";
     private static File _baseDir = null;
-
-    @BeforeClass
-    public static void init() {
-        _baseDir = new File(baseDir);
-        if (!_baseDir.exists()) {
-            _baseDir.delete();
-            _baseDir.mkdir();
-        }
-        setupDataDirs();
-    }
-
-    /**
-     * Create the mup and taxonomy files
-     */
-    private static void setupDataDirs() {
-        TestProductData.writeMupFiles(_baseDir);
-        TestProductData.writeTaxonomy(_baseDir);
-    }
+//
+//    //@BeforeClass
+//    public static void init() {
+//        _baseDir = new File(baseDir);
+//        if (!_baseDir.exists()) {
+//            _baseDir.delete();
+//            _baseDir.mkdir();
+//        }
+//        setupDataDirs();
+//    }
+//
+//    /**
+//     * Create the mup and taxonomy files
+//     */
+//    private static void setupDataDirs() {
+//        TestProductData.writeMupFiles(_baseDir);
+//        TestProductData.writeTaxonomy(_baseDir);
+//    }
 
     @Test
     public void testIndexing() {
         //Invoke the creation of indexes
-        String[] args0 = {"-currentDocDir","/tmp/joztest/old","-indexDir","/tmp/joztest/old/lucene","-jozIndexDir","/tmp/joztest/old/jozIndex"};
-        new ProductIndex().index(args0);
+        //String[] args0 = {"-currentDocDir","/tmp/joztest/old","-indexDir","/tmp/joztest/old/lucene","-jozIndexDir","/tmp/joztest/old/jozIndex"};
+        //new ProductIndex().index(args0);
 
         //Invoke the validation of index
-        assert(new File("/tmp/joztest/old/lucene").exists());
-        assert(new File("/tmp/joztest/old/jozIndex").exists());
+        //assert(new File("/tmp/joztest/old/lucene").exists());
+        //assert(new File("/tmp/joztest/old/jozIndex").exists());
 
-        String[] args1 = {"-currentDocDir","/tmp/joztest/new","-previousDocDir","/tmp/joztest/old",
-                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
+        //String[] args1 = {"-currentDocDir","/tmp/joztest/new","-previousDocDir","/tmp/joztest/old",
+        //        "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
 //        String[] args1 = {"-currentDocDir","/tmp/joztest/new",
 //                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
-        new ProductIndex().index(args1);
+        //new ProductIndex().index(args1);
 
         //Invoke the validation of index
-        assert(new File("/tmp/joztest/new/lucene").exists());
-        assert(new File("/tmp/joztest/new/jozIndex").exists());
+        //assert(new File("/tmp/joztest/new/lucene").exists());
+        //assert(new File("/tmp/joztest/new/jozIndex").exists());
 
         //Produce the debug file
-        JozIndexUpdater.setInstance(true, true, "/tmp/joztest");
-        JozIndexHelper.loadIndex("/tmp/joztest/new/jozIndex");
+        JozIndexUpdater.setInstance(true, true, "/tmp");
+        JozIndexHelper.loadIndex("/opt/joz/data/caa/current/jozIndex");
 
-        assert(new File("/tmp/joztest/jozIndexDebugFile.txt").exists());
+        assert(new File("/tmp/jozIndexDebugFile.txt").exists());
         //TODO: Validate the file.
     }
 

@@ -2,6 +2,8 @@ package com.tumri.joz.index.creator;
 
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.ProductHandle;
+import com.tumri.joz.products.ProductHandleFactory;
 import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.content.data.Product;
 
@@ -105,6 +107,10 @@ public class PersistantIndex implements Serializable{
                     long pid = in.readLong();
                     //Get the handle
                     Handle p = ProductDB.getInstance().getHandle(pid);
+                    if (p==null) {
+                        //New product
+                        p = ProductHandleFactory.getInstance().getHandle(pid);
+                    }
                     currPids.add(p);
                 }
                 //Now add these to the index
