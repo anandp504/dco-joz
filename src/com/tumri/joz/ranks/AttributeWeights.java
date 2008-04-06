@@ -26,6 +26,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
   private static double kZipCode = 1.2;
   private static double kDmaCode = 1.2;
   private static double kAreaCode = 1.2;
+  private static double kGeoEnabled = 1.2;
   private static double kGlobalId = 1.2;
   private static double kCategoryTextField = 1.2;
   private static double kCategoryNumericField = 1.2;
@@ -56,6 +57,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kZip: return ZipCodeWeight.getInstance();
       case kArea: return AreaCodeWeight.getInstance();
       case kDMA: return DmaCodeWeight.getInstance();
+      case kGeoEnabledFlag: return GeoEnabledWeight.getInstance();
       case kGlobalId: return GlobalIdWeight.getInstance();
       case kCategoryTextField: return CategoryTextFieldWeight.getInstance();
       case kCategoryNumericField: return CategoryNumericFieldWeight.getInstance();
@@ -83,6 +85,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kZip: return kZipCode;
       case kDMA: return kDmaCode;
       case kArea: return kAreaCode;
+      case kGeoEnabledFlag: return kGeoEnabled;
       case kGlobalId: return kGlobalId;
       case kCategoryTextField: return kCategoryTextField;
       case kCategoryNumericField: return kCategoryNumericField;
