@@ -217,7 +217,7 @@ public class OSpecQueryCacheHelper {
                     SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGeoEnabledFlag, "true", false);
                      _cjquery.addQuery(sq);
                 } else {
-                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGeoEnabledFlag, "false", false);
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGeoEnabledFlag, "true", true);
                      _cjquery.addQuery(sq);
                 }
 
