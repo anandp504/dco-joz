@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
-import com.tumri.joz.index.DictionaryManager;
+import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpInteger;

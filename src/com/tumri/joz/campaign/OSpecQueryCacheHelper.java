@@ -3,10 +3,10 @@ package com.tumri.joz.campaign;
 import com.tumri.cma.domain.*;
 import com.tumri.content.data.CategoryAttributeDetails;
 import com.tumri.content.data.Product;
+import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.utils.IndexUtils;
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.utils.strings.StringTokenizer;
 
 import java.util.ArrayList;

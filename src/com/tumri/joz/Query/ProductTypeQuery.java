@@ -1,11 +1,11 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.Filter;
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.content.data.dictionary.DictionaryManager;
 
 import java.util.SortedSet;
 

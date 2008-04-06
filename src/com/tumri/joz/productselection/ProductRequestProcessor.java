@@ -3,11 +3,11 @@ package com.tumri.joz.productselection;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.TSpec;
 import com.tumri.content.data.Product;
+import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecHelper;
 import com.tumri.joz.campaign.OSpecQueryCache;
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.AdDataRequest.AdOfferType;
 import com.tumri.joz.jozMain.Features;
@@ -301,7 +301,7 @@ public class ProductRequestProcessor {
 		//Check if backfill is needed bcos of the keyword query
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
 
-        //TODO: Check if the backfill is needed bcos of Geo Filter Query
+        //Check if the backfill is needed bcos of Geo Filter Query
         if (m_revertToDefaultRealm && m_geoFilterEnabled && pageSize>0 && currSize<pageSize)  {
            SortedSet<Handle> geoBackFillProds = doGeoBackFill(pageSize, currSize);
            backFillProds.addAll(geoBackFillProds);

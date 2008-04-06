@@ -12,11 +12,11 @@ package com.tumri.joz.jozMain;
 // import java.io.PrintWriter;
 import org.apache.log4j.Logger;
 
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpReader;
 import com.tumri.utils.sexp.SexpString;
+import com.tumri.content.data.dictionary.DictionaryManager;
 
 public class CmdGetRootCategories extends CommandDeferWriting {
     

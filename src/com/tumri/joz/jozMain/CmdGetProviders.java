@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
@@ -19,6 +18,7 @@ import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpString;
 import com.tumri.utils.sexp.SexpSymbol;
+import com.tumri.content.data.dictionary.DictionaryManager;
 
 public class CmdGetProviders extends CommandDeferWriting {
     
@@ -37,7 +37,7 @@ public class CmdGetProviders extends CommandDeferWriting {
                 Set<Integer> providers = pai.getKeys();
                 String providerStr = null;
                 for (Integer provider: providers) {
-                    providerStr = (String)DictionaryManager.getInstance().getValue(IProduct.Attribute.kProvider, provider);
+                    providerStr = (String) DictionaryManager.getInstance().getValue(IProduct.Attribute.kProvider, provider);
                     if (providerStr != null) {
                         retVal.addLast(new SexpList(new SexpSymbol(providerStr), new SexpString(providerStr)));
                     }
