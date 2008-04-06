@@ -110,6 +110,9 @@ public class JozJSONResponseBuilder {
         final StringCharacterIterator iterator = new StringCharacterIterator(aText);
         char character =  iterator.current();
         while (character != CharacterIterator.DONE ){
+            if (character == '\\') {
+                result.append("\\\\");
+            }
             if (character == '"') {
                 result.append("\\\"");
             }
