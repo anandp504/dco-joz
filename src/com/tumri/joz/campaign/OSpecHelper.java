@@ -173,13 +173,6 @@ public class OSpecHelper {
 	 * @return
 	 */
 	public static ArrayList<Handle> getIncludedProducts(OSpec ospec) {
-		if (g_productTypeLeadgen == null) {
-			g_productTypeLeadgen = com.tumri.content.data.dictionary.DictionaryManager.getId (IProduct.Attribute.kProductType, "LEADGEN");
-		}
-		if (g_productTypeProduct == null) {
-			g_productTypeProduct = com.tumri.content.data.dictionary.DictionaryManager.getId (IProduct.Attribute.kProductType, "Product");
-		}
-		ArrayList<Handle> leadGenAL = new ArrayList<Handle>();
 		ArrayList<Handle> prodsAL = new ArrayList<Handle>();
 		List<TSpec> tspeclist = ospec.getTspecs();
 		for (TSpec tspec : tspeclist) {
@@ -189,17 +182,22 @@ public class OSpecHelper {
 					try {
 						String productId = info.getName();
 						if (productId != null) {
-							productId = productId.substring(productId.indexOf(".")+3, productId.length());
-							IProduct iProdHandle = ProductDB.getInstance().get(new Integer(productId).intValue());
-							Handle prodHandle = null;
-							if (iProdHandle != null) {
-								prodHandle = iProdHandle.getHandle();
-								if (iProdHandle.getProductType().equals(g_productTypeLeadgen) ) {
-									leadGenAL.add(prodHandle);
-								} else {
-									prodsAL.add(prodHandle);
-								}
-							}
+                            if (productId.indexOf(".") > -1) {
+                                productId = productId.substring(productId.indexOf("."), productId.length());
+                            }
+                            char[] pidCharArr = productId.toCharArray();
+                            //Drop any non digit characters
+                            StringBuffer spid = new StringBuffer();
+                            for (char ch: pidCharArr) {
+                                if (Character.isDigit(ch)) {
+                                    spid.append(ch);
+                                }
+                            }
+                            productId = spid.toString();
+                            Handle prodHandle = ProductDB.getInstance().getHandle(new Long(productId));
+                            if (prodHandle != null) {
+                                prodsAL.add(prodHandle);
+                            }
 
 						}
 					} catch(Exception e) {
@@ -210,7 +208,6 @@ public class OSpecHelper {
 			}
 		}
 		
-		leadGenAL.addAll(prodsAL);
-		return leadGenAL;
+		return prodsAL;
 	}
 }
