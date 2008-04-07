@@ -5,6 +5,7 @@
 <%@ page import="com.tumri.joz.jozMain.ListingProviderFactory" %>
 <%@ page import="com.tumri.joz.products.JOZTaxonomy" %>
 <%@ page import="com.tumri.joz.jozMain.MerchantDB" %>
+<%@ page import="com.tumri.joz.products.ProductDB" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -17,11 +18,13 @@
              String datetime = null;
              String requestValue = request.getQueryString();
              if ((requestValue == null) || requestValue.equals("qac")) {
+                 //Clear the product db when refreshing for qac
+                 ProductDB.getInstance().clearProductDB();
                  ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
                  ContentProvider cp = f.getContentProvider();
                  cp.refresh();
                  ContentProviderStatus status = cp.getStatus();
-                //Invoke the content refresh on Listings Data client
+                 //Invoke the content refresh on Listings Data client
                  ListingProviderFactory.refreshData(JOZTaxonomy.getInstance().getTaxonomy(),
                          MerchantDB.getInstance().getMerchantData());
 
