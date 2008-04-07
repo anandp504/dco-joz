@@ -28,4 +28,8 @@ public class GeoEnabledWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kGeoEnabledFlag);
   }
 
+  public boolean mustMatch() {
+    return true;
+  }
+
 }
