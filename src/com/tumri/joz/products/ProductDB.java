@@ -441,205 +441,235 @@ public class ProductDB {
       }
       {
         Integer k = p.getCountry();
-        ArrayList<Handle> list = mcountry.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          mcountry.put(k, list);
+        if (k!=null) {
+            ArrayList<Handle> list = mcountry.get(k);
+            if (list == null) {
+              list = new ArrayList<Handle>();
+              mcountry.put(k, list);
+            }
+            list.add(h);
         }
-        list.add(h);
       }
       {
         Integer k = p.getState();
-        ArrayList<Handle> list = mstate.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          mstate.put(k, list);
-        }
-        list.add(h);
+          if (k!=null) {
+              ArrayList<Handle> list = mstate.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mstate.put(k, list);
+              }
+              list.add(h);
+          }
       }
       {
         Integer k = p.getCity();
-        ArrayList<Handle> list = mcity.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          mcity.put(k, list);
-        }
-        list.add(h);
+          if (k!=null) {
+              ArrayList<Handle> list = mcity.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mcity.put(k, list);
+              }
+              list.add(h);
+          }
       }
       {
         Integer k = p.getZip();
-        ArrayList<Handle> list = mzip.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          mzip.put(k, list);
-        }
-        list.add(h);
+          if (k!=null) {
+              ArrayList<Handle> list = mzip.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mzip.put(k, list);
+              }
+              list.add(h);
+          }
       }
       {
         Integer k = p.getDmaCode();
-        ArrayList<Handle> list = mdma.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          mdma.put(k, list);
-        }
-        list.add(h);
+          if (k!=null) {
+              ArrayList<Handle> list = mdma.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mdma.put(k, list);
+              }
+              list.add(h);
+          }
       }
       {
         Integer k = p.getAreaCode();
-        ArrayList<Handle> list = marea.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          marea.put(k, list);
-        }
-        list.add(h);
+          if (k!=null) {
+              ArrayList<Handle> list = marea.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                marea.put(k, list);
+              }
+              list.add(h);
+          }
       }
       {
         Integer k = p.getGeoEnabled();
-        ArrayList<Handle> list = mgeoenabled.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          mgeoenabled.put(k, list);
-        }
-        list.add(h);
+          if (k!=null) {
+              ArrayList<Handle> list = mgeoenabled.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mgeoenabled.put(k, list);
+              }
+              list.add(h);
+          }
       }
       {
         Integer k = p.getProviderCategory();
-        ArrayList<Handle> list = mprovcategory.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          mprovcategory.put(k, list);
-        }
-        list.add(h);
+          if (k!=null) {
+              ArrayList<Handle> list = mprovcategory.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mprovcategory.put(k, list);
+              }
+              list.add(h);
+          }
       }
       {
         Integer k = p.getGlobalId();
-        ArrayList<Handle> list = mglobalid.get(k);
-        if (list == null) {
-          list = new ArrayList<Handle>();
-          mglobalid.put(k, list);
-        }
-        list.add(h);
+          if (k!=null) {
+              ArrayList<Handle> list = mglobalid.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mglobalid.put(k, list);
+              }
+              list.add(h);
+          }
       }
       {
         Integer k = p.getCategoryField1();
         Integer c = p.getCategory();
-        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField1,k);
-        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField1);
-        CategoryAttributeDetails.DataType type = details.getFieldtype();
-        if (type != null) {
-            if (type == CategoryAttributeDetails.DataType.kText) {
-                ArrayList<Handle> list = mcategorytextattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorytextattr.put(key, list);
+        if (k != null && c!=null) {
+            long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField1,k);
+            CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField1);
+            CategoryAttributeDetails.DataType type = details.getFieldtype();
+            if (type != null) {
+                if (type == CategoryAttributeDetails.DataType.kText) {
+                    ArrayList<Handle> list = mcategorytextattr.get(key);
+                    if (list == null) {
+                      list = new ArrayList<Handle>();
+                      mcategorytextattr.put(key, list);
+                    }
+                    list.add(h);
+                }  else {
+                    ArrayList<Handle> list = mcategorynumattr.get(key);
+                    if (list == null) {
+                      list = new ArrayList<Handle>();
+                      mcategorynumattr.put(key, list);
+                    }
+                    list.add(h);
                 }
-                list.add(h);
-            }  else {
-                ArrayList<Handle> list = mcategorynumattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorynumattr.put(key, list);
-                }
-                list.add(h);
             }
         }
       }
       {
         Integer k = p.getCategoryField2();
         Integer c = p.getCategory();
-        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField2,k);
-        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField2);
-        CategoryAttributeDetails.DataType type = details.getFieldtype();
+        if (k != null && c!=null) {
+              long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField2,k);
+              CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField2);
+              CategoryAttributeDetails.DataType type = details.getFieldtype();
 
-        if (type != null) {
-            if (type == CategoryAttributeDetails.DataType.kText) {
-                ArrayList<Handle> list = mcategorytextattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorytextattr.put(key, list);
-                }
-                list.add(h);
-            }  else {
-                ArrayList<Handle> list = mcategorynumattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorynumattr.put(key, list);
-                }
-                list.add(h);
-            }
+              if (type != null) {
+                  if (type == CategoryAttributeDetails.DataType.kText) {
+                      ArrayList<Handle> list = mcategorytextattr.get(key);
+                      if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mcategorytextattr.put(key, list);
+                      }
+                      list.add(h);
+                  }  else {
+                      ArrayList<Handle> list = mcategorynumattr.get(key);
+                      if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mcategorynumattr.put(key, list);
+                      }
+                      list.add(h);
+                  }
+              }
+
         }
       }
       {
         Integer k = p.getCategoryField3();
         Integer c = p.getCategory();
-        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField3,k);
-        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField3);
-        CategoryAttributeDetails.DataType type = details.getFieldtype();
-        if (type != null) {
-            if (type == CategoryAttributeDetails.DataType.kText) {
-                ArrayList<Handle> list = mcategorytextattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorytextattr.put(key, list);
-                }
-                list.add(h);
-            }  else {
-                ArrayList<Handle> list = mcategorynumattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorynumattr.put(key, list);
-                }
-                list.add(h);
-            }
-        }
+          if (k != null && c!=null) {
+              long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField3,k);
+              CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField3);
+              CategoryAttributeDetails.DataType type = details.getFieldtype();
+              if (type != null) {
+                  if (type == CategoryAttributeDetails.DataType.kText) {
+                      ArrayList<Handle> list = mcategorytextattr.get(key);
+                      if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mcategorytextattr.put(key, list);
+                      }
+                      list.add(h);
+                  }  else {
+                      ArrayList<Handle> list = mcategorynumattr.get(key);
+                      if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mcategorynumattr.put(key, list);
+                      }
+                      list.add(h);
+                  }
+              }
+
+          }
       }
       {
         Integer k = p.getCategoryField4();
         Integer c = p.getCategory();
-        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField4,k);
-        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField4);
-        CategoryAttributeDetails.DataType type = details.getFieldtype();
-        if (type != null) {
-            if (type == CategoryAttributeDetails.DataType.kText) {
-                ArrayList<Handle> list = mcategorytextattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorytextattr.put(key, list);
-                }
-                list.add(h);
-            }  else {
-                ArrayList<Handle> list = mcategorynumattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorynumattr.put(key, list);
-                }
-                list.add(h);
-            }
-        }
+          if (k != null && c!=null) {
+              long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField4,k);
+              CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField4);
+              CategoryAttributeDetails.DataType type = details.getFieldtype();
+              if (type != null) {
+                  if (type == CategoryAttributeDetails.DataType.kText) {
+                      ArrayList<Handle> list = mcategorytextattr.get(key);
+                      if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mcategorytextattr.put(key, list);
+                      }
+                      list.add(h);
+                  }  else {
+                      ArrayList<Handle> list = mcategorynumattr.get(key);
+                      if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mcategorynumattr.put(key, list);
+                      }
+                      list.add(h);
+                  }
+              }
+          }
       }
       {
         Integer k = p.getCategoryField5();
         Integer c = p.getCategory();
-        long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField5,k);
-        CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField5);
-        CategoryAttributeDetails.DataType type = details.getFieldtype();
-        if (type != null) {
-            if (type == CategoryAttributeDetails.DataType.kText) {
-                ArrayList<Handle> list = mcategorytextattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorytextattr.put(key, list);
-                }
-                list.add(h);
-            }  else {
-                ArrayList<Handle> list = mcategorynumattr.get(k);
-                if (list == null) {
-                  list = new ArrayList<Handle>();
-                  mcategorynumattr.put(key, list);
-                }
-                list.add(h);
-            }
-        }
+          if (k != null && c!=null) {
+              long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField5,k);
+              CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField5);
+              CategoryAttributeDetails.DataType type = details.getFieldtype();
+              if (type != null) {
+                  if (type == CategoryAttributeDetails.DataType.kText) {
+                      ArrayList<Handle> list = mcategorytextattr.get(key);
+                      if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mcategorytextattr.put(key, list);
+                      }
+                      list.add(h);
+                  }  else {
+                      ArrayList<Handle> list = mcategorynumattr.get(key);
+                      if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mcategorynumattr.put(key, list);
+                      }
+                      list.add(h);
+                  }
+              }
+          }
       }
     }
     {
@@ -663,7 +693,7 @@ public class ProductDB {
       updateIntegerIndex(IProduct.Attribute.kDMA, mdma);
       updateIntegerIndex(IProduct.Attribute.kArea, marea);
       updateIntegerIndex(IProduct.Attribute.kGeoEnabledFlag, mgeoenabled);
-      updateIntegerIndex(IProduct.Attribute.kProviderCategory, mprovcategory);
+      updateIntegerIndex(IProduct.Attribute.kCategory, mprovcategory);
       updateIntegerIndex(IProduct.Attribute.kGlobalId, mglobalid);
 
       updateLongIndex(IProduct.Attribute.kCategoryTextField, mcategorytextattr);
