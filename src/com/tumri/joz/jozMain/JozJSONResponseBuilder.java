@@ -40,14 +40,17 @@ public class JozJSONResponseBuilder {
         b.append("{");
         b.append("id:\"");
         b.append(encode(p.getIdSymbol()));
+        b.append("\",category_id:\"");
+        b.append(encode(p.getCategoryStr()));
         b.append("\",display_category_name:\"");
+        // Use the first parent as the category.
         Category cat = null;
         try {
             cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(p.getCategory());
         } catch (NullPointerException npe) {
             log.warn("The category specified for product is valid for the current taxonomy :" + p.getCategoryStr());
         }
-        // Use the first parent as the category.
+
         if (cat != null) {
             b.append(encode(cat.getName()));
         }
