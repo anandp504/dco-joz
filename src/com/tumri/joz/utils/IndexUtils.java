@@ -78,6 +78,7 @@ public class IndexUtils {
 
     /**
      * Pack the values into a single long value.
+     * The field pos is expected to be a integer between 1 and 7 since only 3 bits are used.
      * <field pos: 3 bits><Cat id : 29 bits><val : 32>
      * @param catId
      * @param kAttr
@@ -86,10 +87,10 @@ public class IndexUtils {
      */
     public static long createIndexKeyForCategory(long catId, Product.Attribute kAttr, long valId) {
         long fieldPos = getCategoryFieldPos(kAttr);
-        long l1 = catId << (64-(29+1));
-        long l2 = fieldPos << (64-(3+1));
+        long l1 = (catId << (64-(29+1))) & 0x0FFFFFFF00000000L;
+        long l2 = (fieldPos << (64-(3+1))) & 0xF000000000000000L;
         long l3 = l2 | l1;
-        long l4 = l3 | valId;
+        long l4 = l3 | (valId & 0x00000000FFFFFFFFL);
         return l4;
     }
 
@@ -103,10 +104,10 @@ public class IndexUtils {
      */
     public static int[] getValuesFromCategoryAttrKey(long key) {
         int[] results = new int[3];
-        long rVal = key & Long.parseLong("0000000000000000000000000000000011111111111111111111111111111111",2);
-        long cVal = key & Long.parseLong("0000111111111111111111111111111100000000000000000000000000000000",2);
+        long rVal = key & 0x00000000FFFFFFFFL;
+        long cVal = key & 0x0FFFFFFF00000000L;
         cVal = cVal >> (64-(29+1));
-        long fVal = key & Long.parseLong("0111000000000000000000000000000000000000000000000000000000000000",2);
+        long fVal = key & 0xF000000000000000L;
         fVal = fVal >> (64-(3+1));
         results[0] = (int)rVal;
         results[1] = (int)cVal;
