@@ -58,10 +58,11 @@ com.tumri.targeting.geoNoneWeight      = 1
 #Joz settings for LLS/LLC
 #com.tumri.joz.listing.provider.impl=com.tumri.lls.client.main.LlcListingProviderImpl
 com.tumri.joz.listing.provider.impl=com.tumri.joz.jozMain.JozListingProviderImpl
-com.tumri.llc.server.host=localhost
-com.tumri.llc.server.port=4444
+com.tumri.llc.server.host=${com.tumri.llc.server.host}
+com.tumri.llc.server.port=${com.tumri.llc.server.port}
 com.tumri.llc.socket.pool.size=10
 com.tumri.llc.socket.numRetries=3
+com.tumri.llc.listing.cache.size=10000
 
 
 #JoZ uses the property below to load all the campaign data based on the region specified
