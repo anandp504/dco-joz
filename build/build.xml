@@ -69,23 +69,11 @@
 
     <!-- ****************************************************************** -->
 
-    <target name="copy-non-java-files" depends="init">
-	<copy todir="${dist.dir}/conf">
-	    <fileset dir="${src.dir}/conf">
-		<include name="*.properties"/>
-		<include name="*.xml"/>
-	    </fileset>
-	</copy>
-	<replace file="${dist.dir}/conf/jozLog4j.xml"
-		 token="value=&quot;/@joz.error.logs.dir@/"
-		 value="value=&quot;${joz.error.logs.dir}/"/>
-    </target>
-
     <!-- ****************************************************************** -->
 
     <target name="build"
-            depends="build-Joz-war,build-indexer-jar,copy-non-java-files"
-            description="Build everything.">
+            depends="build-Joz-war,build-indexer-jar,dist"
+            description="Build everything and create the dist package.">
     </target>
 
     <!-- ****************************************************************** -->
@@ -106,6 +94,35 @@
 	</copy>
     </target>
 
+    <target name="dist" description="Create the dist package to be used for top level installation">
+        <loadproperties srcfile="${root.dir}/build/joz_version.properties"/>
+        <property name="package.name" value="${product_name}-${build_version}"/>
+        <property name="package.dir" value="${dist.dir}/package"/>
+        <property name="package.tmp.dir" value="${dist.dir}/${package.name}"/>
+        <delete dir="${package.tmp.dir}"/>
+        <!-- Create subdirectories -->
+        <mkdir dir="${package.dir}"/>
+        <mkdir dir="${package.tmp.dir}"/>
+        <mkdir dir="${package.tmp.dir}/webapps"/>
+        <mkdir dir="${package.tmp.dir}/conf"/>
+
+        <copy file="${src.dir}/conf/joz.properties.template" tofile="${package.tmp.dir}/conf/joz.properties"/>
+        <copy todir="${package.tmp.dir}/conf">
+            <fileset dir="${src.dir}/conf">
+                <include name="jozLog4j.xml"/>
+            </fileset>
+            <fileset dir="${root.dir}/tomcat/conf">
+                <include name="server.xml"/>
+            </fileset>
+        </copy>
+        <copy file="${dist.dir}/joz.war" todir="${package.tmp.dir}/webapps"/>
+        <copy file="${src.dir}/conf/local.properties" todir="${package.dir}"/>
+        <!-- Create a single tgz file and delete the package directory -->
+        <tar tarfile="${package.tmp.dir}/${package.name}.tar" basedir="${package.tmp.dir}"/>
+        <gzip zipfile="${package.dir}/${package.name}.tar.gz" src="${package.tmp.dir}/${package.name}.tar"/>
+        <delete dir="${package.tmp.dir}"/>
+    </target>
+    
     <!-- ****************************************************************** -->
 
     <!-- Targets invoked by the top level build harness don't have
