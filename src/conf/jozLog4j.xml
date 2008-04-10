@@ -21,7 +21,7 @@
 
 <appender name="jozLogFile" class="org.apache.log4j.DailyRollingFileAppender">
 	<errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
-	<param name="File" value="/@joz.error.logs.dir@/joz-log.txt"/>
+	<param name="File" value="/opt/Tumri/joz/logs/joz-log.txt"/>
 	<param name="Encoding" value="UTF-8"/>
 	<param name="Append" value="true"/>
 	<!-- Rollover at midnight each day -->
@@ -34,7 +34,7 @@
 
 <appender name="jozFatalLogFile" class="org.apache.log4j.DailyRollingFileAppender">
 	<errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
-	<param name="File" value="/@joz.error.logs.dir@/joz-fatal-error-log.txt"/>
+	<param name="File" value="/opt/Tumri/joz/logs/joz-fatal-error-log.txt"/>
 	<param name="Append" value="true"/>
 	<!-- Rollover at midnight each day -->
 	<param name="Encoding" value="UTF-8"/>
