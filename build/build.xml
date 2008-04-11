@@ -87,9 +87,9 @@
 	     if joz.war doesn't exist.  -->
 	<copy file="${dist.dir}/joz.war" todir="${war.install.dir}"/>
 	<copy todir="${conf.install.dir}">
-	    <fileset dir="${dist.dir}/conf">
-		<include name="*.properties"/>
-		<include name="*.xml"/>
+	    <fileset dir="${src.dir}/conf">
+		<include name="joz.properties"/>
+		<include name="jozLog4j.xml"/>
 	    </fileset>
 	</copy>
     </target>
@@ -105,6 +105,7 @@
         <mkdir dir="${package.tmp.dir}"/>
         <mkdir dir="${package.tmp.dir}/webapps"/>
         <mkdir dir="${package.tmp.dir}/conf"/>
+         <mkdir dir="${package.tmp.dir}/common/lib"/>
 
         <copy file="${src.dir}/conf/joz.properties.template" tofile="${package.tmp.dir}/conf/joz.properties"/>
         <copy todir="${package.tmp.dir}/conf">
@@ -116,6 +117,7 @@
             </fileset>
         </copy>
         <copy file="${dist.dir}/joz.war" todir="${package.tmp.dir}/webapps"/>
+        <copy file="${ext.lib.dir}/log4j-1.2.6.jar" todir="${package.tmp.dir}/common/lib"/>
         <copy file="${src.dir}/conf/local.properties" todir="${package.dir}"/>
         <!-- Create a single tgz file and delete the package directory -->
         <tar tarfile="${package.tmp.dir}/${package.name}.tar" basedir="${package.tmp.dir}"/>
@@ -133,10 +135,10 @@
 		<gzip zipfile="${package.dir}/${product_name}-install-${build_version}.tar.gz" src="${dist.dir}/${product_name}-install-${build_version}.tar"/>
 		<delete file="${dist.dir}/${product_name}-install-${build_version}.tar"/>
 		<delete dir="${dist.dir}/${product_name}-install-${build_version}"/>
-    	
+
 		<copy file="${root.dir}/install/install.xml" todir="${package.dir}"/>
 		<copy file="${root.dir}/install/install.properties" todir="${package.dir}"/>
-		<replace file="${package.dir}/install.properties" token="@version@" value="${build_version}"/>    	
+		<replace file="${package.dir}/install.properties" token="@version@" value="${build_version}"/>
     </target>
     
     <!-- ****************************************************************** -->
