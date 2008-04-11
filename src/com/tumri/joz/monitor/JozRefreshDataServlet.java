@@ -12,6 +12,7 @@ import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.jozMain.ListingProviderFactory;
 import com.tumri.joz.jozMain.MerchantDB;
+import com.tumri.lls.client.LlsSocketConnectionPool;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -57,6 +58,13 @@ public class JozRefreshDataServlet extends HttpServlet {
                 result = "failed";
             }
             responseJSP = "/jsp/cma-content-status.jsp";
+        } else if ("socket".equalsIgnoreCase(dataType)) {
+            try {
+                result = doResetSocketPool();
+            } catch (Exception e) {
+                result = "failed";
+            }
+            responseJSP = "/jsp/llc-status.jsp";
         }
         //By default send non verbose output
         if (jspMode!=null) {
@@ -95,6 +103,14 @@ public class JozRefreshDataServlet extends HttpServlet {
         CMAContentProviderStatus status = CMAContentProviderStatus.getInstance();
         String success = (status.lastRunStatus == true? "success" : "failed");
         return success;
+    }
+
+    /**
+     * Helper method to refresh socket data
+     */
+    private String doResetSocketPool() {
+        LlsSocketConnectionPool.getInstance().reset();
+        return "success";
     }
 
 }
