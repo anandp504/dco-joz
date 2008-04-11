@@ -121,6 +121,22 @@
         <tar tarfile="${package.tmp.dir}/${package.name}.tar" basedir="${package.tmp.dir}"/>
         <gzip zipfile="${package.dir}/${package.name}.tar.gz" src="${package.tmp.dir}/${package.name}.tar"/>
         <delete dir="${package.tmp.dir}"/>
+
+    	<!-- Copy buildtools.jar and start/stop service scripts. -->
+		<mkdir dir="${dist.dir}/${product_name}-install-${build_version}/bin"/>
+		<mkdir dir="${dist.dir}/${product_name}-install-${build_version}/lib"/>
+		<copy file="${root.dir}/../buildtools/dist/buildtools.jar" todir="${dist.dir}/${product_name}-install-${build_version}/lib"/>
+		<copy todir="${dist.dir}/${product_name}-install-${build_version}/bin" overwrite="yes" preservelastmodified="true">
+			<fileset dir="${root.dir}/install/bin"/>
+		</copy>
+		<tar tarfile="${dist.dir}/${product_name}-install-${build_version}.tar" basedir="${dist.dir}/${product_name}-install-${build_version}"/>
+		<gzip zipfile="${package.dir}/${product_name}-install-${build_version}.tar.gz" src="${dist.dir}/${product_name}-install-${build_version}.tar"/>
+		<delete file="${dist.dir}/${product_name}-install-${build_version}.tar"/>
+		<delete dir="${dist.dir}/${product_name}-install-${build_version}"/>
+    	
+		<copy file="${root.dir}/install/install.xml" todir="${package.dir}"/>
+		<copy file="${root.dir}/install/install.properties" todir="${package.dir}"/>
+		<replace file="${package.dir}/install.properties" token="@version@" value="${build_version}"/>    	
     </target>
     
     <!-- ****************************************************************** -->
