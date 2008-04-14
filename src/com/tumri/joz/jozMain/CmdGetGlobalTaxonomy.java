@@ -1,5 +1,5 @@
-/*
- * CmdGetCompleteTaxonomy.java
+/*                                                              
+ * CmdGetGlobalTaxonomy.java
  *
  * COPYRIGHT (C) ${year} TUMRI INC.  ALL RIGHTS RESERVED. TUMRI AND LOGO ARE
  * EITHER TRADEMARKS OR REGISTERED TRADEMARKS OF TUMRI.  ALL OTHER COMPANY,
@@ -17,21 +17,19 @@
  */
 package com.tumri.joz.jozMain;
 
-import com.tumri.content.data.Category;
-import com.tumri.content.data.Taxonomy;
-import com.tumri.content.data.dictionary.DictionaryManager;
-import com.tumri.joz.products.JOZTaxonomy;
-import com.tumri.utils.sexp.*;
 import org.apache.log4j.Logger;
+import com.tumri.utils.sexp.*;
+import com.tumri.content.data.dictionary.DictionaryManager;
+import com.tumri.content.data.Taxonomy;
+import com.tumri.content.data.Category;
+import com.tumri.joz.products.JOZTaxonomy;
 
 import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * This API provides the complete "TUMRI" taxonomy - the provider taxonomy data is ignored, since the Portals
- * (Publisher/TMC/QAC) do not support this feature as of 4/14/2008.
- *
- * For the complete Taxonomy - Please use the new API CmdGetGlobalTaxonomy.
+ * This API provides the complete listing of "TUMRI" taxonomy AND all provider taxonomies as well. This API replaces
+ * the CmdGetCompleteTaxonomy API.
  *
  * The get-complete-taxonomy command has the following format.
  * It takes no parameters and returns the taxonomy formatted as:
@@ -50,17 +48,16 @@ import java.util.Iterator;
  *
  */
 
-public class CmdGetCompleteTaxonomy extends CommandDeferWriting {
+public class CmdGetGlobalTaxonomy extends CommandDeferWriting {
 
-    protected static Logger log = Logger.getLogger(CmdGetCompleteTaxonomy.class);
+    protected static Logger log = Logger.getLogger(CmdGetGlobalTaxonomy.class);
 
     protected int maxDepth = -1;
     protected boolean fetchCounts = false;
     // What do we do with agentName ?
     protected String agentName = null;
-    private static final String TUMRI_ROOT_CATEGORY_iD = "GLASSVIEW.TUMRI_14111";
 
-    public CmdGetCompleteTaxonomy(Sexp e) {
+    public CmdGetGlobalTaxonomy(Sexp e) {
         super(e);
     }
 
@@ -81,9 +78,7 @@ public class CmdGetCompleteTaxonomy extends CommandDeferWriting {
                     categoryCounts = counts[0];
                 }
             }
-            //Starting Joz 3.5, this API will suppport only the Tumri Category hierarchy
-            Category tumriRootCat = t.getCategory(TUMRI_ROOT_CATEGORY_iD);
-            retVal = get_taxonomy(dm, t, tumriRootCat, fetchCounts, categoryCounts, 0, maxDepth);
+            retVal = get_taxonomy(dm, t, t.getRootCategory(), fetchCounts, categoryCounts, 0, maxDepth);
         } catch (Exception ex) {
             return returnError(ex);
         }
@@ -177,7 +172,7 @@ public class CmdGetCompleteTaxonomy extends CommandDeferWriting {
     /**
      * Returns the taxonomy tree.
      *
-     * Format of the response is 
+     * Format of the response is
      *
      * (( |CATEGORY| "CATEGORY" COUNT SUBCHILDREN ) ( (( |CHILD1| "CHILD1" COUNT SUBCHILDREN ) (...)) ))
      * OR

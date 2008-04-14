@@ -82,6 +82,8 @@ public abstract class Command {
                 return new CmdGetCounts(e);
             if (cmd_name.equals("get-complete-taxonomy"))
                 return new CmdGetCompleteTaxonomy(e);
+            if (cmd_name.equals("get-global-taxonomy"))
+                return new CmdGetGlobalTaxonomy(e);
             if (cmd_name.equals("get-providers"))
                 return new CmdGetProviders(e);
             if (cmd_name.equals("get-root-categories"))
