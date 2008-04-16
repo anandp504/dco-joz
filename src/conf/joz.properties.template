@@ -14,7 +14,7 @@ com.tumri.content.file.batchReadInterval=1
 com.tumri.content.jozindexDir=jozindex
 #com.tumri.joz.index.reader.debug=false
 #com.tumri.joz.index.reader.debug.outdir=/tmp
-#com.tumri.joz.index.reader.indexFileNamePattern=.*_jozindex_.*.bin
+com.tumri.joz.index.reader.indexFileNamePattern=.*_jozindex_.*.bin
 #com.tumri.content.file.disableJozIndex=true
 
 #Note that the com.tumri.campaign.file.sourceDir can be set to a comma separated list of directories that are all used to look for the tspec and mapping lisp files.
