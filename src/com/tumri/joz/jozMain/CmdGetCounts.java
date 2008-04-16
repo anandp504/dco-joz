@@ -42,9 +42,14 @@ import java.util.*;
 public class CmdGetCounts extends CommandDeferWriting {
 
     private static Logger log = Logger.getLogger(CmdGetCounts.class);
+    private static Category rootCat = null;
 
     public CmdGetCounts(Sexp e) {
         super(e);
+        Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
+        if (t != null) {
+            rootCat = t.getRootCategory();
+        }
     }
 
     @Override
@@ -84,20 +89,23 @@ public class CmdGetCounts extends CommandDeferWriting {
     // This method is invoded from CmdTSpecAdd also.
     public static Sexp getCounts(String tspec_name) throws BadCommandException {
 
+        String rootCatId = null;
+        if (rootCat==null) {
+            Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
+            if (t != null) {
+                rootCat = t.getRootCategory();
+            }
+        }
+
+        if (rootCat != null) {
+            rootCatId = rootCat.getGlassIdStr();
+        }
         HashMap<String, Counter>[] counters = getCounters(tspec_name);
 
         HashMap<String, Counter> category_counts = counters[0];
         HashMap<String, Counter> brand_counts = counters[1];
         HashMap<String, Counter> provider_counts = counters[2];
 
-        String rootCatId = null;
-        Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
-        if (t != null) {
-            Category rootCat = t.getRootCategory();
-            if (rootCat != null) {
-                rootCatId = rootCat.getGlassIdStr();
-            }
-        }
 
         // Now create the return result.  
 
@@ -297,22 +305,32 @@ public class CmdGetCounts extends CommandDeferWriting {
         if (keyStrVal != null) {
             //If this is category, then need to get the cats of parents also
             if (kAttr == IProduct.Attribute.kCategory) {
+                if (rootCat==null) {
+                    Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
+                    if (t != null) {
+                        rootCat = t.getRootCategory();
+                    }
+                }
 
                 Counter ctr = getCounter(attrCounts,keyStrVal);
                 ctr.inc(size);
 
-                //Also increment the root category
-                String rootCatId = null;
+                //Increment the root only if the current cat is first child of root
                 Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
                 if (t != null) {
-                    Category rootCat = t.getRootCategory();
-                    if (rootCat != null) {
-                        rootCatId = rootCat.getGlassIdStr();
+                    //The Node right below the root is a "parent" of that category hierachy
+                    Category fatherCat = t.getParent(t.getCategory(keyStrVal));
+                    if (fatherCat!=null) {
+                        Category grandFatherCat = fatherCat.getParent();
+                        if (grandFatherCat != null && grandFatherCat.equals(rootCat)) {
+                            if (rootCat != null) {
+                                String rootCatId = rootCat.getGlassIdStr();
+                                Counter rootctr = getCounter(attrCounts,rootCatId);
+                                rootctr.inc(size);
+                            }
+                        }
                     }
                 }
-                //TODO: How do i avoid double counting of parent cat counts into the root ?
-                Counter rootctr = getCounter(attrCounts,rootCatId);
-                rootctr.inc(size);
 
             } else {
                 Counter ctr = getCounter(attrCounts,keyStrVal);
