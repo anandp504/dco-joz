@@ -129,7 +129,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
    * @param weight of a Value is computed using weight object
    */
   public void include(SortedSet<Value> set, IWeight<Value> weight) {
-    if (set != null && set.size() > 0) {
+    if ((set != null && set.size() > 0) || ((set == null || set.size() ==0) && weight.mustMatch())) {
+      if (set==null) {
+          set = new SortedArraySet<Value>();
+      }
       boolean added = false;
       for (int i = 0; i < m_includes.size(); i++) {
         SortedSet<Value> lValues = m_includes.get(i);
