@@ -19,7 +19,6 @@ package com.tumri.joz.jozMain;
 
 import com.tumri.cma.domain.OSpec;
 import com.tumri.content.data.Category;
-import com.tumri.content.data.Product;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.Query.*;
@@ -33,7 +32,6 @@ import com.tumri.joz.products.IProduct;
 import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.ranks.AttributeWeights;
 import com.tumri.utils.sexp.*;
-import com.tumri.utils.dictionary.*;
 import com.tumri.utils.data.SortedArraySet;
 import org.apache.log4j.Logger;
 
@@ -206,7 +204,7 @@ public class CmdGetCounts extends CommandDeferWriting {
             Set<Integer> keySet = ai.getKeys();
             for (Integer theKey: keySet) {
                 String keyStrVal = DictionaryManager.getInstance().getValue(kAttr, theKey);
-                incrementCounter(attrCounts, keyStrVal, kAttr);
+                incrementCounter(ai.getCount(theKey),attrCounts, keyStrVal, kAttr);
             }
         }
         return attrCounts;
@@ -312,23 +310,12 @@ public class CmdGetCounts extends CommandDeferWriting {
                     }
                 }
 
-                Counter ctr = getCounter(attrCounts,keyStrVal);
-                ctr.inc(size);
-
-                //Increment the root only if the current cat is first child of root
+                //Check if this is a lead node
                 Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
-                if (t != null) {
-                    //The Node right below the root is a "parent" of that category hierachy
-                    Category fatherCat = t.getParent(t.getCategory(keyStrVal));
-                    if (fatherCat!=null) {
-                        Category grandFatherCat = fatherCat.getParent();
-                        if (grandFatherCat != null && grandFatherCat.equals(rootCat)) {
-                            if (rootCat != null) {
-                                String rootCatId = rootCat.getGlassIdStr();
-                                Counter rootctr = getCounter(attrCounts,rootCatId);
-                                rootctr.inc(size);
-                            }
-                        }
+                if (t!=null) {
+                    Category cat = t.getCategory(keyStrVal);
+                    if (cat != null && t.getChildren(cat) == null) {
+                        incrementCategoryCount(size, keyStrVal, attrCounts);
                     }
                 }
 
@@ -339,6 +326,48 @@ public class CmdGetCounts extends CommandDeferWriting {
         }
     }
 
+    /**
+     * Increment the count for the category, as well as all its parents
+     * @param size
+     * @param catIdStr
+     * @param attrCounts
+     */
+    private static void incrementCategoryCount(int size, String catIdStr, HashMap<String, Counter> attrCounts) {
+        List<String> categories = new ArrayList<String>();
+        categories.add(catIdStr);
+        categories = getAllCategories(categories);
+        if (categories!=null) {
+            for (String cat : categories) {
+                Counter ctr = getCounter(attrCounts,cat);
+                ctr.inc(size);
+            }
+        }
+
+    }
+    /**
+     * Return list of all categories in cats and their parents.
+     */
+    private static List<String> getAllCategories(List<String> cats) {
+        JOZTaxonomy tax = JOZTaxonomy.getInstance();
+        Taxonomy t = tax.getTaxonomy();
+        if (t != null) {
+            List<String> result = new ArrayList<String>();
+            HashSet<Integer> idSet = new HashSet<Integer>();
+            for (String c : cats) {
+                Category p = t.getCategory(c);
+                while (p != null && !idSet.contains(p.getGlassId())) {
+                    idSet.add(p.getGlassId());
+                    result.add(p.getGlassIdStr());
+                    p = p.getParent();
+                };
+            }
+            return result;
+        }
+        return null;
+    }
+
+
+    
     private static Counter getCounter(HashMap<String, Counter> counts, String key) {
         if (counts == null) {
             return null;
