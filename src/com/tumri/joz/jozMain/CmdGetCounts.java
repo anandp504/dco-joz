@@ -119,6 +119,9 @@ public class CmdGetCounts extends CommandDeferWriting {
             category_counts.remove(rootCatId);
         }
 
+        //Also remove the Tumri Category root - which is not handled correctly by the Portals
+        category_counts.remove("GLASSVIEW.TUMRI_14111");
+
         Set<Map.Entry<String, Counter>> cat_counts = category_counts.entrySet();
         for (Map.Entry<String, Counter> count : cat_counts) {
             SexpList l = new SexpList(new SexpString(count.getKey()), new SexpInteger(count.getValue().get()));
