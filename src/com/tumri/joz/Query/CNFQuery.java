@@ -45,9 +45,9 @@ public class CNFQuery implements Query, Cloneable {
   public void setReference(Handle aReference) {
     if (aReference!= null && m_cache_reference != null) {
         //Generate a new reference point
-        IProduct iProdHandle = ProductDB.getInstance().get(m_cache_reference);
+        Handle iProdHandle = ProductDB.getInstance().getHandle(m_cache_reference.getOid());
         if (iProdHandle!=null) {
-            m_reference = iProdHandle.getHandle();
+            m_reference = iProdHandle;
         } else {
             m_reference = aReference;
         }

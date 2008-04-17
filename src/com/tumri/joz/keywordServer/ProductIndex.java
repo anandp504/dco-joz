@@ -26,7 +26,6 @@ import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.FSUtils;
 import com.tumri.joz.products.*;
 import com.tumri.joz.index.creator.JozIndexCreator;
-import com.tumri.joz.index.creator.ProviderIndexCreator;
 import com.tumri.content.impl.file.FileContentConfigValues;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Product;
@@ -179,9 +178,9 @@ public class ProductIndex {
                                 String id = doc.get("id");
                                 double score = topdocs.scoreDocs[i].score;
                                 long oid = Long.parseLong(id);
-                                IProduct p = db.getInt(oid); // avoids too many calls to lock/unlock
-                                if (p != null) {
-                                    alist.add(new ProductHandle(score,(long)p.getId()));
+                                Handle ph = db.getProdHandle(oid); // avoids too many calls to lock/unlock
+                                if (ph != null) {
+                                    alist.add(new ProductHandle(score,ph.getOid()));
                                 }
                                 if (score < min_score) break;
                             }

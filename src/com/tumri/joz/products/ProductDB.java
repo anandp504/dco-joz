@@ -733,24 +733,40 @@ public class ProductDB {
   }
 
 
-    /**
-     * Return a handle given a product id.
-      * @param pid
-     * @return
-     */
+  /**
+   * Return a handle given a product id.
+   * @param pid
+   * @return
+   */
   public Handle getHandle(Long pid) {
-   //Check if the prod exists - else return null
-   ProductHandle p = new ProductHandle(0.0, pid.longValue());
-   Handle ph = m_allProducts.find(p);
-   if (ph !=null) {
-        p = (ProductHandle) ph;
-   } else {
-       //return null
-       p = null;
+   Handle p = null;
+   try {
+      m_allProducts.readerLock();
+      p = getProdHandle(pid);
+   } finally {
+          m_allProducts.readerUnlock();
    }
     return p;
   }
 
+  /**
+   * Get Handle without checking a lock, reader should call readerLock()
+   * Check if the prod exists - else return null
+   * @param pid
+   * @return Handle
+   */
+  public ProductHandle getProdHandle(Long pid) {
+      ProductHandle p = new ProductHandle(0.0, pid.longValue());
+      Handle ph;
+      ph = m_allProducts.find(p);
+
+      if (ph !=null) {
+           p = (ProductHandle) ph;
+      } else {
+          p = null;
+      }
+      return p;
+  }
     
   public boolean isEmpty() {
     return m_allProducts.isEmpty();  
@@ -760,7 +776,12 @@ public class ProductDB {
   * Add the new products into the database.
   */
   public void addNewProducts(SortedSet<Handle> newProducts) {
-      m_allProducts.addAll(newProducts);
+    try {
+        m_allProducts.writerLock();
+        m_allProducts.addAll(newProducts);
+    } finally {
+        m_allProducts.writerUnlock();
+    }
   }
 
     /**
