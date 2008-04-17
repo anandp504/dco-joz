@@ -100,8 +100,10 @@
 		<exec executable="rm">
 			<arg line="-f ${tumri.component.root}/${component.current.link}"/>			
 		</exec>
-		<available property="previous.link.exist" file="${tumri.component.root}/${component.previous.link}"/>
-		<exec executable="mv" if="${previous.link.exist}">
+		<condition property="previous.link.exist">
+			<available file="${tumri.component.root}/${component.previous.link}"/> 
+		</condition>
+		<exec executable="mv">
 			<arg line="${tumri.component.root}/${component.previous.link} ${tumri.component.root}/${component.current.link}"/>			
 		</exec>		        
     	<delete dir="${tumri.component.home}"/>
