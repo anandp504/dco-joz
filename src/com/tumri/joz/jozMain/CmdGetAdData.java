@@ -84,7 +84,7 @@ public class CmdGetAdData extends CommandOwnWriting {
             PerformanceMonitor.getInstance().registerSuccess(reqParams, elapsed_time);
 
             // Send the result back to the client.
-            write_result(rqst, targetedOSpec, null /* FIXME:wip */,
+            write_result(rqst, targetedOSpec, 
                     private_label_p, features, elapsed_time, product_handles, out);
         } else {
 			PerformanceMonitor.getInstance().registerFailure(reqParams);
@@ -128,7 +128,6 @@ public class CmdGetAdData extends CommandOwnWriting {
     // http://www.json.org.
 
     private void write_result(AdDataRequest rqst, OSpec ospec,
-            Realm realm, // FIXME: wip
             boolean private_label_p, Features features, long elapsed_time,
             ArrayList<Handle> product_handles, OutputStream out)
             throws IOException, Exception {

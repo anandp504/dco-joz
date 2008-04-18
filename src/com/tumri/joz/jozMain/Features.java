@@ -8,6 +8,7 @@ import com.tumri.utils.sexp.SexpInteger;
 import com.tumri.utils.sexp.SexpKeyword;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpString;
+import com.tumri.joz.utils.AppProperties;
 
 /**
  * Container for the feature list passed back in get-ad-data requests.
@@ -16,28 +17,21 @@ import com.tumri.utils.sexp.SexpString;
  *
  */
 public class Features {
-    public static final String JOZ_VERSION = "3.0";
     public static final String FEATURE_WIDGET_SEARCH = "SEARCH-IN-WIDGET";
     public static final String FEATURE_MINE_URL_SEARCH = "SEARCH-MINE-URL";
     public static final String FEATURE_SCRIPT_SEARCH = "SEARCH-SCRIPT_KEYWORD";
     
     private String _joz_version;
-    private Integer _mup_version;
     private String _host_name;
-    private Integer _seed;
     private HashMap<String, String> jozFeaturesMap = null;
     
     public Features(HashMap<String, String> _jozFeaturesMap) {
-    	//TODO: Get the Joz version from a properties file, or system parm. Major version + Build/Patch number
-    	_joz_version = JOZ_VERSION;
+    	_joz_version = AppProperties.getInstance().getJozReleaseVersion();
         try {
         	_host_name = java.net.InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             _host_name = "unknown";
         }
-        //TODO: Get the MUP version from CAA
-        _mup_version = 666;
-        //TODO: Check if the seed, ie, the random handle needs to passed back.
         if (_jozFeaturesMap!=null){
         	setJozFeaturesMap(_jozFeaturesMap);
         }
@@ -47,17 +41,9 @@ public class Features {
         return _joz_version;
     }
     
-    private Integer get_mup_version() {
-        return _mup_version;
-    }
-    
     private String get_host_name() {
         return _host_name;
     }
-    
-    private Integer get_seed() {
-        return _seed;
-    } 
     
     private void setJozFeaturesMap(HashMap<String, String> jozFeatures) {
     	this.jozFeaturesMap = jozFeatures;
@@ -74,8 +60,7 @@ public class Features {
         SexpString s;
         SexpKeyword k;
         flist.addLast(build_list(":TIME", format_elapsed_time(elapsed_time)));
-        flist.addLast(build_list(":SOZ-VER", get_joz_version()));
-        flist.addLast(build_list(":MUP-VER", get_mup_version()));
+        flist.addLast(build_list(":JOZ-VER", get_joz_version()));
         flist.addLast(build_list(":HOST", get_host_name()));
         l = new SexpList();
         k = new SexpKeyword(":FEATURES");
@@ -83,11 +68,11 @@ public class Features {
         if (jozFeaturesMap==null || jozFeaturesMap.isEmpty()) {
         	s = new SexpString("\"NIL\"");
         } else {
-        	Iterator featureKeys = jozFeaturesMap.keySet().iterator();
+        	Iterator<String> featureKeys = jozFeaturesMap.keySet().iterator();
         	String featureBuiltUpStr = "";
         	while (featureKeys.hasNext()) {
-        		String featureKeyStr = (String)featureKeys.next();
-        		String featureValStr = (String)jozFeaturesMap.get(featureKeyStr);
+        		String featureKeyStr = featureKeys.next();
+        		String featureValStr = jozFeaturesMap.get(featureKeyStr);
         		if (featureKeyStr!=null && !"".equals(featureKeyStr) && featureValStr!=null && !"".equals(featureValStr)) {
         			featureBuiltUpStr = "(" + featureKeyStr + " \"" + featureValStr + "\")";
         		}
@@ -111,21 +96,6 @@ public class Features {
         l.addLast(kk);
         SexpString ss = new SexpString("\"" + s + "\"");
         l.addLast(ss);
-        return l;
-    }
-    
-    /**
-     * Helper method to build a Sexp list from a String key and int val
-     * @param k
-     * @param i
-     * @return
-     */
-    private static SexpList build_list(String k, int i) {
-        SexpList l = new SexpList();
-        SexpKeyword kk = new SexpKeyword(k);
-        l.addLast(kk);
-        SexpInteger ii = new SexpInteger(i);
-        l.addLast(ii);
         return l;
     }
     
