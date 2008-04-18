@@ -54,8 +54,7 @@ public class InitServlet extends HttpServlet {
     public void destroy() {
         Polling.getInstance().shutdown();  
         CMAContentPoller.getInstance().shutdown();
-        ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-                MerchantDB.getInstance().getMerchantData()).shutdown();
+        ListingProviderFactory.shutdown();
     }
     
     private static String getLog4JConfigFilePath() {

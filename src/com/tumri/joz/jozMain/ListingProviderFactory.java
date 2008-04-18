@@ -1,9 +1,12 @@
 package com.tumri.joz.jozMain;
 
-import com.tumri.joz.utils.AppProperties;
-import com.tumri.lls.client.main.ListingProvider;
-import com.tumri.content.data.Taxonomy;
 import com.tumri.content.MerchantDataProvider;
+import com.tumri.content.data.Taxonomy;
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.LogUtils;
+import com.tumri.lls.client.main.LLCClientException;
+import com.tumri.lls.client.main.ListingProvider;
+import org.apache.log4j.Logger;
 
 /**
  * Factory class to provide access to all the Listing providers.
@@ -32,7 +35,7 @@ import com.tumri.content.MerchantDataProvider;
 public class ListingProviderFactory {
 
     private static ListingProvider listingProvider;
-
+    private static Logger log = Logger.getLogger(ListingProviderFactory.class);
     private static final String PROVIDER_CLASS_NAME = "com.tumri.joz.listing.provider.impl";
     private static boolean initialized;
 
@@ -40,7 +43,7 @@ public class ListingProviderFactory {
      * @return ListingProvider Implementation
      * @throws RuntimeException
      */
-    public static ListingProvider getProviderInstance(Taxonomy tax, MerchantDataProvider m) throws RuntimeException {
+    public static ListingProvider getProviderInstance(Taxonomy tax, MerchantDataProvider m) {
         if(initialized) {
             return listingProvider;
         }
@@ -50,7 +53,14 @@ public class ListingProviderFactory {
                     instantiateFactory();
                     initialized = true;
                 }
-                listingProvider.init(AppProperties.getInstance().getProperties(), tax, m);
+                try {
+                    listingProvider.init(AppProperties.getInstance().getProperties(), tax, m);
+                } catch (LLCClientException e) {
+                   LogUtils.getFatalLog().fatal("Exception caught on initializing content provider");
+                    //Kick off thread that will retry and reconnect
+                    LlcReconnectPoller.getInstance(listingProvider,tax,m).init();
+
+                }
             }
         }
         return listingProvider;
@@ -86,6 +96,16 @@ public class ListingProviderFactory {
         catch(InstantiationException e) {
             throw new RuntimeException("Unable to instantiate the ListingProvider Implementation class. Check joz.properties for right class name", e);
         }
+    }
+
+    /**
+     * Clears up the resources
+     */
+    public static void shutdown() {
+        if (listingProvider != null) {
+            listingProvider.shutdown();
+        }
+        LlcReconnectPoller.getInstance(null,null,null).shutdown();
     }
 
 }
