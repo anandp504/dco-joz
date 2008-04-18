@@ -57,6 +57,9 @@ OS400*) os400=true;;
 Darwin*) darwin=true;;
 esac
 
+#Java Opts setting
+JAVA_OPTS="$JAVA_OPTS -Xms512m -Xmx2000m"
+
 if [ -z "$CATALINA_HOME" ]; then
 	TOMCAT_CFG="${TUMRI_APP_HOME}/tomcat5/conf/${TUMRI_APP}.conf"
 fi
