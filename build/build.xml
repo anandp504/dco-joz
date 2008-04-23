@@ -117,6 +117,7 @@
             </fileset>
         </copy>
         <copy file="${dist.dir}/joz.war" todir="${package.tmp.dir}/webapps"/>
+        <copy file="${dist.dir}/IndexCreator.tgz" todir="${package.tmp.dir}/webapps"/>
         <copy file="${ext.lib.dir}/log4j-1.2.6.jar" todir="${package.tmp.dir}/common/lib"/>
         <copy file="${src.dir}/conf/local.properties" todir="${package.dir}"/>
         <!-- Create a single tgz file and delete the package directory -->
