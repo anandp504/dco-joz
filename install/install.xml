@@ -116,7 +116,7 @@
 	-->
 	<target name="install-joz"
     		depends=""
-    		description="Install JoZ component.">
+    		description="Install JoZ software.">
 		<antcall target="install">
 			<param name="tumri.component.root" value="${install.root.dir}"/>
 			<param name="tumri.component.home" value="${install.component.dir}"/>
@@ -132,7 +132,7 @@
 	-->
 	<target name="uninstall-joz" 
 			depends=""
-			description="Uninstall JoZ component.">
+			description="Uninstall JoZ software.">
 		<antcall target="uninstall">
 			<param name="tumri.component.root" value="${install.root.dir}"/>
 			<param name="tumri.component.home" value="${install.component.dir}"/>
