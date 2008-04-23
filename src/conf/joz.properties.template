@@ -5,7 +5,7 @@ com.tumri.content.file.dataDir=data
 com.tumri.content.luceneDir=lucene
 #com.tumri.content.file.cacheEnabled=false
 #com.tumri.content.file.cacheFilename=/tmp/ContentData.txt
-com.tumri.content.file.disableMup=true
+#com.tumri.content.file.disableMup=true
 #com.tumri.content.file.disableTaxonomy=true
 #com.tumri.content.file.disableMerchantData=true
 com.tumri.content.file.batchReadSize=5000
@@ -15,7 +15,7 @@ com.tumri.content.jozindexDir=jozindex
 #com.tumri.joz.index.reader.debug=false
 #com.tumri.joz.index.reader.debug.outdir=/tmp
 com.tumri.joz.index.reader.indexFileNamePattern=.*_jozindex_.*.bin
-#com.tumri.content.file.disableJozIndex=true
+com.tumri.content.file.disableJozIndex=true
 
 #Note that the com.tumri.campaign.file.sourceDir can be set to a comma separated list of directories that are all used to look for the tspec and mapping lisp files.
 com.tumri.campaign.querycache.size=2000
@@ -23,7 +23,7 @@ com.tumri.campaign.file.sourceDir=/opt/Tumri/joz/data/cma
 com.tumri.campaign.file.trigger.monitorInterval=5
 com.tumri.campaign.file.tspecFileNamePattern=t-specs.lisp
 com.tumri.campaign.file.mappingFileNamePattern=mapping.lisp
-com.tumri.campaign.file.refresh.enabled=true
+com.tumri.campaign.file.refresh.enabled=${com.tumri.campaign.file.refresh.enabled}
 com.tumri.campaign.file.refresh.time.minutes=40
 com.tumri.campaign.file.refresh.interval.minutes=60
 com.tumri.campaign.file.triggerLoadFileName=cmaload.txt
@@ -56,8 +56,8 @@ com.tumri.targeting.geoNoneScore       = 0.2
 com.tumri.targeting.geoNoneWeight      = 1
 
 #Joz settings for LLS/LLC
-com.tumri.joz.listing.provider.impl=com.tumri.lls.client.main.LlcListingProviderImpl
-#com.tumri.joz.listing.provider.impl=com.tumri.joz.jozMain.JozListingProviderImpl
+#com.tumri.joz.listing.provider.impl=com.tumri.lls.client.main.LlcListingProviderImpl
+com.tumri.joz.listing.provider.impl=com.tumri.joz.jozMain.JozListingProviderImpl
 com.tumri.joz.listing.parser.impl=com.tumri.lls.client.response.json.LlcJSONListingDataParserImpl
 com.tumri.llc.server.host=${com.tumri.llc.server.host}
 com.tumri.llc.server.port=20444
