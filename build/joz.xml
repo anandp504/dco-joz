@@ -88,6 +88,60 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 
     </target>
 
+    <target name="build-TestListingGenerator" depends="build-indexer-zip">
+        <delete dir="${stage.dir}/TestListingGenerator"/>
+        <mkdir dir="${stage.dir}/TestListingGenerator"/>
+
+        <copy todir="${stage.dir}/TestListingGenerator" file="${dist.dir}/IndexCreator.tgz"/>
+
+        <javac destdir="${classes.dir}"
+               debug="on"
+               optimize="on"
+               srcdir="${test.dir}"
+               includes="**/ListingTestDataProvider.java">
+            <classpath refid="project.class.path"/>
+            <classpath><pathelement location="${dist.dir}/joz.jar"/></classpath>
+            <compilerarg value="-Xlint:unchecked"/>
+	    <compilerarg value="-Xlint:deprecation"/>
+        </javac>
+
+        <jar destfile="${stage.dir}/TestListingGenerator/testListingGen.jar">
+            <fileset dir="${classes.dir}"
+		     includes="**/*.class"/>
+            <fileset dir="${stage.dir}/TestListingGenerator"/>
+            <manifest>
+                <attribute name="Main-Class" value="com.tumri.joz.util.ListingTestDataProvider"/>
+            </manifest>
+        </jar>
+
+        <copy todir="${stage.dir}/TestListingGenerator" file="${caa.lib.dir}/caa.jar"/>
+        <copy todir="${stage.dir}/TestListingGenerator" file="${utils.lib.dir}/utils.jar"/>
+        <copy todir="${stage.dir}/TestListingGenerator">
+            <fileset dir="${test.dir}/data" includes="*.*"/>
+        </copy>
+        <touch file="${stage.dir}/TestListingGenerator/createListing.sh"/>
+
+        <echo file="${stage.dir}/TestListingGenerator/createListing.sh">#!/bin/sh</echo>
+        <echo file="${stage.dir}/TestListingGenerator/createListing.sh">java -Xms512m -Xmx1g -classpath .:caa.jar:utils.jar:testListingGen.jar com.tumri.joz.util.ListingTestDataProvider $@</echo>
+        <chmod file="${stage.dir}/TestListingGenerator/createListing.sh" perm="a+x"></chmod>
+
+        <tar destfile="${stage.dir}/TestListingGenerator/TestListingGenerator.tar">
+            <tarfileset dir="${stage.dir}/TestListingGenerator">
+                 <exclude name="*.sh"/>
+            </tarfileset>
+            <tarfileset dir="${stage.dir}/TestListingGenerator" mode="755">
+                <include name="*.sh"/>
+            </tarfileset>
+
+        </tar>
+
+        <gzip zipfile="${stage.dir}/TestListingGenerator/TestListingGenerator.tgz" src="${stage.dir}/TestListingGenerator/TestListingGenerator.tar"/>
+        <delete file="${stage.dir}/TestListingGenerator/TestListingGenerator.tar"/>
+
+        <move file="${stage.dir}/TestListingGenerator/TestListingGenerator.tgz" todir="${dist.dir}"/>
+
+    </target>
+
     <!-- ****************************************************************** -->
 
     <target name="build-Joz-jar" depends="init,version">
