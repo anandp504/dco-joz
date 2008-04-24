@@ -98,7 +98,7 @@ public class ProductWrapper implements IProduct {
     }
 
     public Integer getAreaCode() {
-        return getAreaCode();
+        return prod.getAreaCode();
     }
 
     public String getAreaCodeStr() {
