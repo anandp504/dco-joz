@@ -101,7 +101,7 @@ public class JozJSONResponseBuilder {
         b.append("\",cpo:\"");
         b.append(encodePrice(p.getCPO()));
         b.append("\",rank:\"");
-        b.append(p.getRank());
+        b.append((p.getRank()==null)?"":p.getRank().toString());
         b.append("\"");
 
         b.append("}");
