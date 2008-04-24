@@ -95,6 +95,13 @@ public class JozJSONResponseBuilder {
         b.append(encode(p.getCurrencyStr()));
         b.append("\",offer_type:\"");
         b.append(encode(p.getProductTypeStr()).toUpperCase());
+
+        b.append("\",cpc:\"");
+        b.append(encodePrice(p.getCPC()));
+        b.append("\",cpo:\"");
+        b.append(encodePrice(p.getCPO()));
+        b.append("\",rank:\"");
+        b.append(p.getRank());
         b.append("\"");
 
         b.append("}");
