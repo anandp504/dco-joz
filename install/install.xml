@@ -26,16 +26,13 @@
     <target name="install"
     		depends="">
 		<!-- Create required directories for Tumri product component to function. -->
-        <mkdir dir="${tumri.component.root}/logs/event-logs"/>
-        <mkdir dir="${tumri.component.root}/logs/error-logs"/>
+        <mkdir dir="${tumri.component.root}/logs"/>
 		<mkdir dir="${tumri.component.home}/etc/sysconfig"/>
     	<mkdir dir="${tumri.component.home}/var/run"/>
     	<mkdir dir="${tumri.component.home}/var/proc"/>
     	<mkdir dir="${tumri.component.home}/var/lock/subsys"/>    	
         <chmod perm="+w" type="both">
             <fileset dir="${tumri.component.root}/logs">
-                <include name="error-logs"/>
-                <include name="event-logs"/>
             </fileset>
             <fileset dir="${tumri.component.home}/etc">
             	<include name="sysconfig"/>
