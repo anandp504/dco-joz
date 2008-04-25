@@ -62,6 +62,47 @@ public class ProductQueryMonitor extends ComponentMonitor
         return status;
     }
 
+    /**
+     * Returns the status for a get-ad-data string
+     * @param arg
+     * @return
+     */
+    public MonitorStatus getStatusGetAdData(String arg)
+    {
+        byte[] bytes;
+        List<Map<String, String>>  results = null;
+
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Sexp sexp = null;
+            SexpReader r = new SexpReader(new StringReader(arg));
+            try {
+               sexp = r.read();
+            }
+            catch(Exception ex) {
+               log.error("Error creating sexpression:  "+ex.getMessage());
+               return null;
+            }
+            if (sexp != null) {
+                ((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(sexp.toString());
+                CmdGetAdData cmd = new CmdGetAdData(sexp);
+                cmd.process_and_write(out);
+                bytes = out.toByteArray();
+                ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+                SexpIFASLReader ifaslreader = new SexpIFASLReader(in);
+                Sexp sexpr = ifaslreader.read();
+                results = getProductData(sexpr);
+            }
+        }
+        catch(Exception ex) {
+          log.error("Error reading sexpression:  "+ex.getMessage());
+          results = null;
+        }
+
+        ((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
+        return status;
+    }
+
     private List<Map<String, String>> getProductData(Sexp sexpr) throws JozMonitorException
     {
         List<Map<String, String>> products=new ArrayList<Map<String,String>>();

@@ -1,18 +1,14 @@
 package com.tumri.joz.monitor;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ResourceBundle;
-import java.net.URLDecoder;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.*;
-
+import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpIFASLWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class JozMonitorServlet extends HttpServlet
 {
@@ -36,17 +32,16 @@ public class JozMonitorServlet extends HttpServlet
     doService (HttpServletRequest request, HttpServletResponse response)
 	throws IOException, ServletException
     {
-	    //String query = request.getQueryString ();
-
 	    response.setContentType ("text/plain");
 	    PrintWriter out = response.getWriter();
 
 	    try
 	    {
-			String result = null;
+			String result;
 			ProductQueryMonitor pqm = new ProductQueryMonitor();
-			ProductQueryMonitorStatus pqms = (ProductQueryMonitorStatus)pqm.getStatus("http://default");
-			if (pqms.getProducts().size() > 0)
+            String defaultRealmQuery = AppProperties.getInstance().getDefaultRealmGetAdDataCommandStr();
+            ProductQueryMonitorStatus pqms = (ProductQueryMonitorStatus)pqm.getStatusGetAdData(defaultRealmQuery);
+			if (pqms.getProducts() !=null && pqms.getProducts().size() > 0)
 				result = "success";
 			else
 				result = "failed";
@@ -57,5 +52,6 @@ public class JozMonitorServlet extends HttpServlet
             out.print("failed");
 	    }
     }
+
 
 }
