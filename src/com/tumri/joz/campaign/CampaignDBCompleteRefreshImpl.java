@@ -132,6 +132,10 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     public void addOSpec(OSpec oSpec) {
         ospecNameMap.get().safePut(oSpec.getName(), oSpec);
         ospecMap.get().safePut(oSpec.getId(), oSpec);
+        if (oSpec.getName().equals(getDefaultRealmOSpecName())) {
+            //update default realm OSpec
+            defaultAtomicOSpec.compareAndSet(defaultAtomicOSpec.get(), oSpec);
+        }
     }
 
     public void deleteOSpec(String oSpecName) {
