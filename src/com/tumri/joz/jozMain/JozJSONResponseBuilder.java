@@ -120,9 +120,9 @@ public class JozJSONResponseBuilder {
         final StringCharacterIterator iterator = new StringCharacterIterator(aText);
         char character =  iterator.current();
         while (character != CharacterIterator.DONE ){
-            if (character == '\\') {
-                result.append("\\\\");
-            }
+            //BUG 1690: Adding this escape for / causes the iCS JSON parsing to break.
+//            if (character == '\\') {
+//                result.append("\\\\"); } else
             if (character == '"') {
                 result.append("\\\"");
             }
