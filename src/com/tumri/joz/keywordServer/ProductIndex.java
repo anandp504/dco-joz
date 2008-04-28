@@ -20,17 +20,23 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.*;
+import java.util.StringTokenizer;
 import java.io.*;
 
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.FSUtils;
 import com.tumri.joz.products.*;
 import com.tumri.joz.index.creator.JozIndexCreator;
+import com.tumri.joz.index.creator.ProviderIndexBuilder;
 import com.tumri.content.impl.file.FileContentConfigValues;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Product;
+import com.tumri.content.data.ContentProviderStatus;
+import com.tumri.content.data.Content;
 import com.tumri.content.ContentProviderFactory;
 import com.tumri.content.InvalidConfigException;
+import com.tumri.content.ContentProvider;
+import com.tumri.utils.strings.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -51,6 +57,9 @@ public class ProductIndex {
     private String prevDocDir = null;
     protected static final String MUP_FILE_FORMAT = ".*_provider-content_.*.utf8";
     static boolean dumpTokens = false;
+    private static Properties mupConfig = null;
+    private static String mupConfigFileName = "luceneindex.properties";
+
 
 
     // Lines beginning with this character in {deboostCategoryFile}
@@ -287,6 +296,12 @@ public class ProductIndex {
         doc.add(f);
     }
 
+    /**
+     * This method is not used anymore. It has been left here because this is invoked by the add_document api
+     * See the getDocument(HashMap) method for current implementation
+     * @param p
+     * @return
+     */
     private Document getDocument(IProduct p) {
         Document doc = new Document();
         String cat = "";
@@ -309,27 +324,6 @@ public class ProductIndex {
         return doc;
     }
 
-    private ArrayList<IProduct> getAllProducts(File file) throws IOException {
-        ContentProviderFactory f;
-        Properties props = new Properties();
-        props.setProperty(FileContentConfigValues.CONFIG_PRODUCTS_DIR, file.getCanonicalPath());
-        props.setProperty(FileContentConfigValues.CONFIG_TAXONOMY_DIR, file.getCanonicalPath());
-        props.setProperty(FileContentConfigValues.CONFIG_DISABLE_MERCHANT_DATA,"true");
-        try {
-            ContentProviderFactory.initialized = false;
-            f = ContentProviderFactory.getInstance();
-            f.init(props);
-            List<Product> prods = f.getContentProvider().getContent().getProducts().getAll();
-            ArrayList<IProduct> retVal = new ArrayList<IProduct>(prods.size());
-            for (Product p: prods) {
-                retVal.add(new ProductWrapper(p));
-            }
-            return retVal;
-        } catch (InvalidConfigException e) {
-            throw new IOException("Unable to get products:" + ((e.getCause() == null)?e.getMessage():e.getCause().getMessage()));
-        }
-    }
-
 
     /**
      * This should be called by both the indexer & the searcher so that we
@@ -345,21 +339,184 @@ public class ProductIndex {
             return a;
     }
 
-    /**
-     * Index each of the products from the MUP file. MUP file is read using the MUP Loader
-     * Each of the IProduct is treated as a document and indexed
-     * @param writer
-     * @param file
-     * @throws java.io.IOException
-     */
-    private void indexDocs(IndexWriter writer, File file) throws IOException {
-        ArrayList<IProduct> products = getAllProducts(file);
-        for (int i = 0; i < products.size(); i++) {
-            IProduct p = products.get(i);
-            Document doc = getDocument(p);
-            writer.addDocument(doc);
+    private void initLuceneIndexProperties() {
+        InputStream is = null;
+        try {
+            mupConfig = new Properties();
+            is = ProductIndex.class.getClassLoader().getResourceAsStream(mupConfigFileName);
+            mupConfig.load(is);
+        } catch (IOException e) {
+            log.error("Exception caught during the init of the ProductIndex", e);
+        } catch (Exception e) {
+            log.error("Exception caught during the init of the ProductIndex", e);
+        } finally {
+            try {
+                is.close();
+            } catch(Exception e) {
+                log.error("Exception caught", e);
+            }
         }
     }
+
+    /**
+     * Read the mup files in the given dir and index the docs
+     * @param writer
+     * @param dir
+     * @throws IOException
+     */
+    private void indexDocs(IndexWriter writer, File dir) throws IOException {
+
+        File[] files = dir.listFiles();
+        List<File> newMupFiles = new ArrayList<File>();
+        for (File f: files) {
+            if (f.getName().matches(MUP_FILE_FORMAT)) {
+                newMupFiles.add(f);
+            }
+        }
+
+        if (newMupFiles.size() == 0) {
+            throw new IOException("No new provider content data found in directory: " + dir.getAbsolutePath());
+        }
+        for (File mup: newMupFiles) {
+            FileInputStream fir1=null;
+            InputStreamReader isr1=null;
+            BufferedReader br1=null;
+
+            initLuceneIndexProperties();
+            if (mupConfig == null) {
+                throw new RuntimeException("Could not load the luceneindex.properties. Aborting indexing");
+            }
+            try {
+                fir1 = new FileInputStream(mup);
+                isr1 = new InputStreamReader(fir1, "utf8");
+                br1 = new BufferedReader(isr1);
+                boolean eof1 = false;
+                String line1;
+                HashMap<String, String> prodDetailsMap1;
+                int i=0;
+                while(!eof1) {
+                    line1 = br1.readLine();
+                    if (line1 == null) {
+                        eof1 = true;
+                        continue;
+                    } else {
+                        i++;
+                        prodDetailsMap1 = convertLine(line1);
+                        prodDetailsMap1.put("id", getProductID(line1));
+                        writer.addDocument(getDocument(prodDetailsMap1));
+                        if (i%1000000==0){
+                            log.info("Processing count = " + i);
+                        }
+                    }
+                }
+                log.info("Total number documents added to lucene = " + i);
+            } catch(IOException e) {
+               log.error("IOException caught during the index creation", e);
+            } finally {
+                if (br1 != null) {
+                    br1.close();
+                }
+                if (isr1!=null) {
+                    isr1.close();
+                }
+                if (fir1 != null) {
+                    fir1.close();
+                }
+            }
+
+        }
+    }
+
+    /**
+     * Get the Product ID from the given line. The PID is assumed to be the first column, and we drop any chracters that
+     * it starts with and convert the rest into a Long.
+     * @param line
+     * @return
+     */
+    private String getProductID(String line) {
+        //Find the first column
+        String pidStr =line.substring(0,line.indexOf('\t'));
+        char[] pidCharArr = pidStr.toCharArray();
+        //Drop any non digit characters
+        StringBuffer spid = new StringBuffer();
+        for (char ch: pidCharArr) {
+            if (Character.isDigit(ch)) {
+                spid.append(ch);
+            }
+        }
+        return spid.toString();
+    }
+
+
+    private Document getDocument(HashMap<String, String> pDetails) {
+        Document doc = new Document();
+        String cat = "";
+        com.tumri.content.data.Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
+        if (t != null) {
+            Category c  = t.getCategory(pDetails.get("category"));
+            if (c != null) {
+                cat = c.getName();
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(cat).append(" ").append(pDetails.get("brand")).append(" ").append(pDetails.get("name")).append(" ");
+        sb.append(pDetails.get("description"));
+        add_field(doc, "category", cat , Field.Store.YES, Field.Index.UN_TOKENIZED);
+        add_field(doc, "brand", pDetails.get("brand") , Field.Store.YES, Field.Index.TOKENIZED);
+        add_field(doc, "name", pDetails.get("name") , Field.Store.YES, Field.Index.TOKENIZED);
+        add_field(doc, "description", sb.toString() , Field.Store.NO, Field.Index.TOKENIZED);
+        add_field(doc, "id", pDetails.get("id") , Field.Store.YES, Field.Index.UN_TOKENIZED);
+
+        return doc;
+    }
+
+    /**
+     * Read the line and build the list of values based on the pos that is being indexed.
+     * @param line
+     * @return
+     */
+    protected HashMap<String,String> convertLine(String line) {
+        HashMap<String,String> retVal = null;
+        if (mupConfig==null) {
+            return null;
+        }
+        Set indexPosSet = mupConfig.keySet();
+        if (line != null && !"".equals(line.trim())) {
+            com.tumri.utils.strings.StringTokenizer str = new com.tumri.utils.strings.StringTokenizer(line,'\t');
+            ArrayList<String> strings = str.getTokens();
+            retVal = new HashMap<String,String>();
+            for (int i=0;i<strings.size();i++) {
+                if (indexPosSet.contains(new Integer(i).toString())) {
+                    String val = strings.get(i);
+                    String key = mupConfig.getProperty(new Integer(i).toString());
+                    retVal.put(key,val);
+                }
+            }
+        }
+        return (retVal);
+    }
+
+    private void initJozTaxonomy(File file) throws IOException {
+        ContentProviderFactory f;
+        Properties props = new Properties();
+        props.setProperty(FileContentConfigValues.CONFIG_PRODUCTS_DIR, file.getCanonicalPath());
+        props.setProperty(FileContentConfigValues.CONFIG_TAXONOMY_DIR, file.getCanonicalPath());
+        props.setProperty(FileContentConfigValues.CONFIG_DISABLE_MERCHANT_DATA,"true");
+        props.setProperty(FileContentConfigValues.CONFIG_DISABLE_MUP,"true");
+        ContentProviderFactory.initialized = false;
+        try {
+            f = ContentProviderFactory.getInstance();
+            f.init(props);
+            ContentProvider p = f.getContentProvider();
+            Content data = p.getContent();
+            JOZTaxonomy tax = JOZTaxonomy.getInstance();
+            tax.setTaxonomy(data.getTaxonomy().getTaxonomy());
+        } catch(InvalidConfigException e) {
+            log.error("Taxnomy load failed. ", e);
+        }
+
+    }
+
 
     /**
      * Index all text files under a directory.
@@ -525,12 +682,6 @@ public class ProductIndex {
         if (newMupFiles.size() == 0) {
             throw new IOException("No new provider content data found in directory: " + currDataDir.getAbsolutePath());
         }
-        List<File> taxonomyFiles = new ArrayList<File>();
-        for (File f: files) {
-            if (f.getName().matches(".*_Taxonomy_.*.utf8") || f.getName().matches(".*-CategorySpec_.*.utf8")) {
-                taxonomyFiles.add(f);
-            }
-        }
 
         List<File> oldMupFiles = null;
 
@@ -554,6 +705,8 @@ public class ProductIndex {
         File[] sortedFiles = newMupFiles.toArray(new File[0]);
         ArrayList<RAMDirectory> provIndexes = new ArrayList<RAMDirectory>();
         Arrays.sort(sortedFiles);
+        initJozTaxonomy(currDataDir);
+
         for (File f: sortedFiles) {
             String providerName = getProviderFromFileName(f.getName());
             if (prevDoc!=null) {
@@ -566,10 +719,10 @@ public class ProductIndex {
                     }
                     if (provLuceneIndex!=null) {
                         log.info("Going to use the previous lucene index for : " + providerName);
-                        File newProvLuceneIndex = new File(provBaseIndexDir.getAbsolutePath()+ "/" +providerName);
+                        File newProvLuceneIndex = new File(provBaseIndexDir.getAbsolutePath() + "/" + providerName);
                         newProvLuceneIndex.mkdir();
                         FSUtils.copyDir(provLuceneIndex, newProvLuceneIndex);
-                        provIndexes.add(new RAMDirectory(provBaseIndexDir.getAbsolutePath()+ "/" +providerName));
+                        provIndexes.add(new RAMDirectory(provBaseIndexDir.getAbsolutePath() + "/" + providerName));
                         continue;
                     }
                 }
@@ -578,10 +731,6 @@ public class ProductIndex {
             File tmpDocDir = FSUtils.createTMPDir(getTmpDir(),providerName);
             tmpDocDir.mkdir();
             FSUtils.copyFile(f, new File(tmpDocDir.getAbsolutePath()+ "/" + f.getName()));
-            //Copy the Taxonomy File
-            for (File t: taxonomyFiles) {
-                FSUtils.copyFile(t, new File(tmpDocDir.getAbsolutePath()+ "/" + t.getName()));
-            }
             //Create the lucene index for provider
             File provLuceneIndex = createProvLuceneIndex(provBaseIndexDir, tmpDocDir,providerName, dumpTokens);
             provIndexes.add(new RAMDirectory(provLuceneIndex.getAbsolutePath()));
