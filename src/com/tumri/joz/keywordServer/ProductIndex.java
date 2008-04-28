@@ -565,11 +565,11 @@ public class ProductIndex {
                         provLuceneIndex = findOldLuceneIndex(providerName, prevLuceneDir);
                     }
                     if (provLuceneIndex!=null) {
-                        log.info("Going to use the prevous lucene index for : " + providerName);
-                        File newProvLuceneIndex = new File(provBaseIndexDir.getAbsolutePath() + providerName);
+                        log.info("Going to use the previous lucene index for : " + providerName);
+                        File newProvLuceneIndex = new File(provBaseIndexDir.getAbsolutePath()+ "/" +providerName);
                         newProvLuceneIndex.mkdir();
                         FSUtils.copyDir(provLuceneIndex, newProvLuceneIndex);
-                        provIndexes.add(new RAMDirectory(provBaseIndexDir.getAbsolutePath() + providerName));
+                        provIndexes.add(new RAMDirectory(provBaseIndexDir.getAbsolutePath()+ "/" +providerName));
                         continue;
                     }
                 }
