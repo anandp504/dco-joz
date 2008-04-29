@@ -8,9 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class that will load the Joz index files from a given directory
@@ -72,6 +70,44 @@ public class JozIndexHelper {
                 log.error("No joz index files found in directory: " + indexDir.getAbsolutePath());
             }
 
+            //Sort the files by Name
+            Collections.sort(indexFiles,
+                    new Comparator<File>(){
+                        public int compare( File f1, File f2 )
+                        {
+                            String s1 = f1.getName();
+                            String s2 = f2.getName();
+                            //Strip off the extension
+                            s1 = s1.substring(0,s1.indexOf(".bin"));
+                            s2 = s2.substring(0,s2.indexOf(".bin"));
+                            java.util.StringTokenizer st1 = new java.util.StringTokenizer( s1, "_" );
+                            java.util.StringTokenizer st2 = new java.util.StringTokenizer( s2, "_" );
+                            while ( st1.hasMoreTokens() && st2.hasMoreTokens() )
+                            {
+                                String t1 = st1.nextToken();
+                                String t2 = st2.nextToken();
+
+                                int c;
+                                try
+                                {
+                                    Integer i1 = new Integer( t1 );
+                                    Integer i2 = new Integer( t2 );
+                                    c = i1.compareTo( i2 );
+                                }
+                                catch ( NumberFormatException e )
+                                {
+                                    c = t1.compareTo( t2 );
+                                }
+                                if ( c != 0 )
+                                {
+                                    return c;
+                                }
+                            }
+
+                            return 0;
+                        }
+                    });
+            
             for (File f: indexFiles) {
                 readFromSerializedFile(f);
             }

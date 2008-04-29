@@ -47,6 +47,8 @@ public class JozIndexUpdater {
                 log.info("Debug mode = true. The index will be written to a file, and not loaded into Joz");
             }
             _instance = new JozIndexUpdater(bDebug, bColdStart);
+        } else {
+            _instance.bColdStart = JozIndexHelper.isColdStart();
         }
         return _instance;
     }
