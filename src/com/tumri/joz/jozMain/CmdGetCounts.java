@@ -236,6 +236,10 @@ public class CmdGetCounts extends CommandDeferWriting {
         ArrayList<ConjunctQuery> conjQueries = query.getQueries();
         if (ai != null) {
             for(ConjunctQuery cq: conjQueries) {
+                //Check if there are any queries in this
+                if (cq.getQueries().size()==0) {
+                    continue;
+                }
                 Set<Integer> keySet = ai.getKeys();
 
                 for (Integer theKey: keySet) {

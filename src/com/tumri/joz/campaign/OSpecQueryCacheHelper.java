@@ -211,16 +211,6 @@ public class OSpecQueryCacheHelper {
                      _cjquery.addQuery(sq);
                 }
 
-                //Geo Enabled Flag
-                boolean isGeoEnabled = theTSpec.isGeoEnabledFlag();
-                if (isGeoEnabled) {
-                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGeoEnabledFlag, "true", false);
-                     _cjquery.addQuery(sq);
-                } else {
-                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGeoEnabledFlag, "true", true);
-                     _cjquery.addQuery(sq);
-                }
-
                 //Global ID - list of globals
                 String globalID = theTSpec.getGlobalId();
                 if (globalID != null && !"".equals(globalID)) {

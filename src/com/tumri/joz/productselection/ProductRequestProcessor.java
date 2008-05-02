@@ -512,38 +512,66 @@ public class ProductRequestProcessor {
 	}
 
     private void addGeoFilterQuery(AdDataRequest request) {
+        //If there are no queries in the selected tspec - do not add ad offer type
+        boolean bSimpleQueries = false;
+        ArrayList<ConjunctQuery> _conjQueryAL = m_tSpecQuery.getQueries();
+        for (ConjunctQuery conjQuery:_conjQueryAL) {
+            ArrayList<SimpleQuery> simpleQueryAL = conjQuery.getQueries();
+            if (simpleQueryAL.size()!=0) {
+                bSimpleQueries = true;
+                break;
+            }
+        }
+        if (!bSimpleQueries) {
+            return;
+        }
+
+        Integer geoFlagId = DictionaryManager.getInstance().getId(Product.Attribute.kGeoEnabledFlag, "true");
+        AttributeQuery geoEnabledQuery = new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
+
         if (m_geoFilterEnabled) {
             String countryCode = request.getCountry();
+            boolean addedGeo = false;
             if (countryCode!=null && !"".equals(countryCode)) {
                 Integer countryId = DictionaryManager.getInstance().getId(Product.Attribute.kCountry, countryCode);
                 AttributeQuery countryCodeQuery = new AttributeQuery(Product.Attribute.kCountry, countryId);
                 m_tSpecQuery.addSimpleQuery(countryCodeQuery);
+                addedGeo = true;
             }
             String cityCode = request.getCity();
             if (cityCode!=null && !"".equals(cityCode)) {
                 Integer cityId = DictionaryManager.getInstance().getId(Product.Attribute.kCity, cityCode);
                 AttributeQuery cityQuery = new AttributeQuery(Product.Attribute.kCity, cityId);
                 m_tSpecQuery.addSimpleQuery(cityQuery);
+                addedGeo = true;
             }
             String stateCode = request.getRegion();
             if (stateCode!=null && !"".equals(stateCode)) {
                 Integer stateId = DictionaryManager.getInstance().getId(Product.Attribute.kState, stateCode);
                 AttributeQuery stateQuery = new AttributeQuery(Product.Attribute.kState, stateId);
                 m_tSpecQuery.addSimpleQuery(stateQuery);
+                addedGeo = true;
             }
             String dmaCode = request.getDmacode();
             if (dmaCode!=null && !"".equals(dmaCode)) {
                 Integer dmaCodeId = DictionaryManager.getInstance().getId(Product.Attribute.kDMA, dmaCode);
                 AttributeQuery dmaQuery = new AttributeQuery(Product.Attribute.kDMA, dmaCodeId);
                 m_tSpecQuery.addSimpleQuery(dmaQuery);
+                addedGeo = true;
             }
             String areaCode = request.getAreacode();
             if (areaCode!=null && !"".equals(areaCode)) {
                 Integer areaCodeId = DictionaryManager.getInstance().getId(Product.Attribute.kArea, areaCode);
                 AttributeQuery areaCodeQuery = new AttributeQuery(Product.Attribute.kArea, areaCodeId);
                 m_tSpecQuery.addSimpleQuery(areaCodeQuery);
+                addedGeo = true;
             }
-
+            if (addedGeo) {
+                m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
+            }
+        } else {
+            geoEnabledQuery.setNegation(true);
+            m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
         }
     }
 
