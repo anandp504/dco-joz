@@ -107,11 +107,13 @@ public class PersistantIndex implements Serializable{
                     long pid = in.readLong();
                     //Get the handle
                     Handle p = ProductDB.getInstance().getHandle(pid);
-                    if (p==null) {
+                    if (p==null && op !=  PersistantIndexLine.IndexOperation.kDelete) {
                         //New product
                         p = ProductHandleFactory.getInstance().getHandle(pid);
                     }
-                    currPids.add(p);
+                    if (p!=null) {
+                        currPids.add(p);
+                    }
                 }
                 //Now add these to the index
                 JozIndexUpdater.getInstance().handleLine(indexName, indexVal, currPids, op);
