@@ -34,12 +34,13 @@ public class CmdGetAdData extends CommandOwnWriting {
             choose_and_write_products(rqst, out);
         } catch (IOException e) {
         	log.error("IOException : Connection lost with the client - cannot write to outputstream", e);
-        } catch (Exception e) {
-            log.error("Unknown Exception", e);
+        } catch (Throwable t) {
+            log.error("Unknown Exception caught");
+            t.printStackTrace();
             try {
             	writeErrorMessage("Unexpected exception caught during processing ad request", out);
             } catch (Exception ioe) {
-            	log.error("Could not write the error to the output stream", e);
+            	log.error("Could not write the error to the output stream", ioe);
             }
         }
     }
