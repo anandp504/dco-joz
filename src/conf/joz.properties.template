@@ -63,7 +63,7 @@ com.tumri.llc.server.host=${com.tumri.llc.server.host}
 com.tumri.llc.server.port=20444
 com.tumri.llc.socket.pool.size=10
 com.tumri.llc.socket.numRetries=3
-com.tumri.llc.listing.cache.size=10000
+com.tumri.llc.listing.cache.size=0
 
 
 #JoZ uses the property below to load all the campaign data based on the region specified
