@@ -4,10 +4,7 @@ import com.tumri.joz.index.creator.PersistantProviderIndex;
 import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -130,7 +127,7 @@ public class JozIndexHelper {
 
         try {
             fis = new FileInputStream(inFile);
-            in = new ObjectInputStream(fis);
+            in = new ObjectInputStream(new BufferedInputStream(fis));
             PersistantProviderIndex pProvIndex = (PersistantProviderIndex)in.readObject();
             in.close();
             //Add any new products into the db
@@ -143,6 +140,13 @@ public class JozIndexHelper {
         } catch (ClassNotFoundException ex){
             log.error("Deserialization failed from file. " + inFile.getAbsolutePath());
             throw ex;
+        } finally {
+            try {
+                in.close();
+            } catch(Throwable t) {
+                log.error("Error in closing the file input stream");
+                t.printStackTrace();
+            }
         }
     }
 

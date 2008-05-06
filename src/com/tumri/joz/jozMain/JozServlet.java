@@ -2,17 +2,18 @@
 
 package com.tumri.joz.jozMain;
 
+import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpIFASLWriter;
-import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLDecoder;
 
 public class JozServlet extends HttpServlet {
@@ -32,8 +33,7 @@ public class JozServlet extends HttpServlet {
         String query = request.getQueryString();
         
         response.setContentType("text/html");
-        ServletOutputStream out = response.getOutputStream();
-        
+        OutputStream out = new BufferedOutputStream(response.getOutputStream());
         try {
             query = URLDecoder.decode(query,"UTF-8");
             log.info("Query= " + query);
@@ -76,6 +76,13 @@ public class JozServlet extends HttpServlet {
                 } catch (Exception ex){
                     log.error("Could not execute default realm query", ex);
                 }
+            }
+        } finally {
+            try {
+                out.flush();
+            } catch (Throwable t) {
+                log.error("Error in flushing the output stream");
+                t.printStackTrace();
             }
         }
     }
