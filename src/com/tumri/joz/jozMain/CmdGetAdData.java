@@ -30,17 +30,24 @@ public class CmdGetAdData extends CommandOwnWriting {
     }
 
     public void process_and_write(OutputStream out) {
+        boolean bError = false;
         try {
             AdDataRequest rqst = new AdDataRequest(expr);
             choose_and_write_products(rqst, out);
+            bError = false;
         } catch (IOException e) {
         	log.error("IOException : Connection lost with the client - cannot write to outputstream", e);
+            bError = true;
         } catch (Throwable t) {
-            log.error("Unknown Exception caught",t);
-            try {
-            	writeErrorMessage("Unexpected exception caught during processing ad request", out);
-            } catch (Exception ioe) {
-            	log.error("Could not write the error to the output stream", ioe);
+            log.error("Unexpected Exception caught",t);
+            bError = true;
+        } finally {
+            if (bError) {
+                try {
+                    writeErrorMessage("Unexpected exception caught during processing ad request", out);
+                } catch (Exception ioe) {
+                    log.error("Could not write the error to the output stream", ioe);
+                }
             }
         }
     }
@@ -54,7 +61,7 @@ public class CmdGetAdData extends CommandOwnWriting {
     // and parsed.
 
     private void choose_and_write_products(AdDataRequest rqst, OutputStream out)
-            throws IOException, Exception {
+            throws Exception {
         Features features = null;
         boolean private_label_p = false; // FIXME: t_spec.private_label_p ();
 
@@ -99,7 +106,7 @@ public class CmdGetAdData extends CommandOwnWriting {
      * Helper method to write the error string into the output stream.
      * @param errorString
      */
-    private void writeErrorMessage(String errorString,OutputStream out) throws IOException, Exception {
+    private void writeErrorMessage(String errorString,OutputStream out) throws Exception {
         SexpIFASLWriter w = new SexpIFASLWriter(out);
         w.startDocument();
         write_elm(w, "error", new SexpString(errorString));
@@ -131,7 +138,7 @@ public class CmdGetAdData extends CommandOwnWriting {
     private void write_result(AdDataRequest rqst, OSpec ospec,
             boolean private_label_p, Features features, long elapsed_time,
             ArrayList<Handle> product_handles, OutputStream out)
-            throws IOException, Exception {
+            throws Exception {
         SexpIFASLWriter w = new SexpIFASLWriter(out);
         Integer maxDescLength = rqst.get_max_prod_desc_len();
 
