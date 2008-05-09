@@ -30,7 +30,9 @@ import java.util.TimerTask;
 import org.apache.log4j.Logger;
 
 /**
- * Timer class that will take care of reconnecting to LLS. The thread kills itself once the connection is successful.
+ * Timer class that will take care of doing the content refresh with LLS in case LLS is unavailable during startup.
+ * The content refresh is needed for the listing formats to be available in Joz 
+ * The thread kills itself once the connection is successful.
  * @author: nipun
 * Date: Apr 18, 2008
 * Time: 11:25:53 AM
@@ -43,7 +45,7 @@ public class LlcReconnectPoller {
     private static Logger log = Logger.getLogger(LlcReconnectPoller.class);
 
     protected Timer _timer = new Timer();
-    protected int repeatIntervalSecs = 60; //every 1 min
+    protected int repeatIntervalSecs = 10; //every 10 secs
     private static LlcReconnectPoller g_inst= null;
 
    /**
@@ -81,12 +83,11 @@ public class LlcReconnectPoller {
 
         try {
             log.info("Attempting to re-init the LLC listing provider");
-            lp.init(AppProperties.getInstance().getProperties(), taxonomy, md);
-            bInit = true;
+            bInit = lp.doContentRefresh(taxonomy,md);
         } catch (LLCClientException e) {
            LogUtils.getFatalLog().fatal("Exception caught on initializing content provider");
            bInit = false;
-        }
+        } 
 
         if (bInit) {
             //Stop the polling

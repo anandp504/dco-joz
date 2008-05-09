@@ -90,8 +90,8 @@ public class JozListingProviderImpl implements ListingProvider {
      * @param t --> Taxonomy that has been loaded
      * @param m --> Merchant information that has been loaded
      */
-    public void doContentRefresh(Taxonomy t, MerchantDataProvider m) {
+    public boolean doContentRefresh(Taxonomy t, MerchantDataProvider m) {
         //do nothing
-        return;
+        return true;
     }
 }

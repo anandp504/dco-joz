@@ -141,6 +141,7 @@ public class JozIndexUpdater {
                 line.append(p.getOid() + ",");
                 count++;
                 if (count>24){
+                    line.append("\n");
                     count =0;
                     bNewLine = true;
                 }

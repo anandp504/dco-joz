@@ -57,7 +57,7 @@ public class ListingProviderFactory {
                     listingProvider.init(AppProperties.getInstance().getProperties(), tax, m);
                 } catch (LLCClientException e) {
                    LogUtils.getFatalLog().fatal("Exception caught on initializing content provider");
-                    //Kick off thread that will retry and reconnect
+//                    //Kick off thread that will retry and re do the content refresh
                     LlcReconnectPoller.getInstance(listingProvider,tax,m).init();
 
                 }
@@ -75,7 +75,11 @@ public class ListingProviderFactory {
         if (!initialized) {
             throw new RuntimeException("Cannot refresh Listing Provider without initializing");
         }
-        listingProvider.doContentRefresh(tax, m);
+        try {
+            listingProvider.doContentRefresh(tax, m);
+        } catch(LLCClientException e) {
+            log.error("Content Refresh for listing provider failed.", e);
+        }
     }
 
     private static void instantiateFactory() throws RuntimeException {

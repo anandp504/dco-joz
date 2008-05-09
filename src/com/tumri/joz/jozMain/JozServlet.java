@@ -34,12 +34,13 @@ public class JozServlet extends HttpServlet {
         
         response.setContentType("text/html");
         OutputStream out = new BufferedOutputStream(response.getOutputStream());
+        long start_time = System.nanoTime();
+
         try {
             query = URLDecoder.decode(query,"UTF-8");
             log.info("Query= " + query);
             
-            long start_time = System.nanoTime();
-            
+
             Command cmd = Command.parse(query);
             
             // Allow commands to write the result out themselves.
@@ -64,7 +65,10 @@ public class JozServlet extends HttpServlet {
             
             log.info("Response time: " + ((end_time - start_time) / 1000.0)
                     + " usecs");
-        } catch (Exception e) {
+            if ((start_time - end_time)/1000000.0 > 1000) {
+                log.error("Joz Response time greater than 1 sec : " + (start_time - end_time)/1000000.0 + " ms");
+            }
+        } catch(BadCommandException e) {
             log.error("Exception caught when parsing the command, going to show default realm : " + query);
             log.error("Exception details :", e);
             //Show default realm if this is a get-ad-data request
@@ -77,12 +81,14 @@ public class JozServlet extends HttpServlet {
                     log.error("Could not execute default realm query", ex);
                 }
             }
+        } catch (Throwable t) {
+            log.error("Exception caught processing joz request " + query, t);
+            log.error("Elapsed time = " + (System.nanoTime() - start_time) + " ns.");
         } finally {
             try {
                 out.flush();
             } catch (Throwable t) {
-                log.error("Error in flushing the output stream");
-                t.printStackTrace();
+                log.error("Error in flushing the output stream", t);
             }
         }
     }
