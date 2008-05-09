@@ -9,6 +9,7 @@ import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.productselection.ProductRequestProcessor;
 import com.tumri.joz.productselection.ProductSelectionResults;
+import com.tumri.joz.JoZException;
 import com.tumri.lls.client.main.ListingProvider;
 import com.tumri.lls.client.response.ListingResponse;
 import com.tumri.utils.sexp.Sexp;
@@ -35,8 +36,7 @@ public class CmdGetAdData extends CommandOwnWriting {
         } catch (IOException e) {
         	log.error("IOException : Connection lost with the client - cannot write to outputstream", e);
         } catch (Throwable t) {
-            log.error("Unknown Exception caught");
-            t.printStackTrace();
+            log.error("Unknown Exception caught",t);
             try {
             	writeErrorMessage("Unexpected exception caught during processing ad request", out);
             } catch (Exception ioe) {
@@ -155,6 +155,9 @@ public class CmdGetAdData extends CommandOwnWriting {
         ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
                         MerchantDB.getInstance().getMerchantData());
         ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0);
+        if (response==null) {
+            throw new JoZException("Invalid response from Listing Provider");
+        }
         w.writeString8("PRODUCTS");
         w.writeString(response.getListingDetails());
         write_elm(w, "PROD-IDS", response.getProductIdList());

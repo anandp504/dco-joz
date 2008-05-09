@@ -110,9 +110,9 @@ public class JozRefreshDataServlet extends HttpServlet {
      */
     private String doResetSocketPool() {
         LlsSocketConnectionPool.getInstance().reset();
-        //Wait for 10 secs for the connections to be restored
+        //Wait for 5 secs for the connections to be restored
         try {
-            Thread.sleep(10000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             //
         }

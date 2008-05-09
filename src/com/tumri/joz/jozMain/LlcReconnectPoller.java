@@ -91,7 +91,7 @@ public class LlcReconnectPoller {
 
         if (bInit) {
             //Stop the polling
-            log.info("Reconnect successful");
+            log.info("Listing provider re-init successful");
             shutdown();
         }
 
