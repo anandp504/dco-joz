@@ -37,7 +37,7 @@ public class ProductHandleFactory {
      * @return
      */
     public Handle getHandle(long id) {
-        ProductHandle p = new ProductHandle(0.0, id);
+        ProductHandle p = new ProductHandle(1.0, id);
         Handle ph = productHandles.find(p);
         if (ph !=null) {
              p = (ProductHandle) ph;

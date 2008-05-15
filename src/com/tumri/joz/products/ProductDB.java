@@ -756,7 +756,7 @@ public class ProductDB {
    * @return Handle
    */
   public ProductHandle getProdHandle(Long pid) {
-      ProductHandle p = new ProductHandle(0.0, pid.longValue());
+      ProductHandle p = new ProductHandle(1.0, pid.longValue());
       Handle ph;
       ph = m_allProducts.find(p);
 
