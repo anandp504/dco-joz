@@ -148,10 +148,18 @@ public class IndexUtils {
                 id = DictionaryManager.getId(Product.Attribute.kProvider, indexVal);
                 break;
             case kImageWidth:
-                id = DictionaryManager.getId(Product.Attribute.kImageWidth, indexVal);
+                try {
+                    id = Integer.parseInt(indexVal);
+                } catch (NumberFormatException e) {
+                    log.error("Invalid integer value passed in for imagewidth : " + indexVal);
+                }
                 break;
             case kImageHeight:
-                id = DictionaryManager.getId(Product.Attribute.kImageHeight, indexVal);
+                try {
+                    id = Integer.parseInt(indexVal);
+                } catch (NumberFormatException e) {
+                    log.error("Invalid integer value passed in for imagewidth : " + indexVal);
+                }
                 break;
             case kCPC:
                 id = DictionaryManager.getId(Product.Attribute.kCPC, indexVal);
