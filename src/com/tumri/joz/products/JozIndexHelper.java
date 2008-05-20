@@ -140,6 +140,8 @@ public class JozIndexHelper {
         } catch (ClassNotFoundException ex){
             log.error("Deserialization failed from file. " + inFile.getAbsolutePath());
             throw ex;
+        } catch (Throwable t){
+            log.error("Index load failed for : " + inFile.getAbsolutePath(),t );
         } finally {
             try {
                 in.close();
