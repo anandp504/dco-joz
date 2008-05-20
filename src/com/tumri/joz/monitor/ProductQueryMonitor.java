@@ -160,7 +160,7 @@ public class ProductQueryMonitor extends ComponentMonitor
        if (tspec == null)
           tspec = defaultTspec;
        Sexp e = null;
-       String s = "(:get-ad-data :t-spec '|"+tspec+"| :num-products 100)";
+       String s = "(:get-ad-data :t-spec '|"+tspec+"| :ad-offer-type :product-leadgen :which-row 0 :row-size 100)";
        SexpReader r = new SexpReader(new StringReader(s));
        try {
           e = r.read();
