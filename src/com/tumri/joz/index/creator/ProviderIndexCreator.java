@@ -458,14 +458,14 @@ public class ProviderIndexCreator {
      * Helper method to invoke the unix sort on the file
      */
     private static boolean sortFile(String filePath, String fileName) {
-        File currentFile = new File(filePath + fileName);
+        File currentFile = new File(filePath + "/" + fileName);
         if (!currentFile.exists()) {
            return false;
         }
 
-        File tmpFile = new File(filePath + "tmp" + fileName);
+        File tmpFile = new File(filePath + "/tmp" + fileName);
 
-        String[] args = new String[]{"sh", "-c", "sort " + currentFile.getAbsolutePath() + " > " + tmpFile.getAbsolutePath()};
+        String[] args = new String[]{"sh", "-c", "sort -k 1.3 -n " + currentFile.getAbsolutePath() + " > " + tmpFile.getAbsolutePath()};
         boolean bSuccess = false;
         Runtime rt = Runtime.getRuntime();
         try {
