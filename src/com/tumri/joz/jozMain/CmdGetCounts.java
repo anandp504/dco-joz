@@ -222,11 +222,6 @@ public class CmdGetCounts extends CommandDeferWriting {
     private static HashMap<String, Counter> getOSpecAttributeCount(HashMap<String, Counter> attrCounts,
                                                                    String tspecName, IProduct.Attribute kAttr) throws BadCommandException{
         ProductAttributeIndex<Integer,Handle> ai = ProductDB.getInstance().getIndex(kAttr);
-        //TODO: Need to get the dictionary and walk thru instead of walking thru the index    
-//        com.tumri.utils.dictionary.Dictionary<String> attrDict = DictionaryManager.getInstance().getDictionary(kAttr);
-//        if (attrDict != null) {
-//            attrDict.
-//        }
         CNFQuery query = OSpecQueryCache.getInstance().getCNFQuery(tspecName);
         if (query == null) {
             log.error("t-spec " + tspecName + " not found.");
@@ -244,7 +239,12 @@ public class CmdGetCounts extends CommandDeferWriting {
 
                 for (Integer theKey: keySet) {
                     String keyStrVal = DictionaryManager.getInstance().getValue(kAttr, theKey);
-                    SimpleQuery sq = new AttributeQuery(kAttr, theKey);
+                    SimpleQuery sq;
+                    if (kAttr == IProduct.Attribute.kCategory) {
+                        sq = new CategoryQuery(theKey);
+                    } else {
+                        sq = new AttributeQuery(kAttr, theKey);
+                    }
                     CNFQuery tmpQuery = new CNFQuery();
                     ConjunctQuery tmpCq = (ConjunctQuery)cq.clone();
                     tmpCq.addQuery(sq);
@@ -299,6 +299,7 @@ public class CmdGetCounts extends CommandDeferWriting {
     private static void incrementCounter(HashMap<String, Counter> attrCounts, String keyStrVal, IProduct.Attribute kAttr) {
         incrementCounter(1, attrCounts, keyStrVal, kAttr);
     }
+
     /**
      * Increment the counter taking into consideration the special case for Category, where parent counts are also
      * to be included.
@@ -308,7 +309,6 @@ public class CmdGetCounts extends CommandDeferWriting {
      */
     private static void incrementCounter(int size, HashMap<String, Counter> attrCounts, String keyStrVal, IProduct.Attribute kAttr) {
         if (keyStrVal != null) {
-            //If this is category, then need to get the cats of parents also
             if (kAttr == IProduct.Attribute.kCategory) {
                 if (rootCat==null) {
                     Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
@@ -317,11 +317,10 @@ public class CmdGetCounts extends CommandDeferWriting {
                     }
                 }
 
-                //Check if this is a lead node
                 Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
                 if (t!=null) {
                     Category cat = t.getCategory(keyStrVal);
-                    if (cat != null && t.getChildren(cat) == null) {
+                    if (cat != null) {
                         incrementCategoryCount(size, keyStrVal, attrCounts);
                     }
                 }
@@ -351,6 +350,7 @@ public class CmdGetCounts extends CommandDeferWriting {
         }
 
     }
+    
     /**
      * Return list of all categories in cats and their parents.
      */
@@ -366,7 +366,7 @@ public class CmdGetCounts extends CommandDeferWriting {
                     idSet.add(p.getGlassId());
                     result.add(p.getGlassIdStr());
                     p = p.getParent();
-                };
+                }
             }
             return result;
         }
@@ -401,6 +401,10 @@ public class CmdGetCounts extends CommandDeferWriting {
 
         public void inc(int ctr) {
             count = count + ctr;
+        }
+
+        public void dec(int ctr) {
+            count = count - ctr;
         }
 
         public int get() {

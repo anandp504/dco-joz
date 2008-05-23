@@ -17,8 +17,8 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class AttributeQuery extends MUPQuery { 
-  private ArrayList<Integer> m_values = new ArrayList<Integer>();
-  private int m_count = kMax;
+  protected ArrayList<Integer> m_values = new ArrayList<Integer>();
+  protected int m_count = kMax;
 
   public Type getType() {
     return Type.kAttribute;
