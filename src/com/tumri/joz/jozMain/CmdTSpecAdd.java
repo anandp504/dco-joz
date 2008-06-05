@@ -75,7 +75,11 @@ public class CmdTSpecAdd extends CommandDeferWriting {
             return returnError(ex);
             
         } catch (Exception ex) {
+            log.error("Exception caught during tspec add: ", ex);
             return returnError(ex);
+        } catch (Throwable t) {
+            log.error("Exception caught during tspec add: ", t);
+            return returnError(t);
         }
         
         return retVal;

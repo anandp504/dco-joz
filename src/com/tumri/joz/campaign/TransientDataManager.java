@@ -55,7 +55,6 @@ public class TransientDataManager {
         //Important: Since multiple read locks are acquired in this method, care must be taken in future if there is
         //a need to acquire multiple write locks anywhere else within the class. Acquiring write locks in any other
         //order then below can lead to deadlocks
-        oSpecNameLRUCache.readerLock();
         urlMapRequest.readerLock();
         themeMapRequest.readerLock();
         locationMapRequest.readerLock();
@@ -69,7 +68,6 @@ public class TransientDataManager {
             locationMapRequest.readerUnlock();
             themeMapRequest.readerUnlock();
             urlMapRequest.readerUnlock();
-            oSpecNameLRUCache.readerUnlock();
         }
     }
 
@@ -146,7 +144,7 @@ public class TransientDataManager {
     public void addOSpec(OSpec oSpec) throws TransientDataException {
         int oSpecId = 0;
         //Check if the oSpec already exists
-        if(campaignDB.getOspec(oSpec.getName()) != null && !oSpecNameLRUCache.safeContainsKey(oSpec.getName())) {
+        if(campaignDB.getOspec(oSpec.getName()) != null && !safeContainsKey(oSpec.getName())) {
             //Copy the original ospec object from CampaignDB into temporary area, so it can be replaced later on
             //when the delete-tspec from portals is called
             OSpec origOSpec = campaignDB.getOspec(oSpec.getName());
@@ -154,8 +152,8 @@ public class TransientDataManager {
             oSpecId = origOSpec.getId();
         }
         if(oSpecId == 0) {
-            if(oSpecNameLRUCache.safeContainsKey(oSpec.getName())) {
-                oSpecId = oSpecNameLRUCache.safeGet(oSpec.getName()).getId();
+            if(safeContainsKey(oSpec.getName())) {
+                oSpecId = safeGet(oSpec.getName()).getId();
             }
             else {
                 //create OSpec ID
@@ -165,7 +163,7 @@ public class TransientDataManager {
         oSpec.setId(oSpecId);
 
         //Add to LRU cache
-        oSpecNameLRUCache.safePut(oSpec.getName(), oSpec);
+        safePut(oSpec.getName(), oSpec);
         addOSpecToCampaignDB(oSpec);
 
         //reset the idSequence if highBound is exceeded
@@ -180,7 +178,7 @@ public class TransientDataManager {
     }
 
     public void deleteOSpec(String oSpecName) {
-        OSpec oSpec = oSpecNameLRUCache.safeGet(oSpecName);
+        OSpec oSpec = safeGet(oSpecName);
         if(oSpec != null) {
             deleteDependencies(oSpec);
         }
@@ -217,7 +215,7 @@ public class TransientDataManager {
      * @throws TransientDataException - Gets thrown for invalid condition
      */
     public void addUrlMapping(String urlName, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.safeContainsKey(tSpecName)) {
+        if(campaignDB.getOspec(tSpecName) == null || !safeContainsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(urlName, tSpecName, weight, geocode);
@@ -250,7 +248,7 @@ public class TransientDataManager {
             url.setName(request.getId());
             campaignDB.addUrl(url);
         }
-        int oSpecId = oSpecNameLRUCache.safeGet(request.getTSpecName()).getId();
+        int oSpecId = safeGet(request.getTSpecName()).getId();
         if(oSpecId <= 0) {
             throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
         }
@@ -272,7 +270,7 @@ public class TransientDataManager {
     }
 
     public void addThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.safeContainsKey(tSpecName)) {
+        if(campaignDB.getOspec(tSpecName) == null || !safeContainsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(themeName, tSpecName, weight, geocode);
@@ -307,7 +305,7 @@ public class TransientDataManager {
             theme.setName(request.getId());
             campaignDB.addTheme(theme);
         }
-        int oSpecId = oSpecNameLRUCache.safeGet(request.getTSpecName()).getId();
+        int oSpecId = safeGet(request.getTSpecName()).getId();
         if(oSpecId <= 0) {
             throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
         }
@@ -416,7 +414,7 @@ public class TransientDataManager {
     }
 
     public void addLocationMapping(String locationIdStr, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !oSpecNameLRUCache.safeContainsKey(tSpecName)) {
+        if(campaignDB.getOspec(tSpecName) == null || !safeContainsKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         int locationId;
@@ -454,7 +452,7 @@ public class TransientDataManager {
             location.setId(request.getId());
             campaignDB.addLocation(location);
         }
-        int oSpecId = oSpecNameLRUCache.safeGet(request.getTSpecName()).getId();
+        int oSpecId = safeGet(request.getTSpecName()).getId();
         if(oSpecId <= 0) {
             throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
         }
@@ -486,7 +484,7 @@ public class TransientDataManager {
 
     public void deleteUrlMapping(String urlName, String tSpecName, float weight, Geocode geocode) {
         List <IncorpDeltaMappingRequest<String>>  urlRequestList      = urlMapRequest.safeGet(tSpecName);
-        if(urlRequestList != null && oSpecNameLRUCache.safeContainsKey(tSpecName)) {
+        if(urlRequestList != null && safeContainsKey(tSpecName)) {
             synchronized(urlRequestList) {
                 int adPodId = 0;
                 for(int i=0; i<urlRequestList.size(); i++) {
@@ -612,7 +610,7 @@ public class TransientDataManager {
         List <IncorpDeltaMappingRequest<String>>  themeRequestList    = themeMapRequest.safeGet(oSpec.getName());
         List <IncorpDeltaMappingRequest<Integer>> locationRequestList = locationMapRequest.safeGet(oSpec.getName());
 
-        oSpecNameLRUCache.safeRemove(oSpec.getName());
+        safeRemove(oSpec.getName());
         urlMapRequest.safeRemove(oSpec.getName());
         themeMapRequest.safeRemove(oSpec.getName());
         locationMapRequest.safeRemove(oSpec.getName());
@@ -698,50 +696,50 @@ public class TransientDataManager {
             }
         }      
         if(originalOSpecMap.containsKey(oSpec.getId())) {
-            originalOSpecMap.safeRemove(oSpec.getId());
             campaignDB.deleteOSpec(oSpec.getName());
             campaignDB.addOSpec(originalOSpecMap.safeGet(oSpec.getId()));
+            originalOSpecMap.safeRemove(oSpec.getId());
         }
         else {
             campaignDB.deleteOSpec(oSpec.getName());
         }
     }
 
-    class OSpecNameLRUCache extends LinkedHashMap<String, OSpec> implements RWLocked {
-        private ReadWriteLock m_rwlock = new ReentrantReadWriteLock();
+    public boolean safeContainsKey(Object key) {
+        synchronized (this) {
+            return (oSpecNameLRUCache.containsKey(key));
+        }
+    }
+
+    public OSpec safeGet(Object key) {
+        synchronized (this) {
+            return oSpecNameLRUCache.get(key);
+        }
+    }
+
+    public OSpec safePut(String key, OSpec value) {
+        synchronized (this) {
+            return oSpecNameLRUCache.put(key, value);
+        }
+    }
+
+    public void safePutAll(Map<String, OSpec> map) {
+        synchronized (this) {
+            oSpecNameLRUCache.putAll(map);
+        }
+    }
+
+    public OSpec safeRemove(String key) {
+        synchronized (this) {
+            return oSpecNameLRUCache.remove(key);
+        }
+    }
+
+    class OSpecNameLRUCache extends LinkedHashMap<String, OSpec>{
         private int cacheSize;
         OSpecNameLRUCache(int cacheSize) {
             super(cacheSize, 0.75f, true);
             this.cacheSize = cacheSize;
-        }
-
-        public void readerLock() {
-          try {
-            m_rwlock.readLock().lock();
-          } catch (Exception e) {
-            log.error("Exception reader locking ",e);
-          }
-        }
-        public void readerUnlock() {
-          try {
-            m_rwlock.readLock().unlock();
-          } catch (Exception e) {
-            log.error("Exception reader unlocking ",e);
-          }
-        }
-        public void writerLock() {
-          try {
-            m_rwlock.writeLock().lock();
-          } catch (Exception e) {
-            log.error("Exception writer locking ",e);
-          }
-        }
-        public void writerUnlock() {
-          try {
-            m_rwlock.writeLock().unlock();
-          } catch (Exception e) {
-            log.error("Exception writer unlocking ",e);
-          }
         }
 
         protected boolean removeEldestEntry(Map.Entry<String, OSpec> eldest) {
@@ -752,55 +750,6 @@ public class TransientDataManager {
             return false;
         }
 
-        public boolean safeContainsKey(Object key) {
-            readerLock();
-            try {
-                return super.containsKey(key);
-            }
-            finally {
-                readerUnlock();
-            }
-        }
-
-        public OSpec safeGet(Object key) {
-            readerLock();
-            try {
-                return super.get(key);
-            }
-            finally {
-                readerUnlock();
-            }
-        }
-
-        public OSpec safePut(String key, OSpec value) {
-            writerLock();
-            try {
-                return super.put(key, value);
-            }
-            finally {
-                writerUnlock();
-            }
-        }
-
-        public void safePutAll(Map<String, OSpec> map) {
-            writerLock();
-            try {
-                super.putAll(map);
-            }
-            finally {
-                writerUnlock();
-            }
-        }
-
-        public OSpec safeRemove(String key) {
-            writerLock();
-            try {
-                return super.remove(key);
-            }
-            finally {
-                writerUnlock();
-            }
-        }
     }
 
     class IncorpDeltaMappingRequest<Key> {
