@@ -17,19 +17,11 @@
  */
 package com.tumri.joz.bugfix;
 
+import com.tumri.joz.campaign.CampaignDBDataLoader;
+import com.tumri.joz.campaign.OSpecHelper;
+import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Assert;
-import com.tumri.joz.campaign.CampaignDBDataLoader;
-import com.tumri.joz.campaign.CampaignDB;
-import com.tumri.joz.campaign.UrlNormalizer;
-import com.tumri.joz.campaign.OSpecHelper;
-import com.tumri.joz.products.Handle;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-
-import java.util.SortedSet;
 
 /**
  * Unit Test case for Bug 1807
