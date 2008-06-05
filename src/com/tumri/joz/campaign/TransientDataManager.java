@@ -706,31 +706,31 @@ public class TransientDataManager {
     }
 
     public boolean safeContainsKey(Object key) {
-        synchronized (this) {
+        synchronized (oSpecNameLRUCache) {
             return (oSpecNameLRUCache.containsKey(key));
         }
     }
 
     public OSpec safeGet(Object key) {
-        synchronized (this) {
+        synchronized (oSpecNameLRUCache) {
             return oSpecNameLRUCache.get(key);
         }
     }
 
     public OSpec safePut(String key, OSpec value) {
-        synchronized (this) {
+        synchronized (oSpecNameLRUCache) {
             return oSpecNameLRUCache.put(key, value);
         }
     }
 
     public void safePutAll(Map<String, OSpec> map) {
-        synchronized (this) {
+        synchronized (oSpecNameLRUCache) {
             oSpecNameLRUCache.putAll(map);
         }
     }
 
     public OSpec safeRemove(String key) {
-        synchronized (this) {
+        synchronized (oSpecNameLRUCache) {
             return oSpecNameLRUCache.remove(key);
         }
     }
