@@ -1,8 +1,7 @@
 package com.tumri.joz.index.creator;
 
-import com.tumri.content.data.CategorySpec;
-import com.tumri.content.data.Product;
 import com.tumri.content.data.CategoryAttributeDetails;
+import com.tumri.content.data.Product;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.JozIndexHelper;
 import com.tumri.joz.products.ProductDB;
@@ -10,9 +9,7 @@ import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexUtils;
 import org.apache.log4j.Logger;
 
-import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -23,13 +20,12 @@ import java.util.TreeMap;
  * Time: 8:46:27 PM
  */
 public class JozIndexUpdater {
-
+	private static StringBuffer debugBuffer = new StringBuffer();
     boolean bDebug = false;
     boolean bColdStart = false;
     private static JozIndexUpdater _instance = null;
     private static Logger log = Logger.getLogger(JozIndexUpdater.class);
-    private static File debugOutFile = null;
-
+	protected static ArrayList<Long> productIds = new ArrayList<Long>();
     /**
      * Return a instance of the JozIndexUpdater
      * @return
@@ -61,16 +57,19 @@ public class JozIndexUpdater {
     /**
      * To be used by the test framework
      */
-    public static void setInstance(boolean coldStart, boolean bDebug, String outDir) {
+    public static void setInstance(boolean coldStart, boolean bDebug) {
         _instance = new JozIndexUpdater(bDebug, coldStart);
-        File debugDir = new File(outDir);
-        if (!debugDir.exists()) {
-            throw new RuntimeException("Directory does not exist : " + debugDir);
-        }
-        debugOutFile = new File(outDir + "/jozIndexDebugFile.txt");
-        if (debugOutFile.exists()) {
-            debugOutFile.delete();
-        }
+    }
+	/**  JozIndexUpdater.setInstance was overloaded to handle an extra ArrayList parameter.
+	 *  This allows specific product Ids to be specified for collecting data.
+	 *  JozIndexUpdater.handleDebug() was also overloaded to allow the inclusion of
+	 *  the product Id ArrayList.
+	 *  JozIndexUpdater.updateLine() was also changed to select which overloaded
+	 *  handleDebug() to call depending upon the inputed ArrayList of Product Ids.
+	 */
+	public static void setInstance(boolean coldStart, boolean bDebug, ArrayList<Long> myPids) {
+		productIds = myPids;
+        _instance = new JozIndexUpdater(bDebug, coldStart);
     }
 
     /**
@@ -79,12 +78,77 @@ public class JozIndexUpdater {
      * @param pids Current set of products
      */
     public void handleLine(String indexType, String indexName, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation) {
-        if (bDebug) {
-            handleDebug(indexType,  indexName,pids, operation);
+	    if (bDebug) {
+	        if(productIds.size()>0){
+		        handleDebug(indexType,  indexName,pids, operation, productIds);
+	        }   else {
+                handleDebug(indexType,  indexName,pids, operation);
+	        }
+
         } else {
             handleUpdate(indexType, indexName,pids, operation);
         }
     }
+
+	public static StringBuffer getBuffer(){
+		return debugBuffer;
+	}
+	/*  This method is originally part of JozIndexUpdater.java.
+	*   It was overwritten to allow for selcting which productIds to generate data from.
+	*
+	*/
+	protected void handleDebug(String indexType, String indexVal, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation, ArrayList<Long> ids) {
+		FileWriter fw = null;
+		boolean flag = false;
+		char _delim = '\t';
+
+		String mode = "";
+		switch(operation) {
+			case kAdd:
+				mode = "ADD";
+				break;
+			case kAddModified:
+				mode = "ADD-MOD";
+				break;
+			case kDelete:
+				mode = "DELETE";
+				break;
+			case kDelModified:
+				mode = "DELETE-MOD";
+				break;
+			case kNoChange:
+				mode = "NO-CHANGE";
+				break;
+		}
+		StringBuffer line = new StringBuffer();
+		String preFix = indexType + _delim + indexVal + _delim + mode + _delim;
+
+		int count = 0;
+		boolean bNewLine = true;
+		for (Handle p:pids) {
+			long tempId = p.getOid();               //new line
+			if(ids.contains(new Long(tempId))){     //new line
+				flag = true;
+				if (bNewLine) {
+				   line.append(preFix);
+					bNewLine = false;
+				}
+				line.append(tempId + ",");          //changed line
+				count++;
+				if (count>24){
+					line.append("\n");
+					count =0;
+					bNewLine = true;
+				}
+			}
+		}
+		if(flag){
+			line.append("\n");
+		}
+		debugBuffer.append(line);
+
+	}
+
 
     /**
      * Write the current set of lines to the console. Do not update the Joz Index.
@@ -95,21 +159,6 @@ public class JozIndexUpdater {
         FileWriter fw = null;
         char _delim = '\t';
 
-        if (debugOutFile == null) {
-            String debugFileDir = AppProperties.getInstance().getProperty("com.tumri.joz.index.reader.debug.outdir");
-            File debugDir = new File(debugFileDir);
-            if (!debugDir.exists()) {
-                throw new RuntimeException("Directory does not exist : " + debugDir);
-            }
-            debugOutFile = new File(debugDir.getAbsolutePath() + "/jozIndex.txt");
-            if (debugOutFile.exists()) {
-                //Delete the file if it already exists
-                debugOutFile.delete();
-            }
-        }
-
-        try {
-            fw = new FileWriter(debugOutFile,true);
             String mode = "";
             switch(operation) {
                 case kAdd:
@@ -147,17 +196,7 @@ public class JozIndexUpdater {
                 }
             }
             line.append("\n");
-            fw.write(line.toString());
-
-        } catch (IOException e) {
-            log.error("Could not write to debug file", e);
-        } finally {
-            try {
-                fw.close();
-            } catch(Exception e) {
-                //
-            }
-        }
+	    debugBuffer.append(line);
 
     }
 
