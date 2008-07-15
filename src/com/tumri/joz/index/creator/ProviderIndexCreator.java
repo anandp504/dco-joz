@@ -285,6 +285,7 @@ public class ProviderIndexCreator {
             ArrayList<String> strings = str.getTokens();
             retVal = new HashMap<String,String>();
             String currCat = "";
+            boolean bGeoEnabled = false;
             for (int i=0;i<strings.size();i++) {
                 if (indexPosSet.contains(new Integer(i).toString())) {
                     String val = strings.get(i);
@@ -300,10 +301,11 @@ public class ProviderIndexCreator {
                         retVal.put(key,val);
                     }
                     //If the product is geo filtered - then update the flag accordingly.
-                    if (key.equals("country") || key.equals("state") || key.equals("city") ||
-                            key.equals("dma") || key.equals("area")) {
+                    if (!bGeoEnabled && (key.equals("country") || key.equals("state") || key.equals("city") ||
+                            key.equals("dma") || key.equals("area") || key.equals("zip"))) {
                         if (val != null && !val.equals("")) {
                             retVal.put("geoenabled","true");
+                            bGeoEnabled = true;
                         } else {
                             retVal.put("geoenabled","false");
                         }

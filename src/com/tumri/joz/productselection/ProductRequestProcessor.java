@@ -566,6 +566,13 @@ public class ProductRequestProcessor {
                 m_tSpecQuery.addSimpleQuery(areaCodeQuery);
                 addedGeo = true;
             }
+            String zipCode = request.get_zip_code();
+            if (zipCode!=null && !"".equals(zipCode)) {
+                Integer zipCodeId = DictionaryManager.getInstance().getId(Product.Attribute.kZip, zipCode);
+                AttributeQuery zipCodeQuery = new AttributeQuery(Product.Attribute.kZip, zipCodeId);
+                m_tSpecQuery.addSimpleQuery(zipCodeQuery);
+                addedGeo = true;
+            }
             if (addedGeo) {
                 m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
             }
