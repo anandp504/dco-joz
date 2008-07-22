@@ -191,7 +191,7 @@ public class ProductRequestProcessor {
                 
                 ArrayList<Handle> backFillProds = null;
                 if (m_NumProducts !=null && rResult!=null){
-                    backFillProds = doBackFill(request, m_pageSize,rResult.size());
+                    backFillProds = doBackFill(request, m_pageSize,rResult);
                 }
                 //First add the results
                 resultAL.addAll(rResult);
@@ -280,11 +280,16 @@ public class ProductRequestProcessor {
 	 * For other cases the backfill is done from the default realm tspec.
      * @param request - the Ad Data Request
      * @param pageSize - the request page Size
-     * @param currSize - the current page size
+     * @param currResults - the current result set
 	 * @return ArrayList of products that were backfilled
 	 */
-	private ArrayList doBackFill(AdDataRequest request,int pageSize, int currSize){
-		//Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
+	private ArrayList doBackFill(AdDataRequest request,int pageSize,SortedSet<Handle> currResults){
+        int currSize = 0;
+        if (currResults != null) {
+            currSize = currResults.size();
+        }
+
+        //Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
 		SexpUtils.MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
 		boolean bKeywordBackfill = false;
 		
@@ -303,7 +308,7 @@ public class ProductRequestProcessor {
 
         //Check if the backfill is needed bcos of Geo Filter Query
         if (m_revertToDefaultRealm && m_geoFilterEnabled && pageSize>0 && currSize<pageSize)  {
-           SortedSet<Handle> geoBackFillProds = doGeoBackFill(pageSize, currSize);
+           SortedSet<Handle> geoBackFillProds = doGeoBackFill(pageSize, currResults);
            backFillProds.addAll(geoBackFillProds);
            currSize = currSize + backFillProds.size();
         }
@@ -345,27 +350,37 @@ public class ProductRequestProcessor {
 	}
 
     /**
-     * Backfill by dropping the Geo queries in the order of precedence : Country, State, City, Zip, DMA, Area, GeoEnabled flag
+     * Backfill by dropping the Geo queries in the reverse order of precedence :
+     * Area, DMA, Zip, Citry, State, Country, GeoEnabled flag
      */
-    private SortedSet<Handle> doGeoBackFill(int pageSize, int currSize) {
+    private SortedSet<Handle> doGeoBackFill(int pageSize, SortedSet<Handle> currResults) {
+        int currSize = 0;
+        if (currResults != null) {
+            currSize = currResults.size();
+        }
+
         SortedSet<Handle> backFillSet = new SortedArraySet<Handle>();
 
-        SortedSet<Handle> newResults = m_tSpecQuery.exec();
-        backFillSet.addAll(newResults);
-        currSize = currSize + backFillSet.size();
-
+        SortedSet<Handle> newResults = null;
         if (currSize<pageSize) {
-            //Drop the Geo Country query
-            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kCountry, pageSize, currSize);
+            //Drop the Geo Area query
+            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kArea, pageSize, currResults);
             if (newResults!=null) {
                 backFillSet.addAll(newResults);
             }
             currSize = currSize + backFillSet.size();
         }
-
         if (currSize<pageSize) {
-            //Drop the Geo State query
-            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kState, pageSize, currSize);
+            //Drop the Geo DMA query
+            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kDMA, pageSize, currResults);
+            if (newResults!=null) {
+                backFillSet.addAll(newResults);
+            }
+            currSize = currSize + backFillSet.size();
+        }
+        if (currSize<pageSize) {
+            //Drop the Geo Zip query
+            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kZip, pageSize, currResults);
             if (newResults!=null) {
                 backFillSet.addAll(newResults);
             }
@@ -374,7 +389,7 @@ public class ProductRequestProcessor {
 
         if (currSize<pageSize) {
             //Drop the Geo City query
-            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kCity, pageSize, currSize);
+            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kCity, pageSize, currResults);
             if (newResults!=null) {
                 backFillSet.addAll(newResults);
             }
@@ -382,8 +397,8 @@ public class ProductRequestProcessor {
         }
 
         if (currSize<pageSize) {
-            //Drop the Geo Zip query
-            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kZip, pageSize, currSize);
+            //Drop the Geo State query
+            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kState, pageSize, currResults);
             if (newResults!=null) {
                 backFillSet.addAll(newResults);
             }
@@ -391,17 +406,8 @@ public class ProductRequestProcessor {
         }
 
         if (currSize<pageSize) {
-            //Drop the Geo DMA query
-            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kDMA, pageSize, currSize);
-            if (newResults!=null) {
-                backFillSet.addAll(newResults);
-            }
-            currSize = currSize + backFillSet.size();
-        }
-
-        if (currSize<pageSize) {
-            //Drop the Geo Area query
-            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kArea, pageSize, currSize);
+            //Drop the Geo Country query
+            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kCountry, pageSize, currResults);
             if (newResults!=null) {
                 backFillSet.addAll(newResults);
             }
@@ -410,7 +416,7 @@ public class ProductRequestProcessor {
 
         if (currSize<pageSize) {
             //Drop the Geo Filter query
-            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kGeoEnabledFlag, pageSize, currSize);
+            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kGeoEnabledFlag, pageSize, currResults);
             if (newResults!=null) {
                 backFillSet.addAll(newResults);
             }
@@ -421,8 +427,12 @@ public class ProductRequestProcessor {
     }
 
     private SortedSet<Handle> doDropGeoAttrQueryAndBackFill(CNFQuery tmp_tSpecQuery, IProduct.Attribute geoAttr,
-                                                            int pageSize, int currSize) {
+                                                            int pageSize, SortedSet<Handle> currResults) {
         SortedSet<Handle> newResults = null;
+        int currSize = 0;
+        if (currResults != null) {
+            currSize = currResults.size();
+        }
 
         //Drop the Geo Filter query
         boolean bDropped = false;
@@ -440,13 +450,30 @@ public class ProductRequestProcessor {
             }
         }
         if (bDropped) {
-            int tmpSize = pageSize-currSize;
+            //We quadruple the pagesize to account for any duplicates that we might end up with
+            int tmpSize = 4*pageSize-currSize;
             tmp_tSpecQuery.setBounds(tmpSize,0);
             tmp_tSpecQuery.setStrict(false);
             Handle ref = ProductDB.getInstance().genReference();
             tmp_tSpecQuery.setReference(ref);
             tmp_tSpecQuery.setReference(ref);
             newResults = tmp_tSpecQuery.exec();
+            //Do not add any products already selected
+            SortedSet<Handle> rResult = new SortedArraySet<Handle>();
+            for(Handle res: newResults) {
+                if (currResults!= null && !currResults.contains(res) && rResult.size() < (pageSize-currSize)) {
+                    rResult.add(res);
+                }
+            }
+            newResults = rResult;
+            if (rResult.size()>0){
+                if (currResults != null){
+                    currResults.addAll(rResult);
+                } else {
+                    currResults = rResult;
+                }
+            }
+
         }
         return newResults;
     }
