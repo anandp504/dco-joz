@@ -38,8 +38,7 @@ public class ProductRequestProcessor {
     private boolean m_revertToDefaultRealm;
     private boolean m_geoFilterEnabled;
 	private HashMap<String, String> m_jozFeaturesMap = new HashMap<String, String>();
-	
-	
+
 	/**
 	 * Default constructor
 	 *
@@ -361,7 +360,7 @@ public class ProductRequestProcessor {
 
         SortedSet<Handle> backFillSet = new SortedArraySet<Handle>();
 
-        SortedSet<Handle> newResults = null;
+        ArrayList<Handle> newResults = null;
         if (currSize<pageSize) {
             //Drop the Geo Area query
             newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kArea, pageSize, currResults);
@@ -415,10 +414,22 @@ public class ProductRequestProcessor {
         }
 
         if (currSize<pageSize) {
-            //Drop the Geo Filter query
-            newResults = doDropGeoAttrQueryAndBackFill(m_tSpecQuery, IProduct.Attribute.kGeoEnabledFlag, pageSize, currResults);
-            if (newResults!=null) {
-                backFillSet.addAll(newResults);
+            //Drop the Geo Filter query and select only products that do not have GEO in it.
+            m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
+            Integer geoFlagId = DictionaryManager.getInstance().getId(Product.Attribute.kGeoEnabledFlag, "true");
+            AttributeQuery geoEnabledQuery = new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
+            geoEnabledQuery.setNegation(true);
+            m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
+
+            //We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
+            int tmpSize = pageSize-currSize+5;
+            m_tSpecQuery.setBounds(tmpSize,0);
+            m_tSpecQuery.setStrict(false);
+            Handle ref = ProductDB.getInstance().genReference();
+            m_tSpecQuery.setReference(ref);
+            SortedSet<Handle> rResults = m_tSpecQuery.exec();
+            if (rResults!=null) {
+                backFillSet.addAll(rResults);
             }
             currSize = currSize + backFillSet.size();
         }
@@ -426,9 +437,9 @@ public class ProductRequestProcessor {
         return backFillSet;
     }
 
-    private SortedSet<Handle> doDropGeoAttrQueryAndBackFill(CNFQuery tmp_tSpecQuery, IProduct.Attribute geoAttr,
+    private ArrayList<Handle> doDropGeoAttrQueryAndBackFill(CNFQuery tmp_tSpecQuery, IProduct.Attribute geoAttr,
                                                             int pageSize, SortedSet<Handle> currResults) {
-        SortedSet<Handle> newResults = null;
+        ArrayList<Handle> rResult = null;
         int currSize = 0;
         if (currResults != null) {
             currSize = currResults.size();
@@ -457,25 +468,24 @@ public class ProductRequestProcessor {
             Handle ref = ProductDB.getInstance().genReference();
             tmp_tSpecQuery.setReference(ref);
             tmp_tSpecQuery.setReference(ref);
-            newResults = tmp_tSpecQuery.exec();
+            SortedSet<Handle> newResults = tmp_tSpecQuery.exec();
             //Do not add any products already selected
-            SortedSet<Handle> rResult = new SortedArraySet<Handle>();
+            rResult = new ArrayList<Handle>();
             for(Handle res: newResults) {
                 if (currResults!= null && !currResults.contains(res) && rResult.size() < (pageSize-currSize)) {
                     rResult.add(res);
                 }
             }
-            newResults = rResult;
             if (rResult.size()>0){
                 if (currResults != null){
                     currResults.addAll(rResult);
                 } else {
-                    currResults = rResult;
+                    currResults = new SortedArraySet<Handle>(rResult);
                 }
             }
 
         }
-        return newResults;
+        return rResult;
     }
     
     /**
@@ -555,7 +565,6 @@ public class ProductRequestProcessor {
 
         Integer geoFlagId = DictionaryManager.getInstance().getId(Product.Attribute.kGeoEnabledFlag, "true");
         AttributeQuery geoEnabledQuery = new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
-
         if (m_geoFilterEnabled) {
             String countryCode = request.getCountry();
             boolean addedGeo = false;
@@ -569,35 +578,35 @@ public class ProductRequestProcessor {
             if (cityCode!=null && !"".equals(cityCode)) {
                 Integer cityId = DictionaryManager.getInstance().getId(Product.Attribute.kCity, cityCode);
                 AttributeQuery cityQuery = new AttributeQuery(Product.Attribute.kCity, cityId);
-                m_tSpecQuery.addSimpleQuery(cityQuery);
+                 m_tSpecQuery.addSimpleQuery(cityQuery);
                 addedGeo = true;
             }
             String stateCode = request.getRegion();
             if (stateCode!=null && !"".equals(stateCode)) {
                 Integer stateId = DictionaryManager.getInstance().getId(Product.Attribute.kState, stateCode);
                 AttributeQuery stateQuery = new AttributeQuery(Product.Attribute.kState, stateId);
-                m_tSpecQuery.addSimpleQuery(stateQuery);
+                 m_tSpecQuery.addSimpleQuery(stateQuery);
                 addedGeo = true;
             }
             String dmaCode = request.getDmacode();
             if (dmaCode!=null && !"".equals(dmaCode)) {
                 Integer dmaCodeId = DictionaryManager.getInstance().getId(Product.Attribute.kDMA, dmaCode);
                 AttributeQuery dmaQuery = new AttributeQuery(Product.Attribute.kDMA, dmaCodeId);
-                m_tSpecQuery.addSimpleQuery(dmaQuery);
+                 m_tSpecQuery.addSimpleQuery(dmaQuery);
                 addedGeo = true;
             }
             String areaCode = request.getAreacode();
             if (areaCode!=null && !"".equals(areaCode)) {
                 Integer areaCodeId = DictionaryManager.getInstance().getId(Product.Attribute.kArea, areaCode);
                 AttributeQuery areaCodeQuery = new AttributeQuery(Product.Attribute.kArea, areaCodeId);
-                m_tSpecQuery.addSimpleQuery(areaCodeQuery);
+                 m_tSpecQuery.addSimpleQuery(areaCodeQuery);
                 addedGeo = true;
             }
             String zipCode = request.get_zip_code();
             if (zipCode!=null && !"".equals(zipCode)) {
                 Integer zipCodeId = DictionaryManager.getInstance().getId(Product.Attribute.kZip, zipCode);
                 AttributeQuery zipCodeQuery = new AttributeQuery(Product.Attribute.kZip, zipCodeId);
-                m_tSpecQuery.addSimpleQuery(zipCodeQuery);
+                 m_tSpecQuery.addSimpleQuery(zipCodeQuery);
                 addedGeo = true;
             }
             if (addedGeo) {
