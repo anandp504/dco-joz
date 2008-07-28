@@ -124,3 +124,6 @@ cma.factory.impl = com.tumri.cma.misc.CMALispFactoryImpl
 
 #URL Scavenging global stop words
 com.tumri.productselection.global.stopwords=.com,.org,.gov,.net,.biz,.uk,.fr,.in,.php,.html,.htm,.css,.js,www,http://,cache://,rss://,feed://,http,
+
+#Zip code database
+com.tumri.joz.zipcode.file=zipcodedb.xml

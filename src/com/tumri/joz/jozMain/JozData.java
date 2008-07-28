@@ -12,11 +12,13 @@ import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
+import com.tumri.joz.utils.ZipCodeDB;
+import com.tumri.joz.JoZException;
 import com.tumri.lls.client.ListingLookupDataProviderImpl;
 import com.tumri.lls.client.main.LlcListingProviderImpl;
 
 public class JozData {
-    
+
     public static void init() {
         // Read the datapath from the joz.properties file
         AppProperties props = AppProperties.getInstance();
@@ -25,6 +27,11 @@ public class JozData {
         //This call will instantiate the listings provider class
         ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
                         MerchantDB.getInstance().getMerchantData());
+        try {
+            ZipCodeDB.getInstance().init();
+        } catch (JoZException e) {
+            log.error("Zip code database could not be initialized", e);
+        }
 
     }
     
