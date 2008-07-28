@@ -28,6 +28,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * @author: nipun
@@ -51,11 +52,11 @@ public class ZipCodeDB {
       return g_DB;
     }
     
-    private HashMap<Integer, List<Integer>> zip10MileIndex = new HashMap<Integer, List<Integer>>();
-    private HashMap<Integer, List<Integer>> zip25MileIndex = new HashMap<Integer, List<Integer>>();
-    private HashMap<Integer, List<Integer>> zip40MileIndex = new HashMap<Integer, List<Integer>>();
-    private HashMap<Integer, List<Integer>> zip50MileIndex = new HashMap<Integer, List<Integer>>();
-    private HashMap<Integer, List<Integer>> zip100MileIndex = new HashMap<Integer, List<Integer>>();
+    private TreeMap<Integer, List<Integer>> zip10MileIndex = new TreeMap<Integer, List<Integer>>();
+    private TreeMap<Integer, List<Integer>> zip25MileIndex = new TreeMap<Integer, List<Integer>>();
+    private TreeMap<Integer, List<Integer>> zip40MileIndex = new TreeMap<Integer, List<Integer>>();
+    private TreeMap<Integer, List<Integer>> zip50MileIndex = new TreeMap<Integer, List<Integer>>();
+    private TreeMap<Integer, List<Integer>> zip100MileIndex = new TreeMap<Integer, List<Integer>>();
 
     /**
      * Adds the ZipCode and nearby zipcode into the Zip database
@@ -102,9 +103,17 @@ public class ZipCodeDB {
                 values.add(value);
 
                 zip10MileIndex.put(key, values);
+                zip25MileIndex.remove(key);
+                zip40MileIndex.remove(key);
+                zip50MileIndex.remove(key);
+                zip100MileIndex.remove(key);
                 break;
             case 25:
                 result10 = zip10MileIndex.get(key);
+                zip40MileIndex.remove(key);
+                zip50MileIndex.remove(key);
+                zip100MileIndex.remove(key);
+
                 if (result10==null || !result10.contains(value)) {
                     values = zip25MileIndex.get(key);
                     if (values == null) {
@@ -117,6 +126,9 @@ public class ZipCodeDB {
             case 40:
                 result10 = zip10MileIndex.get(key);
                 result25 = zip25MileIndex.get(key);
+                zip50MileIndex.remove(key);
+                zip100MileIndex.remove(key);
+
                 if ((result10==null || !result10.contains(value)) &&
                         (result25==null || !result25.contains(value))){
                     values = zip40MileIndex.get(key);
@@ -131,6 +143,8 @@ public class ZipCodeDB {
                 result10 = zip10MileIndex.get(key);
                 result25 = zip25MileIndex.get(key);
                 result40 = zip40MileIndex.get(key);
+                zip100MileIndex.remove(key);
+
                 if ((result10==null || !result10.contains(value)) &&
                         (result25==null || !result25.contains(value)) &&
                         (result40==null || !result40.contains(value))){
@@ -173,6 +187,7 @@ public class ZipCodeDB {
     public List<Integer> getNearbyZips(Integer zipId, int dist) {
         List<Integer> result, result10, result25, result40, result50, result100;
         result = new ArrayList<Integer>();
+        dist = normalizeDistance(dist);
         switch (dist) {
             case 10:
                 result = zip10MileIndex.get(zipId);
@@ -217,6 +232,7 @@ public class ZipCodeDB {
                 }
                 break;
             case 100:
+            default:
                 result10 = zip10MileIndex.get(zipId);
                 result25 = zip25MileIndex.get(zipId);
                 result40 = zip40MileIndex.get(zipId);
@@ -238,10 +254,23 @@ public class ZipCodeDB {
                     result.addAll(result100);
                 }
                 break;
-            default:
-                throw new UnsupportedOperationException("Distance not supported");
         }
         return result;
+    }
+
+    private int normalizeDistance(int dist) {
+        if (dist <=10) {
+            dist = 10;
+        } else if (dist <= 25) {
+            dist = 25;
+        } else if (dist <= 40) {
+            dist = 40;
+        } else if (dist <= 50) {
+            dist = 50;
+        } else {
+            dist = 100;
+        }
+        return dist;
     }
 
     /**
@@ -285,10 +314,10 @@ public class ZipCodeDB {
             isr.close();
             log.info("Finished loading the zip index. Time taken = " + (System.currentTimeMillis() - starttime) + " millisecs.");
         } catch (IOException ex) {
-            log.error("Could not load zip code file.");
+            log.fatal("Could not load zip code file.");
             throw new JoZException(ex);
         } catch (Throwable t){
-            log.error("Zip code Index load failed.",t );
+            log.fatal("Zip code Index load failed.",t );
             throw new JoZException(t);
         } finally {
             try {

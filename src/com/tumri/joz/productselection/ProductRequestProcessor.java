@@ -86,7 +86,7 @@ public class ProductRequestProcessor {
 
             //3. Pass request to Targeting Processor
 			m_currOSpec = TargetingRequestProcessor.getInstance().processRequest(request);
-			
+
 			if(m_currOSpec != null) {
 				m_tSpecQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
 			} else {
@@ -169,7 +169,7 @@ public class ProductRequestProcessor {
                     includedProds.addAll(leadGenAL);
                 }
             }
-            
+
             //7. Do Outer Disjunction
 			ArrayList<Handle> disjunctedProds = OSpecHelper.getIncludedProducts(m_currOSpec);
 
@@ -201,7 +201,7 @@ public class ProductRequestProcessor {
                     includedProds.addAll(rResult);
                     rResult = paginateResults(m_pageSize, m_currentPage, includedProds);
                 }
-                
+
                 ArrayList<Handle> backFillProds = null;
                 if (numProducts !=null && rResult!=null){
                     backFillProds = doBackFill(request, m_pageSize,rResult);
@@ -218,7 +218,7 @@ public class ProductRequestProcessor {
                     }
                 }
             }
-			
+
 			//9. Cull the result by num products
 			if ((resultAL!=null) && (numProducts !=null) && (resultAL.size() > numProducts)){
 				while(resultAL.size() > numProducts){
@@ -305,41 +305,19 @@ public class ProductRequestProcessor {
         //Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
 		SexpUtils.MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
 		boolean bKeywordBackfill = false;
-		
+
 		if (mMineUrls == null) {
 			if (m_currOSpec.isMinePubUrl()) {
 				mMineUrls = SexpUtils.MaybeBoolean.TRUE;
 			}
 		}
-		
+
 		if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
 			bKeywordBackfill = true;
 		}
 
 		//Check if backfill is needed bcos of the keyword query
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
-
-        //Check if the backfill is needed bcos of Geo Filter Query
-        if (m_geoFilterEnabled && pageSize>0 && currSize<pageSize)  {
-            //Drop the Geo Filter query and select only products that do not have GEO in it.
-            m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
-            Integer geoFlagId = DictionaryManager.getInstance().getId(Product.Attribute.kGeoEnabledFlag, "true");
-            AttributeQuery geoEnabledQuery = new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
-            geoEnabledQuery.setNegation(true);
-            m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
-
-            //We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
-            int tmpSize = pageSize-currSize+5;
-            m_tSpecQuery.setBounds(tmpSize,0);
-            m_tSpecQuery.setStrict(false);
-            Handle ref = ProductDB.getInstance().genReference();
-            m_tSpecQuery.setReference(ref);
-            SortedSet<Handle> rResults = m_tSpecQuery.exec();
-            if (rResults!=null) {
-                backFillProds.addAll(rResults);
-            }
-            currSize = currSize + backFillProds.size();
-        }
 
         //For keyword queries, do backfill from the tspec
         if (bKeywordBackfill && pageSize>0 && currSize<pageSize){
@@ -436,51 +414,73 @@ public class ProductRequestProcessor {
         Integer geoFlagId = DictionaryManager.getInstance().getId(Product.Attribute.kGeoEnabledFlag, "true");
         AttributeQuery geoEnabledQuery = new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
         if (m_geoFilterEnabled) {
+            int resultCount = 0;
+            String zipCode = request.get_zip_code();
+            if (zipCode!=null && !"".equals(zipCode)) {
+                resultCount = resultCount+2;  //Add an additional one for the radius set
+            }
+            String cityCode = request.getCity();
+            if (cityCode!=null && !"".equals(cityCode)) {
+                resultCount++;
+            }
+            String dmaCode = request.getDmacode();
+            if (dmaCode!=null && !"".equals(dmaCode)) {
+                resultCount++;
+            }
+            String areaCode = request.getAreacode();
+            if (areaCode!=null && !"".equals(areaCode)) {
+                resultCount++;
+            }
+            String stateCode = request.getRegion();
+            if (stateCode!=null && !"".equals(stateCode)) {
+                resultCount++;
+            }
+            String countryCode = request.getCountry();
+            if (countryCode!=null && !"".equals(countryCode)) {
+                resultCount++;
+            }
+            resultCount++; //For the backfill
             CNFQuery geoTSpecQuery = new CNFQuery();
+            geoTSpecQuery.setBounds(resultCount*m_pageSize, m_currentPage);
             _conjQueryAL = m_tSpecQuery.getQueries();
-            boolean addedGeo = false;
             for (ConjunctQuery conjQuery:_conjQueryAL) {
-                String zipCode = request.get_zip_code();
                 if (zipCode!=null && !"".equals(zipCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kZip, zipCode);
-                    addedGeo = true;
                     geoTSpecQuery.addQuery(cloneConjQuery);
                     ConjunctQuery radiuscloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kRadius, zipCode);
                     geoTSpecQuery.addQuery(radiuscloneConjQuery);
                 }
-                String cityCode = request.getCity();
                 if (cityCode!=null && !"".equals(cityCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kCity, cityCode);
-                    addedGeo = true;
                     geoTSpecQuery.addQuery(cloneConjQuery);
                 }
-                String dmaCode = request.getDmacode();
                 if (dmaCode!=null && !"".equals(dmaCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kDMA, dmaCode);
-                    addedGeo = true;
                     geoTSpecQuery.addQuery(cloneConjQuery);
                 }
-                String areaCode = request.getAreacode();
                 if (areaCode!=null && !"".equals(areaCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kArea, areaCode);
-                    addedGeo = true;
                     geoTSpecQuery.addQuery(cloneConjQuery);
                 }
-                String stateCode = request.getRegion();
                 if (stateCode!=null && !"".equals(stateCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kState, stateCode);
-                    addedGeo = true;
                     geoTSpecQuery.addQuery(cloneConjQuery);
                 }
-                String countryCode = request.getCountry();
                 if (countryCode!=null && !"".equals(countryCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kCountry, countryCode);
-                    addedGeo = true;
+                    geoTSpecQuery.addQuery(cloneConjQuery);
+                }
+                //Add the backfill query
+                {
+                    ConjunctQuery cloneConjQuery = (ConjunctQuery)conjQuery.clone();
+                    geoEnabledQuery.setNegation(true);
+                    cloneConjQuery.setBounds(m_pageSize, m_currentPage);
+                    cloneConjQuery.setStrict(false);
+                    cloneConjQuery.addQuery(geoEnabledQuery);
                     geoTSpecQuery.addQuery(cloneConjQuery);
                 }
             }
-            if (addedGeo) {
-                geoTSpecQuery.addSimpleQuery(geoEnabledQuery);
+            if (resultCount>0) {
                 m_tSpecQuery = geoTSpecQuery;
             }
         } else {
