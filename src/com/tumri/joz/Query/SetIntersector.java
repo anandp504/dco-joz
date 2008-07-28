@@ -629,7 +629,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
   public int size() {
     ArrayList<ArrayList<Value>> lists = createLists();
-    int max = m_includes.get(0).size();
+    int max = Math.min(m_maxSetSize, m_includes.get(0).size());
     intersect(lists,null,max, true);
     log.warn("Size operator called on setIntersector");
     return lists.get(0).size();
@@ -739,17 +739,22 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   }
 
   class SetIntersectorIterator implements Iterator<Value> {
-    Value m_ref = null;
-    ArrayList<ArrayList<Value>> m_lists;
-    Iterator<Value> m_iter;
-    boolean m_fallback = true; // If true then less accurate results are included
+    private Value m_ref = null;
+    private ArrayList<ArrayList<Value>> m_lists;
+    private Iterator<Value> m_iter;
+    private boolean m_fallback = true; // If true then less accurate results are included
+    private int count = 0; //Keep track of the number of items returned by this iterator.
 
-    SetIntersectorIterator() {
+    private SetIntersectorIterator() {
       m_lists = createLists();
       fill();
     }
 
     public boolean hasNext() {
+        //Abort if we have already returned upto max size of the bounded set
+      if (count >= m_maxSetSize) {
+          return false;
+      }
       if (m_iter != null && !m_iter.hasNext()) {
         m_iter = null; // We need to refill from the intersector
         if (!done()) { // refill only if not done yet
@@ -760,7 +765,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     }
 
     public Value next() {
-      if (m_iter != null) {
+      if (m_iter != null && count < m_maxSetSize) {
+        count++;
         return m_iter.next();
       }
       throw new NoSuchElementException();
