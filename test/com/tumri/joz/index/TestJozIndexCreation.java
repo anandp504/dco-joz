@@ -67,7 +67,7 @@ public class TestJozIndexCreation {
         //assert(new File("/tmp/joztest/new/jozIndex").exists());
 
         //Produce the debug file
-        JozIndexUpdater.setInstance(true, true, "/tmp");
+        //JozIndexUpdater.setInstance(true, true, "/tmp");
         JozIndexHelper.loadIndex("/opt/joz/data/caa/current/jozIndex");
 
         assert(new File("/tmp/jozIndexDebugFile.txt").exists());
