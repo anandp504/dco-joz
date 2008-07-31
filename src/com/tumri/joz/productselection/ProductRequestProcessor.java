@@ -323,9 +323,10 @@ public class ProductRequestProcessor {
         if (m_geoFilterEnabled  && bKeywordBackfill && pageSize>0 && currSize<pageSize) {
             m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
             addGeoFilterQuery(request,pageSize-currSize, m_currentPage);
-            Handle ref = ProductDB.getInstance().genReference();
-            m_tSpecQuery.setReference(ref);
             SortedSet<Handle> newResults = m_tSpecQuery.exec();
+            //Sort by the score
+            SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
+            geoSortedResult.addAll(newResults);
             backFillProds.addAll(newResults);
             currSize = currSize + backFillProds.size();
         }
@@ -504,6 +505,8 @@ public class ProductRequestProcessor {
                 }
             }
             if (resultCount>0) {
+                //Set a reference so we return random selection of products.
+                geoTSpecQuery.setReference(ProductDB.getInstance().genReference ());
                 m_tSpecQuery = geoTSpecQuery;
             }
         } else {
