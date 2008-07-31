@@ -274,7 +274,7 @@ public class ProductRequestProcessor {
 		//5. Product Type
 		addProductTypeQuery(request);
 
-        addGeoFilterQuery(request);
+        addGeoFilterQuery(request,m_pageSize, m_currentPage);
 
         //6. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
@@ -319,11 +319,21 @@ public class ProductRequestProcessor {
 		//Check if backfill is needed bcos of the keyword query
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
 
-        //For keyword queries, do backfill from the tspec
-        if (bKeywordBackfill && pageSize>0 && currSize<pageSize){
+        //For keyword queries with geo enabled, do backfill by dropping the keyword query and doing the geo query again
+        if (m_geoFilterEnabled  && bKeywordBackfill && pageSize>0 && currSize<pageSize) {
+            m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
+            addGeoFilterQuery(request,pageSize-currSize, m_currentPage);
+            SortedSet<Handle> newResults = m_tSpecQuery.exec();
+            backFillProds.addAll(newResults);
+            currSize = currSize + backFillProds.size();
+        }
+
+        if (!m_geoFilterEnabled && bKeywordBackfill && pageSize>0 && currSize<pageSize){
 			m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
-			//We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
-			int tmpSize = pageSize-currSize+5;
+            //Never select any products that have Geo enabled while backfilling for keyword queries
+            addGeoEnabledQuery(true);
+            //We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
+            int tmpSize = pageSize-currSize+5;
 			m_tSpecQuery.setBounds(tmpSize,0);
 			m_tSpecQuery.setStrict(false);
 			Handle ref = ProductDB.getInstance().genReference();
@@ -335,6 +345,18 @@ public class ProductRequestProcessor {
 
 		return backFillProds;
 	}
+
+    private void addGeoEnabledQuery(boolean bNegation) {
+        SimpleQuery geoEnabledQuery = createGeoEnabledQuery();
+        geoEnabledQuery.setNegation(bNegation);
+        m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
+    }
+
+    private SimpleQuery createGeoEnabledQuery() {
+        Integer geoFlagId = DictionaryManager.getInstance().getId(Product.Attribute.kGeoEnabledFlag, "true");
+        AttributeQuery geoEnabledQuery = new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
+        return geoEnabledQuery;
+    }
 
     /**
 	 * Category may be passed in from the request. If this is the case we always intersect with the TSpec results
@@ -396,7 +418,7 @@ public class ProductRequestProcessor {
 		}
 	}
 
-    private void addGeoFilterQuery(AdDataRequest request) {
+    private void addGeoFilterQuery(AdDataRequest request, int pageSize, int currPage) {
         //If there are no queries in the selected tspec - do not add geo flag
         boolean bSimpleQueries = false;
         ArrayList<ConjunctQuery> _conjQueryAL = m_tSpecQuery.getQueries();
@@ -411,8 +433,7 @@ public class ProductRequestProcessor {
             return;
         }
 
-        Integer geoFlagId = DictionaryManager.getInstance().getId(Product.Attribute.kGeoEnabledFlag, "true");
-        AttributeQuery geoEnabledQuery = new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
+        SimpleQuery geoEnabledQuery = createGeoEnabledQuery();
         if (m_geoFilterEnabled) {
             int resultCount = 0;
             String zipCode = request.get_zip_code();
@@ -441,7 +462,7 @@ public class ProductRequestProcessor {
             }
             resultCount++; //For the backfill
             CNFQuery geoTSpecQuery = new CNFQuery();
-            geoTSpecQuery.setBounds(resultCount*m_pageSize, m_currentPage);
+            geoTSpecQuery.setBounds(resultCount*pageSize, currPage);
             _conjQueryAL = m_tSpecQuery.getQueries();
             for (ConjunctQuery conjQuery:_conjQueryAL) {
                 if (zipCode!=null && !"".equals(zipCode)) {
@@ -474,7 +495,7 @@ public class ProductRequestProcessor {
                 {
                     ConjunctQuery cloneConjQuery = (ConjunctQuery)conjQuery.clone();
                     geoEnabledQuery.setNegation(true);
-                    cloneConjQuery.setBounds(m_pageSize, m_currentPage);
+                    cloneConjQuery.setBounds(pageSize, currPage);
                     cloneConjQuery.setStrict(false);
                     cloneConjQuery.addQuery(geoEnabledQuery);
                     geoTSpecQuery.addQuery(cloneConjQuery);
