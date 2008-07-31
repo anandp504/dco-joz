@@ -323,6 +323,8 @@ public class ProductRequestProcessor {
         if (m_geoFilterEnabled  && bKeywordBackfill && pageSize>0 && currSize<pageSize) {
             m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
             addGeoFilterQuery(request,pageSize-currSize, m_currentPage);
+            Handle ref = ProductDB.getInstance().genReference();
+            m_tSpecQuery.setReference(ref);
             SortedSet<Handle> newResults = m_tSpecQuery.exec();
             backFillProds.addAll(newResults);
             currSize = currSize + backFillProds.size();
