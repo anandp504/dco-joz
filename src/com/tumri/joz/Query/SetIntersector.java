@@ -138,7 +138,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
         SortedSet<Value> lValues = m_includes.get(i);
         if (set.size() < lValues.size()) { // insert in a sorted order with smallest set first
           m_includes.add(i,set);
-          m_includesWeight.add(weight);
+          m_includesWeight.add(i,weight);
           added = true;
           break;
         }

@@ -20,7 +20,9 @@ public class Features {
     public static final String FEATURE_WIDGET_SEARCH = "SEARCH-IN-WIDGET";
     public static final String FEATURE_MINE_URL_SEARCH = "SEARCH-MINE-URL";
     public static final String FEATURE_SCRIPT_SEARCH = "SEARCH-SCRIPT_KEYWORD";
-    
+    public static final String FEATURE_GEO_PARMS = "GEO";
+    public static final String FEATURE_MULTI_VALUE_QUERY = "MULTI-VALUE-QUERY";
+
     private String _joz_version;
     private String _host_name;
     private HashMap<String, String> jozFeaturesMap = null;
@@ -74,7 +76,7 @@ public class Features {
         		String featureKeyStr = featureKeys.next();
         		String featureValStr = jozFeaturesMap.get(featureKeyStr);
         		if (featureKeyStr!=null && !"".equals(featureKeyStr) && featureValStr!=null && !"".equals(featureValStr)) {
-        			featureBuiltUpStr = "(" + featureKeyStr + " \"" + featureValStr + "\")";
+        			featureBuiltUpStr = featureBuiltUpStr + "(" + featureKeyStr + " \"" + featureValStr + "\")";
         		}
         	}
         	s = new SexpString(featureBuiltUpStr);

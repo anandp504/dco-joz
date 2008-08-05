@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 public class IndexUtils {
 
     private static Logger log = Logger.getLogger(IndexUtils.class);
-    private static int getCategoryFieldPos(Product.Attribute kAttr) {
+    private static int getAttributeFieldPos(Product.Attribute kAttr) {
         int result = 0;
 
         switch(kAttr) {
@@ -34,19 +34,34 @@ public class IndexUtils {
             case kCategoryField5:
                 result = 5;
                 break;
+            case kMultiValueField1:
+                result = 1;
+                break;
+            case kMultiValueField2:
+                result = 2;
+                break;
+            case kMultiValueField3:
+                result = 3;
+                break;
+            case kMultiValueField4:
+                result = 4;
+                break;
+            case kMultiValueField5:
+                result = 5;
+                break;
         }
 
         return result;
     }
 
     /**
-     * Get the cat details for the given category attr field.
+     * Get the cat details for the given attr field.
      * @param catId
      * @param kAttr
      * @return
      */
-    public static CategoryAttributeDetails getDetailsForCategoryField(int catId, Product.Attribute kAttr) {
-        CategoryAttributeDetails result = null;
+    public static ProductAttributeDetails getDetailsForCategoryField(int catId, Product.Attribute kAttr) {
+        ProductAttributeDetails result = null;
         JOZTaxonomy tax = JOZTaxonomy.getInstance();
         Taxonomy t = tax.getTaxonomy();
         CategorySpec cs = t.getCategorySpec(catId);
@@ -68,8 +83,8 @@ public class IndexUtils {
      * @param fieldName
      * @return
      */
-    public static CategoryAttributeDetails getDetailsForCategoryFieldName(int catId, String fieldName) {
-        CategoryAttributeDetails result = null;
+    public static ProductAttributeDetails getDetailsForCategoryFieldName(int catId, String fieldName) {
+        ProductAttributeDetails result = null;
         JOZTaxonomy tax = JOZTaxonomy.getInstance();
         Taxonomy t = tax.getTaxonomy();
         CategorySpec cs = t.getCategorySpec(catId);
@@ -94,8 +109,8 @@ public class IndexUtils {
      * @param valId
      * @return
      */
-    public static long createIndexKeyForCategory(long catId, Product.Attribute kAttr, long valId) {
-        long fieldPos = getCategoryFieldPos(kAttr);
+    public static long createIndexKeyForCategoryAttribute(long catId, Product.Attribute kAttr, long valId) {
+        long fieldPos = getAttributeFieldPos(kAttr);
         long l1 = (catId << (64-(29+1))) & 0x0FFFFFFF00000000L;
         long l2 = (fieldPos << (64-(3+1))) & 0xF000000000000000L;
         long l3 = l2 | l1;
@@ -121,6 +136,38 @@ public class IndexUtils {
         results[0] = (int)rVal;
         results[1] = (int)cVal;
         results[2] = (int)fVal;
+        return results;
+    }
+
+    /**
+     * Pack the values into a single long value.
+     * The field pos is expected to be a integer between 1 and 7 since only 3 bits are used.
+     * <field pos: 3 bits><val : 32>
+     * @param kAttr
+     * @param valId
+     * @return
+     */
+    public static long createLongIndexKey(Product.Attribute kAttr, long valId) {
+        long fieldPos = getAttributeFieldPos(kAttr);
+        long l2 = (fieldPos << (64-(3+1))) & 0xF000000000000000L;
+        long l3 = l2 | (valId & 0x00000000FFFFFFFFL);
+        return l3;
+    }
+
+    /**
+     * Returns a int array of unpacked values.
+     * 0 --> ValId
+     * 1 --> Field Pos.
+     * @param key
+     * @return
+     */
+    public static int[] getValuesFromLongAttrKey(long key) {
+        int[] results = new int[2];
+        long rVal = key & 0x00000000FFFFFFFFL;
+        long fVal = key & 0xF000000000000000L;
+        fVal = fVal >> (64-(3+1));
+        results[0] = (int)rVal;
+        results[1] = (int)fVal;
         return results;
     }
 
@@ -212,6 +259,21 @@ public class IndexUtils {
             case kCategoryField5:
                 id = DictionaryManager.getId(Product.Attribute.kCategoryField5, indexVal);
                 break;
+            case kMultiValueField1:
+                id = DictionaryManager.getId(Product.Attribute.kMultiValueField1, indexVal);
+                break;
+            case kMultiValueField2:
+                id = DictionaryManager.getId(Product.Attribute.kMultiValueField2, indexVal);
+                break;
+            case kMultiValueField3:
+                id = DictionaryManager.getId(Product.Attribute.kMultiValueField3, indexVal);
+                break;
+            case kMultiValueField4:
+                id = DictionaryManager.getId(Product.Attribute.kMultiValueField4, indexVal);
+                break;
+            case kMultiValueField5:
+                id = DictionaryManager.getId(Product.Attribute.kMultiValueField5, indexVal);
+                break;
         }
         return id;
     }
@@ -271,6 +333,16 @@ public class IndexUtils {
             id = Product.Attribute.kCategoryField4;
         } else if (indexType.equals("categoryfield5")) {
             id = Product.Attribute.kCategoryField5;
+        } else if (indexType.equals("multivaluefield1")) {
+            id = Product.Attribute.kMultiValueField1;
+        } else if (indexType.equals("multivaluefield2")) {
+            id = Product.Attribute.kMultiValueField2;
+        } else if (indexType.equals("multivaluefield3")) {
+            id = Product.Attribute.kMultiValueField3;
+        } else if (indexType.equals("multivaluefield4")) {
+            id = Product.Attribute.kMultiValueField4;
+        } else if (indexType.equals("multivaluefield5")) {
+            id = Product.Attribute.kMultiValueField5;
         }
         return id;
     }

@@ -3,7 +3,7 @@ package com.tumri.joz.products;
 import com.tumri.content.ContentProviderFactory;
 import com.tumri.content.InvalidConfigException;
 import com.tumri.content.ProductProvider;
-import com.tumri.content.data.CategoryAttributeDetails;
+import com.tumri.content.data.ProductAttributeDetails;
 import com.tumri.content.data.Product;
 import com.tumri.joz.filter.*;
 import com.tumri.joz.index.*;
@@ -117,6 +117,9 @@ public class ProductDB {
 
     pdb.addIndex(IProduct.Attribute.kCategoryNumericField, new RangeIndexImpl(IProduct.Attribute.kCategoryNumericField));
     pdb.registerLongFilter(IProduct.Attribute.kCategoryNumericField, new RangeFilterImpl(IProduct.Attribute.kCategoryNumericField));
+
+    pdb.addIndex(IProduct.Attribute.kMultiValueTextField, new TextIndexImpl(IProduct.Attribute.kMultiValueTextField));
+    pdb.registerLongFilter(IProduct.Attribute.kMultiValueTextField, new TextFilterImpl(IProduct.Attribute.kMultiValueTextField));
 
   }
 
@@ -348,6 +351,7 @@ public class ProductDB {
     TreeMap<Integer, ArrayList<Handle>> mglobalid = new TreeMap<Integer, ArrayList<Handle>>();
     TreeMap<Long, ArrayList<Handle>> mcategorytextattr = new TreeMap<Long, ArrayList<Handle>>();
     TreeMap<Long, ArrayList<Handle>> mcategorynumattr = new TreeMap<Long, ArrayList<Handle>>();
+    TreeMap<Long, ArrayList<Handle>> mmultitextattr = new TreeMap<Long, ArrayList<Handle>>();
 
     for (IProduct prod : products) {
       Handle h = prod.getHandle();
@@ -545,11 +549,11 @@ public class ProductDB {
         Integer k = p.getCategoryField1();
         Integer c = p.getCategory();
         if (k != null && c!=null) {
-            long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField1,k);
-            CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField1);
-            CategoryAttributeDetails.DataType type = details.getFieldtype();
+            long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField1,k);
+            ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField1);
+            ProductAttributeDetails.DataType type = details.getFieldtype();
             if (type != null) {
-                if (type == CategoryAttributeDetails.DataType.kText) {
+                if (type == ProductAttributeDetails.DataType.kText) {
                     ArrayList<Handle> list = mcategorytextattr.get(key);
                     if (list == null) {
                       list = new ArrayList<Handle>();
@@ -571,12 +575,12 @@ public class ProductDB {
         Integer k = p.getCategoryField2();
         Integer c = p.getCategory();
         if (k != null && c!=null) {
-              long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField2,k);
-              CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField2);
-              CategoryAttributeDetails.DataType type = details.getFieldtype();
+              long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField2,k);
+              ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField2);
+              ProductAttributeDetails.DataType type = details.getFieldtype();
 
               if (type != null) {
-                  if (type == CategoryAttributeDetails.DataType.kText) {
+                  if (type == ProductAttributeDetails.DataType.kText) {
                       ArrayList<Handle> list = mcategorytextattr.get(key);
                       if (list == null) {
                         list = new ArrayList<Handle>();
@@ -599,11 +603,11 @@ public class ProductDB {
         Integer k = p.getCategoryField3();
         Integer c = p.getCategory();
           if (k != null && c!=null) {
-              long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField3,k);
-              CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField3);
-              CategoryAttributeDetails.DataType type = details.getFieldtype();
+              long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField3,k);
+              ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField3);
+              ProductAttributeDetails.DataType type = details.getFieldtype();
               if (type != null) {
-                  if (type == CategoryAttributeDetails.DataType.kText) {
+                  if (type == ProductAttributeDetails.DataType.kText) {
                       ArrayList<Handle> list = mcategorytextattr.get(key);
                       if (list == null) {
                         list = new ArrayList<Handle>();
@@ -626,11 +630,11 @@ public class ProductDB {
         Integer k = p.getCategoryField4();
         Integer c = p.getCategory();
           if (k != null && c!=null) {
-              long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField4,k);
-              CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField4);
-              CategoryAttributeDetails.DataType type = details.getFieldtype();
+              long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField4,k);
+              ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField4);
+              ProductAttributeDetails.DataType type = details.getFieldtype();
               if (type != null) {
-                  if (type == CategoryAttributeDetails.DataType.kText) {
+                  if (type == ProductAttributeDetails.DataType.kText) {
                       ArrayList<Handle> list = mcategorytextattr.get(key);
                       if (list == null) {
                         list = new ArrayList<Handle>();
@@ -652,11 +656,11 @@ public class ProductDB {
         Integer k = p.getCategoryField5();
         Integer c = p.getCategory();
           if (k != null && c!=null) {
-              long key = IndexUtils.createIndexKeyForCategory(c,IProduct.Attribute.kCategoryField5,k);
-              CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField5);
-              CategoryAttributeDetails.DataType type = details.getFieldtype();
+              long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField5,k);
+              ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField5);
+              ProductAttributeDetails.DataType type = details.getFieldtype();
               if (type != null) {
-                  if (type == CategoryAttributeDetails.DataType.kText) {
+                  if (type == ProductAttributeDetails.DataType.kText) {
                       ArrayList<Handle> list = mcategorytextattr.get(key);
                       if (list == null) {
                         list = new ArrayList<Handle>();
@@ -674,6 +678,67 @@ public class ProductDB {
               }
           }
       }
+      {
+        Integer k = p.getMultiValueField1();
+        if (k!= null) {
+            long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField1,k);
+            ArrayList<Handle> list = mmultitextattr.get(k);
+            if (list == null) {
+              list = new ArrayList<Handle>();
+              mmultitextattr.put(key, list);
+            }
+            list.add(h);
+        }
+      }
+      {
+        Integer k = p.getMultiValueField2();
+          if (k!= null) {
+              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField2,k);
+              ArrayList<Handle> list = mmultitextattr.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mmultitextattr.put(key, list);
+              }
+              list.add(h);
+          }
+      }
+      {
+        Integer k = p.getMultiValueField3();
+          if (k!= null) {
+              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField3,k);
+              ArrayList<Handle> list = mmultitextattr.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mmultitextattr.put(key, list);
+              }
+              list.add(h);
+          }
+      }
+      {
+        Integer k = p.getMultiValueField4();
+          if (k!= null) {
+              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField4,k);
+              ArrayList<Handle> list = mmultitextattr.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mmultitextattr.put(key, list);
+              }
+              list.add(h);
+          }
+      }
+      {
+        Integer k = p.getMultiValueField5();
+          if (k!= null) {
+              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField5,k);
+              ArrayList<Handle> list = mmultitextattr.get(k);
+              if (list == null) {
+                list = new ArrayList<Handle>();
+                mmultitextattr.put(key, list);
+              }
+              list.add(h);
+          }
+      }
+
     }
     {
       updateIntegerIndex(IProduct.Attribute.kProvider, mprovider);
@@ -701,6 +766,8 @@ public class ProductDB {
 
       updateLongIndex(IProduct.Attribute.kCategoryTextField, mcategorytextattr);
       updateLongIndex(IProduct.Attribute.kCategoryNumericField, mcategorynumattr);
+
+      updateLongIndex(IProduct.Attribute.kMultiValueTextField, mmultitextattr);
 
     }
   }

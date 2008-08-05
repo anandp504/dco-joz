@@ -337,6 +337,45 @@ public class ProductWrapper implements IProduct {
         return prod.getThumbnail();
     }
 
+    public Integer getMultiValueField1() {
+        return prod.getMultiValueField1();
+    }
+
+    public String getMultiValueField1Str() {
+        return prod.getMultiValueField1Str();
+    }
+
+    public Integer getMultiValueField2() {
+        return prod.getMultiValueField2();
+    }
+
+    public String getMultiValueField2Str() {
+        return prod.getMultiValueField2Str();
+    }
+
+    public Integer getMultiValueField3() {
+        return prod.getMultiValueField3();
+    }
+
+    public String getMultiValueField3Str() {
+        return prod.getMultiValueField3Str();
+    }
+
+    public Integer getMultiValueField4() {
+        return prod.getMultiValueField4();
+    }
+
+    public String getMultiValueField4Str() {
+        return prod.getMultiValueField4Str();
+    }
+
+    public Integer getMultiValueField5() {
+        return prod.getMultiValueField5();
+    }
+
+    public String getMultiValueField5Str() {
+        return prod.getMultiValueField5Str();
+    }
 
     public int compareTo(Object ip) {
         ProductWrapper o = (ProductWrapper)ip;

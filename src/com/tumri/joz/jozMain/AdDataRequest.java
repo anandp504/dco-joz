@@ -204,6 +204,33 @@ public class AdDataRequest {
         return _zip_code;
     }
 
+    public String getLatitude() {
+        return _latitude;
+    }
+
+    public String getLongitude() {
+        return _longitude;
+    }
+
+    public String getMultiValueField1() {
+        return multiValueField1;
+    }
+
+    public String getMultiValueField2() {
+        return multiValueField2;
+    }
+
+    public String getMultiValueField3() {
+        return multiValueField3;
+    }
+
+    public String getMultiValueField4() {
+        return multiValueField4;
+    }
+
+    public String getMultiValueField5() {
+        return multiValueField5;
+    }
 
     public String getTargetedRealm() {
         return targetedRealm;
@@ -264,6 +291,13 @@ public class AdDataRequest {
             b.append(" :city ").append(_city);
             b.append(" :dma ").append(_dmacode);
             b.append(" :area-code ").append(_areacode);
+            b.append(" :latitude ").append(_latitude);
+            b.append(" :longitude ").append(_longitude);
+            b.append(" :multivaluefield1 ").append(multiValueField1);
+            b.append(" :multivaluefield2 ").append(multiValueField2);
+            b.append(" :multivaluefield3 ").append(multiValueField3);
+            b.append(" :multivaluefield3 ").append(multiValueField4);
+            b.append(" :multivaluefield5 ").append(multiValueField5);
 
             
         } else {
@@ -336,6 +370,7 @@ public class AdDataRequest {
         URL, THEME, STORE_ID, CATEGORY, T_SPEC, STRATEGY, REFERRER, ZIP_CODE, NUM_PRODUCTS, ROW_SIZE, WHICH_ROW, REVERT_TO_DEFAULT_REALM, KEYWORDS, 
         SCRIPT_KEYWORDS, INCLUDE_CAT_COUNTS, SEED, PSYCHOGRAPHICS_P, MINE_PUB_URL_P, ALLOW_TOO_FEW_PRODUCTS, AD_WIDTH, AD_HEIGHT, AD_OFFER_TYPE, 
         MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE, LATITUDE, LONGITUDE,
+        MULTIVALUE_FIELD1, MULTIVALUE_FIELD2, MULTIVALUE_FIELD3, MULTIVALUE_FIELD4, MULTIVALUE_FIELD5,
     }
     
     private static HashMap<String, RqstParam> rqst_params = new HashMap<String, RqstParam>();
@@ -379,6 +414,11 @@ public class AdDataRequest {
         rqst_params.put(":zip-code", RqstParam.ZIP_CODE);
         rqst_params.put(":latitude", RqstParam.LATITUDE);
         rqst_params.put(":longitude", RqstParam.LONGITUDE);
+        rqst_params.put(":multivaluefield1", RqstParam.MULTIVALUE_FIELD1);
+        rqst_params.put(":multivaluefield2", RqstParam.MULTIVALUE_FIELD2);
+        rqst_params.put(":multivaluefield3", RqstParam.MULTIVALUE_FIELD3);
+        rqst_params.put(":multivaluefield4", RqstParam.MULTIVALUE_FIELD4);
+        rqst_params.put(":multivaluefield5", RqstParam.MULTIVALUE_FIELD5);
     }
     
     // WARNING: If the default value is not null, you're probably doing
@@ -538,7 +578,13 @@ public class AdDataRequest {
     String _areacode;
 
     String targetedRealm = "";
-    
+
+    String multiValueField1 = null;
+    String multiValueField2 = null;
+    String multiValueField3 = null;
+    String multiValueField4 = null;
+    String multiValueField5 = null;
+
     private void parse_request(Sexp expr) throws BadCommandException {
         if (!expr.isSexpList())
             throw new BadCommandException("get-ad-data request not a list");
@@ -721,6 +767,26 @@ public class AdDataRequest {
                         this._longitude = SexpUtils.get_next_string(name, iter);
                         break;   
                     
+                    case MULTIVALUE_FIELD1:
+                        this.multiValueField1 = SexpUtils.get_next_string(name, iter);
+                        break;
+
+                    case MULTIVALUE_FIELD2:
+                        this.multiValueField3 = SexpUtils.get_next_string(name, iter);
+                        break;
+
+                    case MULTIVALUE_FIELD3:
+                        this.multiValueField3 = SexpUtils.get_next_string(name, iter);
+                        break;
+
+                    case MULTIVALUE_FIELD4:
+                        this.multiValueField4 = SexpUtils.get_next_string(name, iter);
+                        break;
+
+                    case MULTIVALUE_FIELD5:
+                        this.multiValueField5 = SexpUtils.get_next_string(name, iter);
+                        break;
+
                     default:
                         log
                                 .error("Program error, unrecognized request parameter: "

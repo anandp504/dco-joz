@@ -13,11 +13,11 @@ import java.util.SortedSet;
 import java.util.List;
 
 /**
- * Query class implementation to handle category attributes
+ * Query class implementation to handle text type attributes, that use long ids
  * Note: The only difference from the Attribute query is that the values are longs and not ints
  * User: nipun
  */
-public class CategoryAttributeQuery extends MUPQuery { 
+public class LongTextQuery extends MUPQuery { 
   private ArrayList<Long> m_values = new ArrayList<Long>();
   private int m_count = kMax;
   protected LongFilter<Handle> m_filter;
@@ -27,12 +27,12 @@ public class CategoryAttributeQuery extends MUPQuery {
     return Type.kAttribute;
   }
 
-  public CategoryAttributeQuery(IProduct.Attribute aAttribute, long aValue) {
+  public LongTextQuery(IProduct.Attribute aAttribute, long aValue) {
     super(aAttribute);
     m_values.add(aValue);
   }
 
-  public CategoryAttributeQuery(IProduct.Attribute aAttribute, ArrayList<Long> values) {
+  public LongTextQuery(IProduct.Attribute aAttribute, ArrayList<Long> values) {
     super(aAttribute);
     m_values.addAll(values);
   }

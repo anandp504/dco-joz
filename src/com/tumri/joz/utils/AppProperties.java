@@ -30,7 +30,8 @@ public class AppProperties {
   private static final String CONFIG_JOZ_RELEASE_VERSION_PROPERTY_NAME = "com.tumri.joz.release.version.property";
   private static final String CONFIG_JOZ_CODE_LABEL_PROPERTY_NAME= "com.tumri.joz.code.label.property";
   private static final String CONFIG_JOZ_DEFAULT_REALM_GET_AD_DATA_STRING = "com.tumri.targeting.default.realm.getaddata.string";
-    
+  private static final String CONFIG_JOZ_MULTI_VALUE_DELIMITER = "com.tumri.joz.multivalue.delimiter";
+
   private static AppProperties g_properties;
   private Properties m_jozVersionProperties;
     
@@ -105,6 +106,16 @@ public class AppProperties {
          defaultGetAdDataCmd = "(get-ad-data :t-spec '|T-SPEC-http://default-realm/| :num-products 12)";
      }
      return defaultGetAdDataCmd;
+  }
+
+  public char getMultiValueDelimiter() {
+      char retChar = ',';
+      String multiValueDelimiter = getProperty(CONFIG_JOZ_MULTI_VALUE_DELIMITER);
+      if (multiValueDelimiter!= null) {
+          char[] arr = multiValueDelimiter.toCharArray();
+          retChar = arr[0];
+      }
+      return retChar;
   }
     
   /**

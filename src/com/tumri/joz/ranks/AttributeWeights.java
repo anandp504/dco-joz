@@ -20,17 +20,18 @@ abstract public class AttributeWeights implements IWeight<Handle> {
   private static double kProductType = 1.2;
   private static double kImageHeight = 1.2;
   private static double kImageWidth = 1.2;
-  private static double kCountry = 1.2;
-  private static double kState = 1.5;
-  private static double kCity = 1.8;
-  private static double kZipCode = 2.0;
-  private static double kRadius = 1.9;
-  private static double kDmaCode = 1.6;
-  private static double kAreaCode = 1.7;
+  private static double kCountry = 1.05;
+  private static double kState = 1.10;
+  private static double kCity = 1.15;
+  private static double kZipCode = 1.40;
+  private static double kRadius = 1.25;
+  private static double kDmaCode = 1.20;
+  private static double kAreaCode = 1.05;
   private static double kGeoEnabled = 1.2;
   private static double kGlobalId = 1.2;
   private static double kCategoryTextField = 1.2;
   private static double kCategoryNumericField = 1.2;
+  private static double kMultiValueTextField = 1.05;
   private static double kNone = 1.0;
 
 
@@ -63,6 +64,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kGlobalId: return GlobalIdWeight.getInstance();
       case kCategoryTextField: return CategoryTextFieldWeight.getInstance();
       case kCategoryNumericField: return CategoryNumericFieldWeight.getInstance();
+      case kMultiValueTextField: return MultiValueTextFieldWeight.getInstance();
       case kNone:
       default: return NeutralWeight.getInstance();
     }
@@ -92,6 +94,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kGlobalId: return kGlobalId;
       case kCategoryTextField: return kCategoryTextField;
       case kCategoryNumericField: return kCategoryNumericField;
+      case kMultiValueTextField: return kMultiValueTextField;
       case kNone: return kNone;
       default:
     }

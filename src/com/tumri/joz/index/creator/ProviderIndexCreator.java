@@ -5,6 +5,7 @@ import com.tumri.joz.utils.FSUtils;
 
 import java.io.*;
 import java.util.*;
+import java.net.URLDecoder;
 
 import org.apache.log4j.Logger;
 
@@ -289,6 +290,10 @@ public class ProviderIndexCreator {
             for (int i=0;i<strings.size();i++) {
                 if (indexPosSet.contains(new Integer(i).toString())) {
                     String val = strings.get(i);
+                    if (val == null && val.equals("")) {
+                        //Skip any fields that are empty.
+                        continue;
+                    }
                     String key = mupConfig.getProperty(new Integer(i).toString());
                     if (key.equals("category")) {
                         currCat = val;

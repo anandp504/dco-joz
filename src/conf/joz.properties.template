@@ -127,3 +127,6 @@ com.tumri.productselection.global.stopwords=.com,.org,.gov,.net,.biz,.uk,.fr,.in
 
 #Zip code database
 com.tumri.joz.zipcode.file=zipcodedb.xml
+
+#Delimiter for multi value queries
+com.tumri.joz.multivalue.delimiter=,

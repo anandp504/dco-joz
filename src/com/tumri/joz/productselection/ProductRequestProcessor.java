@@ -5,7 +5,6 @@ import com.tumri.cma.domain.TSpec;
 import com.tumri.content.data.Product;
 import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.Query.*;
-import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecHelper;
 import com.tumri.joz.campaign.OSpecQueryCache;
 import com.tumri.joz.jozMain.AdDataRequest;
@@ -16,14 +15,19 @@ import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.targeting.TargetingRequestProcessor;
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.IndexUtils;
 import com.tumri.utils.data.SortedArraySet;
 import com.tumri.utils.sexp.SexpUtils;
+import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.SortedSet;
+import java.net.URLDecoder;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Processes the get-ad-data request, and creates the result set
@@ -36,11 +40,13 @@ public class ProductRequestProcessor {
 
 	private CNFQuery m_tSpecQuery = null;
 	private OSpec m_currOSpec = null;
-    private boolean m_revertToDefaultRealm;
     private boolean m_geoFilterEnabled;
+    private boolean m_ExternalKeywords;
+    private boolean m_MultiValueQuery;
 	private HashMap<String, String> m_jozFeaturesMap = new HashMap<String, String>();
     private Integer m_currentPage= null;
     private Integer m_pageSize = null;
+    private static final char MULTI_VALUE_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
 
 
     /**
@@ -48,7 +54,6 @@ public class ProductRequestProcessor {
 	 *
 	 */
 	public ProductRequestProcessor() {
-        m_revertToDefaultRealm = false;
     }
 
 
@@ -115,7 +120,11 @@ public class ProductRequestProcessor {
 			}
 			m_tSpecQuery.setReference(ref);
 
-			//Default the current Page and page Size if they have not been specified
+            if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
+                m_ExternalKeywords = true;
+            }
+
+            //Default the current Page and page Size if they have not been specified
 			if (numProducts !=null && (m_currentPage ==null && m_pageSize ==null)) {
 				m_currentPage = 0;
 				m_pageSize = numProducts;
@@ -139,10 +148,8 @@ public class ProductRequestProcessor {
 
 			if ((mAllowTooFewProducts == SexpUtils.MaybeBoolean.TRUE)||(!revertToDefaultRealm)) {
 				m_tSpecQuery.setStrict(true);
-				m_revertToDefaultRealm = false;
 			} else {
 				m_tSpecQuery.setStrict(false);
-				m_revertToDefaultRealm = true;
 			}
 
             //Determine if Geo FIlter is enabled
@@ -191,7 +198,7 @@ public class ProductRequestProcessor {
                 rResult = doProductSelection(request);
 
                 //If Geo Filtered, sort by score
-                if (m_geoFilterEnabled) {
+                if (m_geoFilterEnabled && !m_ExternalKeywords) {
                     SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
                     geoSortedResult.addAll(rResult);
                     rResult = geoSortedResult;
@@ -246,8 +253,10 @@ public class ProductRequestProcessor {
 	 * 		<li> 3. URL keywords, if present determine scope. If against MUP - then create new query - or specialize TSpec otherwise </li>
 	 * 		<li> 4. Include request category into TSpec query</li>
 	 * 		<li> 5. Include Product Type request into TSpec query</li>
-	 * 		<li> 6. Execute TSpec query</li>
-	 * 		<li> 7. Return the result in the sorted order of score</li>
+	 * 		<li> 6. Multi Value queries from request</li>
+	 * 		<li> 7. Geo Filtering queries</li>
+	 * 		<li> 8. Execute TSpec query</li>
+	 * 		<li> 9. Return the result in the sorted order of score</li>
 	 * </ul>
 	 * @param request
 	 * @param tSpecQuery
@@ -274,9 +283,13 @@ public class ProductRequestProcessor {
 		//5. Product Type
 		addProductTypeQuery(request);
 
+        //6. Multi Value Queries
+        addMultiValueRequestQueries(request);
+
+        //7. Geo Filtering
         addGeoFilterQuery(request,m_pageSize, m_currentPage);
 
-        //6. Exec TSpec query
+        //8. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
 
         //Set the cached reference for randomization
@@ -289,8 +302,8 @@ public class ProductRequestProcessor {
 
 	/**
 	 * Perform the backfill of products when required
-	 * For ScriptKeywords and Mined PubUrl keywords the backfill is done from within the tspec first.
-	 * For other cases the backfill is done from the default realm tspec.
+	 * For ScriptKeywords and Mined PubUrl keywords the backfill is done from within the tspec.
+     * For Multivalue queries with geo, backfill is done by dropping the multivalue query and doing the backfill from tspec
      * @param request - the Ad Data Request
      * @param pageSize - the request page Size
      * @param currResults - the current result set
@@ -302,36 +315,29 @@ public class ProductRequestProcessor {
             currSize = currResults.size();
         }
 
-        //Do backfill from the tspec results when there are scriptkeywords or urlmining involved,.
-		SexpUtils.MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
-		boolean bKeywordBackfill = false;
-
-		if (mMineUrls == null) {
-			if (m_currOSpec.isMinePubUrl()) {
-				mMineUrls = SexpUtils.MaybeBoolean.TRUE;
-			}
-		}
-
-		if ((mMineUrls == SexpUtils.MaybeBoolean.TRUE) || (request.get_script_keywords() !=null)) {
-			bKeywordBackfill = true;
-		}
-
 		//Check if backfill is needed bcos of the keyword query
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
 
-        //For keyword queries with geo enabled, do backfill by dropping the keyword query and doing the geo query again
-        if (m_geoFilterEnabled  && bKeywordBackfill && pageSize>0 && currSize<pageSize) {
+        //For keyword queries with geo enabled or multivalue, do backfill by dropping the keyword query and doing the geo query again
+        if (m_geoFilterEnabled  && (m_ExternalKeywords|| m_MultiValueQuery) && pageSize>0 && currSize<pageSize) {
             m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
             addGeoFilterQuery(request,pageSize-currSize, m_currentPage);
+            //randomize
+            Handle ref = ProductDB.getInstance().genReference();
+			m_tSpecQuery.setReference(ref);
             SortedSet<Handle> newResults = m_tSpecQuery.exec();
+            if (m_tSpecQuery.getReference() != null && newResults.size() >0 ) {
+                CNFQuery cachedQuery = OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName());
+                cachedQuery.setCacheReference(newResults.last());
+            }
             //Sort by the score
             SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
             geoSortedResult.addAll(newResults);
-            backFillProds.addAll(newResults);
+            backFillProds.addAll(geoSortedResult);
             currSize = currSize + backFillProds.size();
         }
 
-        if (!m_geoFilterEnabled && bKeywordBackfill && pageSize>0 && currSize<pageSize){
+        if (!m_geoFilterEnabled && m_ExternalKeywords && pageSize>0 && currSize<pageSize){
 			m_tSpecQuery = (CNFQuery) OSpecQueryCache.getInstance().getCNFQuery(m_currOSpec.getName()).clone();
             //Never select any products that have Geo enabled while backfilling for keyword queries
             addGeoEnabledQuery(true);
@@ -470,29 +476,51 @@ public class ProductRequestProcessor {
             for (ConjunctQuery conjQuery:_conjQueryAL) {
                 if (zipCode!=null && !"".equals(zipCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kZip, zipCode);
-                    geoTSpecQuery.addQuery(cloneConjQuery);
+                    if (cloneConjQuery!= null) {
+                        geoTSpecQuery.addQuery(cloneConjQuery);
+                    }
                     ConjunctQuery radiuscloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kRadius, zipCode);
-                    geoTSpecQuery.addQuery(radiuscloneConjQuery);
+                    if (radiuscloneConjQuery!= null) {
+                        geoTSpecQuery.addQuery(radiuscloneConjQuery);
+                    }
+                    addToFeatures(Features.FEATURE_GEO_PARMS, "Zip="+zipCode);
                 }
                 if (cityCode!=null && !"".equals(cityCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kCity, cityCode);
-                    geoTSpecQuery.addQuery(cloneConjQuery);
+                    if (cloneConjQuery!= null) {
+                        geoTSpecQuery.addQuery(cloneConjQuery);
+                    }
+                    addToFeatures(Features.FEATURE_GEO_PARMS, "City="+cityCode);
                 }
                 if (dmaCode!=null && !"".equals(dmaCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kDMA, dmaCode);
-                    geoTSpecQuery.addQuery(cloneConjQuery);
+                    if (cloneConjQuery!= null) {
+                        geoTSpecQuery.addQuery(cloneConjQuery);
+                    }
+                    addToFeatures(Features.FEATURE_GEO_PARMS, "Dma="+dmaCode);
+
                 }
                 if (areaCode!=null && !"".equals(areaCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kArea, areaCode);
-                    geoTSpecQuery.addQuery(cloneConjQuery);
+                    if (cloneConjQuery!= null) {
+                        geoTSpecQuery.addQuery(cloneConjQuery);
+                    }
+                    addToFeatures(Features.FEATURE_GEO_PARMS, "Area="+areaCode);
+
                 }
                 if (stateCode!=null && !"".equals(stateCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kState, stateCode);
-                    geoTSpecQuery.addQuery(cloneConjQuery);
+                    if (cloneConjQuery!= null) {
+                        geoTSpecQuery.addQuery(cloneConjQuery);
+                    }
+                    addToFeatures(Features.FEATURE_GEO_PARMS, "State="+stateCode);
                 }
                 if (countryCode!=null && !"".equals(countryCode)) {
                     ConjunctQuery cloneConjQuery = cloneAndAddQuery(conjQuery, Product.Attribute.kCountry, countryCode);
-                    geoTSpecQuery.addQuery(cloneConjQuery);
+                    if (cloneConjQuery!= null) {
+                        geoTSpecQuery.addQuery(cloneConjQuery);
+                    }
+                    addToFeatures(Features.FEATURE_GEO_PARMS, "Country="+countryCode);
                 }
                 //Add the backfill query
                 {
@@ -505,8 +533,10 @@ public class ProductRequestProcessor {
                 }
             }
             if (resultCount>0) {
-                //Set a reference so we return random selection of products.
-                geoTSpecQuery.setReference(ProductDB.getInstance().genReference ());
+                if (!m_ExternalKeywords) {
+                    //Set a reference so we return random selection of products.
+                    geoTSpecQuery.setReference(ProductDB.getInstance().genReference ());
+                }
                 m_tSpecQuery = geoTSpecQuery;
             }
         } else {
@@ -516,27 +546,112 @@ public class ProductRequestProcessor {
     }
 
     private ConjunctQuery cloneAndAddQuery(ConjunctQuery conjQuery, Product.Attribute kAttr, String val){
-        AttributeQuery aQuery = null;
+        AttributeQuery aQuery;
         if (kAttr == IProduct.Attribute.kRadius) {
            Integer codeId = DictionaryManager.getInstance().getId(IProduct.Attribute.kZip, val);
            aQuery = new RadiusQuery(kAttr, codeId);
            //Check if tspec has radius specified
            List<TSpec> tspecList = m_currOSpec.getTspecs();
             for (TSpec tspec : tspecList) {
+                if (!tspec.isUseRadiusQuery()) {
+                    return null;
+                }
                 int rad = tspec.getRadius();
                 if (rad > 0) {
                     ((RadiusQuery)aQuery).setRadius(rad);
                 }
             }
         } else {
-            Integer codeId = DictionaryManager.getInstance().getId(kAttr, val);
+           Integer codeId = DictionaryManager.getInstance().getId(kAttr, val);
            aQuery = new AttributeQuery(kAttr, codeId);
+        }
+        if (aQuery == null) {
+            return null;
         }
         ConjunctQuery cloneConjQuery = (ConjunctQuery)conjQuery.clone();
         cloneConjQuery.addQuery(aQuery);
         cloneConjQuery.setBounds(m_pageSize, m_currentPage);
         cloneConjQuery.setStrict(true);
         return cloneConjQuery;
+    }
+
+    /**
+     * Inspects the request and adds multivalue delim fields for Product Selection.
+     * @param request
+     */
+    private void addMultiValueRequestQueries(AdDataRequest request) {
+       boolean bAllowExternalQuery = true;
+        List<TSpec> tspecs = m_currOSpec.getTspecs();
+        for (TSpec tspec:tspecs) {
+            if (!tspec.isAllowExternalQuery()) {
+                bAllowExternalQuery = false;
+                break;
+            }
+        }
+        if (!bAllowExternalQuery) {
+            return;
+        }
+        String multiValueField1 = request.getMultiValueField1();
+        if (multiValueField1 != null && !multiValueField1.equals(""))  {
+            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField1, multiValueField1);
+            addToFeatures(Features.FEATURE_MULTI_VALUE_QUERY, "MultiValueField1="+multiValueField1);
+        }
+
+        String multiValueField2 = request.getMultiValueField2();
+        if (multiValueField2 != null && !multiValueField2.equals(""))  {
+            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField2, multiValueField2);
+            addToFeatures(Features.FEATURE_MULTI_VALUE_QUERY, "MultiValueField2="+multiValueField2);
+       }
+
+        String multiValueField3 = request.getMultiValueField3();
+        if (multiValueField3 != null && !multiValueField3.equals(""))  {
+            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField3, multiValueField3);
+            addToFeatures(Features.FEATURE_MULTI_VALUE_QUERY, "MultiValueField3="+multiValueField3);
+        }
+
+        String multiValueField4 = request.getMultiValueField4();
+        if (multiValueField4 != null && !multiValueField4.equals(""))  {
+            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField4, multiValueField4);
+            addToFeatures(Features.FEATURE_MULTI_VALUE_QUERY, "MultiValueField4="+multiValueField4);
+        }
+
+        String multiValueField5 = request.getMultiValueField5();
+        if (multiValueField5 != null && !multiValueField5.equals(""))  {
+            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField5, multiValueField5);
+            addToFeatures(Features.FEATURE_MULTI_VALUE_QUERY, "MultiValueField5="+multiValueField5);
+        }
+
+    }
+
+    /**
+     * Adds a multi value field query to the current tspec being executed
+     * @param kAttr - Product Attribute
+     * @param multiValueField - The multi value field passed from iCS
+     */
+    private void addMultiValueFieldQuery(IProduct.Attribute kAttr, String multiValueField) {
+        StringTokenizer st = new StringTokenizer(multiValueField, MULTI_VALUE_DELIM);
+        ArrayList<String> multiValueAL = st.getTokens();
+        ArrayList<Long> multiValueIdAL = new ArrayList<Long>();
+        for (String val : multiValueAL) {
+            //Url decode
+            try {
+                val = URLDecoder.decode(val,"utf-8");
+            } catch(UnsupportedEncodingException e){
+                log.error("Could not decode the value : " + val);
+                continue;
+            }
+            Integer fieldId = DictionaryManager.getId (kAttr, val);
+            long key = IndexUtils.createLongIndexKey(kAttr, fieldId);
+            multiValueIdAL.add(key);
+        }
+        LongTextQuery aQuery = new LongTextQuery (IProduct.Attribute.kMultiValueTextField, multiValueIdAL);
+        CNFQuery copytSpecQuery = (CNFQuery)m_tSpecQuery.clone();
+        ArrayList<ConjunctQuery> cnjQueries = copytSpecQuery.getQueries();
+        for (ConjunctQuery conjunctQuery : cnjQueries) {
+            conjunctQuery.addQuery(aQuery);
+        }
+        m_MultiValueQuery = true;
+        m_tSpecQuery = copytSpecQuery;
     }
 
     /**
@@ -549,8 +664,8 @@ public class ProductRequestProcessor {
 			//Note: This is a difference from SoZ. The widget search is going to be constrained by the TSpec
 			doKeywordSearch(requestKeyWords, false);
 			m_tSpecQuery.setStrict(true);
-			m_revertToDefaultRealm = false; // Do not revert to default realm for a Widget Search
-			m_jozFeaturesMap.put(Features.FEATURE_WIDGET_SEARCH, requestKeyWords);
+            addToFeatures(Features.FEATURE_WIDGET_SEARCH, requestKeyWords);
+
 		}
 	}
 
@@ -585,7 +700,7 @@ public class ProductRequestProcessor {
 			doKeywordSearch(urlKeywords, !m_currOSpec.isPublishUrlKeywordsWithinOSpec());
 			m_tSpecQuery.setStrict(true);
 			if ((urlKeywords!=null)&&(!"".equals(urlKeywords))) {
-				m_jozFeaturesMap.put(Features.FEATURE_MINE_URL_SEARCH, urlKeywords);
+                addToFeatures(Features.FEATURE_MINE_URL_SEARCH, urlKeywords);
 			}
 		}
 	}
@@ -598,8 +713,8 @@ public class ProductRequestProcessor {
 		String scriptKeywords = request.get_script_keywords();
 		if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords))) {
 			doKeywordSearch(scriptKeywords, !m_currOSpec.isScriptKeywordsWithinOSpec());
-			m_jozFeaturesMap.put(Features.FEATURE_SCRIPT_SEARCH, scriptKeywords);
-			m_tSpecQuery.setStrict(true);
+            addToFeatures(Features.FEATURE_SCRIPT_SEARCH, scriptKeywords);
+            m_tSpecQuery.setStrict(true);
 		}
 	}
 
@@ -700,5 +815,20 @@ public class ProductRequestProcessor {
 
         return new SortedArraySet<Handle>(pageResults, true);
 
+    }
+
+    /**
+     * Add or append to the features map values
+     * @param featuresKey
+     * @param value
+     */
+    private void addToFeatures(String featuresKey, String value) {
+        String currFeatures = m_jozFeaturesMap.get(featuresKey);
+        if (currFeatures != null) {
+            currFeatures = currFeatures + " " + value;
+        } else {
+            currFeatures = value;
+        }
+        m_jozFeaturesMap.put(featuresKey, currFeatures);
     }
 }

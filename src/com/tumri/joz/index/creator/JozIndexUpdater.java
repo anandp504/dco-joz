@@ -1,17 +1,20 @@
 package com.tumri.joz.index.creator;
 
-import com.tumri.content.data.CategoryAttributeDetails;
+import com.tumri.content.data.ProductAttributeDetails;
 import com.tumri.content.data.Product;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.JozIndexHelper;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexUtils;
+import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import java.io.FileWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.net.URLDecoder;
 
 /**
  * Implementation class that will handle the update of Joz Indexes, or write a debug file if required.
@@ -26,6 +29,8 @@ public class JozIndexUpdater {
     private static JozIndexUpdater _instance = null;
     private static Logger log = Logger.getLogger(JozIndexUpdater.class);
 	protected static ArrayList<Long> productIds = new ArrayList<Long>();
+    private static final char MULTI_VALUE_INDEX_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
+    
     /**
      * Return a instance of the JozIndexUpdater
      * @return
@@ -279,16 +284,16 @@ public class JozIndexUpdater {
                 idxAttr == Product.Attribute.kCategoryField5) {
             String catIdStr = indexVal.substring(0,indexVal.indexOf("|"));
             int catId = IndexUtils.getIndexIdFromDictionary(Product.Attribute.kCategory, catIdStr);
-            CategoryAttributeDetails details = IndexUtils.getDetailsForCategoryField(catId, idxAttr);
+            ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(catId, idxAttr);
             if (details != null) {
-                CategoryAttributeDetails.DataType type = details.getFieldtype();
+                ProductAttributeDetails.DataType type = details.getFieldtype();
                 if (type != null) {
                     TreeMap<Long, ArrayList<Handle>> mindex = new TreeMap<Long, ArrayList<Handle>>();
                     String fieldValStr = indexVal.substring(indexVal.indexOf("|") +1, indexVal.length());
                     int fieldValId = 0;
-                    if (type == CategoryAttributeDetails.DataType.kText) {
+                    if (type == ProductAttributeDetails.DataType.kText) {
                         fieldValId = IndexUtils.getIndexIdFromDictionary(idxAttr, fieldValStr);
-                    } else  if (type == CategoryAttributeDetails.DataType.kInteger) {
+                    } else  if (type == ProductAttributeDetails.DataType.kInteger) {
                         //Multiply by 100 to support upto 2 decimal places
                         if (fieldValStr.indexOf('.')>-1) {
                             //Double value
@@ -298,25 +303,25 @@ public class JozIndexUpdater {
                             fieldValId = Integer.parseInt(fieldValStr)*100;
                         }
                     }
-                    long key = IndexUtils.createIndexKeyForCategory(catId, idxAttr, fieldValId);
+                    long key = IndexUtils.createIndexKeyForCategoryAttribute(catId, idxAttr, fieldValId);
                     mindex.put(key, pids);
 
                     if (operation == PersistantIndexLine.IndexOperation.kAdd ||
                             operation == PersistantIndexLine.IndexOperation.kAddModified
                             || operation == PersistantIndexLine.IndexOperation.kNoChange) {
-                        if (type == CategoryAttributeDetails.DataType.kText) {
+                        if (type == ProductAttributeDetails.DataType.kText) {
                             //Text index
                             ProductDB.getInstance().updateLongIndex(Product.Attribute.kCategoryTextField, mindex);
-                        } else  if (type == CategoryAttributeDetails.DataType.kInteger) {
+                        } else  if (type == ProductAttributeDetails.DataType.kInteger) {
                             //Range Index
                             ProductDB.getInstance().updateLongIndex(Product.Attribute.kCategoryNumericField, mindex);
                         }
                     } else if (operation == PersistantIndexLine.IndexOperation.kDelModified ||
                             operation == PersistantIndexLine.IndexOperation.kDelete){
-                        if (type == CategoryAttributeDetails.DataType.kText) {
+                        if (type == ProductAttributeDetails.DataType.kText) {
                             //Text index
                             ProductDB.getInstance().deleteLongIndex(Product.Attribute.kCategoryTextField, mindex);
-                        } else  if (type == CategoryAttributeDetails.DataType.kInteger) {
+                        } else  if (type == ProductAttributeDetails.DataType.kInteger) {
                             //Range Index
                             ProductDB.getInstance().deleteLongIndex(Product.Attribute.kCategoryNumericField, mindex);
                         }
@@ -326,6 +331,32 @@ public class JozIndexUpdater {
                 }
             }
 
+        }  else if (idxAttr == Product.Attribute.kMultiValueField1 ||
+                idxAttr == Product.Attribute.kMultiValueField2 ||
+                idxAttr == Product.Attribute.kMultiValueField3 ||
+                idxAttr == Product.Attribute.kMultiValueField4 ||
+                idxAttr == Product.Attribute.kMultiValueField5) {
+            //Multi value index.
+            StringTokenizer st = new StringTokenizer(indexVal, MULTI_VALUE_INDEX_DELIM);
+            ArrayList<String> indexVals = st.getTokens();
+            for (String val: indexVals) {
+                //Url decode
+                try {
+                    val = URLDecoder.decode(val,"utf-8");
+                } catch(UnsupportedEncodingException e){
+                    log.error("Could not decode the value : " + val);
+                    continue;
+                }
+                TreeMap<Long, ArrayList<Handle>> mindex = new TreeMap<Long, ArrayList<Handle>>();
+                long key = IndexUtils.createLongIndexKey(idxAttr, IndexUtils.getIndexIdFromDictionary(idxAttr, val));
+                mindex.put(key, pids);
+                if (operation == PersistantIndexLine.IndexOperation.kAdd || operation == PersistantIndexLine.IndexOperation.kAddModified
+                        || operation == PersistantIndexLine.IndexOperation.kNoChange) {
+                    ProductDB.getInstance().updateLongIndex(Product.Attribute.kMultiValueTextField, mindex);
+                } else if (operation == PersistantIndexLine.IndexOperation.kDelModified || operation == PersistantIndexLine.IndexOperation.kDelete){
+                    ProductDB.getInstance().deleteLongIndex(Product.Attribute.kMultiValueTextField, mindex);
+                }
+            }
         }
 
 
