@@ -1,7 +1,7 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
-import com.tumri.content.data.CategoryAttributeDetails;
+import com.tumri.content.data.ProductAttributeDetails;
 import com.tumri.content.data.Product;
 import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.Query.*;
@@ -71,19 +71,19 @@ public class OSpecQueryCacheHelper {
 
                                 DictionaryManager dm = DictionaryManager.getInstance ();
                                 Integer cId = dm.getId (IProduct.Attribute.kCategory, catId);
-                                CategoryAttributeDetails cad = IndexUtils.getDetailsForCategoryFieldName(cId, categoryFieldName);
+                                ProductAttributeDetails cad = IndexUtils.getDetailsForCategoryFieldName(cId, categoryFieldName);
                                 if (cad != null) {
-                                    CategoryAttributeDetails.DataType dt = cad.getFieldtype();
+                                    ProductAttributeDetails.DataType dt = cad.getFieldtype();
                                     Product.Attribute fieldPos = cad.getFieldPos();
-                                    if (dt == CategoryAttributeDetails.DataType.kInteger) {
+                                    if (dt == ProductAttributeDetails.DataType.kInteger) {
                                         //range query - we multiply by 100 to support upto 2 decimal places
                                         int lowRangeValId = new Double(lowRangeValue).intValue()*100;
                                         int highRangeValId = new Double(highRangeValue).intValue()*100;
-                                        long lowRangekey = IndexUtils.createIndexKeyForCategory(cId, fieldPos, lowRangeValId);
-                                        long highRangekey = IndexUtils.createIndexKeyForCategory(cId, fieldPos, highRangeValId);
+                                        long lowRangekey = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, lowRangeValId);
+                                        long highRangekey = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, highRangeValId);
                                         SimpleQuery csq = new LongRangeQuery (IProduct.Attribute.kCategoryNumericField,lowRangekey, highRangekey);
                                         _cjquery.addQuery(csq);
-                                    } else if (dt == CategoryAttributeDetails.DataType.kText) {
+                                    } else if (dt == ProductAttributeDetails.DataType.kText) {
                                         //categoryFieldValue might comma separated list of values
                                         if (categoryFieldValue != null) {
                                             ArrayList<Long> valueIdList = new ArrayList<Long>();
@@ -92,11 +92,11 @@ public class OSpecQueryCacheHelper {
                                             for (int i=0;i<valueStrList.size();i++){
                                                 String valueStr = valueStrList.get(i);
                                                 int fieldValId = IndexUtils.getIndexIdFromDictionary(fieldPos, valueStr);
-                                                long key = IndexUtils.createIndexKeyForCategory(cId, fieldPos, fieldValId);
+                                                long key = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, fieldValId);
                                                 valueIdList.add(key);
                                             }
                                             //simple query
-                                            SimpleQuery csq = new CategoryAttributeQuery (IProduct.Attribute.kCategoryTextField, valueIdList);
+                                            SimpleQuery csq = new LongTextQuery(IProduct.Attribute.kCategoryTextField, valueIdList);
                                            _cjquery.addQuery(csq);
                                         }
                                     }
