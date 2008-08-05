@@ -340,9 +340,13 @@ public class JozIndexUpdater {
             StringTokenizer st = new StringTokenizer(indexVal, MULTI_VALUE_INDEX_DELIM);
             ArrayList<String> indexVals = st.getTokens();
             for (String val: indexVals) {
+                if (val == null) {
+                    continue;
+                }
                 //Url decode
                 try {
                     val = URLDecoder.decode(val,"utf-8");
+                    val = val.toLowerCase();
                 } catch(UnsupportedEncodingException e){
                     log.error("Could not decode the value : " + val);
                     continue;

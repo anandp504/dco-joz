@@ -634,8 +634,12 @@ public class ProductRequestProcessor {
         ArrayList<Long> multiValueIdAL = new ArrayList<Long>();
         for (String val : multiValueAL) {
             //Url decode
+            if (val == null) {
+                continue;
+            }
             try {
                 val = URLDecoder.decode(val,"utf-8");
+                val = val.toLowerCase();
             } catch(UnsupportedEncodingException e){
                 log.error("Could not decode the value : " + val);
                 continue;
