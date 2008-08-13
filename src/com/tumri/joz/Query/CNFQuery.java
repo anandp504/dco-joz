@@ -42,6 +42,10 @@ public class CNFQuery implements Query, Cloneable {
       m_cache_reference = aReference;
   }
 
+  public Handle getCacheReference() {
+      return m_cache_reference;
+  }
+
   public void setReference(Handle aReference) {
     if (aReference!= null && m_cache_reference != null) {
         //Generate a new reference point
@@ -130,6 +134,7 @@ public class CNFQuery implements Query, Cloneable {
       }
       copyCNF.m_queries = copyQueries;
     }
+    copyCNF.setCacheReference(m_cache_reference);
     return copyCNF;
   }
   

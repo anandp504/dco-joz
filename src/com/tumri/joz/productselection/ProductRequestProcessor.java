@@ -535,6 +535,7 @@ public class ProductRequestProcessor {
             if (resultCount>0) {
                 if (!m_ExternalKeywords) {
                     //Set a reference so we return random selection of products.
+                    geoTSpecQuery.setCacheReference(m_tSpecQuery.getCacheReference());
                     geoTSpecQuery.setReference(ProductDB.getInstance().genReference ());
                 }
                 m_tSpecQuery = geoTSpecQuery;
