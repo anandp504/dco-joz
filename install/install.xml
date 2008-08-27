@@ -68,10 +68,16 @@
         	todir="${tumri.component.home}/install/${component.product.name}"/>
   	
         <!-- Creating a soft link called "current" to the latest installed product.	-->
-		<exec executable="rm" failonerror="true">
+        <condition property="previous.link.exist" value="true" else="false">
+            <available file="${tumri.component.root}/${component.previous.link}"/>
+        </condition>
+        <condition property="current.link.exist" value="true" else="false">
+            <available file="${tumri.component.root}/${component.current.link}"/>
+        </condition>
+		<exec executable="rm" failonerror="${previous.link.exist}">
 			<arg line="-f ${tumri.component.root}/${component.previous.link}"/>			
 		</exec>
-		<exec executable="mv" failonerror="true">
+		<exec executable="mv" failonerror="${current.link.exist}">
 			<arg line="${tumri.component.root}/${component.current.link} ${tumri.component.root}/${component.previous.link}"/>			
 		</exec>
 		<exec executable="ln" failonerror="true">
@@ -97,10 +103,10 @@
 		<exec executable="rm" failonerror="true">
 			<arg line="-f ${tumri.component.root}/${component.current.link}"/>			
 		</exec>
-		<condition property="previous.link.exist">
+		<condition property="previous.link.exist" value="true" else="false">
 			<available file="${tumri.component.root}/${component.previous.link}"/> 
 		</condition>
-		<exec executable="mv" failonerror="true">
+		<exec executable="mv" failonerror="${previous.link.exist}">
 			<arg line="${tumri.component.root}/${component.previous.link} ${tumri.component.root}/${component.current.link}"/>			
 		</exec>		        
     	<delete dir="${tumri.component.home}"/>
