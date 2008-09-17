@@ -3,7 +3,10 @@
    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
    "http://java.sun.com/dtd/web-app_2_3.dtd">
 
-<web-app>
+<web-app version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
     <display-name>joz</display-name>
 
@@ -28,6 +31,16 @@
 	<servlet-class>com.tumri.joz.monitor.JozRefreshDataServlet</servlet-class>
     </servlet>
 
+    <servlet>
+	<servlet-name>console</servlet-name>
+	<servlet-class>com.tumri.joz.monitor.JozConsoleServlet</servlet-class>
+    </servlet>
+
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
     <servlet-mapping>
 	<servlet-name>Joz</servlet-name>
 	<url-pattern>/init</url-pattern>
@@ -46,6 +59,11 @@
     <servlet-mapping>
 	<servlet-name>JozRefreshData</servlet-name>
 	<url-pattern>/refresh</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+	<servlet-name>console</servlet-name>
+	<url-pattern>/console</url-pattern>
     </servlet-mapping>
 
 </web-app>

@@ -78,6 +78,11 @@ public class CampaignDBDataLoader {
             Iterator<AdPod>    adPodsIterator    = deltaProvider.getAdPods(region);
             Iterator<OSpec>    oSpecsIterator    = deltaProvider.getOspecs(region);
             Iterator<Campaign> campaignsIterator = deltaProvider.getCampaigns(region);
+            Iterator<Recipe> recipesIterator = deltaProvider.getRecipes(region);
+            Iterator<AdPod> urlNoneAdPodsIterator = deltaProvider.getNonUrlSpecificAdPods(region);
+            Iterator<Pair<Integer, Integer>> adPodCampaignMappings            = deltaProvider.getAllAdPodCampaignMappings(region);
+            Iterator<Pair<String, Integer>> locationNameIdMappings            = deltaProvider.getLocationNameIdMappings();
+
             //long lispDataReadEndTime = System.currentTimeMillis();
             //System.out.println("Data Retrieval from Lisp Provider API: " + (lispDataReadEndTime - lispDataReadStartTime) + " ms");
 
@@ -99,10 +104,14 @@ public class CampaignDBDataLoader {
             campaignDB.loadLocationAdPodMappings(locationsAdPodMappingIterator);
             campaignDB.loadRunOfNetworkAdPods(runOfNetworkAdPodsIterator);
             campaignDB.loadGeoNoneAdPods(geoNoneAdPodsIterator);
+            campaignDB.loadUrlNoneAdPods(urlNoneAdPodsIterator);
+            campaignDB.loadRecipes(recipesIterator);
+            campaignDB.loadAdPodCampaignMapping(adPodCampaignMappings);
+            campaignDB.loadLocationNameIdMapping(locationNameIdMappings);
 
             TransientDataManager.getInstance().reloadInCampaignDB();
 
-            OSpecQueryCache.getInstance().load(oSpecsIterator2);
+            TSpecQueryCache.getInstance().load(oSpecsIterator2);
             //long campaignIndexEndTime = System.currentTimeMillis();
             //System.out.println("Campaign Indexing Time: " + (campaignIndexEndTime - campaignIndexStartTime) + " ms");
 

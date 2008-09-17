@@ -2,8 +2,10 @@ package com.tumri.joz.productselection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.SortedSet;
 
 import com.tumri.cma.domain.OSpec;
+import com.tumri.cma.domain.Recipe;
 import com.tumri.joz.products.Handle;
 
 /**
@@ -13,11 +15,14 @@ import com.tumri.joz.products.Handle;
  */
 public class ProductSelectionResults {
 
-	ArrayList<Handle> results = null;
-	OSpec targetedOSpec = null;
 	HashMap<String, String> featuresMap = null;
-	
-	public HashMap<String, String> getFeaturesMap() {
+    Recipe targetedRecipe = null;
+    String targetedTSpecName = null;
+
+    HashMap<Integer, ArrayList<Handle>> tspecResultsMap = null;
+    HashMap<Integer, String> tspecSlotIdMap = null;
+
+    public HashMap<String, String> getFeaturesMap() {
 		return featuresMap;
 	}
 	
@@ -25,20 +30,38 @@ public class ProductSelectionResults {
 		this.featuresMap = featuresMap;
 	}
 
-	public ArrayList<Handle> getResults() {
-		return results;
-	}
-	
-	public void setResults(ArrayList<Handle> results) {
-		this.results = results;
-	}
+    public void addResults(Integer tspecId, String slotId, ArrayList<Handle> results) {
+        if (tspecResultsMap == null) {
+            tspecResultsMap = new HashMap<Integer, ArrayList<Handle>>();
+        }
+        if (tspecSlotIdMap == null) {
+            tspecSlotIdMap = new HashMap<Integer, String>();
+        }
+        tspecResultsMap.put(tspecId, results);
+        tspecSlotIdMap.put(tspecId, slotId);
+    }
 
-	public OSpec getTargetedOSpec() {
-		return targetedOSpec;
-	}
-	
-	public void setTargetedOSpec(OSpec targettedOSpec) {
-		this.targetedOSpec = targettedOSpec;
-	}
-	
+    public Recipe getTargetedRecipe() {
+        return targetedRecipe;
+    }
+
+    public void setTargetedRecipe(Recipe targetedRecipe) {
+        this.targetedRecipe = targetedRecipe;
+    }
+
+    public String getTargetedTSpecName() {
+        return targetedTSpecName;
+    }
+
+    public void setTargetedTSpecName(String targetedTSpecName) {
+        this.targetedTSpecName = targetedTSpecName;
+    }
+
+    public HashMap<Integer, ArrayList<Handle>> getTspecResultsMap() {
+        return tspecResultsMap;
+    }
+
+    public HashMap<Integer, String> getTspecSlotIdMap() {
+        return tspecSlotIdMap;
+    }
 }

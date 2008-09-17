@@ -1,19 +1,17 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
-import com.tumri.utils.data.RWLocked;
+import com.tumri.joz.JoZException;
 import com.tumri.utils.data.RWLockedTreeMap;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class manages the transient data request from add-tspec, delete-tspec and incorp-mapping-delta requests from
  * the clients.
- * Once the request arrives from the client, this class internally caches the requests, and adds the appropriate objects
+ * Once the request arrives from the client, this class internally caches the requests, and adds the deleteUrlMappingappropriate objects
  * into the CamapaignDB maps and indices. The reason for caching the requests is that the CampaignDB data gets reloaded
  * periodically and this transient data will get erased in that process. By holding on to request objects, the manager
  * can re-add all these objects during the CampaignDB reloading process. <BR/>
@@ -24,11 +22,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 1. When delete tspec/delete mapping command is made by portal clients
  * 2. The maximum size of the LRU cache is exceeded.
  *
+ * TransientDataManager also caches any campaign adds that are done. TCM will use only the campaign data add/delete, there
+ * wont be any mappings supported in the transient data add from TCM - since the only valid use case is for iCS to preview
+ * a specific recipe.
+ * 
  * @author bpatel
+ * @author nipun
  */
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
 public class TransientDataManager {
     private OSpecNameLRUCache oSpecNameLRUCache = new OSpecNameLRUCache(1000);
+    private CampaignLRUCache campaignLRUCache = new CampaignLRUCache(1000);
+//    private AdPodLRUCache adPodLRUCache = new AdPodLRUCache(1000);
+//    private RecipeLRUCache recipeLRUCache = new RecipeLRUCache(1000);
+//    private TSpecLRUCache tSpecLRUCache = new TSpecLRUCache(1000);
+    
     private static Logger log = Logger.getLogger (TransientDataManager.class);
     //All the request maps below store the tspec-name -> IncorpDeltaMappingRequest mapping.
     private RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<String>>>  urlMapRequest        = new RWLockedTreeMap<String, List<IncorpDeltaMappingRequest<String>>>();
@@ -37,8 +45,13 @@ public class TransientDataManager {
 
     private RWLockedTreeMap<String, Integer>       oSpecSiteGeoAdPodMap     = new RWLockedTreeMap<String, Integer>();
     private RWLockedTreeMap<String, Integer>       oSpecSiteNonGeoAdPodMap  = new RWLockedTreeMap<String, Integer>();
+    private RWLockedTreeMap<String, Integer>       oSpecSiteNonUrlAdPodMap  = new RWLockedTreeMap<String, Integer>();
 
     private RWLockedTreeMap<Integer, OSpec> originalOSpecMap = new RWLockedTreeMap<Integer, OSpec>();
+    private RWLockedTreeMap<Integer, Campaign> originalCampaignMap = new RWLockedTreeMap<Integer, Campaign>();
+//    private RWLockedTreeMap<Integer, Recipe> originalRecipeMap = new RWLockedTreeMap<Integer, Recipe>();
+//    private RWLockedTreeMap<Integer, AdPod> originalAdPodMap = new RWLockedTreeMap<Integer, AdPod>();
+//    private RWLockedTreeMap<Integer, TSpec> originalTSpecMap = new RWLockedTreeMap<Integer, TSpec>();
 
     //The low bound is set to a high value so that the IDs assigned to transient objects dont collide with the database generated IDs for other objects
     private final static int lowBound  = 999000000;
@@ -59,6 +72,7 @@ public class TransientDataManager {
         themeMapRequest.readerLock();
         locationMapRequest.readerLock();
         try {
+            reloadCampaign();
             reloadOSpec();
             reloadUrlMappings();
             reloadThemeMappings();
@@ -77,6 +91,16 @@ public class TransientDataManager {
             while(iterator.hasNext()) {
                 OSpec oSpec = (OSpec)iterator.next();
                 addOSpecToCampaignDB(oSpec);
+            }
+        }
+    }
+
+    private void reloadCampaign() {
+        Iterator iterator = campaignLRUCache.values().iterator();
+        if(iterator != null && iterator.hasNext()) {
+            while(iterator.hasNext()) {
+                Campaign camp = (Campaign)iterator.next();
+                addCampaignToCampaignDB(camp);
             }
         }
     }
@@ -144,7 +168,7 @@ public class TransientDataManager {
     public void addOSpec(OSpec oSpec) throws TransientDataException {
         int oSpecId = 0;
         //Check if the oSpec already exists
-        if(campaignDB.getOspec(oSpec.getName()) != null && !safeContainsKey(oSpec.getName())) {
+        if(campaignDB.getOspec(oSpec.getName()) != null && !safeContainsOSpecKey(oSpec.getName())) {
             //Copy the original ospec object from CampaignDB into temporary area, so it can be replaced later on
             //when the delete-tspec from portals is called
             OSpec origOSpec = campaignDB.getOspec(oSpec.getName());
@@ -152,18 +176,22 @@ public class TransientDataManager {
             oSpecId = origOSpec.getId();
         }
         if(oSpecId == 0) {
-            if(safeContainsKey(oSpec.getName())) {
-                oSpecId = safeGet(oSpec.getName()).getId();
+            if(safeContainsOSpecKey(oSpec.getName())) {
+                oSpecId = safeGetOSpec(oSpec.getName()).getId();
             }
             else {
                 //create OSpec ID
                 oSpecId = idSequence.incrementAndGet();
             }
+            oSpec.setId(oSpecId);
+            //Create a new Campaign Object
+            Campaign camp = createCampaignAdPod(oSpec);
+            addCampaignToCampaignDB(camp);
         }
         oSpec.setId(oSpecId);
 
         //Add to LRU cache
-        safePut(oSpec.getName(), oSpec);
+        safePutOSpec(oSpec.getName(), oSpec);
         addOSpecToCampaignDB(oSpec);
 
         //reset the idSequence if highBound is exceeded
@@ -173,12 +201,76 @@ public class TransientDataManager {
         }
     }
 
+    private Campaign createCampaignAdPod(OSpec oSpec){
+        //Create the campaign and adpod objects here
+        Campaign theCampaign = new Campaign();
+        theCampaign.setOwnerId("advuser1");
+        theCampaign.setRegion("USA");
+        theCampaign.setSource("ADVERTISER");
+
+        String tSpecName = oSpec.getName();
+        AdGroup adGroup = new AdGroup();
+        AdPod theAdPod = new AdPod();
+        theCampaign.setId(idSequence.incrementAndGet());
+        theAdPod.setId(idSequence.incrementAndGet());
+        theAdPod.setName(tSpecName);
+        theAdPod.setSource(theCampaign.getSource());
+        theAdPod.setRegion(theCampaign.getRegion());
+        theAdPod.setDisplayName(tSpecName);
+        theAdPod.setOwnerId(theCampaign.getOwnerId());
+        theAdPod.setOspec(oSpec);
+        Recipe aRecipe = new Recipe();
+        aRecipe.setName(oSpec.getName());
+        aRecipe.setId(idSequence.incrementAndGet());
+        List<TSpec> tspecs = oSpec.getTspecs();
+        for (TSpec tspec: tspecs) {
+            RecipeTSpecInfo tSpecInfo = new RecipeTSpecInfo();
+            tSpecInfo.setTspecId(tspec.getId());
+            aRecipe.addTSpecInfo(tSpecInfo);
+        }
+        theAdPod.addRecipe(aRecipe);
+        adGroup.addAdPod(theAdPod);
+        theCampaign.addAdGroup(adGroup);
+        return theCampaign;
+    }
+
+
     private void addOSpecToCampaignDB(OSpec oSpec) {
         campaignDB.addOSpec(oSpec);
     }
 
+    private void addCampaignToCampaignDB(Campaign camp) {
+        campaignDB.addCampaign(camp);
+        List<AdPod> adPodList = camp.getAdpods();
+        if (adPodList != null) {
+            for (AdPod adpod: adPodList) {
+                addAdPodToCampaignDB(camp.getId(), adpod);
+            }
+        }
+    }
+
+    private void addAdPodToCampaignDB(int campId, AdPod adpod) {
+        campaignDB.addAdPod(adpod);
+        campaignDB.addAdpodCampaignMapping(adpod.getId(), campId);
+
+        //OSpecs
+        OSpec campOspec = adpod.getOspec();
+        addOSpecToCampaignDB(campOspec);
+        //Recipes
+        List<Recipe> recipeList = adpod.getRecipes();
+        if (recipeList!= null && !recipeList.isEmpty()) {
+            for(Recipe r : recipeList) {
+                addRecipeToCampaignDB(r);
+            }
+        }
+    }
+
+    private void addRecipeToCampaignDB(Recipe recipe) {
+        campaignDB.addRecipe(recipe);
+    }
+
     public void deleteOSpec(String oSpecName) {
-        OSpec oSpec = safeGet(oSpecName);
+        OSpec oSpec = safeGetOSpec(oSpecName);
         if(oSpec != null) {
             deleteDependencies(oSpec);
         }
@@ -187,13 +279,28 @@ public class TransientDataManager {
         }
     }
 
-    private int createAdPod(int oSpecId) {
+    private int createAdPod(OSpec ospec) {
+        //Create the campaign and adpod objects here
+        Campaign theCampaign = new Campaign();
+        AdGroup adGroup = new AdGroup();
+        AdPod theAdPod = new AdPod();
+        theCampaign.setId(idSequence.incrementAndGet());
         int adPodId = idSequence.incrementAndGet();
-        AdPod adPod = new AdPod();
-        adPod.setName("Transient-Incorp-AdPod " + adPodId);
-        adPod.setId(adPodId);
-        campaignDB.addAdPod(adPod);
-        campaignDB.addAdpodOSpecMapping(adPodId, oSpecId);
+        theAdPod.setId(adPodId);
+        theAdPod.setName("Transient-Incorp-AdPod " + adPodId);
+        theAdPod.setSource(theCampaign.getSource());
+        theAdPod.setRegion(theCampaign.getRegion());
+        theAdPod.setOwnerId(theCampaign.getOwnerId());
+        Recipe aRecipe = new Recipe();
+        aRecipe.setId(idSequence.incrementAndGet());
+        aRecipe.setName(ospec.getName());
+        theAdPod.addRecipe(aRecipe);
+        adGroup.addAdPod(theAdPod);
+        theCampaign.addAdGroup(adGroup);
+        campaignDB.addCampaign(theCampaign);
+        campaignDB.addAdPod(theAdPod);
+        campaignDB.addAdpodCampaignMapping(adPodId, theCampaign.getId());
+        campaignDB.addAdpodOSpecMapping(adPodId, ospec.getId());
         return adPodId;
     }
 
@@ -215,10 +322,10 @@ public class TransientDataManager {
      * @throws TransientDataException - Gets thrown for invalid condition
      */
     public void addUrlMapping(String urlName, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !safeContainsKey(tSpecName)) {
+        if(campaignDB.getOspec(tSpecName) == null || !safeContainsOSpecKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
-        IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(urlName, tSpecName, weight, geocode);
+        IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(urlName, tSpecName, weight, geocode, null);
         IncorpDeltaMappingRequest<String> existingRequest = getExistingUrlMapping(request);
         if(existingRequest != null) {
             deleteUrlMapping(existingRequest.getId(), existingRequest.getTSpecName(), 1.0f, existingRequest.getGeocode());
@@ -248,11 +355,15 @@ public class TransientDataManager {
             url.setName(request.getId());
             campaignDB.addUrl(url);
         }
-        int oSpecId = safeGet(request.getTSpecName()).getId();
+        OSpec ospec = safeGetOSpec(request.getTSpecName());
+        int oSpecId = 0;
+        if (ospec!= null) {
+            oSpecId = ospec.getId();
+        }
         if(oSpecId <= 0) {
             throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
         }
-        int adPodId = createAdPod(oSpecId);
+        int adPodId = createAdPod(ospec);
         UrlAdPodMapping mapping = new UrlAdPodMapping();
         mapping.setAdPodId(adPodId);
         mapping.setUrlId(url.getId());
@@ -267,31 +378,26 @@ public class TransientDataManager {
             addNonGeocodeMapping(adPodId);
             oSpecSiteNonGeoAdPodMap.safePut(key, adPodId);
         }
+        //If the adpod is there in non url mapping - remove it
+        deleteNonUrlMapping(adPodId);
     }
 
-    public void addThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !safeContainsKey(tSpecName)) {
+    public void addThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode, String url) throws TransientDataException {
+        if(campaignDB.getOspec(tSpecName) == null || !safeContainsOSpecKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
-        IncorpDeltaMappingRequest<String> request = new IncorpDeltaMappingRequest<String>(themeName, tSpecName, weight, geocode);
-        IncorpDeltaMappingRequest<String> existingRequest = getExistingThemeMapping(request);
-        if(existingRequest != null) {
-            deleteThemeMapping(existingRequest.getId(), existingRequest.getTSpecName(), 1.0f, existingRequest.getGeocode());
+        Integer locId = CampaignDB.getInstance().getLocationIdForName(themeName);
+        int thmLocId = 0;
+        if (locId == null) {
+            //1. Create ID for Theme - use that as location id and add location mapping
+            thmLocId = idSequence.incrementAndGet();
+            thmLocId = thmLocId + lowBound;
+        } else {
+           thmLocId = locId; 
         }
-
-        themeMapRequest.writerLock();
-        try {
-            List<IncorpDeltaMappingRequest<String>> list = themeMapRequest.get(tSpecName);
-            if(list == null) {
-                list = new ArrayList<IncorpDeltaMappingRequest<String>>();
-            }
-            list.add(request);
-            themeMapRequest.put(tSpecName, list);
-        }
-        finally {
-            themeMapRequest.writerUnlock();
-        }
-        addThemeMapping(request);
+        //Create Location mapping
+        addLocationMapping(new Integer(thmLocId).toString(), tSpecName, weight, geocode, url);
+        campaignDB.addLocationNameIdMap(themeName, new Integer(thmLocId));
     }
 
     @SuppressWarnings({"deprecation"})
@@ -305,54 +411,10 @@ public class TransientDataManager {
             theme.setName(request.getId());
             campaignDB.addTheme(theme);
         }
-        int oSpecId = safeGet(request.getTSpecName()).getId();
-        if(oSpecId <= 0) {
-            throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
-        }
-        int adPodId = createAdPod(oSpecId);
-        ThemeAdPodMapping mapping = new ThemeAdPodMapping();
-        mapping.setAdPodId(adPodId);
-        mapping.setThemeId(theme.getId());
-        mapping.setWeight((int)request.getWeight());
-        campaignDB.addThemeMapping(mapping);
-        String key = generateKey(request.getTSpecName(), request.getId());
-        if(request.getGeocode() != null) {
-            addGeocodeMapping(request.getGeocode(), adPodId, request.getWeight());
-            oSpecSiteGeoAdPodMap.safePut(key, adPodId);
-        }
-        else {
-            addNonGeocodeMapping(adPodId);
-            oSpecSiteNonGeoAdPodMap.safePut(key, adPodId);
-        }
-    }
-
-    private IncorpDeltaMappingRequest<String> getExistingThemeMapping(IncorpDeltaMappingRequest<String> request) {
-        if(request == null) {
-            return null;
-        }
-        List <IncorpDeltaMappingRequest<String>>  themeRequestList      = themeMapRequest.safeGet(request.getTSpecName());
-        IncorpDeltaMappingRequest<String> result = null;
-        if(themeRequestList != null) {
-            for (IncorpDeltaMappingRequest<String> themeRequest : themeRequestList) {
-                String themeName = themeRequest.getId();
-                String tSpecName = themeRequest.getTSpecName();
-                Geocode geocode = themeRequest.getGeocode();
-                if (themeName.equals(request.getId()) && tSpecName.equals(request.getTSpecName())) {
-                    if (request.getGeocode() != null) {
-                        if (geocode != null) {
-                            result = themeRequest;
-                            break;
-                        }
-                    } else {
-                        if (geocode == null) {
-                            result = themeRequest;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return result;
+        //Create Location mapping
+        IncorpDeltaMappingRequest<Integer> locrequest = new IncorpDeltaMappingRequest<Integer>(theme.getId(), request.getTSpecName(), request.getWeight(), request.getGeocode(),request.getUrl());
+        addLocationMapping(locrequest);
+        campaignDB.addLocationNameIdMap(request.getId(), theme.getId());
     }
 
     private IncorpDeltaMappingRequest<String> getExistingUrlMapping(IncorpDeltaMappingRequest<String> request) {
@@ -395,16 +457,33 @@ public class TransientDataManager {
                 Integer locationId = locationRequest.getId();
                 String tSpecName = locationRequest.getTSpecName();
                 Geocode geocode = locationRequest.getGeocode();
+                String url = locationRequest.getUrl();
                 if (locationId != null && locationId.equals(request.getId()) && tSpecName.equals(request.getTSpecName())) {
                     if (request.getGeocode() != null) {
                         if (geocode != null) {
-                            result = locationRequest;
-                            break;
+                            if (geocode != null) {
+                                if (url != null && request.getUrl()!= null) {
+                                    if (url.equals(request.getUrl()))  {
+                                        result = locationRequest;
+                                        break;
+                                    }
+                                } else {
+                                    result = locationRequest;
+                                    break;
+                                }
+                            }
                         }
                     } else {
                         if (geocode == null) {
-                            result = locationRequest;
-                            break;
+                            if (url != null && request.getUrl()!= null) {
+                                if (url.equals(request.getUrl()))  {
+                                    result = locationRequest;
+                                    break;
+                                }
+                            } else {
+                                result = locationRequest;
+                                break;
+                            }
                         }
                     }
                 }
@@ -413,8 +492,8 @@ public class TransientDataManager {
         return result;
     }
 
-    public void addLocationMapping(String locationIdStr, String tSpecName, float weight, Geocode geocode) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !safeContainsKey(tSpecName)) {
+    public void addLocationMapping(String locationIdStr, String tSpecName, float weight, Geocode geocode, String url) throws TransientDataException {
+        if(campaignDB.getOspec(tSpecName) == null || !safeContainsOSpecKey(tSpecName)) {
             throw new TransientDataException("Ospec for this name doesnt Exist");
         }
         int locationId;
@@ -425,10 +504,10 @@ public class TransientDataManager {
             log.error("Invalid location ID passed in incorp-mapping-delta request");
             throw new TransientDataException("Invalid location ID passed in incorp-mapping-delta request");
         }
-        IncorpDeltaMappingRequest<Integer> request = new IncorpDeltaMappingRequest<Integer>(locationId, tSpecName, weight, geocode);
+        IncorpDeltaMappingRequest<Integer> request = new IncorpDeltaMappingRequest<Integer>(locationId, tSpecName, weight, geocode, url);
         IncorpDeltaMappingRequest<Integer> existingRequest = getExistingLocationMapping(request);
         if(existingRequest != null) {
-            deleteLocationMapping(existingRequest.getId() +"", existingRequest.getTSpecName(), 1.0f, existingRequest.getGeocode());
+            deleteLocationMapping(existingRequest.getId() +"", existingRequest.getTSpecName(), 1.0f, existingRequest.getGeocode(), url);
         }
         locationMapRequest.writerLock();
         try {
@@ -452,11 +531,11 @@ public class TransientDataManager {
             location.setId(request.getId());
             campaignDB.addLocation(location);
         }
-        int oSpecId = safeGet(request.getTSpecName()).getId();
+        int oSpecId = safeGetOSpec(request.getTSpecName()).getId();
         if(oSpecId <= 0) {
             throw new TransientDataException("Ospec " + request.getTSpecName()+ "for specified mapping is not present in memeory");
         }
-        int adPodId = createAdPod(oSpecId);
+        int adPodId = createAdPod(safeGetOSpec(request.getTSpecName()));
         LocationAdPodMapping mapping = new LocationAdPodMapping();
         mapping.setAdPodId(adPodId);
         mapping.setLocationId(location.getId());
@@ -470,6 +549,10 @@ public class TransientDataManager {
             addNonGeocodeMapping(adPodId);
             oSpecSiteNonGeoAdPodMap.safePut(key, adPodId);
         }
+        if (request.getUrl()==null) {
+            oSpecSiteNonUrlAdPodMap.safePut(key, adPodId);
+            addNonUrlcodeMapping(adPodId);
+        }
     }
 
     public void addGeocodeMapping(Geocode geocode, int adPodId, float weight) throws TransientDataException {
@@ -482,9 +565,13 @@ public class TransientDataManager {
         campaignDB.addNonGeoAdPod(adPodId);
     }
 
+    public void addNonUrlcodeMapping(int adPodId) throws TransientDataException {
+        campaignDB.addNonUrlAdPod(adPodId);
+    }
+
     public void deleteUrlMapping(String urlName, String tSpecName, float weight, Geocode geocode) {
         List <IncorpDeltaMappingRequest<String>>  urlRequestList      = urlMapRequest.safeGet(tSpecName);
-        if(urlRequestList != null && safeContainsKey(tSpecName)) {
+        if(urlRequestList != null && safeContainsOSpecKey(tSpecName)) {
             synchronized(urlRequestList) {
                 int adPodId = 0;
                 for(int i=0; i<urlRequestList.size(); i++) {
@@ -518,42 +605,20 @@ public class TransientDataManager {
     }
 
     @SuppressWarnings({"deprecation"})
-    public void deleteThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode) {
-        List <IncorpDeltaMappingRequest<String>>  themeRequestList      = themeMapRequest.safeGet(tSpecName);
-        if(themeRequestList != null) {
-            synchronized(themeRequestList) {
-                int adPodId = 0;
-                for(int i=0; i<themeRequestList.size(); i++) {
-                    IncorpDeltaMappingRequest<String> themeRequest = themeRequestList.get(i);
-                    if(themeName.equals(themeRequest.getId())) {
-                        if(themeRequest.getGeocode() != null && geocode != null) {
-                            adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, themeName));
-                            deleteGeocodeMapping(themeRequest.getGeocode(), adPodId);
-                            oSpecSiteGeoAdPodMap.safeRemove(generateKey(tSpecName, themeName));
-                            themeRequestList.remove(i);
-                            break;
-                        }
-                        else if(themeRequest.getGeocode() == null && geocode == null) {
-                            adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(tSpecName, themeName));
-                            deleteNonGeocodeMapping(adPodId);
-                            oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(tSpecName, themeName));
-                            themeRequestList.remove(i);
-                            break;
-                        }
-                    }
-                }
-                if(themeName != null && adPodId > 0) {
-                    campaignDB.deleteThemeMapping(themeName, adPodId);
-                    //Note: Theme is not deleted from campaignDB, instead the unused theme will get removed during the campaign data refresh
-                    //In future, if we do decide to delete theme then we will have to keep track of all the related mappings and selectively
-                    //delete theme if there are no more mappings to it and it was created as a part of incorp-delta request
-                    //campaignDB.deleteTheme(theme.getName());
-                }
-            }
+    public void deleteThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode, String url) {
+        Integer thmLocId = CampaignDB.getInstance().getLocationIdForName(themeName);
+        if (thmLocId != null) {
+            deleteLocationMapping(thmLocId.toString(), tSpecName, weight, geocode, url);
+        }
+        
+        //Delete the mapping from the CampaignDB if there is nothing more mapped to the tspec
+        List <IncorpDeltaMappingRequest<Integer>>  locationRequestList      = locationMapRequest.safeGet(tSpecName);
+        if (locationRequestList==null || locationRequestList.size()==0) {
+            CampaignDB.getInstance().deleteLocationNameIdMapping(themeName);
         }
     }
 
-    public void deleteLocationMapping(String locationIdStr, String tSpecName, float weight, Geocode geocode) {
+    public void deleteLocationMapping(String locationIdStr, String tSpecName, float weight, Geocode geocode, String url) {
         List <IncorpDeltaMappingRequest<Integer>>  locationRequestList      = locationMapRequest.safeGet(tSpecName);
         if(locationRequestList != null) {
             int locationId;
@@ -569,17 +634,26 @@ public class TransientDataManager {
                 for(int i=0; i<locationRequestList.size(); i++) {
                     IncorpDeltaMappingRequest<Integer> locationRequest = locationRequestList.get(i);
                     if(locationId == locationRequest.getId()) {
+                        String key = generateKey(tSpecName, locationIdStr);
                         if(locationRequest.getGeocode() != null && geocode != null) {
-                            adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(tSpecName, locationIdStr));
+                            adPodId = oSpecSiteGeoAdPodMap.safeGet(key);
+                            if (locationRequest.getUrl() != null && url != null) {
+                                oSpecSiteNonUrlAdPodMap.safeRemove(key);
+                                deleteNonUrlMapping(adPodId);
+                            }
                             deleteGeocodeMapping(locationRequest.getGeocode(), adPodId);
-                            oSpecSiteGeoAdPodMap.safeRemove(generateKey(tSpecName, locationIdStr));
+                            oSpecSiteGeoAdPodMap.safeRemove(key);
                             locationRequestList.remove(i);
                             break;
                         }
                         else if(locationRequest.getGeocode() == null && geocode == null) {
-                            adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(tSpecName, locationIdStr));
+                            adPodId = oSpecSiteNonGeoAdPodMap.safeGet(key);
+                            if (locationRequest.getUrl() != null && url != null) {
+                                oSpecSiteNonUrlAdPodMap.safeRemove(key);
+                                deleteNonUrlMapping(adPodId);
+                            }
                             deleteNonGeocodeMapping(adPodId);
-                            oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(tSpecName, locationIdStr));
+                            oSpecSiteNonGeoAdPodMap.safeRemove(key);
                             locationRequestList.remove(i);
                             break;
                         }
@@ -604,13 +678,308 @@ public class TransientDataManager {
         campaignDB.deleteNonGeoAdPod(adPodId);
     }
 
+    public void deleteNonUrlMapping(int adPodId) {
+        campaignDB.deleteNonUrlAdPod(adPodId);
+    }
+
+    /**
+     * Adds a campaign with a valid Id into the db.
+     * @param campaign
+     */
+    public void addCampaign(Campaign campaign) throws JoZException {
+        int campaignId = campaign.getId();
+        if (campaignId == 0) {
+            throw new JoZException("Campaign with invalid Id being added - aborting");
+        }
+
+        //Check if the oSpec already exists
+        if(campaignDB.getCampaign(campaignId) != null && !safeContainsCampaignKey(campaignId)) {
+            //Copy the original campaign object from CampaignDB into temporary area, so it can be replaced later on
+            //when the delete-campaign from portals is called
+            Campaign origCamp = campaignDB.getCampaign(campaignId);
+            originalCampaignMap.safePut(campaignId, origCamp);
+        }
+        //Add to LRU cache
+        safePutCampaign(campaign.getId(), campaign);
+        addCampaignToCampaignDB(campaign);
+    }
+
+    public void deleteCampaign(int campaignId) throws JoZException {
+        Campaign camp = safeGetCampaign(campaignId);
+        if(camp != null) {
+            deleteDependencies(camp);
+            campaignDB.delCampaign(campaignId);
+            safeRemoveCampaign(campaignId);
+        }
+        else {
+            log.error("Trying to delete camp that doesnt exist in Transient Data Cache. Campaign ID: " + campaignId);
+            throw new JoZException("Trying to delete camp that doesnt exist in Transient Data Cache. Campaign ID: " + campaignId);
+        }
+    }
+
+//    /**
+//     * Add the adpod into the campaign db - provided the parent (campiagn id ) exists
+//     * @param campaignId
+//     * @param adPod
+//     */
+//    public void addAdPod(int campaignId, AdPod adPod) {
+//        if (campaignId == 0 || campaignDB.getCampaign(campaignId) == null) {
+//            log.error("Adpod add failed - the parent Campaign does not exist - aborting");
+//            return;
+//        }
+//
+//        //Check if the AdPod already exists
+//        int adPodId = adPod.getId();
+//        if (adPodId == 0) {
+//            log.error("Adpod add failed - the id is invalid - aborting");
+//            return;
+//        }
+//
+//        if(campaignDB.getAdPod(adPodId) != null && !safeContainsAdPodKey(adPodId)) {
+//            //Copy the original adpod object from CampaignDB into temporary area, so it can be replaced later on
+//            //when the delete-adpod from portals is called
+//            AdPod origAdPod = campaignDB.getAdPod(adPodId);
+//            originalAdPodMap.safePut(adPodId, origAdPod);
+//        }
+//        //Add to LRU cache
+//        safePutAdPod(adPodId, adPod);
+//        addAdPodToCampaignDB(campaignId, adPod);
+//
+//    }
+//
+//    public void deleteAdPod(int apodId) {
+//        AdPod adPod = safeGetAdPod(apodId);
+//        if(adPod != null) {
+//            deleteDependencies(adPod);
+//        }
+//        else {
+//            log.error("Trying to delete AdPod that doesnt exist in Transient Data Cache. AdPod ID: " + apodId);
+//        }
+//    }
+//
+//    /**
+//     * Add a recipe to the campaign db if the adpod is exists
+//     * @param adpodId
+//     * @param recipe
+//     */
+//    public void addRecipe(int adpodId, Recipe recipe) {
+//        if (adpodId == 0 || campaignDB.getAdPod(adpodId) == null) {
+//            log.error("Recipe add failed - the parent AdPod does not exist - aborting");
+//            return;
+//        }
+//
+//        //Check if the Recipe already exists
+//        int recipeId = recipe.getId();
+//        if (recipeId == 0) {
+//            log.error("Recipe add failed - the id is invalid - aborting");
+//            return;
+//        }
+//
+//        if(campaignDB.getRecipe(recipeId) != null && !safeContainsRecipeKey(recipeId)) {
+//            //Copy the original recipe object from CampaignDB into temporary area, so it can be replaced later on
+//            //when the delete-recipe from portals is called
+//            Recipe origRecipe = campaignDB.getRecipe(recipeId);
+//            originalRecipeMap.safePut(recipeId, origRecipe);
+//        }
+//        //Add to LRU cache
+//        safePutRecipe(recipeId, recipe);
+//        addRecipeToCampaignDB(recipe);
+//
+//    }
+//
+//    public void delRecipe(int adpodid, int recipeId) {
+//        Recipe recipe = safeGetRecipe(recipeId);
+//        if(recipe != null) {
+//            deleteDependencies(adpodid, recipe);
+//        }
+//        else {
+//            log.error("Trying to delete Recipe that doesnt exist in Transient Data Cache. Recipe ID: " + recipeId);
+//        }
+//    }
+//
+//    /**
+//     * Add the tspec into the db if the ospec exists.
+//     * @param ospecId
+//     * @param tspec
+//     */
+//    public void addTSpec(int ospecId , TSpec tspec) {
+//        if (ospecId == 0 || campaignDB.getOspec(ospecId) == null) {
+//            log.error("TSpec add failed - the parent OSpec does not exist - aborting");
+//            return;
+//        }
+//
+//        //Check if the TSpec already exists
+//        int tspecId = tspec.getId();
+//        if (tspecId == 0) {
+//            log.error("TSpec add failed - the id is invalid - aborting");
+//            return;
+//        }
+//
+//        if(campaignDB.getTspec(tspecId) != null && !safeContainsTSpecKey(tspecId)) {
+//            //Copy the original tspec object from CampaignDB into temporary area, so it can be replaced later on
+//            //when the delete-tspec from portals is called
+//            TSpec origTSpec = campaignDB.getTspec(tspecId);
+//            originalTSpecMap.safePut(tspecId, origTSpec);
+//        }
+//        //Add to LRU cache
+//        safePutTSpec(tspecId, tspec);
+//        addTSpecToCampaignDB(tspec);
+//    }
+//
+//    public void delTSpec(int tspecId) {
+//        TSpec tSpec = safeGetTSpec(tspecId);
+//        if(tSpec != null) {
+//            deleteDependencies(tSpec);
+//        }
+//        else {
+//            log.error("Trying to delete Tspec that doesnt exist in Transient Data Cache. Tspec ID: " + tspecId);
+//        }
+//    }
+//
+//    public void addUrlMapping(UrlCampaignMapping urlCampMapping) throws TransientDataException {
+//        int campId = urlCampMapping.getCampaignId();
+//        Campaign camp = campaignDB.getCampaign(campId);
+//        if (camp != null) {
+//            List<AdPod> adPodList = camp.getAdGroups().get(0).getAdPods();
+//            if (adPodList != null && !adPodList.isEmpty()) {
+//                AtomicAdpodIndex index = campaignDB.getUrlAdPodMappingIndex();
+//                Url urlObj = campaignDB.getUrl(urlCampMapping.getUrlId());
+//                if (urlObj != null) {
+//                    SortedSet<Handle> results = index.get(urlObj.getName());
+//                    ArrayList<Integer> adPodIds = new ArrayList<Integer>();
+//                    for(Handle adPod : results) {
+//                       adPodIds.add((int)adPod.getOid());
+//                    }
+//                    for(AdPod adPod : adPodList) {
+//                        if (!adPodList.contains(adPod.getId())) {
+//                            UrlAdPodMapping urlAdpodMapping = new UrlAdPodMapping();
+//                            urlAdpodMapping.setAdPodId(adPod.getId());
+//                            urlAdpodMapping.setUrlId(urlCampMapping.getId());
+//                            campaignDB.addUrlMapping(urlAdpodMapping);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    public void addUrlMapping(UrlAdPodMapping urlMapping) throws TransientDataException {
+//        campaignDB.addUrlMapping(urlMapping);
+//    }
+//
+//    public void deleteUrlMapping(int adPodid, String urlName) throws TransientDataException{
+//        campaignDB.deleteUrlMapping(urlName, adPodid);
+//    }
+//
+//    public void addThemeMapping(ThemeAdPodMapping themeMapping) throws TransientDataException {
+//        campaignDB.addThemeMapping(themeMapping);
+//    }
+//
+//    public void deleteThemeMapping(int adPodid, String themeName) throws TransientDataException{
+//        campaignDB.deleteThemeMapping(themeName, adPodid);
+//    }
+//
+//    public void addLocationMapping(LocationAdPodMapping locMapping) throws TransientDataException {
+//        campaignDB.addLocationMapping(locMapping);
+//    }
+//
+//    public void deleteThemeMapping(int adPodid, int locationId) throws TransientDataException {
+//        campaignDB.deleteLocationMapping(locationId, adPodid);
+//    }
+//
+//    public void addGeoMapping(GeoAdPodMapping geoMapping) throws TransientDataException {
+//        //Create the Geocode object
+//        String type = geoMapping.getType();
+//        Geocode geoObj = new Geocode();
+//        if (type.equals(GeoAdPodMapping.TYPE_COUNTRY)) {
+//            geoObj.setCountries(geoMapping.getGeoValue());
+//        } else if (type.equals(GeoAdPodMapping.TYPE_STATE)){
+//            geoObj.setStates(geoMapping.getGeoValue());
+//        } else if (type.equals(GeoAdPodMapping.TYPE_CITY)){
+//            geoObj.setCities(geoMapping.getGeoValue());
+//        } else if (type.equals(GeoAdPodMapping.TYPE_ZIP)){
+//            geoObj.setZipcodes(geoMapping.getGeoValue());
+//        } else if (type.equals(GeoAdPodMapping.TYPE_AREA)){
+//            geoObj.setAreaCodes(geoMapping.getGeoValue());
+//        } else if (type.equals(GeoAdPodMapping.TYPE_DMA)){
+//            geoObj.setDmaCodes(geoMapping.getGeoValue());
+//        }
+//        campaignDB.addGeocodeMapping(geoObj, geoMapping.getAdPodId(), 0.0f);
+//    }
+//
+//    public void addGeoMapping(Geocode geoObj, int adPodId) throws TransientDataException {
+//        campaignDB.addGeocodeMapping(geoObj, adPodId, 0.0f);
+//    }
+//
+//    public void deleteGeocodeMapping(int adPodid, Geocode geoObj) throws TransientDataException {
+//        campaignDB.deleteGeocodeMapping(geoObj, adPodid);
+//    }
+
+    /**
+     * Delete the campaign and all its dependencies
+     * @param camp
+     */
+    private void deleteDependencies(Campaign camp) {
+        if (camp != null) {
+            List<AdPod> adPodList = camp.getAdpods();
+            if (adPodList != null && !adPodList.isEmpty()) {
+                for (AdPod adpod: adPodList) {
+                    OSpec oSpec = adpod.getOspec();
+                    if (oSpec != null) {
+                        deleteDependencies(oSpec);
+                    }
+                    List<Recipe> recipes = adpod.getRecipes();
+                    if (recipes!= null) {
+                        for (Recipe r: recipes) {
+                            campaignDB.delRecipe(r.getId());
+                        }
+                    }
+                    campaignDB.deleteAdPod(adpod.getId());
+                }
+            }
+        }
+    }
+    
+    private void deleteDependencies(AdPod adpod) {
+        OSpec oSpec = adpod.getOspec();
+        if (oSpec != null) {
+            deleteDependencies(oSpec);
+        }
+        List<Recipe> recipes = adpod.getRecipes();
+        if (recipes!= null) {
+            for (Recipe r: recipes) {
+                campaignDB.delRecipe(r.getId());
+            }
+        }
+        campaignDB.deleteAdPod(adpod.getId());
+    }
+
+    private void deleteDependencies(int adpodid, Recipe recipe) {
+        AdPod theAdpod = campaignDB.getAdPod(adpodid);
+        if (theAdpod != null) {
+            List<Recipe> recipes = theAdpod.getRecipes();
+            for(Recipe r: recipes) {
+                if (r.getId() == recipe.getId()) {
+                    recipes.remove(r);
+                    campaignDB.addAdPod(theAdpod);
+                    break;
+                }
+            }
+        }
+        campaignDB.delRecipe(recipe.getId());
+    }
+
+    private void deleteDependencies(TSpec tspec) {
+        campaignDB.delTSpec(tspec.getId());
+    }
+
     @SuppressWarnings({"deprecation"})
     private void deleteDependencies(OSpec oSpec) {
         List <IncorpDeltaMappingRequest<String>>  urlRequestList      = urlMapRequest.safeGet(oSpec.getName());
         List <IncorpDeltaMappingRequest<String>>  themeRequestList    = themeMapRequest.safeGet(oSpec.getName());
         List <IncorpDeltaMappingRequest<Integer>> locationRequestList = locationMapRequest.safeGet(oSpec.getName());
 
-        safeRemove(oSpec.getName());
+        safeRemoveOSpec(oSpec.getName());
         urlMapRequest.safeRemove(oSpec.getName());
         themeMapRequest.safeRemove(oSpec.getName());
         locationMapRequest.safeRemove(oSpec.getName());
@@ -705,35 +1074,158 @@ public class TransientDataManager {
         }
     }
 
-    public boolean safeContainsKey(Object key) {
+    public boolean safeContainsOSpecKey(Object key) {
         synchronized (oSpecNameLRUCache) {
             return (oSpecNameLRUCache.containsKey(key));
         }
     }
 
-    public OSpec safeGet(Object key) {
+    public OSpec safeGetOSpec(Object key) {
         synchronized (oSpecNameLRUCache) {
             return oSpecNameLRUCache.get(key);
         }
     }
 
-    public OSpec safePut(String key, OSpec value) {
+    public OSpec safePutOSpec(String key, OSpec value) {
         synchronized (oSpecNameLRUCache) {
             return oSpecNameLRUCache.put(key, value);
         }
     }
 
-    public void safePutAll(Map<String, OSpec> map) {
+    public void safePutAllOSpec(Map<String, OSpec> map) {
         synchronized (oSpecNameLRUCache) {
             oSpecNameLRUCache.putAll(map);
         }
     }
 
-    public OSpec safeRemove(String key) {
+    public OSpec safeRemoveOSpec(String key) {
         synchronized (oSpecNameLRUCache) {
             return oSpecNameLRUCache.remove(key);
         }
     }
+
+    public boolean safeContainsCampaignKey(Object key) {
+        synchronized (campaignLRUCache) {
+            return (campaignLRUCache.containsKey(key));
+        }
+    }
+
+    public Campaign safeGetCampaign(Object key) {
+        synchronized (campaignLRUCache) {
+            return campaignLRUCache.get(key);
+        }
+    }
+
+    public Campaign safePutCampaign(Integer key, Campaign value) {
+        synchronized (campaignLRUCache) {
+            return campaignLRUCache.put(key, value);
+        }
+    }
+
+    public void safePutAllCampaign(Map<Integer, Campaign> map) {
+        synchronized (campaignLRUCache) {
+            campaignLRUCache.putAll(map);
+        }
+    }
+
+    public Campaign safeRemoveCampaign(Integer key) {
+        synchronized (campaignLRUCache) {
+            return campaignLRUCache.remove(key);
+        }
+    }
+    public List<Campaign> getCampaigns(){
+    	return campaignDB.getCampaigns();
+    }
+
+//    public boolean safeContainsAdPodKey(Object key) {
+//        synchronized (adPodLRUCache) {
+//            return (adPodLRUCache.containsKey(key));
+//        }
+//    }
+//
+//    public AdPod safeGetAdPod(Object key) {
+//        synchronized (adPodLRUCache) {
+//            return adPodLRUCache.get(key);
+//        }
+//    }
+//
+//    public AdPod safePutAdPod(Integer key, AdPod value) {
+//        synchronized (adPodLRUCache) {
+//            return adPodLRUCache.put(key, value);
+//        }
+//    }
+//
+//    public void safePutAllAdPod(Map<Integer, AdPod> map) {
+//        synchronized (adPodLRUCache) {
+//            adPodLRUCache.putAll(map);
+//        }
+//    }
+//
+//    public AdPod safeRemoveAdPod(Integer key) {
+//        synchronized (adPodLRUCache) {
+//            return adPodLRUCache.remove(key);
+//        }
+//    }
+//
+//    public boolean safeContainsRecipeKey(Object key) {
+//        synchronized (recipeLRUCache) {
+//            return (recipeLRUCache.containsKey(key));
+//        }
+//    }
+//
+//    public Recipe safeGetRecipe(Object key) {
+//        synchronized (recipeLRUCache) {
+//            return recipeLRUCache.get(key);
+//        }
+//    }
+//
+//    public Recipe safePutRecipe(Integer key, Recipe value) {
+//        synchronized (recipeLRUCache) {
+//            return recipeLRUCache.put(key, value);
+//        }
+//    }
+//
+//    public void safePutAllRecipe(Map<Integer, Recipe> map) {
+//        synchronized (recipeLRUCache) {
+//            recipeLRUCache.putAll(map);
+//        }
+//    }
+//
+//    public Recipe safeRemoveRecipe(Integer key) {
+//        synchronized (recipeLRUCache) {
+//            return recipeLRUCache.remove(key);
+//        }
+//    }
+//
+//    public boolean safeContainsTSpecKey(Object key) {
+//        synchronized (tSpecLRUCache) {
+//            return (tSpecLRUCache.containsKey(key));
+//        }
+//    }
+//
+//    public TSpec safeGetTSpec(Object key) {
+//        synchronized (tSpecLRUCache) {
+//            return tSpecLRUCache.get(key);
+//        }
+//    }
+//
+//    public TSpec safePutTSpec(Integer key, TSpec value) {
+//        synchronized (tSpecLRUCache) {
+//            return tSpecLRUCache.put(key, value);
+//        }
+//    }
+//
+//    public void safePutAllTSpec(Map<Integer, TSpec> map) {
+//        synchronized (tSpecLRUCache) {
+//            tSpecLRUCache.putAll(map);
+//        }
+//    }
+//
+//    public TSpec safeRemoveTSpec(Integer key) {
+//        synchronized (tSpecLRUCache) {
+//            return tSpecLRUCache.remove(key);
+//        }
+//    }
 
     class OSpecNameLRUCache extends LinkedHashMap<String, OSpec>{
         private int cacheSize;
@@ -752,17 +1244,79 @@ public class TransientDataManager {
 
     }
 
+    class CampaignLRUCache extends LinkedHashMap<Integer, Campaign>{
+        private int cacheSize;
+        CampaignLRUCache(int cacheSize) {
+            super(cacheSize, 0.75f, true);
+            this.cacheSize = cacheSize;
+        }
+
+        protected boolean removeEldestEntry(Map.Entry<Integer, Campaign> eldest) {
+            boolean deleteLastEntry = (size() > cacheSize);
+            if(deleteLastEntry) {
+                deleteDependencies(eldest.getValue());
+            }
+            return false;
+        }
+
+    }
+
+//    class RecipeLRUCache extends LinkedHashMap<Integer, Recipe>{
+//        private int cacheSize;
+//        RecipeLRUCache(int cacheSize) {
+//            super(cacheSize, 0.75f, true);
+//            this.cacheSize = cacheSize;
+//        }
+//
+//        protected boolean removeEldestEntry(Map.Entry<Integer, Recipe> eldest) {
+//            return (size() > cacheSize);
+//        }
+//
+//    }
+//
+//    class TSpecLRUCache extends LinkedHashMap<Integer, TSpec>{
+//        private int cacheSize;
+//        TSpecLRUCache(int cacheSize) {
+//            super(cacheSize, 0.75f, true);
+//            this.cacheSize = cacheSize;
+//        }
+//
+//        protected boolean removeEldestEntry(Map.Entry<Integer, TSpec> eldest) {
+//            return (size() > cacheSize);
+//        }
+//
+//    }
+//
+//    class AdPodLRUCache extends LinkedHashMap<Integer, AdPod>{
+//        private int cacheSize;
+//        AdPodLRUCache(int cacheSize) {
+//            super(cacheSize, 0.75f, true);
+//            this.cacheSize = cacheSize;
+//        }
+//
+//        protected boolean removeEldestEntry(Map.Entry<Integer, AdPod> eldest) {
+//            boolean deleteLastEntry = (size() > cacheSize);
+//            if(deleteLastEntry) {
+//                deleteDependencies(eldest.getValue());
+//            }
+//            return false;
+//        }
+//
+//    }
+
     class IncorpDeltaMappingRequest<Key> {
         private Key id;
         private String tSpecName;
         private float weight;
         private Geocode geocode;
+        private String url;
 
-        public IncorpDeltaMappingRequest(Key id, String tSpecName, float weight, Geocode geocode) {
+        public IncorpDeltaMappingRequest(Key id, String tSpecName, float weight, Geocode geocode, String url) {
             this.id        = id;
             this.tSpecName = tSpecName;
             this.weight    = weight;
             this.geocode   = geocode;
+            this.url = url;
         }
 
         public Key getId() {
@@ -779,6 +1333,10 @@ public class TransientDataManager {
 
         public Geocode getGeocode() {
             return geocode;
+        }
+
+        public String getUrl() {
+            return url;
         }
     }
 }

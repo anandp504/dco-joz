@@ -52,19 +52,27 @@ public class IndexDebugUtils {
 	protected static Logger log = Logger.getLogger(JozIndexHelper.class);
 	protected static StringBuffer myDebugBuff = new StringBuffer();
 
-	public static void main(String args[]) {
+
+	public IndexDebugUtils(){
 		System.out.println("Initiating IndexDebugUtils");
+
+	}
+
+	/**
+	 * given a set of command line arguments executes the data collection and saves it to a file
+	 * @param args CommandLine set of arguments
+	 */
+	public void execute(String args[]){
+
 		String writeFile = new String();
 		String writeDir = new String();
 		String binLoc = new String();
-
 		/**
 		 *  myPids is an ArrayList of product ids of which we wish to collect data.
 		 *  If zero ids are inputed through the command Line then we include all product ids
 		 *  in our data collection process.
 		 */
 		ArrayList<Long> myPids = new ArrayList<Long>();
-
 		/**
 		 *  myBinFiles is an ArrayList of *.bin files from which we wish to generate data.
 		 *  If zero files are inputed through the command Line then we include all *.bin files
@@ -90,14 +98,122 @@ public class IndexDebugUtils {
 				myPids.add(new Long(args[++i]));
 			} else {
 				System.out.println("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
+				return ;
+			}
+		}
+
+
+		JozIndexUpdater.setInstance(true, true, myPids);
+
+		collect(writeDir, writeFile, myBinFiles, binLoc, myPids);
+	}
+
+	/**
+	 * given a command line set of arguments returns the collected StringBuffer
+	 * @param args commandLine set of arguments
+	 * @return StringBuffer
+	 */
+	public StringBuffer returnBuffer(String args[]){
+
+		String writeFile = new String();
+		String writeDir = new String();
+		String binLoc = new String();
+		/**
+		 *  myPids is an ArrayList of product ids of which we wish to collect data.
+		 *  If zero ids are inputed through the command Line then we include all product ids
+		 *  in our data collection process.
+		 */
+		ArrayList<Long> myPids = new ArrayList<Long>();
+		/**
+		 *  myBinFiles is an ArrayList of *.bin files from which we wish to generate data.
+		 *  If zero files are inputed through the command Line then we include all *.bin files
+		 *  in our data collection process.
+		 */
+		ArrayList<String> myBinFiles = new ArrayList<String>();
+		String saveDirFlag = "-saveDir";
+		String saveFileFlag = "-saveFile";
+		String binFilesFlag = "-binFile";
+		String binLocationFlag = "-binLoc";
+		String prodIdsFlag = "-prodId";
+
+		for(int i = 0; i < args.length; i++){
+			if(saveDirFlag.equals(args[i])){
+				writeDir = args[++i];
+			} else if(saveFileFlag.equals(args[i])){
+				writeFile = args[++i];
+			} else if(binFilesFlag.equals(args[i])){
+				myBinFiles.add(args[++i]);
+			} else if(binLocationFlag.equals(args[i])){
+				binLoc = args[++i];
+			} else if(prodIdsFlag.equals(args[i])){
+				myPids.add(new Long(args[++i]));
+			} else {
+				System.out.println("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
+				return new StringBuffer("Formating Example: -saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
+			}
+		}
+
+
+		JozIndexUpdater.setInstance(true, true, myPids);
+
+		if(binLoc.length()>0){
+			if (!new File(binLoc).exists()) {
+				boolean success = new File(binLoc).mkdirs();
+			}
+			JozIndexHelper.loadIndex(binLoc, myBinFiles);
+		} else {
+			JozIndexHelper.loadIndex("/opt/Tumri/joz/data/caa/current/jozindex", myBinFiles);
+		}
+		return JozIndexUpdater.getBuffer();
+
+	}
+
+	public static void main(String args[]) {
+		System.out.println("Initiating IndexDebugUtils");
+		String writeFile = new String();
+		String writeDir = new String();
+		String binLoc = new String();
+		/**
+		 *  myPids is an ArrayList of product ids of which we wish to collect data.
+		 *  If zero ids are inputed through the command Line then we include all product ids
+		 *  in our data collection process.
+		 */
+		ArrayList<Long> myPids = new ArrayList<Long>();
+		/**
+		 *  myBinFiles is an ArrayList of *.bin files from which we wish to generate data.
+		 *  If zero files are inputed through the command Line then we include all *.bin files
+		 *  in our data collection process.
+		 */
+		ArrayList<String> myBinFiles = new ArrayList<String>();
+
+
+		String saveDirFlag = "-saveDir";
+		String saveFileFlag = "-saveFile";
+		String binFilesFlag = "-binFile";
+		String binLocationFlag = "-binLoc";
+		String prodIdsFlag = "-prodId";
+
+		for(int i = 0; i < args.length; i++){
+			if(saveDirFlag.equals(args[i])){
+				writeDir = args[++i];
+			} else if(saveFileFlag.equals(args[i])){
+				writeFile = args[++i];
+			} else if(binFilesFlag.equals(args[i])){
+				myBinFiles.add(args[++i]);
+			} else if(binLocationFlag.equals(args[i])){
+				binLoc = args[++i];
+			} else if(prodIdsFlag.equals(args[i])){
+				myPids.add(new Long(args[++i]));
+			} else {
+				System.out.println("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
 				return;
 			}
 		}
 
-		
+
 		JozIndexUpdater.setInstance(true, true, myPids);
-		
-	    collect(writeDir, writeFile, myBinFiles, binLoc, myPids);
+
+		collect(writeDir, writeFile, myBinFiles, binLoc, myPids);
 
 		//TODO: Validate the file.
 
@@ -124,6 +240,7 @@ public class IndexDebugUtils {
 		myDebugBuff = JozIndexUpdater.getBuffer();
 		saveToFileandDir(saveDir, saveFile);
 	}
+
 	/**
 	 * 	contains logic to determin which dir and file should be used for output
 	 */
@@ -145,7 +262,7 @@ public class IndexDebugUtils {
 	/**
 	 *contains actual File operations save a specific file at a specific directory
 	 */
-	 private static void writeToFile(String writeDir, String writeFile){
+	private static void writeToFile(String writeDir, String writeFile){
 		File debugOutFile = null;
 		File debugDir = new File(writeDir);
 

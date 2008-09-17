@@ -57,6 +57,7 @@ public class JozIndexUpdater {
     private JozIndexUpdater(boolean bDebug, boolean bColdStart) {
         this.bDebug = bDebug;
         this.bColdStart = bColdStart;
+	    debugBuffer = new StringBuffer(); //need to clear buffer each time this class is constructed.
     }
 
     /**

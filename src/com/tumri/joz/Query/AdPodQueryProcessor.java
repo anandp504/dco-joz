@@ -3,11 +3,13 @@ package com.tumri.joz.Query;
 import com.tumri.joz.products.Handle;
 
 import java.util.ArrayList;
+import java.util.SortedSet;
 
 /**
- * Qurey processor for adpods
+ * Query processor for adpods
  *
  * @author bpatel
+ * @author nipun
  */
 public class AdPodQueryProcessor extends QueryProcessor {
     public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference) {
@@ -17,7 +19,12 @@ public class AdPodQueryProcessor extends QueryProcessor {
     public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> queries, Handle reference) {
         AdPodSetIntersector intersector = new AdPodSetIntersector();
         for(SimpleQuery query: queries) {
-            intersector.include(query.exec(), (TargetingQuery)query);
+            if (query.hasIndex()) {
+                SortedSet<Handle> results = query.exec();
+                    intersector.include(results, (TargetingQuery)query);
+            } else {
+                intersector.addFilter(query.getFilter(), query.getWeight());
+            }
         }
         return intersector;
     }

@@ -4,6 +4,7 @@
 <%@ page language="java" import="com.tumri.joz.targeting.*" %>
 <%@ page language="java" import="com.tumri.joz.jozMain.*" %>
 <%@ page language="java" import="com.tumri.cma.domain.OSpec" %>
+<%@ page import="com.tumri.cma.domain.Recipe" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -61,15 +62,15 @@
 		Reader r=new StringReader(cmd);
 		SexpReader lr=new SexpReader(r);
 		Sexp e = lr.read();
-		OSpec targetSpec=null;
+		Recipe targetRecipe=null;
 		String key;
 		Long value;
 		HashMap<String,Long> targetSpecMap=new HashMap<String,Long>();
 		AdDataRequest adDataReq=new AdDataRequest(e);
 		TargetingRequestProcessor trp=TargetingRequestProcessor.getInstance();
 		for(long i=0;i<totalImpToTest;i++) {
-			targetSpec=trp.processRequest(adDataReq);
-			key=targetSpec.getName();
+			targetRecipe=trp.processRequest(adDataReq, new Features());
+			key=new Integer(targetRecipe.getId()).toString();
 			value=targetSpecMap.get(key);
 			if (null != value) {
 				value=new Long(value.longValue()+1);
@@ -115,5 +116,6 @@
 		%>
 	</table>
 	</form>
+   </div>
   </body>
 </html>

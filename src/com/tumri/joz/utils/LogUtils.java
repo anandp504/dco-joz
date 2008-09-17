@@ -27,9 +27,14 @@ import org.apache.log4j.Logger;
  */
 public class LogUtils {
     protected static Logger fatallog = Logger.getLogger("fatal");
-    
+    protected static Logger timinglog = Logger.getLogger("timing");
+
     public static Logger getFatalLog() {
         return fatallog;
+    }
+
+    public static Logger getTimingLog() {
+        return timinglog;
     }
 
 }

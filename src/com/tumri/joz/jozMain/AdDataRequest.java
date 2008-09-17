@@ -46,22 +46,103 @@
 package com.tumri.joz.jozMain;
 
 // import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Iterator;
-
+import com.tumri.joz.server.domain.JozAdRequest;
+import com.tumri.utils.sexp.*;
 import org.apache.log4j.Logger;
 
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpInteger;
-import com.tumri.utils.sexp.SexpKeyword;
-import com.tumri.utils.sexp.SexpList;
-import com.tumri.utils.sexp.SexpSymbol;
-import com.tumri.utils.sexp.SexpUtils;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class AdDataRequest {
     
     public AdDataRequest(Sexp expr) throws BadCommandException {
         parse_request(expr);
+    }
+
+    /**
+     * Constructor that will get the values from the request
+     * @param req
+     */
+    public AdDataRequest(JozAdRequest req) {
+        this._url = req.getValue(JozAdRequest.KEY_URL);
+        this._theme = req.getValue(JozAdRequest.KEY_THEME);
+        this._store_id = req.getValue(JozAdRequest.KEY_LOCATION_ID);
+        this._category = req.getValue(JozAdRequest.KEY_CATEGORY);
+        this._t_spec = req.getValue(JozAdRequest.KEY_T_SPEC);
+//        this._referrer = req.getValue(JozAdRequest.KEY_REFERRER);
+        try {
+            this._num_products = Integer.parseInt(req.getValue(JozAdRequest.KEY_NUM_PRODUCTS));
+        } catch (Exception e) {
+            this._num_products = null;
+        }
+        try {
+            this._row_size = Integer.parseInt(req.getValue(JozAdRequest.KEY_ROW_SIZE));
+        } catch (Exception e) {
+            this._row_size = null;
+        }
+        try {
+            this._which_row = Integer.parseInt(req.getValue(JozAdRequest.KEY_WHICH_ROW));
+        } catch (Exception e) {
+            this._which_row = null;
+        }
+
+        this._revert_to_default_realm = "true".equalsIgnoreCase(req.getValue(JozAdRequest.KEY_REVERT_TO_DEFAULT_REALM))?true:false;
+        this._keywords =req.getValue(JozAdRequest.KEY_KEYWORDS);
+        //this._include_cat_counts = "true".equalsIgnoreCase(req.getValue(JozAdRequest.KEY_INCLUDE_CAT_COUNTS))?true:false;
+//        try {
+//            this._seed = Integer.parseInt(req.getValue(JozAdRequest.KEY_SEED));
+//        } catch (Exception e) {
+//            this._seed = null;
+//        }
+
+        //this._psychographics_p = req.getValue(JozAdRequest.KEY_URL);
+        //this._mine_pub_url_p = req.getValue(JozAdRequest.KEY_URL);
+        //this._allow_too_few_products = req.getValue(JozAdRequest.KEY_URL);
+
+        try {
+            this._ad_width = Integer.parseInt(req.getValue(JozAdRequest.KEY_AD_WIDTH));
+        } catch (Exception e) {
+            this._ad_width = null;
+        }
+
+        try {
+            this._ad_height = Integer.parseInt(req.getValue(JozAdRequest.KEY_AD_HEIGHT));
+        } catch (Exception e) {
+            this._ad_height = null;
+        }
+
+        this._ad_offer_type = "LEADGEN".equals(req.getValue(JozAdRequest.KEY_AD_OFFER_TYPE))?AdDataRequest.AdOfferType.LEADGEN_ONLY:AdDataRequest.AdOfferType.PRODUCT_LEADGEN;
+        try {
+            this._min_num_leadgens = Integer.parseInt(req.getValue(JozAdRequest.KEY_MIN_NUM_LEADGENS));
+        } catch (Exception e) {
+            this._min_num_leadgens = null;
+        }
+
+        try {
+            this._max_prod_desc_len = Integer.parseInt(req.getValue(JozAdRequest.KEY_MAX_PROD_DESC_LEN));
+        } catch (Exception e) {
+            this._max_prod_desc_len = null;
+        }
+
+        this._country = req.getValue(JozAdRequest.KEY_COUNTRY);
+        this._region = req.getValue(JozAdRequest.KEY_REGION);
+        this._city = req.getValue(JozAdRequest.KEY_CITY);
+        this._dmacode = req.getValue(JozAdRequest.KEY_DMACODE);
+        this._areacode = req.getValue(JozAdRequest.KEY_AREACODE);
+        this._zip_code = req.getValue(JozAdRequest.KEY_ZIP_CODE);
+        this._latitude = req.getValue(JozAdRequest.KEY_LATITUDE);
+        this._longitude = req.getValue(JozAdRequest.KEY_LONGITUDE);
+        this.adType = req.getValue(JozAdRequest.KEY_AD_TYPE);
+        try{
+        	this.recipeId=Integer.parseInt(req.getValue(JozAdRequest.KEY_RECIPE_ID));
+        }catch (Exception e) {
+            this.recipeId = null;
+        }
+	    this.multiValueField1 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD1);
+	    this.multiValueField2 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD2);
+	    this.multiValueField3 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD3);
+	    this.multiValueField4 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD4);
+	    this.multiValueField5 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD5);
     }
     
     public enum AdOfferType {
@@ -240,6 +321,18 @@ public class AdDataRequest {
         this.targetedRealm = targetedRealm;
     }
 
+    public String getAdType(){
+        return adType;
+    }
+
+    public Integer getRecipeId() {
+        if (recipeId != null) {
+            return recipeId;
+        } else {
+            return -1;
+        }
+    }
+
     public String toString() {
         return toString(false);
     }
@@ -291,6 +384,8 @@ public class AdDataRequest {
             b.append(" :city ").append(_city);
             b.append(" :dma ").append(_dmacode);
             b.append(" :area-code ").append(_areacode);
+
+            
             b.append(" :latitude ").append(_latitude);
             b.append(" :longitude ").append(_longitude);
             b.append(" :multivaluefield1 ").append(multiValueField1);
@@ -300,6 +395,10 @@ public class AdDataRequest {
             b.append(" :multivaluefield5 ").append(multiValueField5);
 
             
+            b.append(" :ad-type ").append(
+                    adType != null ? adType : "null");
+            b.append(" :recipe-id ").append(
+                    recipeId != null ? recipeId : "null");
         } else {
             if (_url != DEFAULT_URL)
                 b.append(" :url ").append(_url);
@@ -354,6 +453,10 @@ public class AdDataRequest {
             if (_output_order_noise_stddev != DEFAULT_OUTPUT_ORDER_NOISE_STDDEV)
                 b.append(" :output-order-noise-stddev ").append(
                         _output_order_noise_stddev);
+            if (adType != DEFAULT_AD_TYPE)
+                b.append(" :ad-type ").append(adType);
+            if (recipeId != DEFAULT_RECIPE_ID)
+                b.append(" :recipe-id ").append(recipeId);
             
         }
         
@@ -369,8 +472,8 @@ public class AdDataRequest {
     private enum RqstParam {
         URL, THEME, STORE_ID, CATEGORY, T_SPEC, STRATEGY, REFERRER, ZIP_CODE, NUM_PRODUCTS, ROW_SIZE, WHICH_ROW, REVERT_TO_DEFAULT_REALM, KEYWORDS, 
         SCRIPT_KEYWORDS, INCLUDE_CAT_COUNTS, SEED, PSYCHOGRAPHICS_P, MINE_PUB_URL_P, ALLOW_TOO_FEW_PRODUCTS, AD_WIDTH, AD_HEIGHT, AD_OFFER_TYPE, 
-        MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE, LATITUDE, LONGITUDE,
         MULTIVALUE_FIELD1, MULTIVALUE_FIELD2, MULTIVALUE_FIELD3, MULTIVALUE_FIELD4, MULTIVALUE_FIELD5,
+        MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE, LATITUDE, ADTYPE,RECIPE_ID,LONGITUDE,
     }
     
     private static HashMap<String, RqstParam> rqst_params = new HashMap<String, RqstParam>();
@@ -419,6 +522,8 @@ public class AdDataRequest {
         rqst_params.put(":multivaluefield3", RqstParam.MULTIVALUE_FIELD3);
         rqst_params.put(":multivaluefield4", RqstParam.MULTIVALUE_FIELD4);
         rqst_params.put(":multivaluefield5", RqstParam.MULTIVALUE_FIELD5);
+        rqst_params.put(":ad-type", RqstParam.ADTYPE);
+        rqst_params.put(":recipe-id", RqstParam.RECIPE_ID);
     }
     
     // WARNING: If the default value is not null, you're probably doing
@@ -457,6 +562,10 @@ public class AdDataRequest {
     private static final String DEFAULT_KEYWORDS = null;
     
     private static final String DEFAULT_SCRIPT_KEYWORDS = null;
+    
+    private static final String DEFAULT_AD_TYPE = null;
+    
+    private static final Integer DEFAULT_RECIPE_ID = null;
     
     // FIXME: should be null, fix.
     private static final Boolean DEFAULT_INCLUDE_CAT_COUNTS = new Boolean(false); // FIXME:
@@ -584,7 +693,11 @@ public class AdDataRequest {
     String multiValueField3 = null;
     String multiValueField4 = null;
     String multiValueField5 = null;
+    String adType = "";
 
+    
+    Integer recipeId = null;
+    
     private void parse_request(Sexp expr) throws BadCommandException {
         if (!expr.isSexpList())
             throw new BadCommandException("get-ad-data request not a list");
@@ -767,8 +880,12 @@ public class AdDataRequest {
                         this._longitude = SexpUtils.get_next_string(name, iter);
                         break;   
                     
+                    
                     case MULTIVALUE_FIELD1:
                         this.multiValueField1 = SexpUtils.get_next_string(name, iter);
+                        
+                    case ADTYPE:
+                        this.adType = SexpUtils.get_next_string(name, iter);
                         break;
 
                     case MULTIVALUE_FIELD2:
@@ -787,6 +904,11 @@ public class AdDataRequest {
                         this.multiValueField5 = SexpUtils.get_next_string(name, iter);
                         break;
 
+                        
+                    case RECIPE_ID:
+                        this.recipeId = get_next_integer_or_nil_null(name, iter);
+                        break;
+                        
                     default:
                         log
                                 .error("Program error, unrecognized request parameter: "

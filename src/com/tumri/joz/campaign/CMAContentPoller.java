@@ -125,16 +125,8 @@ public class CMAContentPoller {
     private void startTimer()
     {
         Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(System.currentTimeMillis());
-    	c.set(Calendar.SECOND, 0);
-    	c.set(Calendar.MILLISECOND, 0);
-        if (c.get(Calendar.MINUTE) >= refreshWallClockTimeMins) {
-        	c.add(Calendar.HOUR, 1);
-        	c.set(Calendar.MINUTE, refreshWallClockTimeMins);
-        } else {
-        	c.set(Calendar.MINUTE, refreshWallClockTimeMins);
-        }
-        
+        // StartTimer after CONFIG_CMA_REFRESH_INTERVAL_MINUTES minutes and repeat
+        c.setTimeInMillis(System.currentTimeMillis()+repeatIntervalMins*60*1000);
         _timer.scheduleAtFixedRate(new TimerTask() {
             public void run()
             {

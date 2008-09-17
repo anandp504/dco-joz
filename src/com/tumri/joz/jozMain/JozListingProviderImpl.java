@@ -10,6 +10,7 @@ import com.tumri.joz.products.ProductDB;
 
 import java.util.Properties;
 import java.util.List;
+import java.util.HashMap;
 
 /**
  * Implementation of the Listing Provider for Joz. This implementation depends upon the Product information to be
@@ -47,7 +48,7 @@ public class JozListingProviderImpl implements ListingProvider {
      * @param maxDescLength
      * @return
      */
-    public ListingResponse getListing(long[] pids, int maxDescLength) {
+    public ListingResponse getListing(long[] pids, int maxDescLength, String[] slotData) {
 
         StringBuilder listingBuffr = new StringBuilder();
 

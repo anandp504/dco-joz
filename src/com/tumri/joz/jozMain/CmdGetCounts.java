@@ -18,13 +18,14 @@
 package com.tumri.joz.jozMain;
 
 import com.tumri.cma.domain.OSpec;
+import com.tumri.cma.domain.TSpec;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecHelper;
-import com.tumri.joz.campaign.OSpecQueryCache;
+import com.tumri.joz.campaign.TSpecQueryCache;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.ProductDB;
@@ -222,41 +223,50 @@ public class CmdGetCounts extends CommandDeferWriting {
     private static HashMap<String, Counter> getOSpecAttributeCount(HashMap<String, Counter> attrCounts,
                                                                    String tspecName, IProduct.Attribute kAttr) throws BadCommandException{
         ProductAttributeIndex<Integer,Handle> ai = ProductDB.getInstance().getIndex(kAttr);
-        CNFQuery query = OSpecQueryCache.getInstance().getCNFQuery(tspecName);
-        if (query == null) {
+        OSpec oSpec = CampaignDB.getInstance().getOspec(tspecName);
+        List<TSpec> tspecList = oSpec.getTspecs();
+        if (tspecList == null || tspecList.isEmpty()) {
             log.error("t-spec " + tspecName + " not found.");
             throw new BadCommandException("t-spec " + tspecName + " not found.");
         }
+        for (TSpec tspec: tspecList) {
+            int tspecId = tspec.getId();
+            CNFQuery query = TSpecQueryCache.getInstance().getCNFQuery(tspecId);
+            if (query == null) {
+                log.error("t-spec " + tspecName + " not found.");
+                throw new BadCommandException("t-spec " + tspecName + " not found.");
+            }
 
-        ArrayList<ConjunctQuery> conjQueries = query.getQueries();
-        if (ai != null) {
-            for(ConjunctQuery cq: conjQueries) {
-                //Check if there are any queries in this
-                if (cq.getQueries().size()==0) {
-                    continue;
-                }
-                Set<Integer> keySet = ai.getKeys();
-
-                for (Integer theKey: keySet) {
-                    String keyStrVal = DictionaryManager.getInstance().getValue(kAttr, theKey);
-                    SimpleQuery sq;
-                    if (kAttr == IProduct.Attribute.kCategory) {
-                        sq = new CategoryQuery(theKey);
-                    } else {
-                        sq = new AttributeQuery(kAttr, theKey);
+            ArrayList<ConjunctQuery> conjQueries = query.getQueries();
+            if (ai != null) {
+                for(ConjunctQuery cq: conjQueries) {
+                    //Check if there are any queries in this
+                    if (cq.getQueries().size()==0) {
+                        continue;
                     }
-                    CNFQuery tmpQuery = new CNFQuery();
-                    ConjunctQuery tmpCq = (ConjunctQuery)cq.clone();
-                    tmpCq.addQuery(sq);
-                    tmpQuery.addQuery(tmpCq);
-                    tmpQuery.setStrict(true);
-                    tmpQuery.setBounds(0, 0);
-                    SortedSet<Handle> results = tmpQuery.exec();
-                    if (results.size() > 0) {
-                       incrementCounter(results.size(), attrCounts, keyStrVal, kAttr);
-                    }
-                }
+                    Set<Integer> keySet = ai.getKeys();
 
+                    for (Integer theKey: keySet) {
+                        String keyStrVal = DictionaryManager.getInstance().getValue(kAttr, theKey);
+                        SimpleQuery sq;
+                        if (kAttr == IProduct.Attribute.kCategory) {
+                            sq = new CategoryQuery(theKey);
+                        } else {
+                            sq = new AttributeQuery(kAttr, theKey);
+                        }
+                        CNFQuery tmpQuery = new CNFQuery();
+                        ConjunctQuery tmpCq = (ConjunctQuery)cq.clone();
+                        tmpCq.addQuery(sq);
+                        tmpQuery.addQuery(tmpCq);
+                        tmpQuery.setStrict(true);
+                        tmpQuery.setBounds(0, 0);
+                        SortedSet<Handle> results = tmpQuery.exec();
+                        if (results.size() > 0) {
+                           incrementCounter(results.size(), attrCounts, keyStrVal, kAttr);
+                        }
+                    }
+
+                }
             }
         }
         return attrCounts;

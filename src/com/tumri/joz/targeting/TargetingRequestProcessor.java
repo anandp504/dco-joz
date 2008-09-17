@@ -1,18 +1,15 @@
 package com.tumri.joz.targeting;
 
-import org.apache.log4j.Logger;
-import com.tumri.joz.jozMain.AdDataRequest;
-import com.tumri.joz.Query.SiteTargetingQuery;
-import com.tumri.joz.Query.GeoTargetingQuery;
-import com.tumri.joz.Query.AdPodQueryProcessor;
-import com.tumri.joz.Query.ConjunctQuery;
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.cma.domain.*;
+import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.AdPodHandle;
-import com.tumri.joz.campaign.UrlNormalizer;
-import com.tumri.cma.domain.OSpec;
-import com.tumri.cma.domain.AdPod;
+import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.jozMain.AdDataRequest;
+import com.tumri.joz.jozMain.Features;
+import com.tumri.joz.products.Handle;
 import com.tumri.utils.data.SortedArraySet;
+import com.tumri.utils.stats.PerformanceStats;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -20,10 +17,12 @@ import java.util.*;
  * TargetingRequestProcessor handles the incoming adrequest and does the site and geo targeting against the request data.
  *
  * @author bpatel
+ * @author nipun
  */
 public class TargetingRequestProcessor {
 
     private static TargetingRequestProcessor processor = new TargetingRequestProcessor();
+	public static final String PROCESS_STATS_ID = "TG";
 
     private TargetingRequestProcessor() {
 
@@ -34,8 +33,10 @@ public class TargetingRequestProcessor {
     }
     private static Logger log = Logger.getLogger (TargetingRequestProcessor.class);
 
-    public OSpec processRequest(AdDataRequest request) {
-        long startTime = System.nanoTime();
+    public Recipe processRequest(AdDataRequest request, Features features) {
+        //long startTime = System.nanoTime();
+	    PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
+        Recipe theRecipe = null;
         OSpec oSpec = null;
         if(request == null) {
             return null;
@@ -43,13 +44,82 @@ public class TargetingRequestProcessor {
 
         try {
             String tSpecName = request.get_t_spec();
-            if(tSpecName != null && !"".equals(tSpecName)) {
+            int recipeId = request.getRecipeId();
+            if (recipeId > 0) {
+                //If Recipe Id is provided - then target to specific set of TSpecs
+                theRecipe = CampaignDB.getInstance().getRecipe(recipeId);
+                if (theRecipe ==null) {
+                    log.error("Targeted Recipe ID : " + recipeId + " not present in Campaign DB");
+                }
+                if (features!=null && theRecipe !=null) {
+                    features.setRecipeId(theRecipe.getId());
+                }
+            } else if(tSpecName != null && !"".equals(tSpecName)) {
+                //If tspec name is provided - then  target to the OSpec name
+                //Create a new recipe, add all the tspecs from the ospec into it.
                 oSpec = CampaignDB.getInstance().getOspec(tSpecName);
+                if (oSpec != null) {
+                    theRecipe = new Recipe();
+                    theRecipe.setId(0);
+                    theRecipe.setName(oSpec.getName());
+                    List<TSpec> tspecs = oSpec.getTspecs();
+                    List<RecipeTSpecInfo> queries = new ArrayList<RecipeTSpecInfo>();
+                    for (TSpec ts : tspecs) {
+                        RecipeTSpecInfo queryInfoRecipe = new RecipeTSpecInfo();
+                        queryInfoRecipe.setTspecId(ts.getId());
+                        queries.add(queryInfoRecipe);
+                    }
+                    theRecipe.setTSpecInfo(queries);
+                    if (features!= null) {
+                        features.setRecipeId(theRecipe.getId());
+                        features.setRecipeName(theRecipe.getName());
+                    }
+                } else {
+                    log.error("Targeted TSpec : " + tSpecName + " not present in Campaign DB");
+                }
             }
             else {
-                oSpec = doSiteTargeting(request);
-                if(oSpec != null) {
-                    setTargetedRealm(request);
+                //Default to Targeting
+                SiteTargetingResults str = doSiteTargeting(request);
+                theRecipe = str.getCurrRecipe();
+                if(theRecipe != null && features!= null) {
+                    features.setAdPodId(str.getAdPodId());
+                    features.setAdpodName(str.getAdPodName());
+                    features.setCampaignId(str.getCampaignId());
+                    features.setCampaignName(str.getCampaignName());
+	                features.setCampaignClientId(str.getCampaignClientId());
+	                features.setCampaignClientName(str.getCampaignClientName());
+                    features.setRecipeId(theRecipe.getId());
+                    features.setRecipeName(theRecipe.getName());
+                    String theme = request.get_theme();
+                    Integer targetedLocationId = null;
+                    if (theme != null&&!theme.equals("")) {
+                        features.setTargetedLocationName(theme);
+                        try {
+                            targetedLocationId = CampaignDB.getInstance().getLocationIdForName(theme);
+                            if (targetedLocationId!=null){
+                                features.setTargetedLocationId(Integer.toString(targetedLocationId));
+                            }
+                        } catch(NumberFormatException e) {
+                           //
+                        }
+                    }
+                    String locationIdStr = request.get_store_id();
+                    if (locationIdStr!= null&&!locationIdStr.equals("")) {
+                        try {
+                            targetedLocationId = Integer.parseInt(locationIdStr);
+                            features.setTargetedLocationId(locationIdStr);
+                        } catch(NumberFormatException e) {
+                           //
+                        }
+                    }
+                    if (targetedLocationId!=null) {
+                        Location loc = CampaignDB.getInstance().getLocation(targetedLocationId);
+                        if (loc!=null) {
+                            features.setLocationClientId(loc.getClientId());
+                            features.setLocationClientName(loc.getClientName());
+                        }
+                    }
                 }
             }
         }
@@ -59,65 +129,34 @@ public class TargetingRequestProcessor {
         catch(Throwable t) {
             //It is critical to catch any unexpected error so that the JoZ server doesnt exit
             log.error("Targeting layer: unxepected error. Owner need to look into the issue", t);
-            //Continue to provide default O-Spec after logging the error
-        }
-        //If OSpec match is not found for the given request, pick default realm ospec if revertToDefaultRealm is set to true or null
-        try {
-        if(oSpec == null) {
-            boolean revertToDefaultRealm = (request.get_revert_to_default_realm() != null) && request.get_revert_to_default_realm().booleanValue();
-            if(revertToDefaultRealm) {
-                oSpec = CampaignDB.getInstance().getDefaultOSpec();
-                //@todo: This should be fixed the default-realm should come from properties file and not hard-coded here
-                //also the targetedRealm should be set in response object and not request.
-            }
-        }
-        }
-        catch(Throwable t) {
-            //It is critical to catch any unexpected error so that the JoZ server doesnt exit
-            //This error could occur if the campaign data loading failed for some reason
-            log.error("Targeting layer: unxepected error. The default o-spec not retrieved", t);
         }
 
-        long endTime =  System.nanoTime();
-        long totalTargetingTime = endTime - startTime;
+        //Do not fall back to any default tspec.
+	    PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID);
+//        long endTime =  System.nanoTime();
+//        long totalTargetingTime = endTime - startTime;
 
-        if (request.getTargetedRealm() == null || "".equals(request.getTargetedRealm())) {
-            request.setTargetedRealm("http://default-realm/");
-        }
-
-        log.info(request.toString(true));
-        log.info("Targeting Processing time: " + (totalTargetingTime/1000) + " usecs");
-        log.info("Passing OSpec To Product Selection Processor: " + ((oSpec == null)? null: oSpec.getName()));
-        return oSpec;
+        log.debug(request.toString(true));
+        if (theRecipe == null) {
+            log.error("Could not target Recipe for the given request");
+        } 
+       // log.debug("Targeting Processing time: " + (totalTargetingTime/1000) + " usecs");
+        return theRecipe;
     }
 
-    //@todo: We should use a response object across all the requestprocessor. Currently we are adding
-    //targetedRealm to the request object itself, which should soon be refactored to use response objects across
-    //the whole flow of get-ad-data request
-    private void setTargetedRealm(AdDataRequest request) {
-        String locationIdStr = request.get_store_id();
-        String themeName     = request.get_theme();
-        String urlName       = request.get_url();
-        String targetedRealm = null;
-        if(locationIdStr != null && !"".equals(locationIdStr)) {
-            targetedRealm = locationIdStr;
-        }
-        else if(urlName != null && !"".equals(urlName)) {
-            targetedRealm = UrlNormalizer.getDomainString(urlName);
-        }
-        else if(themeName != null && !"".equals(themeName)) {
-            targetedRealm = themeName;
-        }
-        request.setTargetedRealm(targetedRealm);
-    }
-
-    private OSpec doSiteTargeting(AdDataRequest request) {
-        OSpec ospec;
+    /**
+     * Select an Recipe for the given request
+     * @param request
+     * @return
+     */
+    private SiteTargetingResults doSiteTargeting(AdDataRequest request) {
+        Recipe theRecipe = null;
         int locationId       = 0;
         
         String locationIdStr = request.get_store_id();
         String themeName     = request.get_theme();
         String urlName       = request.get_url();
+        String adType = request.getAdType();
 
         SortedSet<Handle> results = null;
 
@@ -126,41 +165,80 @@ public class TargetingRequestProcessor {
 
         }
         try {
-            SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId, urlName, themeName);
+            SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId, themeName);
+            UrlTargetingQuery urlQuery = new UrlTargetingQuery(urlName);
             GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
+            TimeTargetingQuery timeQuery = new TimeTargetingQuery();
+            AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);
+
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
             ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
             cjQuery.setStrict(true);
             cjQuery.addQuery(siteQuery);
             cjQuery.addQuery(geoQuery);
+            cjQuery.addQuery(urlQuery);
+            cjQuery.addQuery(timeQuery);
+            cjQuery.addQuery(adTypeQuery);
+
             results = cjQuery.exec();
+
         }
         catch(Exception e) {
             log.error("Unexpected error. Not able to retrieve any adpods for given request", e);
         }
 
-        ospec = pickOneOSpec(results);
-        return ospec;
+        //1. Get the Highest scored adpod
+        AdPodHandle handle = pickOneAdPod(results);
+        SiteTargetingResults str = new SiteTargetingResults();
+
+        //2. Get the recipe for the Adpod
+        if (handle != null) {
+            Campaign theCampaign = CampaignDB.getInstance().getCampaign(handle);
+            if (theCampaign!= null) {
+                str.setCampaignId(theCampaign.getId());
+                str.setCampaignName(theCampaign.getName());
+                str.setCampaignClientId(theCampaign.getClientId());
+                str.setCampaignClientName(theCampaign.getClientName());
+            }
+            AdPod theAdPod = CampaignDB.getInstance().getAdPod(handle);
+            if (theAdPod!=null) {
+                str.setAdPodId(theAdPod.getId());
+                str.setAdPodName(theAdPod.getName());
+                log.debug("Targeted adpod : " + theAdPod.getName() + " . id= " + theAdPod.getId());
+                List<Recipe> recipes = theAdPod.getRecipes();
+                if (recipes == null) {
+                    log.error("Could not find the recipe for the selected adpod. Not able to select recipe");
+                } else {
+                    if (recipes.size() == 1) {
+                        theRecipe = recipes.get(0);
+                    } else {
+                        theRecipe = selectRecipe(recipes);
+                    }
+                }
+            }
+        }
+        if (theRecipe!=null) {
+            log.info("Targeted recipe : " + theRecipe.getName() + " . id= " + theRecipe.getId());
+            str.setCurrRecipe(theRecipe);
+        }
+        return str;
     }
 
-    private OSpec pickOneOSpec(SortedSet<Handle> results) {
-        OSpec oSpec;
+    private AdPodHandle pickOneAdPod(SortedSet<Handle> results) {
         AdPodHandle handle;
         List<AdPodHandle> list = getHighestScoreAdPodHandles(results);
         if(list == null || list.size() == 0) {
-            //No ospec will get selected by targeting layer so return null
+            //No adpod will get selected by targeting layer so return null
             return null;
         }
         else if(list.size() == 1) {
             handle = list.get(0);
-            oSpec = CampaignDB.getInstance().getOSpecForAdPod((int)handle.getOid());
         }
         else {
             handle = selectAdPodHandle(list);
-            oSpec = CampaignDB.getInstance().getOSpecForAdPod((int)handle.getOid());
         }
 
-        return oSpec;
+        return handle;
     }
 
     private AdPodHandle selectAdPodHandle(List<AdPodHandle> list) {
@@ -200,6 +278,44 @@ public class TargetingRequestProcessor {
         return handle;
     }
 
+    private Recipe selectRecipe(List<Recipe> list) {
+        Recipe recipe = null;
+        int totalWeight = 0;
+        int weightRatio = 0;
+        int[] weightArray = new int[list.size()];
+        for(int i=0; i<list.size(); i++) {
+            weightArray[i] = Math.abs(list.get(i).getWeight());
+            totalWeight += list.get(i).getWeight();
+        }
+        if(totalWeight == 0) {
+            //Invalid weight assigned to the recipes. Overriding with equal weight for all the adpods
+            for(Recipe tr : list) {
+                tr.setWeight(1);
+                totalWeight += 1;
+            }
+        }
+        try {
+            weightRatio = new Random().nextInt(totalWeight);
+        }
+        catch(IllegalArgumentException e) {
+            weightRatio = 0;
+            log.warn("Calculated totalWeight was not positive. totalWeight:" + totalWeight);
+        }
+        Arrays.sort(weightArray);
+        int additionFactor = 0;
+
+        for(Recipe aRecipe : list) {
+            int weight = aRecipe.getWeight();
+            weight = weight + additionFactor;
+            if(weight > weightRatio) {
+                recipe = aRecipe;
+                break;
+            }
+            additionFactor = weight;
+        }
+        return recipe;
+    }
+
     private List<AdPodHandle> getHighestScoreAdPodHandles(SortedSet<Handle> results) {
         List<AdPodHandle> handles = new ArrayList<AdPodHandle>();
         if(results != null) {
@@ -226,5 +342,72 @@ public class TargetingRequestProcessor {
             }
         }
         return handles;
+    }
+
+    private class SiteTargetingResults {
+        Recipe currRecipe = null;
+        Integer adPodId = null;
+        Integer campaignId = null;
+        Integer campaignClientId = null;
+        String campaignClientName = null;
+        String campaignName = null;
+        String adPodName = null;
+
+        public Integer getAdPodId() {
+            return adPodId;
+        }
+
+        public void setAdPodId(Integer adPodId) {
+            this.adPodId = adPodId;
+        }
+
+        public Integer getCampaignId() {
+            return campaignId;
+        }
+
+        public void setCampaignId(Integer campaignId) {
+            this.campaignId = campaignId;
+        }
+
+        public Recipe getCurrRecipe() {
+            return currRecipe;
+        }
+
+        public void setCurrRecipe(Recipe currRecipe) {
+            this.currRecipe = currRecipe;
+        }
+
+        public String getAdPodName() {
+            return adPodName;
+        }
+
+        public void setAdPodName(String adPodName) {
+            this.adPodName = adPodName;
+        }
+
+        public String getCampaignName() {
+            return campaignName;
+        }
+
+        public void setCampaignName(String campaignName) {
+            this.campaignName = campaignName;
+        }
+
+
+        public Integer getCampaignClientId() {
+            return campaignClientId;
+        }
+
+        public void setCampaignClientId(Integer campaignClientId) {
+            this.campaignClientId = campaignClientId;
+        }
+
+        public String getCampaignClientName() {
+            return campaignClientName;
+        }
+
+        public void setCampaignClientName(String campaignClientName) {
+            this.campaignClientName = campaignClientName;
+        }
     }
 }

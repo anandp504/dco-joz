@@ -141,6 +141,56 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 
     </target>
 
+    <path id="jozclient.class.path">
+        <fileset dir="${ext.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+	<fileset dir="${utils.lib.dir}">
+            <include name="*.jar"/>
+	</fileset>
+	<fileset dir="${cma.lib.dir}">
+            <include name="*.jar"/>
+	</fileset>
+    </path>
+
+    <target name="build-jozclient" depends="init">
+        <delete dir="${stage.dir}/jozclient"/>
+        <mkdir dir="${stage.dir}/jozclient"/>
+
+        <javac destdir="${classes.dir}"
+               debug="on"
+               optimize="on"
+               srcdir="${src.dir}"
+               includes="com/tumri/joz/client/**,com/tumri/joz/server/domain/**">
+            <classpath refid="jozclient.class.path"/>
+            <compilerarg value="-Xlint:unchecked"/>
+	    <compilerarg value="-Xlint:deprecation"/>
+        </javac>
+
+        <jar destfile="${stage.dir}/jozclient/jozclient.jar">
+            <fileset dir="${classes.dir}"
+		     includes="com/tumri/joz/client/**,com/tumri/joz/server/domain/**"/>
+        </jar>
+
+        <move file="${stage.dir}/jozclient/jozclient.jar" todir="${dist.dir}"/>
+    </target>
+	<target name="build-jozclient-docs" depends="">
+		<delete dir="${stage.dir}/javadocs"/>
+		<mkdir dir="${stage.dir}/javadocs"/>
+		<javadoc destdir="${stage.dir}/javadocs" classpathref="project.class.path" author="false" version="true" use="true" windowtitle="Joz Client API">
+			<fileset dir="${src.dir}" defaultexcludes="yes">
+                <include name="com/tumri/joz/client/**" />
+			</fileset>
+			<doctitle>
+				<![CDATA[<h1>Joz Client API</h1>]]>
+            </doctitle>
+			<bottom>
+				<![CDATA[<i>Copyright &#169; 2007 Tumri Inc. All Rights Reserved.</i>]]>
+	        </bottom>
+			<tag name="todo" scope="all" description="To do:" />
+		</javadoc>
+	</target>
+
     <!-- ****************************************************************** -->
 
     <target name="build-Joz-jar" depends="init,version">
@@ -174,9 +224,11 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
             <fileset dir="${src.dir}/conf">
                 <include name="jozindex.properties"/>
                 <include name="luceneindex.properties"/>
+                <include name="QueryHandlers.properties"/>
+            </fileset>
+            <fileset dir="${ext.data.dir}">
                 <include name="zipcodedb.xml"/>
             </fileset>
-
             <manifest>
                 <attribute name="Main-Class" value="com.tumri.joz.keywordServer.ProductIndex"/>
             </manifest>

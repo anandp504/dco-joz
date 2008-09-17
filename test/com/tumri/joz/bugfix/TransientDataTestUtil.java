@@ -1,11 +1,13 @@
 package com.tumri.joz.bugfix;
 
 import com.tumri.cma.domain.OSpec;
+import com.tumri.cma.domain.Recipe;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecHelper;
 import com.tumri.joz.campaign.TransientDataException;
 import com.tumri.joz.targeting.TargetingRequestProcessor;
 import com.tumri.joz.jozMain.AdDataRequest;
+import com.tumri.joz.jozMain.Features;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpReader;
@@ -25,47 +27,47 @@ import java.io.StringReader;
 public class TransientDataTestUtil {
 
     public static void validateOSpecReturnedforGetAdDataRequest(String getStr, String expectedOSpecName) {
-        OSpec oSpec = null;
+        Recipe recipe = null;
         try {
-            oSpec = testTargetingRequest(getStr);
+            recipe = testTargetingRequest(getStr);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Error occured while making get-ad-data request");
         }
 
         if(expectedOSpecName == null) {
-            if(oSpec != null) {
-                if(!oSpec.equals(CampaignDB.getInstance().getDefaultOSpec())) {
-                    fail("Invalid OSpec returned for given get-ad-data request");
+            if(recipe != null) {
+                if(!recipe.equals(CampaignDB.getInstance().getDefaultOSpec())) {
+                    fail("Invalid Recipe returned for given get-ad-data request");
                 }
             }
         }
         else {
-            assertNotNull(oSpec);
-            assertEquals(oSpec.getName(), expectedOSpecName);
+            assertNotNull(recipe);
+            assertEquals(recipe.getName(), expectedOSpecName);
         }
     }
 
     public static void validateOSpecResultforGetAdDataRequest(String getStr, String[] expectedOSpecNameArray) {
-        OSpec oSpec = null;
+        Recipe recipe = null;
         try {
-            oSpec = testTargetingRequest(getStr);
+            recipe = testTargetingRequest(getStr);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Error occured while making get-ad-data request");
         }
         if(expectedOSpecNameArray == null) {
-            if(oSpec != null) {
-                if(!oSpec.equals(CampaignDB.getInstance().getDefaultOSpec())) {
+            if(recipe != null) {
+                if(!recipe.equals(CampaignDB.getInstance().getDefaultOSpec())) {
                     fail("Invalid OSpec returned for given get-ad-data request");
                 }
             }
         }
         else {
-            assertNotNull(oSpec);
+            assertNotNull(recipe);
             boolean success = false;
             for(int i=0; i<expectedOSpecNameArray.length; i++) {
-                if(oSpec.getName().equals(expectedOSpecNameArray[i])) {
+                if(recipe.getName().equals(expectedOSpecNameArray[i])) {
                     success = true;
                     break;
                 }
@@ -130,11 +132,11 @@ public class TransientDataTestUtil {
 
 	}
 
-    public static OSpec testTargetingRequest(String getAdDataCommandStr) throws Exception {
+    public static Recipe testTargetingRequest(String getAdDataCommandStr) throws Exception {
         TargetingRequestProcessor processor = TargetingRequestProcessor.getInstance();
         Reader r = new StringReader(getAdDataCommandStr);
         SexpReader lr = new SexpReader (r);
-        OSpec oSpec = null;
+        Recipe recipe = null;
         Sexp e = lr.read ();
         SexpList l = e.toSexpList ();
         Sexp cmd_expr = l.getFirst ();
@@ -149,13 +151,13 @@ public class TransientDataTestUtil {
         if (cmd_name.equals ("get-ad-data")) {
             AdDataRequest rqst = new AdDataRequest (e);
 
-            oSpec = processor.processRequest(rqst);
+            recipe = processor.processRequest(rqst, new Features());
 
         } else {
             fail("The request could not be parsed correctly");
         }
 
-        return oSpec;
+        return recipe;
 
     }
 }

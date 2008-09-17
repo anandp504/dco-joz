@@ -9,6 +9,7 @@ import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.productselection.ProductRequestProcessor;
 import com.tumri.joz.productselection.ProductSelectionResults;
+import com.tumri.joz.productselection.ProductSelectionProcessor;
 import com.tumri.joz.JoZException;
 import com.tumri.lls.client.main.ListingProvider;
 import com.tumri.lls.client.response.ListingResponse;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class CmdGetAdData extends CommandOwnWriting {
 
@@ -62,7 +64,6 @@ public class CmdGetAdData extends CommandOwnWriting {
 
     private void choose_and_write_products(AdDataRequest rqst, OutputStream out)
             throws Exception {
-        Features features = null;
         boolean private_label_p = false; // FIXME: t_spec.private_label_p ();
 
 		//Reverse order of precedence.
@@ -76,16 +77,29 @@ public class CmdGetAdData extends CommandOwnWriting {
 		if (null == reqParams) {
 			reqParams=rqst.get_store_id();
 		}
+		if (null == reqParams) {
+			Integer rId =rqst.getRecipeId();
+            if (rId!=null) {
+                reqParams = rId.toString();
+            }
+        }
 
         // This does the real work of selecting a set of products.
         long start_time = System.nanoTime();
-        ProductRequestProcessor prp = new ProductRequestProcessor();
-        ProductSelectionResults prs = prp.processRequest(rqst);
+        ProductSelectionProcessor prp = new ProductSelectionProcessor();
+        Features features = new Features();
+        ProductSelectionResults prs = prp.processRequest(rqst, features);
         if (prs!=null) {
-            ArrayList<Handle> product_handles = prs.getResults();
-            OSpec targetedOSpec = prs.getTargetedOSpec();
-            HashMap<String, String> featuresMap = prs.getFeaturesMap();
-            features = new Features(featuresMap);
+            HashMap<Integer, ArrayList<Handle>> resultsMap = prs.getTspecResultsMap();
+            ArrayList<Handle> product_handles = new ArrayList<Handle>();
+            if (resultsMap!= null && !resultsMap.isEmpty()) {
+                Iterator<Integer> tspecIdList = resultsMap.keySet().iterator();
+                while (tspecIdList.hasNext()) {
+                    Integer id = tspecIdList.next();
+                    product_handles.addAll(resultsMap.get(id));
+                }
+            }
+            String targetedOSpec = prs.getTargetedTSpecName();
             long end_time = System.nanoTime();
             long elapsed_time = end_time - start_time;
 
@@ -95,7 +109,9 @@ public class CmdGetAdData extends CommandOwnWriting {
             write_result(rqst, targetedOSpec, 
                     private_label_p, features, elapsed_time, product_handles, out);
         } else {
-			PerformanceMonitor.getInstance().registerFailure(reqParams);
+			if (reqParams!=null) {
+                PerformanceMonitor.getInstance().registerFailure(reqParams);
+            }
         	log.error("No results were returned during product selecion");
         	writeErrorMessage("null t-spec, most likely no default realm", out);
         }
@@ -135,7 +151,7 @@ public class CmdGetAdData extends CommandOwnWriting {
     // NOTE: In SoZ this is the "js-friendly" format, js for JSON
     // http://www.json.org.
 
-    private void write_result(AdDataRequest rqst, OSpec ospec,
+    private void write_result(AdDataRequest rqst, String oSpecName,
             boolean private_label_p, Features features, long elapsed_time,
             ArrayList<Handle> product_handles, OutputStream out)
             throws Exception {
@@ -161,7 +177,7 @@ public class CmdGetAdData extends CommandOwnWriting {
 
         ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
                         MerchantDB.getInstance().getMerchantData());
-        ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0);
+        ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
         if (response==null) {
             throw new JoZException("Invalid response from Listing Provider");
         }
@@ -171,17 +187,12 @@ public class CmdGetAdData extends CommandOwnWriting {
         write_elm(w, "CATEGORIES", response.getCatDetails());
         write_elm(w, "CAT-NAMES", response.getCatIdList());
 
-        String targetedOSpecName = "";
-        if (ospec != null) {
-            targetedOSpecName = ospec.getName();
-        }
         write_elm(w, "REALM", rqst.getTargetedRealm()); // FIXME: wip
-        write_elm(w, "STRATEGY", targetedOSpecName); // FIXME: wip
+        write_elm(w, "STRATEGY", oSpecName); // FIXME: wip
 
         write_elm(w, "IS-PRIVATE-LABEL-P", (private_label_p ? "t" : "nil"));
 
-        SexpList sexp_features = features.toSexpList(elapsed_time);
-        write_elm(w, "SOZFEATURES", sexp_features.toStringValue());
+        write_elm(w, "SOZFEATURES", features.toString(elapsed_time));
 
         w.endList();
 

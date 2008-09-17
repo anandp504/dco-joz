@@ -1,10 +1,11 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.Handle;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.index.AdpodIndex;
 import com.tumri.joz.index.AtomicAdpodIndex;
+import com.tumri.joz.products.Handle;
 import com.tumri.utils.data.MultiSortedSet;
+import com.tumri.utils.data.SortedArraySet;
 
 import java.util.SortedSet;
 
@@ -125,9 +126,7 @@ public class GeoTargetingQuery extends TargetingQuery {
     }
 
     private SortedSet<Handle> execNonGeoSpecificAdPodQuery() {
-        SortedSet<Handle> results;
-        results = CampaignDB.getInstance().getNonGeoAdPodIndex().get(AdpodIndex.GEO_NONE);
-        return results;
+        return CampaignDB.getInstance().getNonGeoAdPodIndex().get(AdpodIndex.GEO_NONE);
     }
 
     public boolean accept(Handle v) {

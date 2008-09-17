@@ -11,7 +11,13 @@ import org.apache.log4j.Logger;
 public class TargetingScoreHelper {
     private double locationScore = 1.0;
     private double themeScore    = 0.9;
-    private double urlScore      = 0.8;
+    private double urlScore      = 1.0;
+    private double urlNoneScore      = 0.5;
+    private int urlNoneWeight        = 1;
+
+    //Adjust the score values accordingly
+    private double timeScore      = 1;
+    private double adTypeScore      = 1;
 
 
     private double defaultScore  = 0.1;
@@ -45,6 +51,14 @@ public class TargetingScoreHelper {
 
     public double getThemeScore() {
         return themeScore;
+    }
+
+    public double getTimeScore() {
+        return timeScore;
+    }
+
+    public double getAdTypeScore() {
+        return adTypeScore;
     }
 
     public double getUrlScore() {
@@ -95,6 +109,14 @@ public class TargetingScoreHelper {
         return geoNoneWeight;
     }
 
+    public double getUrlNoneScore() {
+        return urlNoneScore;
+    }
+
+    public int getUrlNoneWeight() {
+        return urlNoneWeight;
+    }
+
     private void initialize() {
         double score;
         String scoreStr;
@@ -113,6 +135,16 @@ public class TargetingScoreHelper {
             if(scoreStr != null && !"".equals(scoreStr)) {
                 score = Double.parseDouble(scoreStr);
                 urlScore = score;
+            }
+            scoreStr = AppProperties.getInstance().getProperty("com.tumri.targeting.timeScore");
+            if(scoreStr != null && !"".equals(scoreStr)) {
+                score = Double.parseDouble(scoreStr);
+                timeScore = score;
+            }
+            scoreStr = AppProperties.getInstance().getProperty("com.tumri.targeting.adTypeScore");
+            if(scoreStr != null && !"".equals(scoreStr)) {
+                score = Double.parseDouble(scoreStr);
+                adTypeScore = score;
             }
             scoreStr = AppProperties.getInstance().getProperty("com.tumri.targeting.defaultScore");
             if(scoreStr != null && !"".equals(scoreStr)) {
@@ -159,6 +191,11 @@ public class TargetingScoreHelper {
                 score = Double.parseDouble(scoreStr);
                 geoNoneScore = score;
             }
+            scoreStr = AppProperties.getInstance().getProperty("com.tumri.targeting.urlNoneScore");
+            if(scoreStr != null && !"".equals(scoreStr)) {
+                score = Double.parseDouble(scoreStr);
+                urlNoneScore = score;
+            }
             int weight;
             String weightStr;
 
@@ -171,6 +208,11 @@ public class TargetingScoreHelper {
             if(weightStr != null && !"".equals(weightStr)) {
                 weight = Integer.parseInt(weightStr);
                 geoNoneWeight = weight;
+            }
+            weightStr = AppProperties.getInstance().getProperty("com.tumri.targeting.urlNoneWeight");
+            if(weightStr != null && !"".equals(weightStr)) {
+                weight = Integer.parseInt(weightStr);
+                urlNoneWeight = weight;
             }
         }
         catch(NullPointerException e) {

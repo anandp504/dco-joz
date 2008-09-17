@@ -33,12 +33,12 @@ public class URLScavenger {
 
     /**
      * Returns the list of keywords for a given urls
-     * @param request - the Ad data request object
+     * @param publisherUrl - the Ad data url
      * @param reqStopWordsStr - the list of request Stop words as retrived from the oSpec/tSpec
      * @param reqQueryNamesStr - the list of query names from the tSpec/oSpec
      * @return minedKeywords as a space delimited string
      */
-    public static String mineKeywords(AdDataRequest request, String reqStopWordsStr, String reqQueryNamesStr) {
+    public static String mineKeywords(String publisherUrl, String reqStopWordsStr, String reqQueryNamesStr) {
         URLScavenger tmpScavenger = new URLScavenger();
         boolean bQueryNames = false;
         ArrayList<String> reqStopWords = parseString(reqStopWordsStr);
@@ -49,7 +49,6 @@ public class URLScavenger {
         }
         StringBuilder builtUpKeywords = new StringBuilder();
         try {
-            String publisherUrl = request.get_url();
             publisherUrl = tmpScavenger.cleanseURL(publisherUrl, reqStopWords);
 
             if (bQueryNames) {

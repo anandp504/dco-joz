@@ -1,0 +1,632 @@
+TUMRI_403362	Comparison Shopping	TUMRI_403361	[]
+TUMRI_403363	Lenovo	TUMRI_403361	[]
+TUMRI_405367	Intel	TUMRI_403361	[]
+TUMRI_407003	Sears	TUMRI_403361	[]
+TUMRI_403324	Unisex Apparel	TUMRI_14206	Apparel
+TUMRI_14207	Men's Apparel	TUMRI_14206	Apparel
+TUMRI_14225	Women's Apparel	TUMRI_14206	Apparel
+TUMRI_14257	Girls' Apparel	TUMRI_14206	Apparel
+TUMRI_14243	Boys' Apparel	TUMRI_14206	Apparel
+TUMRI_14274	Baby Apparel	TUMRI_14206	Apparel
+TUMRI_14318	Home Appliances	TUMRI_14317	Appliances
+TUMRI_14319	Large Kitchen Appliances	TUMRI_14317	Appliances
+TUMRI_14320	Small Kitchen Appliances	TUMRI_14317	Appliances
+TUMRI_14433	Drawing Supplies	TUMRI_14432	Art Supplies
+TUMRI_14434	Painting Supplies	TUMRI_14432	Art Supplies
+TUMRI_14435	Modelling & Sculpting Supplies	TUMRI_14432	Art Supplies
+TUMRI_14436	Drafting Supplies	TUMRI_14432	Art Supplies
+TUMRI_403925	New	TUMRI_403924	Automobiles
+TUMRI_403930	Used	TUMRI_403924	Automobiles
+TUMRI_14376	Baby Nursery	TUMRI_14375	Baby
+TUMRI_14377	Strollers	TUMRI_14375	Baby
+TUMRI_14378	Car Seats	TUMRI_14375	Baby
+TUMRI_14379	Baby Gear	TUMRI_14375	Baby
+TUMRI_14380	Baby Travel	TUMRI_14375	Baby
+TUMRI_14381	Baby Safety	TUMRI_14375	Baby
+TUMRI_14382	Diapering & Potty	TUMRI_14375	Baby
+TUMRI_14383	Baby Feeding	TUMRI_14375	Baby
+TUMRI_14348	Bath Accessories	TUMRI_14347	Bath
+TUMRI_14349	Bath Linens	TUMRI_14347	Bath
+TUMRI_403997	Eye Laser Surgery	TUMRI_14410	Beauty
+TUMRI_403998	Dental Whitening	TUMRI_14410	Beauty
+TUMRI_403999	Hair Replacement	TUMRI_14410	Beauty
+TUMRI_404000	Plastic Surgery	TUMRI_14410	Beauty
+TUMRI_14411	Skincare	TUMRI_14410	Beauty
+TUMRI_14412	Fragrances	TUMRI_14410	Beauty
+TUMRI_14413	Cosmetics	TUMRI_14410	Beauty
+TUMRI_14414	Hair Care	TUMRI_14410	Beauty
+TUMRI_405373	Toddler Bedding	TUMRI_14352	Bedding
+TUMRI_14351	Bedroom Accessories	TUMRI_14350	Bedroom
+TUMRI_14352	Bedding	TUMRI_14350	Bedroom
+TUMRI_14353	Bed Linens	TUMRI_14350	Bedroom
+TUMRI_14491	Arts & Entertainment Books	TUMRI_14113	Books
+TUMRI_14492	Business & Technology Books	TUMRI_14113	Books
+TUMRI_14493	Children's Books	TUMRI_14113	Books
+TUMRI_14494	Fiction	TUMRI_14113	Books
+TUMRI_14495	Health & Spirituality Books	TUMRI_14113	Books
+TUMRI_14496	Lifestyle, Family, & Home Books	TUMRI_14113	Books
+TUMRI_14497	Cooking, Food, & Wine Books	TUMRI_14113	Books
+TUMRI_14498	Nonfiction	TUMRI_14113	Books
+TUMRI_14499	Recreation Books	TUMRI_14113	Books
+TUMRI_14500	Reference & Textbooks	TUMRI_14113	Books
+TUMRI_14244	Boys' Jeans	TUMRI_14243	Boys' Apparel
+TUMRI_14245	Boys' Pants	TUMRI_14243	Boys' Apparel
+TUMRI_14246	Boys' Shorts & Swim	TUMRI_14243	Boys' Apparel
+TUMRI_14247	Boys' Polos & Ts	TUMRI_14243	Boys' Apparel
+TUMRI_14248	Boys' Graphic Ts	TUMRI_14243	Boys' Apparel
+TUMRI_14249	Boys' Shirts	TUMRI_14243	Boys' Apparel
+TUMRI_14250	Boys' Sweaters & T-necks	TUMRI_14243	Boys' Apparel
+TUMRI_14251	Boys' Outerwear	TUMRI_14243	Boys' Apparel
+TUMRI_14252	Boys' Activewear	TUMRI_14243	Boys' Apparel
+TUMRI_14253	Boys' Socks	TUMRI_14243	Boys' Apparel
+TUMRI_14254	Boys' Accessories	TUMRI_14243	Boys' Apparel
+TUMRI_14255	Boys' Sleepwear	TUMRI_14243	Boys' Apparel
+TUMRI_14256	Boys' Underwear	TUMRI_14243	Boys' Apparel
+TUMRI_403321	Boys' Western Boots	TUMRI_403320	Boys' Boots
+TUMRI_403320	Boys' Boots	TUMRI_14296	Boys' Shoes
+TUMRI_14149	Film Cameras	TUMRI_14148	Cameras
+TUMRI_14150	Digital Cameras	TUMRI_14148	Cameras
+TUMRI_14151	Camera Cases	TUMRI_14148	Cameras
+TUMRI_14152	Video Cameras	TUMRI_14148	Cameras
+TUMRI_14153	Lenses & Filters	TUMRI_14148	Cameras
+TUMRI_14454	Christmas Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14455	Chanukah Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14456	Valentines Day Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14457	Easter Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14458	Mother's Day Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14459	Father's Day Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14460	Hallowe'en Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14461	Thanksgiving Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14462	Housewarming Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14463	Bridal Shower Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14464	Birthday Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14465	Baby Shower Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14466	Wedding Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14467	Anniversary Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14468	Graduation Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14469	Back-to-School Cards	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14470	Christmas Wrapping Paper	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14471	Chanukah Wrapping Paper	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14472	Birthday Wrapping Paper	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14473	Wedding Wrapping Paper	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_14474	Other Wrapping Paper	TUMRI_14453	Cards & Wrapping Paper
+TUMRI_403936	Permanent	TUMRI_403935	Careers
+TUMRI_403937	Temporary	TUMRI_403935	Careers
+TUMRI_403927	Passenger Cars	TUMRI_403926	Cars
+TUMRI_403928	Sports Cars	TUMRI_403926	Cars
+TUMRI_403929	Exotic Cars	TUMRI_403926	Cars
+TUMRI_403932	Passenger Cars	TUMRI_403931	Cars
+TUMRI_403933	Sports Cars	TUMRI_403931	Cars
+TUMRI_403934	Exotic Cars	TUMRI_403931	Cars
+TUMRI_405369	Security	TUMRI_405368	Centrino
+TUMRI_405370	Performance	TUMRI_405368	Centrino
+TUMRI_405371	Maintenance	TUMRI_405368	Centrino
+TUMRI_14181	Toner & Ink	TUMRI_14180	Computer Peripheral Supplies
+TUMRI_14182	Computer Cables	TUMRI_14180	Computer Peripheral Supplies
+TUMRI_14171	Digital Storage	TUMRI_14170	Computer Peripherals
+TUMRI_14172	Networking Gear	TUMRI_14170	Computer Peripherals
+TUMRI_14173	Printers	TUMRI_14170	Computer Peripherals
+TUMRI_14174	Keyboards & Mice	TUMRI_14170	Computer Peripherals
+TUMRI_14175	Joysticks, Trackballs, Etc	TUMRI_14170	Computer Peripherals
+TUMRI_14176	Computer Video Input	TUMRI_14170	Computer Peripherals
+TUMRI_14177	Document Scanners	TUMRI_14170	Computer Peripherals
+TUMRI_14178	Computer Audio	TUMRI_14170	Computer Peripherals
+TUMRI_14179	Computer Monitors	TUMRI_14170	Computer Peripherals
+TUMRI_14161	Desktops	TUMRI_14160	Computers
+TUMRI_14162	Laptops	TUMRI_14160	Computers
+TUMRI_14163	Servers	TUMRI_14160	Computers
+TUMRI_403338	Cosmetic Contact Lenses	TUMRI_403337	Contact Lenses
+TUMRI_405375	Bikes	TUMRI_405374	Cycling
+TUMRI_405376	Cycling Equipment	TUMRI_405374	Cycling
+TUMRI_405381	Cycling Apparel	TUMRI_405374	Cycling
+TUMRI_405382	Cycling Helmets	TUMRI_405381	Cycling Apparel
+TUMRI_405383	Cycling Shoes	TUMRI_405381	Cycling Apparel
+TUMRI_405384	Cycling Clothing	TUMRI_405381	Cycling Apparel
+TUMRI_405377	Cycling Hydration	TUMRI_405376	Cycling Equipment
+TUMRI_405378	Cycling Backpacks	TUMRI_405376	Cycling Equipment
+TUMRI_405379	Bike Locks	TUMRI_405376	Cycling Equipment
+TUMRI_405380	Bike Racks	TUMRI_405376	Cycling Equipment
+TUMRI_403976	Business & Accounting	TUMRI_403288	Degree
+TUMRI_403977	Criminal Justice & Legal	TUMRI_403288	Degree
+TUMRI_403978	Nursing & Healthcare	TUMRI_403288	Degree
+TUMRI_403979	Education	TUMRI_403288	Degree
+TUMRI_403980	Engineering	TUMRI_403288	Degree
+TUMRI_403981	Computer Science & IT	TUMRI_403288	Degree
+TUMRI_403982	Web & Graphic Design	TUMRI_403288	Degree
+TUMRI_403983	Humanities / Liberal Arts	TUMRI_403288	Degree
+TUMRI_403984	Social Science	TUMRI_403288	Degree
+TUMRI_403985	Hotel & Hospitality	TUMRI_403288	Degree
+TUMRI_403986	Vocational Degrees	TUMRI_403288	Degree
+TUMRI_403293	Digital SLR Cameras	TUMRI_14150	Digital Cameras
+TUMRI_14343	Glasses & Barware	TUMRI_14342	Dining
+TUMRI_14344	Flatware & Silverware	TUMRI_14342	Dining
+TUMRI_14345	China & Dinnerware	TUMRI_14342	Dining
+TUMRI_14346	Linens & Placemats	TUMRI_14342	Dining
+TUMRI_403288	Degree	TUMRI_401359	Education
+TUMRI_403289	Language	TUMRI_401359	Education
+TUMRI_403987	Other Education	TUMRI_401359	Education
+TUMRI_14145	Home Audio	TUMRI_14119	Electronics
+TUMRI_14146	Communications	TUMRI_14119	Electronics
+TUMRI_14147	Misc Electronics	TUMRI_14119	Electronics
+TUMRI_14120	Security & Monitoring	TUMRI_14119	Electronics
+TUMRI_14121	TV & Video	TUMRI_14119	Electronics
+TUMRI_14134	Handheld Electronics	TUMRI_14119	Electronics
+TUMRI_14135	Car Audio/Video	TUMRI_14119	Electronics
+TUMRI_14136	Personal Audio	TUMRI_14119	Electronics
+TUMRI_403302	Fly Fishing	TUMRI_403301	Fishing
+TUMRI_14451	Roses	TUMRI_14450	Flowers
+TUMRI_14452	Plants	TUMRI_14450	Flowers
+TUMRI_14368	Yard Care Tools	TUMRI_14367	Gardening
+TUMRI_14369	Plants & Shrubs	TUMRI_14367	Gardening
+TUMRI_14370	Yard Pest Control	TUMRI_14367	Gardening
+TUMRI_14371	Pots & Planters	TUMRI_14367	Gardening
+TUMRI_14372	Fencing, Cages, Etc	TUMRI_14367	Gardening
+TUMRI_14373	Irrigation Equipment	TUMRI_14367	Gardening
+TUMRI_14440	Valentines Day Gifts	TUMRI_14439	Gifts
+TUMRI_14441	Easter Gifts	TUMRI_14439	Gifts
+TUMRI_14442	Mother's Day Gifts	TUMRI_14439	Gifts
+TUMRI_14443	Father's Day Gifts	TUMRI_14439	Gifts
+TUMRI_14444	Housewarming Gifts	TUMRI_14439	Gifts
+TUMRI_14445	Baby Shower Gifts	TUMRI_14439	Gifts
+TUMRI_14446	Wedding Gifts	TUMRI_14439	Gifts
+TUMRI_14447	Anniversary Gifts	TUMRI_14439	Gifts
+TUMRI_14448	Graduation Gifts	TUMRI_14439	Gifts
+TUMRI_14449	Back-to-School Gifts	TUMRI_14439	Gifts
+TUMRI_14258	Girls' Jeans	TUMRI_14257	Girls' Apparel
+TUMRI_14259	Girls' Pants	TUMRI_14257	Girls' Apparel
+TUMRI_14260	Girls' Capris	TUMRI_14257	Girls' Apparel
+TUMRI_14261	Girls' Shorts & Swim	TUMRI_14257	Girls' Apparel
+TUMRI_14262	Girls' Skirts & Skorts	TUMRI_14257	Girls' Apparel
+TUMRI_14263	Girls' Dresses	TUMRI_14257	Girls' Apparel
+TUMRI_14264	Girls' Polos & Shirts	TUMRI_14257	Girls' Apparel
+TUMRI_14265	Girls' Ts & Tanks	TUMRI_14257	Girls' Apparel
+TUMRI_14266	Girls' Sweaters & T-necks	TUMRI_14257	Girls' Apparel
+TUMRI_14267	Girls' Outerwear	TUMRI_14257	Girls' Apparel
+TUMRI_14268	Girls' Activewear	TUMRI_14257	Girls' Apparel
+TUMRI_14269	Girls' Socks	TUMRI_14257	Girls' Apparel
+TUMRI_14270	Girls' Bags	TUMRI_14257	Girls' Apparel
+TUMRI_14271	Girls' Accessories	TUMRI_14257	Girls' Apparel
+TUMRI_14272	Girls' Sleepwear	TUMRI_14257	Girls' Apparel
+TUMRI_14273	Girls' Underwear	TUMRI_14257	Girls' Apparel
+TUMRI_403323	Girls' Western Boots	TUMRI_403322	Girls' Boots
+TUMRI_403322	Girls' Boots	TUMRI_14297	Girls' Shoes
+TUMRI_403299	Golf Clubs	TUMRI_403298	Golf
+TUMRI_403300	Golf Balls & Accessories	TUMRI_403298	Golf
+TUMRI_403334	Vision Care	TUMRI_14409	Health
+TUMRI_403994	Stop Smoking Programs	TUMRI_14409	Health
+TUMRI_403995	Diet Program	TUMRI_14409	Health
+TUMRI_403996	Gyms	TUMRI_14409	Health
+TUMRI_407037	Televisions	TUMRI_407036	Home Electronics
+TUMRI_407038	Computers & Printers	TUMRI_407036	Home Electronics
+TUMRI_407039	Cameras & Camcorders	TUMRI_407036	Home Electronics
+TUMRI_407040	Audio & Home Theater	TUMRI_407036	Home Electronics
+TUMRI_407041	Video Games	TUMRI_407036	Home Electronics
+TUMRI_407042	MP3 Players	TUMRI_407036	Home Electronics
+TUMRI_407043	Portable Audio	TUMRI_407036	Home Electronics
+TUMRI_407044	Phones & Communications	TUMRI_407036	Home Electronics
+TUMRI_407045	DVD Players & Recorders	TUMRI_407036	Home Electronics
+TUMRI_407046	Car Electronics	TUMRI_407036	Home Electronics
+TUMRI_407047	Software	TUMRI_407036	Home Electronics
+TUMRI_407048	Accessories	TUMRI_407036	Home Electronics
+TUMRI_407049	Movies	TUMRI_407036	Home Electronics
+TUMRI_407050	Music	TUMRI_407036	Home Electronics
+TUMRI_14322	Living Room Furnishings	TUMRI_14321	Home Furnishing
+TUMRI_14323	Bedroom Furnishings	TUMRI_14321	Home Furnishing
+TUMRI_14324	Dining & Kitchen Furnishings	TUMRI_14321	Home Furnishing
+TUMRI_14325	Shelves & Cabinets	TUMRI_14321	Home Furnishing
+TUMRI_14326	Home Lighting	TUMRI_14321	Home Furnishing
+TUMRI_14327	Pottery & Accents	TUMRI_14321	Home Furnishing
+TUMRI_14328	Picture Frames	TUMRI_14321	Home Furnishing
+TUMRI_14329	Window Coverings	TUMRI_14321	Home Furnishing
+TUMRI_14330	Art Objects	TUMRI_14321	Home Furnishing
+TUMRI_14331	Patio and Outdoor Decor	TUMRI_14321	Home Furnishing
+TUMRI_14184	Audiovisual Equipment	TUMRI_14183	Home Office Equipment
+TUMRI_14185	Desk Accessories	TUMRI_14183	Home Office Equipment
+TUMRI_14186	Filing & Storage Units	TUMRI_14183	Home Office Equipment
+TUMRI_14188	Pens, Pencils, and Markers	TUMRI_14187	Home Office Supplies
+TUMRI_14189	Presentation Supplies	TUMRI_14187	Home Office Supplies
+TUMRI_14190	Tape and Fastener Supplies	TUMRI_14187	Home Office Supplies
+TUMRI_14191	Filing & Storage Supplies	TUMRI_14187	Home Office Supplies
+TUMRI_14192	Cases & Planners	TUMRI_14187	Home Office Supplies
+TUMRI_14193	Binders	TUMRI_14187	Home Office Supplies
+TUMRI_14194	Office Drawing Supplies	TUMRI_14187	Home Office Supplies
+TUMRI_14337	Kitchen	TUMRI_14336	Housewares
+TUMRI_14347	Bath	TUMRI_14336	Housewares
+TUMRI_14342	Dining	TUMRI_14336	Housewares
+TUMRI_14350	Bedroom	TUMRI_14336	Housewares
+TUMRI_407000	IdeaPad U110	TUMRI_406993	IdeaPad
+TUMRI_407001	IdeaPad Y510	TUMRI_406993	IdeaPad
+TUMRI_407002	IdeaPad Y710	TUMRI_406993	IdeaPad
+TUMRI_403949	Homeowners/Renters	TUMRI_403948	Insurance
+TUMRI_403950	Auto	TUMRI_403948	Insurance
+TUMRI_403951	Life	TUMRI_403948	Insurance
+TUMRI_403952	Health	TUMRI_403948	Insurance
+TUMRI_405368	Centrino	TUMRI_405367	Intel
+TUMRI_407020	Mens Jewelry	TUMRI_407019	Jewelry
+TUMRI_14299	Rings	TUMRI_14298	Jewelry
+TUMRI_14300	Earrings	TUMRI_14298	Jewelry
+TUMRI_14301	Bracelets	TUMRI_14298	Jewelry
+TUMRI_14302	Pendants & Necklaces	TUMRI_14298	Jewelry
+TUMRI_14303	Bridal Jewelry	TUMRI_14298	Jewelry
+TUMRI_14304	Diamonds	TUMRI_14298	Jewelry
+TUMRI_14305	Religious Jewelry	TUMRI_14298	Jewelry
+TUMRI_14306	Gemstones	TUMRI_14298	Jewelry
+TUMRI_14307	Gold Jewelry	TUMRI_14298	Jewelry
+TUMRI_14308	Sterling Silver	TUMRI_14298	Jewelry
+TUMRI_14309	Fashion Jewelry	TUMRI_14298	Jewelry
+TUMRI_14310	Cubic Zirconia	TUMRI_14298	Jewelry
+TUMRI_14311	Personalized & Family Jewelry	TUMRI_14298	Jewelry
+TUMRI_14312	Men's Jewelry	TUMRI_14298	Jewelry
+TUMRI_14313	Jewelry Boxes & Care	TUMRI_14298	Jewelry
+TUMRI_14338	Pots & Pans	TUMRI_14337	Kitchen
+TUMRI_14339	Knives & Utensils	TUMRI_14337	Kitchen
+TUMRI_14340	Kitchen Linens	TUMRI_14337	Kitchen
+TUMRI_14341	Food Storage	TUMRI_14337	Kitchen
+TUMRI_407052	Lawn Mowers	TUMRI_407051	Lawn & Garden
+TUMRI_407053	Lawn Tractors	TUMRI_407051	Lawn & Garden
+TUMRI_407054	Patio Furniture	TUMRI_407051	Lawn & Garden
+TUMRI_407055	Grills	TUMRI_407051	Lawn & Garden
+TUMRI_407056	Handheld Power	TUMRI_407051	Lawn & Garden
+TUMRI_407057	Pressure Washers	TUMRI_407051	Lawn & Garden
+TUMRI_407058	Outdoor Décor	TUMRI_407051	Lawn & Garden
+TUMRI_407059	All Terrain Vehicle Attachments	TUMRI_407051	Lawn & Garden
+TUMRI_407060	Sheds & Outdoor Storage	TUMRI_407051	Lawn & Garden
+TUMRI_407061	Tractor Attachments	TUMRI_407051	Lawn & Garden
+TUMRI_407062	Lawn & Garden Care	TUMRI_407051	Lawn & Garden
+TUMRI_406993	IdeaPad	TUMRI_403363	Lenovo
+TUMRI_403367	3000 Series	TUMRI_403363	Lenovo
+TUMRI_403368	Desktops	TUMRI_403363	Lenovo
+TUMRI_403369	Thinkpad Notebooks	TUMRI_403363	Lenovo
+TUMRI_403370	Special Offers	TUMRI_403363	Lenovo
+TUMRI_403292	Gardening Books	TUMRI_14496	Lifestyle, Family, & Home Books
+TUMRI_403304	Logo Sports Apparel	TUMRI_403303	Logo Sports Merchandise
+TUMRI_403305	Logo Sports Misc	TUMRI_403303	Logo Sports Merchandise
+TUMRI_403991	Travel Luggage	TUMRI_403990	Luggage
+TUMRI_403992	Travel Accessories	TUMRI_403990	Luggage
+TUMRI_403993	Everyday Bags & Cases	TUMRI_403990	Luggage
+TUMRI_403988	Ringtones	TUMRI_14112	Media & Entertainment
+TUMRI_403989	Tickets	TUMRI_14112	Media & Entertainment
+TUMRI_403290	Audio Books	TUMRI_14112	Media & Entertainment
+TUMRI_403291	Newspapers	TUMRI_14112	Media & Entertainment
+TUMRI_14476	Music	TUMRI_14112	Media & Entertainment
+TUMRI_14113	Books	TUMRI_14112	Media & Entertainment
+TUMRI_14114	Movies	TUMRI_14112	Media & Entertainment
+TUMRI_14115	Magazines	TUMRI_14112	Media & Entertainment
+TUMRI_14116	Video Games	TUMRI_14112	Media & Entertainment
+TUMRI_403277	Sports Memorabilia	TUMRI_403276	Memorabilia
+TUMRI_403279	Misc Memorabilia	TUMRI_403276	Memorabilia
+TUMRI_403307	Men's Western Belt Buckles	TUMRI_403306	Men's Accessories
+TUMRI_403308	Men's Cowboy Hats	TUMRI_403306	Men's Accessories
+TUMRI_407005	Activewear	TUMRI_407004	Mens Apparel
+TUMRI_407006	Casual Shirts	TUMRI_407004	Mens Apparel
+TUMRI_407007	Denim	TUMRI_407004	Mens Apparel
+TUMRI_407008	Dress Shirts	TUMRI_407004	Mens Apparel
+TUMRI_407009	Graphic Tees	TUMRI_407004	Mens Apparel
+TUMRI_407010	Pants	TUMRI_407004	Mens Apparel
+TUMRI_407011	Suits & Sport Coats	TUMRI_407004	Mens Apparel
+TUMRI_407012	Swimsuits & Shorts	TUMRI_407004	Mens Apparel
+TUMRI_407013	Team Apparel	TUMRI_407004	Mens Apparel
+TUMRI_407014	Workwear	TUMRI_407004	Mens Apparel
+TUMRI_407015	Cologne	TUMRI_407004	Mens Apparel
+TUMRI_407016	Loungewear	TUMRI_407004	Mens Apparel
+TUMRI_403306	Men's Accessories	TUMRI_14207	Men's Apparel
+TUMRI_403328	Men's Eyewear	TUMRI_14207	Men's Apparel
+TUMRI_14208	Men's Activewear	TUMRI_14207	Men's Apparel
+TUMRI_14209	Men's Blazers & Sport Coats	TUMRI_14207	Men's Apparel
+TUMRI_14210	Men's Jackets & Coats	TUMRI_14207	Men's Apparel
+TUMRI_14211	Men's Jeans	TUMRI_14207	Men's Apparel
+TUMRI_14212	Men's Pajamas & Robes	TUMRI_14207	Men's Apparel
+TUMRI_14213	Men's Pants	TUMRI_14207	Men's Apparel
+TUMRI_14214	Men's Polos & Tees	TUMRI_14207	Men's Apparel
+TUMRI_14215	Men's Shirts	TUMRI_14207	Men's Apparel
+TUMRI_14216	Men's Shorts	TUMRI_14207	Men's Apparel
+TUMRI_14217	Men's Suits	TUMRI_14207	Men's Apparel
+TUMRI_14218	Men's Sweaters	TUMRI_14207	Men's Apparel
+TUMRI_14219	Men's Swim	TUMRI_14207	Men's Apparel
+TUMRI_14220	Men's Underwear & Socks	TUMRI_14207	Men's Apparel
+TUMRI_14221	Men's Wallets	TUMRI_14207	Men's Apparel
+TUMRI_14222	Men's Belts	TUMRI_14207	Men's Apparel
+TUMRI_14223	Men's Ties	TUMRI_14207	Men's Apparel
+TUMRI_403309	Men's Western Belts	TUMRI_14222	Men's Belts
+TUMRI_403318	Men's Western Boots	TUMRI_14288	Men's Boots
+TUMRI_403319	Men's Work Boots	TUMRI_14288	Men's Boots
+TUMRI_403330	Men's Eyeglasses	TUMRI_403328	Men's Eyewear
+TUMRI_14224	Men's Sunglasses	TUMRI_403328	Men's Eyewear
+TUMRI_14286	Men's Athletic Shoes	TUMRI_14285	Men's Shoes
+TUMRI_14287	Boat Shoes	TUMRI_14285	Men's Shoes
+TUMRI_14288	Men's Boots	TUMRI_14285	Men's Shoes
+TUMRI_14289	Men's Casual Shoes	TUMRI_14285	Men's Shoes
+TUMRI_14290	Men's Dress Shoes	TUMRI_14285	Men's Shoes
+TUMRI_14291	Men's Extended Size Shoes	TUMRI_14285	Men's Shoes
+TUMRI_14292	Men's Fashion Athletic Shoes	TUMRI_14285	Men's Shoes
+TUMRI_14293	Men's Loafers	TUMRI_14285	Men's Shoes
+TUMRI_14294	Men's Sandals	TUMRI_14285	Men's Shoes
+TUMRI_14295	Men's Slippers	TUMRI_14285	Men's Shoes
+TUMRI_403945	New Home	TUMRI_403944	Mortgage
+TUMRI_403946	2nd Mortgage	TUMRI_403944	Mortgage
+TUMRI_403947	Refinance	TUMRI_403944	Mortgage
+TUMRI_14501	Action/Adventure	TUMRI_14114	Movies
+TUMRI_14502	Animation	TUMRI_14114	Movies
+TUMRI_14503	Children's	TUMRI_14114	Movies
+TUMRI_14504	Comedy	TUMRI_14114	Movies
+TUMRI_14505	Drama	TUMRI_14114	Movies
+TUMRI_14506	Horror & Suspense	TUMRI_14114	Movies
+TUMRI_14507	International	TUMRI_14114	Movies
+TUMRI_14508	Mature Audience	TUMRI_14114	Movies
+TUMRI_14509	Music & Arts	TUMRI_14114	Movies
+TUMRI_14510	Science Fiction/Fantasy	TUMRI_14114	Movies
+TUMRI_14511	Special Interest	TUMRI_14114	Movies
+TUMRI_14512	Sports & Recreation	TUMRI_14114	Movies
+TUMRI_14513	Television	TUMRI_14114	Movies
+TUMRI_14514	Westerns	TUMRI_14114	Movies
+TUMRI_14477	Blues	TUMRI_14476	Music
+TUMRI_14478	Children's Music	TUMRI_14476	Music
+TUMRI_14479	Classical Music	TUMRI_14476	Music
+TUMRI_14480	Country Music	TUMRI_14476	Music
+TUMRI_14481	Dance/Electronica Music	TUMRI_14476	Music
+TUMRI_14482	Folk Music	TUMRI_14476	Music
+TUMRI_14483	World Music	TUMRI_14476	Music
+TUMRI_14484	Jazz	TUMRI_14476	Music
+TUMRI_14485	Latin Music	TUMRI_14476	Music
+TUMRI_14486	New Age Music	TUMRI_14476	Music
+TUMRI_14487	R&B	TUMRI_14476	Music
+TUMRI_14488	Rap/Hip-Hop	TUMRI_14476	Music
+TUMRI_14489	Rock/Pop	TUMRI_14476	Music
+TUMRI_14490	Shows/Movies Music	TUMRI_14476	Music
+TUMRI_403926	Cars	TUMRI_403925	New
+TUMRI_404001	Light Trucks	TUMRI_403925	New
+TUMRI_404002	SUVs	TUMRI_403925	New
+TUMRI_404003	Vans	TUMRI_403925	New
+TUMRI_403361	[]	TUMRI_403360	Non Monetizable
+TUMRI_14155	Binoculars	TUMRI_14154	Optics
+TUMRI_14156	Telescopes	TUMRI_14154	Optics
+TUMRI_14157	Shooting Scopes	TUMRI_14154	Optics
+TUMRI_14158	Magnifying Glasses	TUMRI_14154	Optics
+TUMRI_14159	Microscopes	TUMRI_14154	Optics
+TUMRI_14332	Outdoor Furniture	TUMRI_14331	Patio and Outdoor Decor
+TUMRI_14333	Plaques, Banners, & Flags	TUMRI_14331	Patio and Outdoor Decor
+TUMRI_14334	Outdoor & Patio Lighting	TUMRI_14331	Patio and Outdoor Decor
+TUMRI_14335	Barbeque & Picnic Equipment	TUMRI_14331	Patio and Outdoor Decor
+TUMRI_14137	MP3 Digital Audio Players	TUMRI_14136	Personal Audio
+TUMRI_14138	MP3 Accessories	TUMRI_14136	Personal Audio
+TUMRI_14139	Headphones	TUMRI_14136	Personal Audio
+TUMRI_14140	Headsets	TUMRI_14136	Personal Audio
+TUMRI_14141	Satellite Radio Receivers	TUMRI_14136	Personal Audio
+TUMRI_14142	Personal CD Players	TUMRI_14136	Personal Audio
+TUMRI_14143	Mini Disc Players	TUMRI_14136	Personal Audio
+TUMRI_14144	Misc Personal Audio	TUMRI_14136	Personal Audio
+TUMRI_403954	Auto Loan	TUMRI_403953	Personal Finance
+TUMRI_403955	School Loans	TUMRI_403953	Personal Finance
+TUMRI_403956	Debt Consolidation	TUMRI_403953	Personal Finance
+TUMRI_403957	Debt Relief	TUMRI_403953	Personal Finance
+TUMRI_403958	Cash Advance	TUMRI_403953	Personal Finance
+TUMRI_403959	Credit Cards	TUMRI_403953	Personal Finance
+TUMRI_403960	Banking/Checking Accounts	TUMRI_403953	Personal Finance
+TUMRI_403961	Brokerage/Trading Accounts	TUMRI_403953	Personal Finance
+TUMRI_403962	Tax Services	TUMRI_403953	Personal Finance
+TUMRI_14355	Pet Food	TUMRI_14354	Pets
+TUMRI_14356	Veterinary Supplies	TUMRI_14354	Pets
+TUMRI_14357	Pet Bedding	TUMRI_14354	Pets
+TUMRI_14358	Cages, Kennels, Etc	TUMRI_14354	Pets
+TUMRI_14359	Dog Walking Supplies	TUMRI_14354	Pets
+TUMRI_403939	Single Family Homes	TUMRI_403938	Real Estate
+TUMRI_403940	Condos	TUMRI_403938	Real Estate
+TUMRI_403941	Townhouses	TUMRI_403938	Real Estate
+TUMRI_403942	Multi-family Homes	TUMRI_403938	Real Estate
+TUMRI_403943	Land	TUMRI_403938	Real Estate
+TUMRI_407019	Jewelry	TUMRI_407003	Sears
+TUMRI_407004	Mens Apparel	TUMRI_407003	Sears
+TUMRI_407017	Shoes	TUMRI_407003	Sears
+TUMRI_407051	Lawn & Garden	TUMRI_407003	Sears
+TUMRI_407021	Tools	TUMRI_407003	Sears
+TUMRI_407036	Home Electronics	TUMRI_407003	Sears
+TUMRI_407018	Men's Shoes	TUMRI_407017	Shoes
+TUMRI_14285	Men's Shoes	TUMRI_14275	Shoes
+TUMRI_14296	Boys' Shoes	TUMRI_14275	Shoes
+TUMRI_14297	Girls' Shoes	TUMRI_14275	Shoes
+TUMRI_14276	Shoe Accessories	TUMRI_14275	Shoes
+TUMRI_14277	Women's Shoes	TUMRI_14275	Shoes
+TUMRI_14165	Game Software	TUMRI_14164	Software
+TUMRI_14166	Office Applications	TUMRI_14164	Software
+TUMRI_14167	Learning Software	TUMRI_14164	Software
+TUMRI_14168	Music & Entertainment Software	TUMRI_14164	Software
+TUMRI_14169	Photography Software	TUMRI_14164	Software
+TUMRI_14416	Fitness Gear	TUMRI_14415	Sports
+TUMRI_14417	Racquet Sports	TUMRI_14415	Sports
+TUMRI_14418	Baseball & Softball	TUMRI_14415	Sports
+TUMRI_14419	Football	TUMRI_14415	Sports
+TUMRI_14420	Basketball	TUMRI_14415	Sports
+TUMRI_14421	Backyard Sports	TUMRI_14415	Sports
+TUMRI_14422	Other Team Sports	TUMRI_14415	Sports
+TUMRI_14423	Other Individual Sports	TUMRI_14415	Sports
+TUMRI_14424	Indoor Sports	TUMRI_14415	Sports
+TUMRI_14425	Camping & Hiking	TUMRI_14415	Sports
+TUMRI_14426	Water Sports	TUMRI_14415	Sports
+TUMRI_14427	Equestrian	TUMRI_14415	Sports
+TUMRI_14428	Boating	TUMRI_14415	Sports
+TUMRI_14429	Winter Sports	TUMRI_14415	Sports
+TUMRI_405374	Cycling	TUMRI_14415	Sports
+TUMRI_403298	Golf	TUMRI_14415	Sports
+TUMRI_403301	Fishing	TUMRI_14415	Sports
+TUMRI_403303	Logo Sports Merchandise	TUMRI_14415	Sports
+TUMRI_403341	Sports Sunglasses	TUMRI_403340	Sports Eyewear
+TUMRI_403342	Sports Safety Eyewear	TUMRI_403340	Sports Eyewear
+TUMRI_403278	Sports Autographs	TUMRI_403277	Sports Memorabilia
+TUMRI_14202	Printer Paper	TUMRI_14201	Stationary
+TUMRI_14203	Notebooks, Diaries, Etc.	TUMRI_14201	Stationary
+TUMRI_14204	Filler Paper	TUMRI_14201	Stationary
+TUMRI_14205	Cards, Envelopes, & Forms	TUMRI_14201	Stationary
+TUMRI_403971	Cable / Satellite	TUMRI_403970	Telecommunications
+TUMRI_403972	Cell Phone Services	TUMRI_403970	Telecommunications
+TUMRI_403973	ISPs	TUMRI_403970	Telecommunications
+TUMRI_403974	Phone / VOIPs	TUMRI_403970	Telecommunications
+TUMRI_14196	Corded Phones	TUMRI_14195	Telephones
+TUMRI_14197	Cordless Phones	TUMRI_14195	Telephones
+TUMRI_14198	Cell Phones	TUMRI_14195	Telephones
+TUMRI_14199	Answering Machines	TUMRI_14195	Telephones
+TUMRI_14200	Phone Accessories	TUMRI_14195	Telephones
+TUMRI_407022	Garage & Tool Storage	TUMRI_407021	Tools
+TUMRI_407023	Tool Sets	TUMRI_407021	Tools
+TUMRI_407024	Portable Power Tools	TUMRI_407021	Tools
+TUMRI_407025	Power Tool Accessories	TUMRI_407021	Tools
+TUMRI_407026	Bench Power Tools	TUMRI_407021	Tools
+TUMRI_407027	Compressors & Air Tools	TUMRI_407021	Tools
+TUMRI_407028	Hand Tools	TUMRI_407021	Tools
+TUMRI_407029	Carpentry	TUMRI_407021	Tools
+TUMRI_407030	General Purpose	TUMRI_407021	Tools
+TUMRI_407031	Home Security & Garage Door Openers	TUMRI_407021	Tools
+TUMRI_407032	Mechanics Tools	TUMRI_407021	Tools
+TUMRI_407033	Personalized Tools	TUMRI_407021	Tools
+TUMRI_407034	Wet-Dry Vacs	TUMRI_407021	Tools
+TUMRI_407035	Workwear & Work Boots	TUMRI_407021	Tools
+TUMRI_14362	Cordless Power Tools	TUMRI_14361	Tools & Workshop
+TUMRI_14363	Corded Power Tools	TUMRI_14361	Tools & Workshop
+TUMRI_14364	Hand Tools	TUMRI_14361	Tools & Workshop
+TUMRI_14365	Safety Gear	TUMRI_14361	Tools & Workshop
+TUMRI_14366	Workshop Tools	TUMRI_14361	Tools & Workshop
+TUMRI_14385	Action Figures	TUMRI_14384	Toys & Games
+TUMRI_14386	Activities & Learning Games	TUMRI_14384	Toys & Games
+TUMRI_14387	Kids Arts & Crafts	TUMRI_14384	Toys & Games
+TUMRI_14388	Bikes, Scooters & More	TUMRI_14384	Toys & Games
+TUMRI_14389	Building Sets, Blocks & Models	TUMRI_14384	Toys & Games
+TUMRI_14390	Dolls	TUMRI_14384	Toys & Games
+TUMRI_14391	Electronic Toys	TUMRI_14384	Toys & Games
+TUMRI_14392	Games	TUMRI_14384	Toys & Games
+TUMRI_14393	Learning Toys	TUMRI_14384	Toys & Games
+TUMRI_14394	Music Toys	TUMRI_14384	Toys & Games
+TUMRI_14395	Preschool Toys	TUMRI_14384	Toys & Games
+TUMRI_14396	Pretend Play & Dress-Up	TUMRI_14384	Toys & Games
+TUMRI_14397	Puzzles	TUMRI_14384	Toys & Games
+TUMRI_14398	Science & Discovery Toys	TUMRI_14384	Toys & Games
+TUMRI_14399	Sports & Outdoor Play	TUMRI_14384	Toys & Games
+TUMRI_14400	Pool & Water Toys	TUMRI_14384	Toys & Games
+TUMRI_14401	Stuffed Animals	TUMRI_14384	Toys & Games
+TUMRI_14402	Vehicles & Die-Cast	TUMRI_14384	Toys & Games
+TUMRI_14403	Video Game Consoles	TUMRI_14384	Toys & Games
+TUMRI_403964	Flights	TUMRI_403963	Travel
+TUMRI_403965	Hotels	TUMRI_403963	Travel
+TUMRI_403966	Car Rentals	TUMRI_403963	Travel
+TUMRI_403967	Packages	TUMRI_403963	Travel
+TUMRI_403968	Cruises	TUMRI_403963	Travel
+TUMRI_403969	Timeshare Packages	TUMRI_403963	Travel
+TUMRI_403970	Telecommunications	TUMRI_14111	tumri
+TUMRI_403975	Dating	TUMRI_14111	tumri
+TUMRI_403963	Travel	TUMRI_14111	tumri
+TUMRI_403990	Luggage	TUMRI_14111	tumri
+TUMRI_401359	Education	TUMRI_14111	tumri
+TUMRI_403276	Memorabilia	TUMRI_14111	tumri
+TUMRI_14453	Cards & Wrapping Paper	TUMRI_14111	tumri
+TUMRI_14437	Musical Instruments & Supplies	TUMRI_14111	tumri
+TUMRI_14438	Collections	TUMRI_14111	tumri
+TUMRI_14439	Gifts	TUMRI_14111	tumri
+TUMRI_14475	Holiday & Party Decorating Supplies	TUMRI_14111	tumri
+TUMRI_403359	zz	TUMRI_14111	tumri
+TUMRI_403924	Automobiles	TUMRI_14111	tumri
+TUMRI_403935	Careers	TUMRI_14111	tumri
+TUMRI_403944	Mortgage	TUMRI_14111	tumri
+TUMRI_403938	Real Estate	TUMRI_14111	tumri
+TUMRI_403948	Insurance	TUMRI_14111	tumri
+TUMRI_403953	Personal Finance	TUMRI_14111	tumri
+TUMRI_14408	Nutrition	TUMRI_14111	tumri
+TUMRI_14409	Health	TUMRI_14111	tumri
+TUMRI_14410	Beauty	TUMRI_14111	tumri
+TUMRI_14374	Automotive	TUMRI_14111	tumri
+TUMRI_14375	Baby	TUMRI_14111	tumri
+TUMRI_14384	Toys & Games	TUMRI_14111	tumri
+TUMRI_14367	Gardening	TUMRI_14111	tumri
+TUMRI_14415	Sports	TUMRI_14111	tumri
+TUMRI_14450	Flowers	TUMRI_14111	tumri
+TUMRI_14430	Hobbies	TUMRI_14111	tumri
+TUMRI_14431	Crafts	TUMRI_14111	tumri
+TUMRI_14432	Art Supplies	TUMRI_14111	tumri
+TUMRI_14298	Jewelry	TUMRI_14111	tumri
+TUMRI_14314	Watches	TUMRI_14111	tumri
+TUMRI_14112	Media & Entertainment	TUMRI_14111	tumri
+TUMRI_14317	Appliances	TUMRI_14111	tumri
+TUMRI_14360	Building & Remodeling	TUMRI_14111	tumri
+TUMRI_14361	Tools & Workshop	TUMRI_14111	tumri
+TUMRI_14354	Pets	TUMRI_14111	tumri
+TUMRI_14336	Housewares	TUMRI_14111	tumri
+TUMRI_14321	Home Furnishing	TUMRI_14111	tumri
+TUMRI_14201	Stationary	TUMRI_14111	tumri
+TUMRI_14187	Home Office Supplies	TUMRI_14111	tumri
+TUMRI_14195	Telephones	TUMRI_14111	tumri
+TUMRI_14170	Computer Peripherals	TUMRI_14111	tumri
+TUMRI_14164	Software	TUMRI_14111	tumri
+TUMRI_14180	Computer Peripheral Supplies	TUMRI_14111	tumri
+TUMRI_14160	Computers	TUMRI_14111	tumri
+TUMRI_14154	Optics	TUMRI_14111	tumri
+TUMRI_14117	Food	TUMRI_14111	tumri
+TUMRI_14118	Wine & Beer	TUMRI_14111	tumri
+TUMRI_14119	Electronics	TUMRI_14111	tumri
+TUMRI_14148	Cameras	TUMRI_14111	tumri
+TUMRI_14206	Apparel	TUMRI_14111	tumri
+TUMRI_14183	Home Office Equipment	TUMRI_14111	tumri
+TUMRI_14275	Shoes	TUMRI_14111	tumri
+TUMRI_14122	Camcorders	TUMRI_14121	TV & Video
+TUMRI_14123	Camcorder Accessories	TUMRI_14121	TV & Video
+TUMRI_14124	DVD Players	TUMRI_14121	TV & Video
+TUMRI_14125	Home Theater Equipment	TUMRI_14121	TV & Video
+TUMRI_14126	Flat Panel TVs	TUMRI_14121	TV & Video
+TUMRI_14127	Standard TVs	TUMRI_14121	TV & Video
+TUMRI_14128	Projection TVs	TUMRI_14121	TV & Video
+TUMRI_14129	Portable TVs	TUMRI_14121	TV & Video
+TUMRI_14130	TV Accessories	TUMRI_14121	TV & Video
+TUMRI_14131	TV Receivers & DVRs	TUMRI_14121	TV & Video
+TUMRI_14132	Satellite TV	TUMRI_14121	TV & Video
+TUMRI_14133	Misc TV & Video	TUMRI_14121	TV & Video
+TUMRI_403325	Unisex Eyewear	TUMRI_403324	Unisex Apparel
+TUMRI_403326	Unisex Sunglasses	TUMRI_403325	Unisex Eyewear
+TUMRI_403327	Unisex Eyeglasses	TUMRI_403325	Unisex Eyewear
+TUMRI_403931	Cars	TUMRI_403930	Used
+TUMRI_404004	Light Trucks	TUMRI_403930	Used
+TUMRI_404005	SUVs	TUMRI_403930	Used
+TUMRI_404006	Vans	TUMRI_403930	Used
+TUMRI_403335	Vision Care Accessories	TUMRI_403334	Vision Care
+TUMRI_403336	Reading Glasses	TUMRI_403334	Vision Care
+TUMRI_403337	Contact Lenses	TUMRI_403334	Vision Care
+TUMRI_403339	Safety Eyewear	TUMRI_403334	Vision Care
+TUMRI_403340	Sports Eyewear	TUMRI_403334	Vision Care
+TUMRI_14315	Ladies' Watches	TUMRI_14314	Watches
+TUMRI_14316	Men's Watches	TUMRI_14314	Watches
+TUMRI_14515	Red Wine	TUMRI_14118	Wine & Beer
+TUMRI_14516	White Wine	TUMRI_14118	Wine & Beer
+TUMRI_14517	Other Wine	TUMRI_14118	Wine & Beer
+TUMRI_14518	Sparkling Wines	TUMRI_14118	Wine & Beer
+TUMRI_14519	Dessert, Sherry, and Port	TUMRI_14118	Wine & Beer
+TUMRI_14520	Beer	TUMRI_14118	Wine & Beer
+TUMRI_403311	Women's Western Belt Buckles	TUMRI_403310	Women's Accessories
+TUMRI_403312	Women's Cowboy Hats	TUMRI_403310	Women's Accessories
+TUMRI_403310	Women's Accessories	TUMRI_14225	Women's Apparel
+TUMRI_403331	Women's Eyewear	TUMRI_14225	Women's Apparel
+TUMRI_14226	Women's Active	TUMRI_14225	Women's Apparel
+TUMRI_14227	Women's Dresses	TUMRI_14225	Women's Apparel
+TUMRI_14228	Women's Intimates	TUMRI_14225	Women's Apparel
+TUMRI_14229	Women's Hosiery	TUMRI_14225	Women's Apparel
+TUMRI_14230	Women's Jackets & Blazers	TUMRI_14225	Women's Apparel
+TUMRI_14231	Women's Jeans	TUMRI_14225	Women's Apparel
+TUMRI_14232	Women's Pants	TUMRI_14225	Women's Apparel
+TUMRI_14233	Women's Shorts	TUMRI_14225	Women's Apparel
+TUMRI_14234	Women's Skirts	TUMRI_14225	Women's Apparel
+TUMRI_14235	Women's Sleepwear	TUMRI_14225	Women's Apparel
+TUMRI_14236	Women's Sweaters	TUMRI_14225	Women's Apparel
+TUMRI_14237	Women's Swimwear	TUMRI_14225	Women's Apparel
+TUMRI_14238	Women's Handbags	TUMRI_14225	Women's Apparel
+TUMRI_14239	Women's Scarves & Shawls	TUMRI_14225	Women's Apparel
+TUMRI_14240	Women's Tops	TUMRI_14225	Women's Apparel
+TUMRI_14241	Women's Belts	TUMRI_14225	Women's Apparel
+TUMRI_403314	Women's Western Belts	TUMRI_14241	Women's Belts
+TUMRI_403316	Women's Western Boots	TUMRI_403315	Women's Boots
+TUMRI_403317	Women's Work Boots	TUMRI_403315	Women's Boots
+TUMRI_403333	Women's Eyeglasses	TUMRI_403331	Women's Eyewear
+TUMRI_14242	Women's Sunglasses	TUMRI_403331	Women's Eyewear
+TUMRI_403313	Women's Western Handbags	TUMRI_14238	Women's Handbags
+TUMRI_403315	Women's Boots	TUMRI_14277	Women's Shoes
+TUMRI_14278	Women's Dress Shoes	TUMRI_14277	Women's Shoes
+TUMRI_14279	Flats	TUMRI_14277	Women's Shoes
+TUMRI_14280	Mules & Clogs	TUMRI_14277	Women's Shoes
+TUMRI_14281	Pumps	TUMRI_14277	Women's Shoes
+TUMRI_14282	Women's Sandals	TUMRI_14277	Women's Shoes
+TUMRI_14283	Women's Athletic Shoes	TUMRI_14277	Women's Shoes
+TUMRI_14284	Wedges	TUMRI_14277	Women's Shoes
+TUMRI_403360	Non Monetizable	TUMRI_403359	zz

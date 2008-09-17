@@ -31,6 +31,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     private AtomicReference<RWLockedTreeMap<Integer,Campaign>> campaignMap   = new AtomicReference<RWLockedTreeMap<Integer, Campaign>>(new RWLockedTreeMap<Integer, Campaign>());
     private AtomicReference<RWLockedTreeMap<Integer, AdPod>>    adPodMap      = new AtomicReference<RWLockedTreeMap<Integer, AdPod>>(new RWLockedTreeMap<Integer, AdPod>());
+
+    //Need to deprecate the date OSpec
     private AtomicReference<RWLockedTreeMap<Integer, OSpec>>    ospecMap      = new AtomicReference<RWLockedTreeMap<Integer, OSpec>>(new RWLockedTreeMap<Integer, OSpec>());
     private AtomicReference<RWLockedTreeMap<String,OSpec>>    ospecNameMap   = new AtomicReference<RWLockedTreeMap<String, OSpec>>(new RWLockedTreeMap<String, OSpec>());
 
@@ -38,14 +40,26 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private AtomicReference<RWLockedTreeMap<Integer, Url>>      urlMap        = new AtomicReference<RWLockedTreeMap<Integer, Url>>(new RWLockedTreeMap<Integer, Url>());
     private AtomicReference<RWLockedTreeMap<String, Url>>       urlNameMap    = new AtomicReference<RWLockedTreeMap<String, Url>>(new RWLockedTreeMap<String, Url>());
 
+    //Use recipe map to maintain the recipe id to recipe lookup
+    private AtomicReference<RWLockedTreeMap<Integer, Recipe>>   recipeMap    = new AtomicReference<RWLockedTreeMap<Integer, Recipe>>(new RWLockedTreeMap<Integer, Recipe>());
+
     @SuppressWarnings({"deprecation"})
     private AtomicReference<RWLockedTreeMap<Integer,Theme>>    themeMap      = new AtomicReference<RWLockedTreeMap<Integer, Theme>>(new RWLockedTreeMap<Integer, Theme>());
     private AtomicReference<RWLockedTreeMap<String, Theme>>    themeNameMap  = new AtomicReference<RWLockedTreeMap<String, Theme>>(new RWLockedTreeMap<String, Theme>());
 
     private AtomicReference<RWLockedTreeMap<Integer,Location>> locationMap   = new AtomicReference<RWLockedTreeMap<Integer, Location>>(new RWLockedTreeMap<Integer, Location>());
 
-    // Map adpod Id to ospec ID
+    //Map adpod Id to ospec ID
     private AtomicReference<RWLockedTreeMap<Integer, Integer>> adPodOSpecMap = new AtomicReference<RWLockedTreeMap<Integer, Integer>>(new RWLockedTreeMap<Integer, Integer>());
+
+    //Map adpod Id to campaign ID
+    private AtomicReference<RWLockedTreeMap<Integer, Integer>> adPodCampaignMap = new AtomicReference<RWLockedTreeMap<Integer, Integer>>(new RWLockedTreeMap<Integer, Integer>());
+
+    //Map Location Name (Theme) to location ID
+    private AtomicReference<RWLockedTreeMap<String, Integer>> locationNameIdMap = new AtomicReference<RWLockedTreeMap<String, Integer>>(new RWLockedTreeMap<String, Integer>());
+
+    //Maintain TSpec/Listing query map
+    private AtomicReference<RWLockedTreeMap<Integer, TSpec>>    tspecMap      = new AtomicReference<RWLockedTreeMap<Integer, TSpec>>(new RWLockedTreeMap<Integer, TSpec>());
 
     // Map the handles for all geocode associated adpods to avoid re-creating handles for multiple geocode elements
     // refering to same adpod.
@@ -58,6 +72,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     //This map is only used by dynamic data request - incorp-mapping-delta.
     private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodGeoNoneHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodUrlNoneHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
 
     // All indices required in targeting
     private AtomicAdpodIndex<Integer, Handle> adpodLocationMappingIndex = new AtomicAdpodIndex<Integer, Handle>(new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation));
@@ -65,6 +80,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private AtomicAdpodIndex<String, Handle>  adpodUrlMappingIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kUrl));
     private AtomicAdpodIndex<String, Handle>  adpodRunOfNetworkIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRunofNetwork));
     private AtomicAdpodIndex<String, Handle>  adpodGeoNoneIndex         = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kGeoNone));
+    private AtomicAdpodIndex<String, Handle>  adpodUrlNoneIndex         = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kUrlNone));
 
     private AtomicAdpodIndex<String, Handle>  adpodGeoCountryIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kCountryCode));
     private AtomicAdpodIndex<String, Handle>  adpodGeoRegionIndex       = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRegionCode));
@@ -89,6 +105,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     public void deleteAdPod(int adPodId) {
         adPodMap.get().safeRemove(adPodId);
+        adPodCampaignMap.get().safeRemove(adPodId);
     }
 
     public void addNonGeoAdPod(int adPodId) {
@@ -101,7 +118,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     public void deleteNonGeoAdPod(int adPodId) {
         SortedSet<Handle> set = adpodGeoNoneIndex.get(AdpodIndex.GEO_NONE);
-        //@todo remove from the non-geo index
         set.remove(adPodGeoNoneHandlesMap.get().safeGet(adPodId));
         adPodGeoNoneHandlesMap.get().safeRemove(adPodId);
     }
@@ -117,6 +133,11 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     public OSpec getOspec(String name) {
         OSpec oSpec = ospecNameMap.get().safeGet(name);
+        return oSpec;
+    }
+
+    public OSpec getOspec(int ospecId) {
+        OSpec oSpec = ospecMap.get().safeGet(ospecId);
         return oSpec;
     }
 
@@ -139,9 +160,21 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             //update default realm OSpec
             defaultAtomicOSpec.compareAndSet(defaultAtomicOSpec.get(), oSpec);
         }
+        List<TSpec> tspecList = oSpec.getTspecs();
+        for (TSpec tspec: tspecList) {
+            addTSpec(tspec);
+        }
     }
 
     public void deleteOSpec(String oSpecName) {
+        OSpec oSpec = getOspec(oSpecName);
+        if (oSpec != null) {
+            List<TSpec> tspecList = oSpec.getTspecs();
+            for(TSpec tspec: tspecList) {
+                CampaignDB.getInstance().delTSpec(tspec.getId());
+            }
+        }
+
         int id = ospecNameMap.get().safeGet(oSpecName).getId();
         ospecMap.get().safeRemove(id);
         ospecNameMap.get().safeRemove(oSpecName);
@@ -151,8 +184,16 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         return urlNameMap.get().safeGet(urlName);
     }
 
+    public Url getUrl(int urlId) {
+        return urlMap.get().safeGet(urlId);
+    }
+
     public Theme getTheme(String themeName) {
         return themeNameMap.get().safeGet(themeName);
+    }
+
+    public Theme getTheme(int themeId) {
+        return themeMap.get().safeGet(themeId);
     }
 
     public Location getLocation(int locationId) {
@@ -503,20 +544,27 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         }
         int oSpecCount = 0;
         RWLockedTreeMap<Integer,OSpec> map     = null;
+        RWLockedTreeMap<Integer,TSpec> tmap     = null;
         RWLockedTreeMap<String,OSpec>  nameMap = null;
         
         if(iterator.hasNext()) {
             map = new RWLockedTreeMap<Integer,OSpec>();
+            tmap = new RWLockedTreeMap<Integer,TSpec>();
             nameMap = new RWLockedTreeMap<String,OSpec>();
 
             while(iterator.hasNext()) {
                 OSpec oSpec = iterator.next();
                 map.put(oSpec.getId(), oSpec);
+                List<TSpec> tspecs = oSpec.getTspecs();
+                for (TSpec t: tspecs) {
+                    tmap.put(t.getId(), t);
+                }
                 nameMap.put(oSpec.getName(), oSpec);
                 oSpecCount++;
             }
             ospecNameMap.compareAndSet(ospecNameMap.get(), nameMap);
             ospecMap.compareAndSet(ospecMap.get(), map);
+            tspecMap.compareAndSet(tspecMap.get(), tmap);
         }
         log.info("OSpec Size: " + oSpecCount);
     }
@@ -895,5 +943,233 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     public AtomicAdpodIndex<String, Handle> getAdpodGeoZipcodeIndex() {
         return adpodGeoZipcodeIndex;
+    }
+
+    public AdPod getAdPod(AdPodHandle handle) {
+        return adPodMap.get().get((int)handle.getOid());
+    }
+
+    public AdPod getAdPod(int adPodId) {
+        return adPodMap.get().get(adPodId);
+    }
+
+    public Campaign getCampaign(AdPodHandle handle) {
+        int campaignId = adPodCampaignMap.get().get((int)handle.getOid());
+        return campaignMap.get().get(campaignId); 
+    }
+
+    public void addCampaign(Campaign campaign) {
+        campaignMap.get().safePut(campaign.getId(), campaign);
+    }
+
+    public void delCampaign(int campaignId) {
+        campaignMap.get().safeRemove(campaignId);
+    }
+
+    public void addRecipe(Recipe recipe) {
+        recipeMap.get().safePut(recipe.getId(), recipe);
+    }
+
+    public void delRecipe(int recipeId) {
+        recipeMap.get().safeRemove(recipeId);
+    }
+
+    public Recipe getRecipe(int recipeId) {
+        return recipeMap.get().safeGet(recipeId);
+    }
+
+    public void addTSpec(TSpec tspec) {
+        tspecMap.get().safePut(tspec.getId(), tspec);
+    }
+
+    public void delTSpec(int tspecId) {
+        tspecMap.get().safeRemove(tspecId);
+    }
+
+    public TSpec getTspec(int tspecId) {
+        return tspecMap.get().get(tspecId);
+    }
+
+    public void addAdpodCampaignMapping(int adPodId, int campaignId) {
+        adPodCampaignMap.get().safePut(adPodId, campaignId);
+    }
+
+    public void addNonUrlAdPod(int adPodId) {
+        if(adPodUrlNoneHandlesMap.get().safeGet(adPodId) == null) {
+            AdPodHandle handle = new AdPodHandle(adPodId, TargetingScoreHelper.getInstance().getUrlNoneScore(), TargetingScoreHelper.getInstance().getUrlNoneWeight());
+            adpodUrlNoneIndex.put(AdpodIndex.URL_NONE, handle);
+            adPodUrlNoneHandlesMap.get().safePut(adPodId, handle);
+        }
+    }
+
+    public void deleteNonUrlAdPod(int adPodId) {
+        SortedSet<Handle> set = adpodUrlNoneIndex.get(AdpodIndex.URL_NONE);
+        if (set!=null) {
+            Handle h = adPodUrlNoneHandlesMap.get().safeGet(adPodId);
+            if (h!=null) {
+                set.remove(h);
+            }
+        }
+        adPodUrlNoneHandlesMap.get().safeRemove(adPodId);
+    }
+
+    public void loadRecipes(Iterator<Recipe> iterator) {
+        if(iterator == null) {
+            return;
+        }
+        if(iterator.hasNext()) {
+            RWLockedTreeMap<Integer,Recipe> map = new RWLockedTreeMap<Integer,Recipe>();
+
+            while(iterator.hasNext()) {
+                Recipe recipe = iterator.next();
+                map.put(recipe.getId(), recipe);
+            }
+            recipeMap.compareAndSet(recipeMap.get(), map);
+        }
+    }
+
+    public void loadUrlNoneAdPods(Iterator<AdPod> iterator) {
+        if(iterator == null) {
+            return;
+        }
+        int nonUrlAdpodCount = 0;
+        Map<String,List<Handle>> urlNoneAdPodMap;
+        if(iterator.hasNext()) {
+            urlNoneAdPodMap = new HashMap<String, List<Handle>>();
+            AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kUrlNone);
+            List<Handle> list = new ArrayList<Handle>();
+            while(iterator.hasNext()) {
+                AdPod adPod = iterator.next();
+                list.add(new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getUrlNoneScore(), TargetingScoreHelper.getInstance().getUrlNoneWeight()));
+                nonUrlAdpodCount++;
+            }
+            log.info("Non-Url Adpod Size: " + nonUrlAdpodCount);
+
+            urlNoneAdPodMap.put(AdpodIndex.URL_NONE, list);
+            index.put(urlNoneAdPodMap);
+            adpodUrlNoneIndex.set(index);
+
+            //Reset the map that holds on to adpod handles for dynamic request - incorpmappingdelta
+            adPodUrlNoneHandlesMap.compareAndSet(adPodUrlNoneHandlesMap.get(), new RWLockedTreeMap<Integer, Handle>());
+        }
+    }
+
+    public void loadAdPodCampaignMapping(Iterator<Pair<Integer, Integer>> iterator) {
+        if(iterator == null) {
+            return;
+        }
+        if(iterator.hasNext()) {
+            RWLockedTreeMap<Integer,Integer> map = new RWLockedTreeMap<Integer,Integer>();
+            while(iterator.hasNext()) {
+                Pair<Integer, Integer> pair = iterator.next();
+                int adPodId = pair.getFirst();
+                int campaignId = pair.getSecond();
+                map.put(adPodId, campaignId);
+            }
+            adPodCampaignMap.compareAndSet(adPodCampaignMap.get(), map);
+        }
+    }
+
+    public AtomicAdpodIndex<String, Handle> getNonUrlAdPodIndex() {
+        return adpodUrlNoneIndex;
+    }
+
+    public Campaign getCampaign(int campaignId) {
+        return campaignMap.get().safeGet(campaignId);
+    }
+
+    /**
+     * Load the Location Name to ID mapping
+     * @param iterator
+     */
+    public void loadLocationNameIdMapping(Iterator<Pair<String, Integer>> iterator) {
+        if(iterator == null) {
+            return;
+        }
+        if(iterator.hasNext()) {
+            RWLockedTreeMap<String,Integer> map = new RWLockedTreeMap<String,Integer>();
+            while(iterator.hasNext()) {
+                Pair<String, Integer> pair = iterator.next();
+                String locationName = pair.getFirst();
+                Integer locId = pair.getSecond();
+                map.put(locationName, locId);
+            }
+            locationNameIdMap.compareAndSet(locationNameIdMap.get(), map);
+        }
+    }
+
+    /**
+     * Lookup the location Name id map
+     * @param locationName
+     */
+    public Integer getLocationIdForName(String locationName) {
+        return locationNameIdMap.get().safeGet(locationName);
+    }
+
+    public void addLocationNameIdMap(String locName, Integer id) {
+        locationNameIdMap.get().safePut(locName, id);
+    }
+
+    public void deleteLocationNameIdMapping(String locName) {
+        locationNameIdMap.get().safeRemove(locName);
+    }
+
+    public boolean isEmpty(){
+        return (campaignMap.get().isEmpty());
+    }
+
+    public ArrayList<Campaign> getCampaigns() {
+        ArrayList<Campaign> campAL = new ArrayList<Campaign>();
+        RWLockedTreeMap<Integer, Campaign> campTreeMap = campaignMap.get();
+        Iterator<Integer> campIdSetIter = campTreeMap.keySet().iterator();
+        while(campIdSetIter.hasNext()) {
+            Integer campId = campIdSetIter.next();
+            campAL.add(campTreeMap.get(campId));
+        }
+        return campAL;
+    }
+
+    public ArrayList<AdPod> getAdPods() {
+        ArrayList<AdPod> adPodAL = new ArrayList<AdPod>();
+        RWLockedTreeMap<Integer, AdPod> adPodTreeMap = adPodMap.get();
+        Iterator<Integer> adPodKeySetIter = adPodTreeMap.keySet().iterator();
+        while(adPodKeySetIter.hasNext()) {
+            Integer adPodId = adPodKeySetIter.next();
+            adPodAL.add(adPodTreeMap.get(adPodId));
+        }
+        return adPodAL;
+    }
+
+    public ArrayList<OSpec> getOSpecs() {
+        ArrayList<OSpec> oSpecArrayList = new ArrayList<OSpec>();
+        RWLockedTreeMap<Integer, OSpec> oSpecTreeMap = ospecMap.get();
+        Iterator<Integer> oSpecKeysIter = oSpecTreeMap.keySet().iterator();
+        while(oSpecKeysIter.hasNext()) {
+            Integer oSpecId = oSpecKeysIter.next();
+            oSpecArrayList.add(oSpecTreeMap.get(oSpecId));
+        }
+        return oSpecArrayList;
+    }
+
+    public ArrayList<TSpec> getTSpecs() {
+        ArrayList<TSpec> tSpecArrayList = new ArrayList<TSpec>();
+        RWLockedTreeMap<Integer, TSpec> oSpecTreeMap = tspecMap.get();
+        Iterator<Integer> tSpecKeysIter = oSpecTreeMap.keySet().iterator();
+        while(tSpecKeysIter.hasNext()) {
+            Integer oSpecId = tSpecKeysIter.next();
+            tSpecArrayList.add(oSpecTreeMap.get(oSpecId));
+        }
+        return tSpecArrayList;
+    }
+
+    public ArrayList<Recipe> getRecipes() {
+        ArrayList<Recipe> recipeArrayList = new ArrayList<Recipe>();
+        RWLockedTreeMap<Integer, Recipe> recipeTreeMap = recipeMap.get();
+        Iterator<Integer> recipeKeyIter = recipeTreeMap.keySet().iterator();
+        while(recipeKeyIter.hasNext()) {
+            Integer recipeId = recipeKeyIter.next();
+            recipeArrayList.add(recipeTreeMap.get(recipeId));
+        }
+        return recipeArrayList;
     }
 }

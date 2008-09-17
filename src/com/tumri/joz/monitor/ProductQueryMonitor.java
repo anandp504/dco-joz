@@ -1,25 +1,21 @@
 package com.tumri.joz.monitor;
 
-import java.io.StringReader;
-import java.io.StringReader;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-
+import com.tumri.joz.JoZException;
+import com.tumri.joz.jozMain.AdDataRequest;
+import com.tumri.joz.jozMain.Features;
+import com.tumri.joz.jozMain.ListingProviderFactory;
+import com.tumri.joz.jozMain.MerchantDB;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.productselection.ProductSelectionRequest;
+import com.tumri.joz.productselection.TSpecExecutor;
+import com.tumri.lls.client.main.ListingProvider;
+import com.tumri.lls.client.response.ListingResponse;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.tumri.joz.products.ProductDB;
-import com.tumri.utils.sexp.SexpReader;
-import com.tumri.utils.sexp.SexpIFASLReader;
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpList;
-import com.tumri.joz.jozMain.CmdGetAdData;
+import java.util.*;
 
 /**
  * Monitor for JoZ ProductQuery component
@@ -36,99 +32,99 @@ public class ProductQueryMonitor extends ComponentMonitor
        super("getaddata", new ProductQueryMonitorStatus("getaddata"));
     }
 
-    public MonitorStatus getStatus(String arg)
+    /**
+     * Method not supported
+     * @param tSpecId
+     * @return
+     */
+    public MonitorStatus getStatus(String tSpecId) {
+        throw new UnsupportedOperationException("Method not supported");
+    }
+
+    /**
+     * Method to get the product information for a tspec
+     * @param tSpecId
+     * @return
+     */
+    public MonitorStatus getStatus(int tSpecId)
     {
-        byte[] bytes;
+
+        ProductSelectionRequest pr = new ProductSelectionRequest();
+        pr.setPageSize(100);
+        pr.setCurrPage(0);
+        pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
+        pr.setBPaginate(true);
+        pr.setBRandomize(false);
+        pr.setRequestKeyWords(null);
+        pr.setBMineUrls(false);
+
+
         List<Map<String, String>>  results;
 
         try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Sexp sexp = createSexp(arg);
-            ((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(sexp.toString());
-            CmdGetAdData cmd = new CmdGetAdData(sexp);
-            cmd.process_and_write(out);
-            bytes = out.toByteArray();
-            ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-            SexpIFASLReader ifaslreader = new SexpIFASLReader(in);
-            Sexp sexpr = ifaslreader.read();
-            results = getProductData(sexpr);
+            ArrayList<Handle> handles = doProductSelection(tSpecId, pr, new Features() );
+            results = getProductData(handles);
         }
         catch(Exception ex) {
-          log.error("Error reading sexpression:  "+ex.getMessage());
-          results = null;
+            log.error("Error reading sexpression:  "+ex.getMessage());
+            results = null;
         }
 
         ((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
+	    ((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(pr.toString());
+
         return status;
     }
 
     /**
-     * Returns the status for a get-ad-data string
-     * @param arg
-     * @return
+     * Execute the current tspec and add to the results map
+     * @param pr
      */
-    public MonitorStatus getStatusGetAdData(String arg)
-    {
-        byte[] bytes;
-        List<Map<String, String>>  results = null;
-
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Sexp sexp = null;
-            SexpReader r = new SexpReader(new StringReader(arg));
-            try {
-               sexp = r.read();
-            }
-            catch(Exception ex) {
-               log.error("Error creating sexpression:  "+ex.getMessage());
-               return null;
-            }
-            if (sexp != null) {
-                ((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(sexp.toString());
-                CmdGetAdData cmd = new CmdGetAdData(sexp);
-                cmd.process_and_write(out);
-                bytes = out.toByteArray();
-                ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-                SexpIFASLReader ifaslreader = new SexpIFASLReader(in);
-                Sexp sexpr = ifaslreader.read();
-                results = getProductData(sexpr);
-            }
-        }
-        catch(Exception ex) {
-          log.error("Error reading sexpression:  "+ex.getMessage());
-          results = null;
-        }
-
-        ((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
-        return status;
+    private ArrayList<Handle> doProductSelection(int tspecId, ProductSelectionRequest pr, Features f) {
+        TSpecExecutor qp = new TSpecExecutor(pr, f);
+        return qp.processQuery(tspecId);
     }
 
-    private List<Map<String, String>> getProductData(Sexp sexpr) throws JozMonitorException
-    {
+    /**
+     * Get the JSON Product listing response from LLC Client.
+     * @param handles
+     * @return
+     * @throws JoZException
+     */
+    private List<Map<String, String>> getProductData( ArrayList<Handle> handles) throws JoZException {
+        Integer maxDescLength = 100;// default
         List<Map<String, String>> products=new ArrayList<Map<String,String>>();
-        if (!sexpr.isSexpList())
-           throw new JozMonitorException("Expected sexp is not a list.");
 
-        ((ProductQueryMonitorStatus)status.getStatus()).setProductRawData(sexpr.toString());
-        //get Product Data
-        Sexp tmp=((SexpList)sexpr).get(1);
-        if (tmp == null)
-            throw new JozMonitorException("Products not found. Null encountered.");
-        if (!tmp.isSexpList())
-           throw new JozMonitorException("Expected sexp is not a list.");
-        tmp=((SexpList)tmp).get(1);
-        //tmp should be a SexpString.
-        if (!tmp.isSexpString())
-           throw new JozMonitorException("Expected sexp is not a string.");
+        if (handles==null) {
+            throw new JoZException("No products returned by the product selection");
+        }
 
-        //strip off the quotes around the entire JSON array string
-        String jsonStr = tmp.toString();
-        if (jsonStr.startsWith("\""))
-            jsonStr = jsonStr.substring(1, jsonStr.length()-1);
+        long[] pids = new long[handles.size()];
 
-		//Replace "\"" by escaping it. Each character preceded by two(2) forward slashes.
-      	jsonStr = jsonStr.replaceAll("\\\\\"","\"");
+        for (int i=0;i<handles.size();i++){
+            pids[i] = handles.get(i).getOid();
+        }
 
+        ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+                MerchantDB.getInstance().getMerchantData());
+        ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
+        if (response==null) {
+            throw new JoZException("Invalid response from Listing Provider");
+        }
+
+        String jsonStr = response.getListingDetails();
+        if (jsonStr==null || "".equals(jsonStr)) {
+            throw new JozMonitorException("Products not found.");
+        }
+        StringBuffer rawData = new StringBuffer();
+        rawData.append("[PRODUCTS = " + jsonStr + "] ");
+        rawData.append("[PROD-IDS = " + response.getProductIdList() + "] ");
+        rawData.append("[CATEGORIES = " + response.getCatDetails() + "] ");
+        rawData.append("[CAT-NAMES = " + response.getCatIdList() + "] ");
+
+        ((ProductQueryMonitorStatus)status.getStatus()).setProductRawData(rawData.toString());
+
+        //jsonStr = jsonStr.replaceAll("\\\\\\\\\"","\\\\\\\\\\\\\"");
         try {
             JSONArray jsonArray = new JSONArray(jsonStr);
             for (int i=0; i<jsonArray.length(); i++) {
@@ -147,28 +143,13 @@ public class ProductQueryMonitor extends ComponentMonitor
             }
         }
         catch (Exception ex) {
+            log.info(jsonStr);
+            log.error("Error in json parsing : " + ex);
             throw new JozMonitorException("Unexpected Json library error.");
         }
 
         return products;
+
     }
 
-
-    private Sexp createSexp(String tspec)
-    {
-       String defaultTspec = "TSPEC-http://www.howstuffworks.com";
-       if (tspec == null)
-          tspec = defaultTspec;
-       Sexp e = null;
-       String s = "(:get-ad-data :t-spec '|"+tspec+"| :ad-offer-type :product-leadgen :which-row 0 :row-size 100)";
-       SexpReader r = new SexpReader(new StringReader(s));
-       try {
-          e = r.read();
-       }
-       catch(Exception ex) {
-          log.error("Error creating sexpression:  "+ex.getMessage());
-          e = null;
-       }
-       return e;
-    }
 }

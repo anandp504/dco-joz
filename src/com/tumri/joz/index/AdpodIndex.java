@@ -16,6 +16,7 @@ public class AdpodIndex<Key, Value> extends AbstractIndex<AdPod, AdpodIndex.Attr
     public static final String RUN_OF_NETWORK = "RUN_OF_NETWORK";
     public static final String DEFAULT_REALM  = "DEFAULT_REALM";
     public static final String GEO_NONE       = "GEO_NONE";
+    public static final String URL_NONE       = "URL_NONE";
 
     private Attribute type;
     public AdpodIndex(AdpodIndex.Attribute type) {
@@ -30,18 +31,22 @@ public class AdpodIndex<Key, Value> extends AbstractIndex<AdPod, AdpodIndex.Attr
     }
 
     public enum Attribute {
-    // Site related codes
-    kUrl,
-    kTheme,
-    kLocation,
-    kRunofNetwork,
-    // Geo related code
-    kZipCode,
-    kDMACode,
-    kAreaCode,
-    kCityCode,
-    kRegionCode,
-    kCountryCode,
-    kGeoNone
-  }
+        // Site related codes
+        kUrl,
+        kTheme,
+        kLocation,
+        kRunofNetwork,
+        // Geo related code
+        kZipCode,
+        kDMACode,
+        kAreaCode,
+        kCityCode,
+        kRegionCode,
+        kCountryCode,
+        kGeoNone,
+        kTime,
+        kAdType,
+        kRecipe,
+        kUrlNone,
+    }
 }

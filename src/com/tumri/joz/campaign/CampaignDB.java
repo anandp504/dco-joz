@@ -86,10 +86,15 @@ public abstract class CampaignDB {
 
     public abstract OSpec getOspec(String name);
 
+    public abstract OSpec getOspec(int oSpecId);
+
     public abstract Url getUrl(String urlName);
 
+    public abstract Url getUrl(int urlId);
 
     public abstract Theme getTheme(String themeName);
+
+    public abstract Theme getTheme(int themeId);
 
     public abstract Location getLocation(int locationId);
 
@@ -192,4 +197,63 @@ public abstract class CampaignDB {
     public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoAreacodeIndex();
 
     public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoZipcodeIndex();
+
+    public abstract AdPod getAdPod(AdPodHandle handle);
+
+    public abstract AdPod getAdPod(int adPodId);
+
+    public abstract Campaign getCampaign(AdPodHandle handle);
+
+    public abstract Campaign getCampaign(int campaignId);
+
+    public abstract void addCampaign(Campaign campaign);
+
+    public abstract void delCampaign(int campaignId);
+
+    public abstract void addRecipe(Recipe recipe);
+
+    public abstract void delRecipe(int recipeId);
+
+    public abstract Recipe getRecipe(int recipeId);
+
+    public abstract void addTSpec(TSpec tspec);
+
+    public abstract void delTSpec(int tspecId);
+
+    public abstract TSpec getTspec(int tspecId);
+    
+    public abstract void addAdpodCampaignMapping(int adPodId, int campaignId);
+
+    public abstract void addNonUrlAdPod(int adPodId);
+
+    public abstract void deleteNonUrlAdPod(int adPodId);
+
+    public abstract void loadRecipes(Iterator<Recipe> iterator);
+
+    public abstract void loadUrlNoneAdPods(Iterator<AdPod> iterator);
+
+    public abstract void loadAdPodCampaignMapping(Iterator<Pair<Integer, Integer>> iterator);
+
+    public abstract AtomicAdpodIndex<String, Handle> getNonUrlAdPodIndex();
+
+    public abstract void loadLocationNameIdMapping(Iterator<Pair<String, Integer>> iterator);
+
+    public abstract Integer getLocationIdForName(String locationName);
+
+    public abstract void addLocationNameIdMap(String locName, Integer id);
+
+    public abstract void deleteLocationNameIdMapping(String themeName);
+
+    public abstract boolean isEmpty();
+
+    public abstract ArrayList<Campaign> getCampaigns();
+
+    public abstract ArrayList<OSpec> getOSpecs();
+
+    public abstract ArrayList<AdPod> getAdPods();
+
+    public abstract ArrayList<TSpec> getTSpecs();
+
+    public abstract ArrayList<Recipe> getRecipes();
+
 }

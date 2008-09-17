@@ -8,19 +8,19 @@
 	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	  <title>Joz Console : Service Multiplexer</title>
 	  <script type="text/javascript">
-		  function submitForm(tspec) {
-			var selTspec=document.getElementById("selTspec");
-			selTspec.value=tspec;
-			var form=document.getElementById("tspecSelForm");
+		  function submitForm(oSpecId) {
+			var selOSpec=document.getElementById("selOSpec");
+			selOSpec.value = oSpecId;
+			var form=document.getElementById("OSpecSelForm");
 			form.submit();
-		  };
+		};
 	  </script>
 	</head>
 <body>
 
 	<jsp:include page="header.jsp"/>
 	<div id="homelink" style="text-align: right">
-		<a href="console.jsp">home</a>
+		<a href="/joz/console">home</a>
 	</div>
 	<br>
 
@@ -30,8 +30,8 @@
 	<br>
 
 	<div>
-		<form id="tspecSelForm" name="tspecSelForm" method="post" action="products.jsp">
-		<input type="hidden" id="selTspec" name="selTspec" value=""/>
+		<form id="OSpecSelForm" name="tspecSelForm" method="post" action="/joz/jsp/oSpecSelection.jsp">
+		<input type="hidden" id="selOSpec" name="selOSpec" value=""/>
 		<table border="1" cellspacing="0" cellpading="0">
 		<tr>
 		<th align="left">Type</th>
@@ -73,90 +73,92 @@
 			for(int j=0;j<urlList.size();j++) {
 				url=(String)urlList.get(j);
 				values=urlAdPodIndex.get(url);
-				valuesIt=values.iterator();
-				List<String> geoList=new ArrayList<String>();
-				Iterator geoIt=null;
-				String geoStr=null;
-				SortedSet<AdPodHandle> geoVal=null;
-				while(valuesIt.hasNext()) {
-					adPodHandle=(AdPodHandle)valuesIt.next();
-					geoList.clear();
-
-					geoIt=countryKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=geoCountryAdPodIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+				if(values != null){
+					valuesIt=values.iterator();
+					List<String> geoList=new ArrayList<String>();
+					Iterator geoIt=null;
+					String geoStr=null;
+					SortedSet<AdPodHandle> geoVal=null;
+					while(valuesIt.hasNext()) {
+						adPodHandle=(AdPodHandle)valuesIt.next();
+						geoList.clear();
+	
+						geoIt=countryKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=geoCountryAdPodIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);
+							}
 							geoList.add(geoStr);
 						}
-						geoList.add(geoStr);
-					}
-
-					geoIt=regionKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoRegionIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=regionKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoRegionIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
-					}
-
-					geoIt=cityKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoCityIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=cityKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoCityIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
-					}
-
-					geoIt=dmaCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoDmacodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=dmaCodeKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoDmacodeIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
-					}
-
-					geoIt=areaCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoAreacodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=areaCodeKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoAreacodeIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
-					}
-
-					geoIt=zipCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoZipcodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=zipCodeKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoZipcodeIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
+	
+						try{
+							oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
+						}catch(Exception e){
+							continue;
+						}
+						if (null == oSpec) continue;
+	
+						//Now print the data into html.
+						out.print("<tr>");
+						out.print("<td valign=\"top\">R</td>");
+						out.print("<td valign=\"top\">"+url+"</td>");
+						
+						out.print("<td valign=\"top\"><table>");
+						for(int i=0;i<geoList.size();i++) {
+							out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
+						}
+						out.print("</table></td>");
+	
+						out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getId()+"')\">"+oSpec.getName()+"</td>");
+						out.print("</tr>");
 					}
-
-					try{
-						oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
-					}catch(Exception e){
-						continue;
-					}
-					if (null == oSpec) continue;
-
-					//Now print the data into html.
-					out.print("<tr>");
-					out.print("<td valign=\"top\">R</td>");
-					out.print("<td valign=\"top\">"+url+"</td>");
-					
-					out.print("<td valign=\"top\"><table>");
-					for(int i=0;i<geoList.size();i++) {
-						out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
-					}
-					out.print("</table></td>");
-
-					out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
-					out.print("</tr>");
 				}
 			}
 
@@ -177,91 +179,93 @@
 			for(int j=0;j<themeList.size();j++) {
 				theme=(String)themeList.get(j);
 				values=themeAdPodIndex.get(theme);
-				valuesIt=values.iterator();
-				List<String> geoList=new ArrayList<String>();
-				List<String> tspecList=new ArrayList<String>();
-				Iterator geoIt=null;
-				String geoStr=null;
-				SortedSet<AdPodHandle> geoVal=null;
-				while(valuesIt.hasNext()) {
-					adPodHandle=(AdPodHandle)valuesIt.next();
-					geoList.clear();
-
-					geoIt=countryKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=geoCountryAdPodIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+				if(values != null){
+					valuesIt=values.iterator();
+					List<String> geoList=new ArrayList<String>();
+					List<String> tspecList=new ArrayList<String>();
+					Iterator geoIt=null;
+					String geoStr=null;
+					SortedSet<AdPodHandle> geoVal=null;
+					while(valuesIt.hasNext()) {
+						adPodHandle=(AdPodHandle)valuesIt.next();
+						geoList.clear();
+	
+						geoIt=countryKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=geoCountryAdPodIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);
+							}
 							geoList.add(geoStr);
 						}
-						geoList.add(geoStr);
-					}
-
-					geoIt=regionKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoRegionIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=regionKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoRegionIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
-					}
-
-					geoIt=cityKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoCityIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=cityKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoCityIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
-					}
-
-					geoIt=dmaCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoDmacodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=dmaCodeKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoDmacodeIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
-					}
-
-					geoIt=areaCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoAreacodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=areaCodeKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoAreacodeIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
-					}
-
-					geoIt=zipCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoZipcodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+	
+						geoIt=zipCodeKeys.iterator();
+						while(geoIt.hasNext()) {
+							geoStr=(String)geoIt.next();
+							geoVal=adpodGeoZipcodeIndex.get(geoStr);
+							if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
+								geoList.add(geoStr);		
+							}
 						}
+						
+						try{
+							oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
+						}catch(Exception e){
+							continue;
+						}
+						if (null==oSpec) continue;
+						
+						//Now print the data into html.
+						out.print("<tr>");
+						out.print("<td valign=\"top\">T</td>");
+						out.print("<td valign=\"top\">"+theme+"</td>");
+	
+						out.print("<td valign=\"top\"><table>");
+						for(int i=0;i<geoList.size();i++) {
+							out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
+						}
+						out.print("</table></td>");
+	
+						out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getId()+"')\">"+oSpec.getName()+"</td>");
+						out.print("</tr>");
 					}
-					
-					try{
-						oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
-					}catch(Exception e){
-						continue;
-					}
-					if (null==oSpec) continue;
-					
-					//Now print the data into html.
-					out.print("<tr>");
-					out.print("<td valign=\"top\">T</td>");
-					out.print("<td valign=\"top\">"+theme+"</td>");
-
-					out.print("<td valign=\"top\"><table>");
-					for(int i=0;i<geoList.size();i++) {
-						out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
-					}
-					out.print("</table></td>");
-
-					out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
-					out.print("</tr>");
 				}
 			}
 
@@ -281,97 +285,45 @@
 			Collections.sort(locationList);
 			for(int j=0;j<locationList.size();j++) {
 				location=(Integer)locationList.get(j);
-				values=themeAdPodIndex.get(location.intValue());
-				valuesIt=values.iterator();
-				List<String> geoList=new ArrayList<String>();
-				List<String> tspecList=new ArrayList<String>();
-				Iterator geoIt=null;
-				String geoStr=null;
-				SortedSet<AdPodHandle> geoVal=null;
-				while(valuesIt.hasNext()) {
-					adPodHandle=(AdPodHandle)valuesIt.next();
-					geoList.clear();
-
-					geoIt=countryKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=geoCountryAdPodIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);
+				values=locationAdPodIndex.get(location.intValue());
+				if(values != null){
+					valuesIt=values.iterator();
+					while(valuesIt.hasNext()) {
+						adPodHandle=(AdPodHandle)valuesIt.next();
+						
+						try{
+							oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
+						}catch(Exception e) {
+							continue;
 						}
-						geoList.add(geoStr);
-					}
-
-					geoIt=regionKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoRegionIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+						if (null==oSpec) continue;
+	
+						//Now print the data into html.
+						out.print("<tr>");
+						out.print("<td valign=\"top\">L</td>");
+						out.print("<td valign=\"top\">"+location.toString()+"</td>");
+	
+						out.print("<td valign=\"top\"><table>");
+						
+						Location loc = campaignDB.getLocation(location);
+						if(loc != null){
+							out.print("<tr><td>"+(loc.getName())+"</td></tr>");	
 						}
-					}
-
-					geoIt=cityKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoCityIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
+						else{
+							out.print("<tr><td></td></tr>");	
 						}
+						
+						out.print("</table></td>");
+	
+						out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getId()+"')\">"+oSpec.getName()+"</td>");
+						out.print("</tr>");
 					}
-
-					geoIt=dmaCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoDmacodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
-						}
-					}
-
-					geoIt=areaCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoAreacodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
-						}
-					}
-
-					geoIt=zipCodeKeys.iterator();
-					while(geoIt.hasNext()) {
-						geoStr=(String)geoIt.next();
-						geoVal=adpodGeoZipcodeIndex.get(geoStr);
-						if ((null !=geoVal) && (geoVal.contains(adPodHandle))) {
-							geoList.add(geoStr);		
-						}
-					}
-					
-					try{
-						oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
-					}catch(Exception e) {
-						continue;
-					}
-					if (null==oSpec) continue;
-
-					//Now print the data into html.
-					out.print("<tr>");
-					out.print("<td valign=\"top\">L</td>");
-					out.print("<td valign=\"top\">"+location.toString()+"</td>");
-
-					out.print("<td valign=\"top\"><table>");
-					for(int i=0;i<geoList.size();i++) {
-						out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
-					}
-					out.print("</table></td>");
-
-					out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getName()+"')\">"+oSpec.getName()+"</td>");
-					out.print("</tr>");
 				}
 			}
 
 		%>
 		</table>
+		
 		</form>
 	</div>
 </body>

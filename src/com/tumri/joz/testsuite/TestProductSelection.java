@@ -2,11 +2,13 @@ package com.tumri.joz.testsuite;
 
 import com.tumri.cma.RepositoryException;
 import com.tumri.cma.domain.OSpec;
+import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
+import com.tumri.cma.persistence.xml.CampaignXMLDataProviderImpl;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.Query.QueryProcessor;
-import com.tumri.joz.campaign.OSpecQueryCacheHelper;
+import com.tumri.joz.campaign.TSpecQueryCacheHelper;
 import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
@@ -38,13 +40,14 @@ public class TestProductSelection {
       Properties props = AppProperties.getInstance().getProperties();
       ContentHelper.init(props);
       CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.newInstance(props);
+      //CampaignXMLDataProviderImpl lispDeltaProvider = CampaignXMLDataProviderImpl.newInstance(props);
       Iterator<OSpec> iter = lispDeltaProvider.getOspecs("US");
       QueryProcessor qp = new ProductQueryProcessor();
       ProductDB.getInstance();
       buildCNFQueries(iter);
       //setup();
-      //test0();
-      test1();
+      test0();
+      //test1();
     } catch (RepositoryException e) {
       e.printStackTrace();
     }
@@ -68,11 +71,15 @@ public class TestProductSelection {
     List<CNFQuery> list = m_queries;
     int count =0;
     while (iter.hasNext()) {
-      CNFQuery cnf = OSpecQueryCacheHelper.getQuery(iter.next());
-      cnf.setStrict(true);
-      cnf.setBounds(12, 0);
-      list.add(cnf);
-      count++;
+       OSpec ospec = iter.next();
+       List<TSpec> tspecList = ospec.getTspecs();
+       for (TSpec t: tspecList) {
+           CNFQuery cnf = TSpecQueryCacheHelper.getQuery(t);
+           cnf.setStrict(true);
+           cnf.setBounds(12, 0);
+           list.add(cnf);
+           count++;
+       }
     }
     System.out.println("Count is "+count);
     return list;

@@ -15,42 +15,37 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Targeting Query for Site related data.
+ * Targeting Query for Theme and Location data.
  *
  * @author bpatel
+ * @author nipun
  */
 public class SiteTargetingQuery extends TargetingQuery {
     private int locationId;
-    private String urlName;
     private String themeName;
 
-    public SiteTargetingQuery(int locationId, String urlName, String themeName) {
+    public SiteTargetingQuery(int locationId, String themeName) {
         this.locationId = locationId;
-        this.urlName    = urlName;
         this.themeName = themeName;
     }
 
-    public Type getType() {
+    public Type getType() {                                                                   
         return Type.kSite;
     }
 
     public SortedSet<Handle> exec() {
         SortedSet<Handle> locationResults      = execLocationQuery();
-        SortedSet<Handle> urlResults           = execUrlQuery();
         SortedSet<Handle> themeResults         = execThemeQuery();
         //SortedSet<Handle> runOfNetworksResults = execRunOfNetworkQuery();
+
 
         MultiSortedSet<Handle> results = new MultiSortedSet<Handle>();
         if(locationResults != null) {
             results.add(locationResults);
         }
-        if(urlResults != null) {
-            results.add(urlResults);
-        }
         if(themeResults != null) {
             results.add(themeResults);
         }
-
 //        if(runOfNetworksResults != null) {
 //            results.add(runOfNetworksResults);
 //        }
@@ -72,74 +67,18 @@ public class SiteTargetingQuery extends TargetingQuery {
     private SortedSet<Handle> execThemeQuery() {
         SortedSet<Handle> results = null;
         if(themeName != null && !themeName.equals("")) {
-            AtomicAdpodIndex index = CampaignDB.getInstance().getThemeAdPodMappingIndex();
-            results = index.get(themeName);
+            //Do a look up for the Location ID for the given theme. ThemeQuery is executed as a location query internally
+            Integer thmLocId = CampaignDB.getInstance().getLocationIdForName(themeName);
+            if (thmLocId != null) {
+                locationId = thmLocId.intValue();
+            } else {
+                locationId = 0;
+            }
+            results = execLocationQuery();
         }
         return results;
     }
 
-    @SuppressWarnings({"unchecked"})
-    private SortedSet<Handle> execUrlQuery() {
-        MultiSortedSet<Handle> urlsResults = new MultiSortedSet<Handle>();
-        SortedSet<Handle> results;
-        if(urlName != null && !urlName.equals("")) {
-            AtomicAdpodIndex index = CampaignDB.getInstance().getUrlAdPodMappingIndex();
-            List<String> urls = UrlNormalizer.getAllPossibleNormalizedUrl(urlName);
-            if(urls != null && urls.size() > 0) {
-                double urlScore = TargetingScoreHelper.getInstance().getUrlScore();
-                double delta    = 0.05;
-                for (String url : urls) {
-                    results = index.get(url);
-                    SortedSet<Handle> clonedResults = null;
-                    if(results != null) {
-                        clonedResults = cloneResults(results, urlScore);
-                    }
-                    if(urlScore > delta) {
-                        urlScore = urlScore - delta;
-                    }
-                    else {
-                        urlScore = delta;    
-                    }
-                    if(clonedResults != null) {
-                        urlsResults.add(clonedResults);
-                    }
-                }
-            }
-
-        }
-        return urlsResults;
-    }
-
-    private SortedSet<Handle> cloneResults(SortedSet<Handle> results, double urlScore) {
-        SortedArraySet<Handle> sortedArraySet = null;
-        ArrayList<Handle> list;
-        if(results != null) {
-            if(results instanceof RWLocked) {
-                ((RWLocked)results).readerLock();
-            }
-            try {
-                Iterator<Handle> iterator = results.iterator();
-                if(iterator != null) {
-                    list = new ArrayList<Handle>();
-                    while(iterator.hasNext()) {
-                        Handle handle = iterator.next();
-                        handle = handle.createHandle(urlScore);
-                        list.add(handle);
-                    }
-                    sortedArraySet = new SortedArraySet<Handle>(list);
-                }
-            }
-            finally {
-                if(results instanceof RWLocked) {
-                    ((RWLocked)results).readerUnlock();
-                }
-            }
-
-        }
-
-        return sortedArraySet;
-    }
-    
 //    private SortedSet<Handle> execRunOfNetworkQuery() {
 //        SortedSet<Handle> results;
 //        AtomicAdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();

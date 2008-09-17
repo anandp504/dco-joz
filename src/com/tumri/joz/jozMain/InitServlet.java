@@ -15,12 +15,16 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.server.JozServer;
+import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.Polling;
 
 public class InitServlet extends HttpServlet {
     
     private static Logger log = null;
     private static final String g_Log4JPropertiesFile = "jozLog4j.xml";
+    private Thread jozServerThread = null;
+    private JozServer jozServer = null;
     
     static {
         String fileName = getLog4JConfigFilePath();
@@ -39,6 +43,25 @@ public class InitServlet extends HttpServlet {
         
         try {
             JozData.init();
+
+            int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
+            int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
+            int timeout= Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.timeout"));
+            String queryHandlers = AppProperties.getInstance().getProperty("tcpServer.queryHandlers");
+            log.info("Starting joz server");
+            log.info("poolSize = "+poolSize);
+            log.info("port = "+port);
+            log.info("queryHandlers = "+queryHandlers);
+            log.info("timeout = "+timeout);
+            
+            jozServer = new JozServer(poolSize,port,timeout,queryHandlers);
+            jozServerThread = new Thread("JoZServerThread") {
+                public void run() {
+                	jozServer.runServer();
+                }
+            };
+            jozServerThread.start();          
+            log.info("Started joz server .....");
         } catch (Exception e) {
             log.error(e.toString());
             throw new ServletException(e.toString());
@@ -55,6 +78,10 @@ public class InitServlet extends HttpServlet {
         Polling.getInstance().shutdown();  
         CMAContentPoller.getInstance().shutdown();
         ListingProviderFactory.shutdown();
+        if  (jozServerThread!=null) {
+        	jozServerThread.interrupt();
+        }
+        jozServer.shutdown();
     }
     
     private static String getLog4JConfigFilePath() {

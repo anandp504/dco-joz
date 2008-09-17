@@ -5,7 +5,7 @@ import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.campaign.CampaignDB;
-import com.tumri.joz.campaign.OSpecQueryCacheHelper;
+import com.tumri.joz.campaign.TSpecQueryCacheHelper;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.utils.AppProperties;
 import org.apache.log4j.Logger;
@@ -99,7 +99,7 @@ class TestProgram implements Runnable {
     List<CNFQuery> list = new ArrayList<CNFQuery>();
     int count =0;
     while (iter.hasNext()) {
-      CNFQuery cnf = OSpecQueryCacheHelper.getQuery(iter.next());
+      CNFQuery cnf = null; //TSpecQueryCacheHelper.getQuery(iter.next());
       cnf.setStrict(true);
       cnf.setBounds(12, 0);
       list.add(cnf);

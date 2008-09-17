@@ -65,6 +65,10 @@ public class JozRefreshDataServlet extends HttpServlet {
                 result = "failed";
             }
             responseJSP = "/jsp/llc-status.jsp";
+        } else {
+            //Default send to console
+            jspMode = "true";
+            responseJSP = "/jsp/console.jsp";
         }
         //By default send non verbose output
         if (jspMode!=null) {

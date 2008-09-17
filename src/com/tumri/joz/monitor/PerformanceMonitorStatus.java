@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.tumri.joz.utils.AppProperties;
+
 /**
  * Status description Class for the performance monitor
  *
@@ -117,6 +119,14 @@ public class PerformanceMonitorStatus extends MonitorStatus
 
 	public Date getStartDate() {
 		return this.startDate;
+	}
+	
+	public int getActiveThreads(){
+		return com.tumri.utils.tcp.server.monitor.PerformanceMonitor.getInstance().getActiveThreads();
+	}
+	public int getTotalThreads(){
+		int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
+        return poolSize;
 	}
 
     public String toHTML()

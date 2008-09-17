@@ -22,5 +22,6 @@ public abstract class ComponentMonitor
        return name;
     }
 
-    public abstract MonitorStatus getStatus(String arg); 
+    public abstract MonitorStatus getStatus(String arg);
+
 }

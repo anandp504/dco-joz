@@ -20,7 +20,7 @@ package com.tumri.joz.products;
 import com.tumri.content.*;
 import com.tumri.content.data.Content;
 import com.tumri.content.data.ContentProviderStatus;
-import com.tumri.joz.campaign.OSpecQueryCache;
+import com.tumri.joz.campaign.TSpecQueryCache;
 import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.utils.LogUtils;
@@ -175,7 +175,7 @@ public class ContentHelper implements ContentListener {
                 pdb.deleteProduct(deltas[2]);
                 
                 // Clear all Ospec Query Cache.
-                OSpecQueryCache.getInstance().clear();
+                TSpecQueryCache.getInstance().clear();
             }
     }
 
@@ -186,7 +186,7 @@ public class ContentHelper implements ContentListener {
         // Need to update the lucene index before deleting old products.
         initLucene();
         // Clear all Ospec Query Cache.
-        OSpecQueryCache.getInstance().clear();
+        TSpecQueryCache.getInstance().clear();
 
     }
     

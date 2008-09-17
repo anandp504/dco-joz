@@ -13,7 +13,6 @@ import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.misc.SexpOSpecHelper;
 import com.tumri.cma.misc.SexpOSpecHelper.MappingsParams;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
@@ -27,8 +26,6 @@ import com.tumri.utils.sexp.SexpSymbol;
 public class OSpecHelper {
 
 	private static Logger log = Logger.getLogger (OSpecHelper.class);
-	private static Integer g_productTypeLeadgen = null;
-	private static Integer g_productTypeProduct = null;
 	
 	/**
 	 * Parses the tspec-add directive and adds an Ospec to the cache.
@@ -51,7 +48,7 @@ public class OSpecHelper {
 			iter.next(); //ignore the t-spec-add keyword
 			OSpec theOSpec = SexpOSpecHelper.readTSpecDetailsFromSExp(iter);
 			TransientDataManager.getInstance().addOSpec(theOSpec);
-	        OSpecQueryCache.getInstance().removeQuery(theOSpec.getName());
+	        TSpecQueryCache.getInstance().removeQuery(theOSpec.getId());
 			return theOSpec.getName();
 			//Note that we are not touching the Query cache here since the next access to the Tspec using get-ad-data will add it to the cache
 		} else {
@@ -66,8 +63,14 @@ public class OSpecHelper {
 	 * @return name of tspec deleted.
 	 */
 	public static String doTSpecDelete(String tSpecName) {
-		TransientDataManager.getInstance().deleteOSpec(tSpecName);
-		OSpecQueryCache.getInstance().removeQuery(tSpecName);
+		OSpec oSpec = CampaignDB.getInstance().getOspec(tSpecName);
+        if (oSpec!=null) {
+            List<TSpec> tspeclist = oSpec.getTspecs();
+            for (TSpec tspec: tspeclist) {
+                TSpecQueryCache.getInstance().removeQuery(tspec.getId());
+            }
+        }
+        TransientDataManager.getInstance().deleteOSpec(tSpecName);
 		return tSpecName;
 	}
 
@@ -139,11 +142,11 @@ public class OSpecHelper {
                     break;
 
                 case STOREID:
-                    TransientDataManager.getInstance().addLocationMapping(tmp_site_spec, tSpecName, weight, geoObj);
+                    TransientDataManager.getInstance().addLocationMapping(tmp_site_spec, tSpecName, weight, geoObj, null);
                     break;
 
                 case THEME:
-                    TransientDataManager.getInstance().addThemeMapping(tmp_site_spec, tSpecName, weight, geoObj);
+                    TransientDataManager.getInstance().addThemeMapping(tmp_site_spec, tSpecName, weight, geoObj, null);
                     break;
                 }
 
@@ -156,11 +159,11 @@ public class OSpecHelper {
                     break;
 
                 case STOREID:
-                    TransientDataManager.getInstance().deleteLocationMapping(tmp_site_spec, tSpecName, weight, geoObj);
+                    TransientDataManager.getInstance().deleteLocationMapping(tmp_site_spec, tSpecName, weight, geoObj, null);
                     break;
 
                 case THEME:
-                    TransientDataManager.getInstance().deleteThemeMapping(tmp_site_spec, tSpecName, weight, geoObj);
+                    TransientDataManager.getInstance().deleteThemeMapping(tmp_site_spec, tSpecName, weight, geoObj, null);
                     break;
                 }
             }

@@ -4,10 +4,10 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.tumri.utils.sexp.SexpInteger;
 import com.tumri.utils.sexp.SexpKeyword;
 import com.tumri.utils.sexp.SexpList;
 import com.tumri.utils.sexp.SexpString;
+import com.tumri.utils.strings.JStringBuilder;
 import com.tumri.joz.utils.AppProperties;
 
 /**
@@ -20,94 +20,178 @@ public class Features {
     public static final String FEATURE_WIDGET_SEARCH = "SEARCH-IN-WIDGET";
     public static final String FEATURE_MINE_URL_SEARCH = "SEARCH-MINE-URL";
     public static final String FEATURE_SCRIPT_SEARCH = "SEARCH-SCRIPT_KEYWORD";
-    public static final String FEATURE_GEO_PARMS = "GEO";
-    public static final String FEATURE_MULTI_VALUE_QUERY = "MULTI-VALUE-QUERY";
+    public static final String FEATURE_SEARCH_KEYWORDS = "SEARCH-KEYWORDS";
 
-    private String _joz_version;
-    private String _host_name;
+    private static String _joz_version;
+    private static String _host_name = null;
     private HashMap<String, String> jozFeaturesMap = null;
-    
-    public Features(HashMap<String, String> _jozFeaturesMap) {
-    	_joz_version = AppProperties.getInstance().getJozReleaseVersion();
+
+    private int campaignId = 0;
+    private String campaignName = null;
+    private int adPodId = 0;
+    private String adpodName = null;
+    private int recipeId = 0;
+    private String recipeName = null;
+    private int campaignClientId = 0;
+    private String campaignClientName = null;
+    private boolean bGeoUsed = false;
+    private String targetedLocationId = null;
+    private String targetedLocationName = null;
+    private int locationClientId = 0;
+    private String locationClientName = null;
+
+    static {
         try {
         	_host_name = java.net.InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             _host_name = "unknown";
         }
-        if (_jozFeaturesMap!=null){
-        	setJozFeaturesMap(_jozFeaturesMap);
+    }
+    
+    public Features() {
+        if (_joz_version==null) {
+            _joz_version = AppProperties.getInstance().getJozReleaseVersion();
         }
     }
     
-    private String get_joz_version() {
-        return _joz_version;
-    }
-    
-    private String get_host_name() {
-        return _host_name;
-    }
-    
-    private void setJozFeaturesMap(HashMap<String, String> jozFeatures) {
+    public void setJozFeaturesMap(HashMap<String, String> jozFeatures) {
     	this.jozFeaturesMap = jozFeatures;
     }
     
-    /**
-     * Generate Sexp string that needs to be appended to the results
-     * @param elapsed_time
-     * @return
-     */
-    public SexpList toSexpList(long elapsed_time) {
-        SexpList flist = new SexpList();
-        SexpList l;
-        SexpString s;
-        SexpKeyword k;
-        flist.addLast(build_list(":TIME", format_elapsed_time(elapsed_time)));
-        flist.addLast(build_list(":JOZ-VER", get_joz_version()));
-        flist.addLast(build_list(":HOST", get_host_name()));
-        l = new SexpList();
-        k = new SexpKeyword(":FEATURES");
-        l.addLast(k);
-        if (jozFeaturesMap==null || jozFeaturesMap.isEmpty()) {
-        	s = new SexpString("\"NIL\"");
-        } else {
+    public String toString(long elapsed_time) {
+        JStringBuilder sbuild = new JStringBuilder(1000);
+        sbuild.append("Time=");
+        sbuild.append(new Long(elapsed_time).toString());
+        sbuild.append(",Ver=");
+        sbuild.append(_joz_version);
+        sbuild.append(",Host=");
+        sbuild.append(_host_name);
+        if (jozFeaturesMap!=null && !jozFeaturesMap.isEmpty()) {
+            sbuild.append(",Features=(");
         	Iterator<String> featureKeys = jozFeaturesMap.keySet().iterator();
         	String featureBuiltUpStr = "";
         	while (featureKeys.hasNext()) {
         		String featureKeyStr = featureKeys.next();
         		String featureValStr = jozFeaturesMap.get(featureKeyStr);
         		if (featureKeyStr!=null && !"".equals(featureKeyStr) && featureValStr!=null && !"".equals(featureValStr)) {
-        			featureBuiltUpStr = featureBuiltUpStr + "(" + featureKeyStr + " \"" + featureValStr + "\")";
+        			featureBuiltUpStr = featureBuiltUpStr + "," + featureKeyStr + "=" + featureValStr;
         		}
         	}
-        	s = new SexpString(featureBuiltUpStr);
+            sbuild.append(")");
         }
-        l.addLast(s);
-        flist.addLast(l);
-        return flist;
+       return sbuild.toString();
+
     }
     
-    /**
-     * Helper method to build a Sexp list from a String key and string val
-     * @param k
-     * @param s
-     * @return
-     */
-    private static SexpList build_list(String k, String s) {
-        SexpList l = new SexpList();
-        SexpKeyword kk = new SexpKeyword(k);
-        l.addLast(kk);
-        SexpString ss = new SexpString("\"" + s + "\"");
-        l.addLast(ss);
-        return l;
+
+    public int getAdPodId() {
+        return adPodId;
     }
-    
-    /**
-     * Convert time delta {t} (which is in nanoseconds) to a string with units seconds
-     */
-    private static String format_elapsed_time(long t) {
-        // FIXME: wip
-        double d = (double) t;
-        d /= 1e9;
-        return String.format("%,.3f", d);
+
+    public void setAdPodId(int adPodId) {
+        this.adPodId = adPodId;
+    }
+
+    public int getCampaignId() {
+        return campaignId;
+    }
+
+    public void setCampaignId(int campaignId) {
+        this.campaignId = campaignId;
+    }
+
+    public int getRecipeId() {
+        return recipeId;
+    }
+
+    public void setRecipeId(int recipeId) {
+        this.recipeId = recipeId;
+    }
+
+    public void addFeatureDetail(String key, String val) {
+        if (jozFeaturesMap == null) {
+            jozFeaturesMap = new HashMap<String, String>();
+        }
+        jozFeaturesMap.put(key, val);
+    }
+
+    public String getAdpodName() {
+        return adpodName;
+    }
+
+    public void setAdpodName(String adpodName) {
+        this.adpodName = adpodName;
+    }
+
+    public String getCampaignName() {
+        return campaignName;
+    }
+
+    public void setCampaignName(String campaignName) {
+        this.campaignName = campaignName;
+    }
+
+    public String getRecipeName() {
+        return recipeName;
+    }
+
+    public void setRecipeName(String recipeName) {
+        this.recipeName = recipeName;
+    }
+
+    public boolean isGeoUsed() {
+        return bGeoUsed;
+    }
+
+    public void setGeoUsed(boolean bGeoUsed) {
+        this.bGeoUsed = bGeoUsed;
+    }
+
+    public String getTargetedLocationId() {
+        return targetedLocationId;
+    }
+
+    public void setTargetedLocationId(String targetedLocationId) {
+        this.targetedLocationId = targetedLocationId;
+    }
+
+    public String getTargetedLocationName() {
+        return targetedLocationName;
+    }
+
+    public void setTargetedLocationName(String targetedLocationName) {
+        this.targetedLocationName = targetedLocationName;
+    }
+
+    public int getCampaignClientId() {
+        return campaignClientId;
+    }
+
+    public void setCampaignClientId(int campaignClientId) {
+        this.campaignClientId = campaignClientId;
+    }
+
+    public String getCampaignClientName() {
+        return campaignClientName;
+    }
+
+    public void setCampaignClientName(String campaignClientName) {
+        this.campaignClientName = campaignClientName;
+    }
+
+    public int getLocationClientId() {
+        return locationClientId;
+    }
+
+    public void setLocationClientId(int locationClientId) {
+        this.locationClientId = locationClientId;
+    }
+
+    public String getLocationClientName() {
+        return locationClientName;
+    }
+
+    public void setLocationClientName(String locationClientName) {
+        this.locationClientName = locationClientName;
     }
 }

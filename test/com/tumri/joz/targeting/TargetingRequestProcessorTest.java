@@ -1,26 +1,24 @@
 package com.tumri.joz.targeting;
 
-import static org.junit.Assert.*;
-import com.tumri.joz.jozMain.AdDataRequest;
-import com.tumri.joz.campaign.CampaignDBDataLoader;
-import com.tumri.joz.utils.AppProperties;
-import com.tumri.joz.products.Handle;
-import com.tumri.utils.sexp.SexpReader;
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpList;
-import com.tumri.utils.sexp.SexpSymbol;
-import com.tumri.cma.domain.*;
-import com.tumri.cma.service.CampaignProvider;
 import com.tumri.cma.CMAFactory;
 import com.tumri.cma.DomainTestDataProvider;
+import com.tumri.cma.domain.*;
+import com.tumri.cma.service.CampaignProvider;
+import com.tumri.joz.campaign.CampaignDBDataLoader;
+import com.tumri.joz.jozMain.AdDataRequest;
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpReader;
+import com.tumri.utils.sexp.SexpSymbol;
+import org.junit.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
 import java.io.Reader;
 import java.io.StringReader;
-
-import org.junit.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * JUnit Test for Targeting request processor
@@ -130,14 +128,14 @@ public class TargetingRequestProcessorTest {
         sampleAdPod7.setOspec(oSpec5);
         sampleAdPod8.setOspec(oSpec6);
 
-        campaign1.addAdPod(sampleAdPod1);
-        campaign1.addAdPod(sampleAdPod2);
-        campaign1.addAdPod(sampleAdPod3);
-        campaign2.addAdPod(sampleAdPod4);
-        campaign2.addAdPod(sampleAdPod5);
-        campaign2.addAdPod(sampleAdPod6);
-        campaign3.addAdPod(sampleAdPod7);
-        campaign3.addAdPod(sampleAdPod8);
+//        campaign1.addAdPod(sampleAdPod1);
+//        campaign1.addAdPod(sampleAdPod2);
+//        campaign1.addAdPod(sampleAdPod3);
+//        campaign2.addAdPod(sampleAdPod4);
+//        campaign2.addAdPod(sampleAdPod5);
+//        campaign2.addAdPod(sampleAdPod6);
+//        campaign3.addAdPod(sampleAdPod7);
+//        campaign3.addAdPod(sampleAdPod8);
 
 
         campaignProvider.createCampaign(campaign1, true);

@@ -18,15 +18,17 @@
 package com.tumri.joz.utils;
 
 import com.tumri.content.data.dictionary.DictionaryManager;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.JoZException;
-import com.tumri.utils.strings.StringTokenizer;
+import com.tumri.joz.products.IProduct;
 import com.tumri.utils.PropertyUtils;
+import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -277,15 +279,16 @@ public class ZipCodeDB {
      * Read the zip file, and instantiate the database
      */
     public void init() throws JoZException {
-        String zipDbFile = AppProperties.getInstance().getProperty(CONFIG_ZIPCODE_DB_FILE);
-        InputStream is =  PropertyUtils.class.getClassLoader().getResourceAsStream(zipDbFile);
-        if (is == null) {
-            throw new JoZException("Zipcode db file not found in classpath : " + zipDbFile);
-        }
         log.info("Going to load the zipcode index from file.");
         long starttime = System.currentTimeMillis();
-
+	    InputStream is =  null;
         try {
+	        String zipDbFile = AppProperties.getInstance().getProperty(CONFIG_ZIPCODE_DB_FILE);
+	        is =  PropertyUtils.class.getClassLoader().getResourceAsStream(zipDbFile);
+	        if (is == null) {
+	            throw new JoZException("Zipcode db file not found in classpath : " + zipDbFile);
+	        }
+
             InputStreamReader isr = new InputStreamReader(is, "utf8");
             BufferedReader br = new BufferedReader(isr);
 
