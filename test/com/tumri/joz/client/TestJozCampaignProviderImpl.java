@@ -144,12 +144,15 @@ public class TestJozCampaignProviderImpl extends TestCase {
     @Test
     public void testCampaignDelete() {
     	try {
+		    int numInitCamps = CampaignDB.getInstance().getCampaigns().size();
 			Campaign campaign = new Campaign();
 			campaign.setName("TestCampaign");
 		    campaign.setId(12345);
 
 			JozResponse  response = provider.deleteCampaign(campaign);
 			Assert.assertNotNull(response);
+		    int numFinalCamps = CampaignDB.getInstance().getCampaigns().size();
+		    Assert.assertEquals(numInitCamps - 1, numFinalCamps);
 		    if(!"success".equalsIgnoreCase(response.getStatus())){
 			    fail("test campaignDelete failed");
 		    }
@@ -165,11 +168,14 @@ public class TestJozCampaignProviderImpl extends TestCase {
     public void testCampaignDeleteFail() {
 		JozResponse  response = null;
 	    try {
+		    int numInitCamps = CampaignDB.getInstance().getCampaigns().size();
 			Campaign campaign = new Campaign();
 			campaign.setName("TestCampaign");
 		    campaign.setId(12345);
 
 			 response = provider.deleteCampaign(campaign);
+		    int numFinalCamps = CampaignDB.getInstance().getCampaigns().size();
+		    Assert.assertEquals(numInitCamps, numFinalCamps);
 			Assert.assertNull(response);
 
 		} catch (JoZClientException e) {
@@ -184,7 +190,7 @@ public class TestJozCampaignProviderImpl extends TestCase {
 	@Test
     public void testCampaignAddNumerous() {
     	try {
-
+		    int numInitCamps = CampaignDB.getInstance().getCampaigns().size();
 			Campaign campaign = new Campaign();
 			campaign.setName("TestCampaign");
 		    campaign.setId(12345);
@@ -229,6 +235,7 @@ public class TestJozCampaignProviderImpl extends TestCase {
 		    adPod.setOspec(oSpec);
 
 		    campaign.addAdpod(adPod);
+
 
 		    Campaign campaign2 = new Campaign();
 			campaign2.setName("TestCampaign");
@@ -277,9 +284,13 @@ public class TestJozCampaignProviderImpl extends TestCase {
 
 			JozResponse  response = provider.addCampaign(campaign);
 			Assert.assertNotNull(response);
+		    int numCamps2 = CampaignDB.getInstance().getCampaigns().size();
+		    Assert.assertEquals(numInitCamps + 1, numCamps2);
+
 		    JozResponse response2 = provider.addCampaign(campaign2);
 		    Assert.assertNotNull(response2);
-
+		    int numCamps3 = CampaignDB.getInstance().getCampaigns().size();
+		    Assert.assertEquals(numInitCamps + 1, numCamps3);
 			//verify that second set of information is present
 		    Campaign testCamp = CampaignDB.getInstance().getCampaign(12345);
 		    XStream xstream = new XStream();
@@ -292,7 +303,12 @@ public class TestJozCampaignProviderImpl extends TestCase {
 
 		    JozResponse  response3 = provider.deleteCampaign(campaign);
 			Assert.assertNotNull(response3);
+		    int numCamps4 = CampaignDB.getInstance().getCampaigns().size();
+		    Assert.assertEquals(numInitCamps, numCamps4);
+
 		    JozResponse  response4 = provider.deleteCampaign(campaign2);
+		    int numCamps5 = CampaignDB.getInstance().getCampaigns().size();
+		    Assert.assertEquals(numInitCamps, numCamps5);
 			Assert.assertNull(response4);
 
 		} catch (JoZClientException e) {
