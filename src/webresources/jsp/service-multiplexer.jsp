@@ -8,10 +8,10 @@
 	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	  <title>Joz Console : Service Multiplexer</title>
 	  <script type="text/javascript">
-		  function submitForm(oSpecId) {
-			var selOSpec=document.getElementById("selOSpec");
-			selOSpec.value = oSpecId;
-			var form=document.getElementById("OSpecSelForm");
+		  function submitForm(adPodId) {
+			var selOSpec=document.getElementById("selAdPod");
+			selOSpec.value = adPodId;
+			var form=document.getElementById("AdPodSelForm");
 			form.submit();
 		};
 	  </script>
@@ -30,8 +30,8 @@
 	<br>
 
 	<div>
-		<form id="OSpecSelForm" name="tspecSelForm" method="post" action="/joz/jsp/oSpecSelection.jsp">
-		<input type="hidden" id="selOSpec" name="selOSpec" value=""/>
+		<form id="AdPodSelForm" name="adPodSelForm" method="post" action="/joz/jsp/adPodSelection.jsp">
+		<input type="hidden" id="selAdPod" name="selAdPod" value=""/>
 		<table border="1" cellspacing="0" cellpading="0">
 		<tr>
 		<th align="left">Type</th>
@@ -63,7 +63,7 @@
 			SortedSet<AdPodHandle> values=null;
 			AdPodHandle adPodHandle=null;
 			Iterator valuesIt=null;
-			OSpec oSpec=null;
+				AdPod adPod = null;
 			List<String> urlList=new ArrayList<String>();
 			while(it.hasNext()) {
 				url=(String)it.next();
@@ -139,11 +139,11 @@
 						}
 	
 						try{
-							oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
+							adPod = campaignDB.getAdPod(adPodHandle);
 						}catch(Exception e){
 							continue;
 						}
-						if (null == oSpec) continue;
+						if (null == adPod) continue;
 	
 						//Now print the data into html.
 						out.print("<tr>");
@@ -155,8 +155,7 @@
 							out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
 						}
 						out.print("</table></td>");
-	
-						out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getId()+"')\">"+oSpec.getName()+"</td>");
+	                    out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+adPod.getId()+"')\">"+adPod.getName()+"</td>");
 						out.print("</tr>");
 					}
 				}
@@ -169,7 +168,6 @@
 			values=null;
 			adPodHandle=null;
 			valuesIt=null;
-			oSpec=null;
 			List<String> themeList=new ArrayList<String>();
 			while(themeIt.hasNext()) {
 				theme=(String)themeIt.next();
@@ -246,11 +244,11 @@
 						}
 						
 						try{
-							oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
+							adPod = campaignDB.getAdPod(adPodHandle);
 						}catch(Exception e){
 							continue;
 						}
-						if (null==oSpec) continue;
+						if (null==adPod) continue;
 						
 						//Now print the data into html.
 						out.print("<tr>");
@@ -262,8 +260,7 @@
 							out.print("<tr><td>"+((String)geoList.get(i))+"</td></tr>");
 						}
 						out.print("</table></td>");
-	
-						out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getId()+"')\">"+oSpec.getName()+"</td>");
+	                    out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+adPod.getId()+"')\">"+adPod.getName()+"</td>");
 						out.print("</tr>");
 					}
 				}
@@ -276,7 +273,6 @@
 			values=null;
 			adPodHandle=null;
 			valuesIt=null;
-			oSpec=null;
 			List<Integer> locationList=new ArrayList<Integer>();
 			while(locationIt.hasNext()) {
 				location=(Integer)locationIt.next();
@@ -292,11 +288,11 @@
 						adPodHandle=(AdPodHandle)valuesIt.next();
 						
 						try{
-							oSpec=campaignDB.getOSpecForAdPod((int)adPodHandle.getOid());
+							adPod = campaignDB.getAdPod(adPodHandle);
 						}catch(Exception e) {
 							continue;
 						}
-						if (null==oSpec) continue;
+						if (null==adPod) continue;
 	
 						//Now print the data into html.
 						out.print("<tr>");
@@ -314,8 +310,7 @@
 						}
 						
 						out.print("</table></td>");
-	
-						out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+oSpec.getId()+"')\">"+oSpec.getName()+"</td>");
+	                    out.print("<td valign=\"top\"><a href=\"javascript:submitForm('"+adPod.getId()+"')\">"+adPod.getName()+"</td>");
 						out.print("</tr>");
 					}
 				}
