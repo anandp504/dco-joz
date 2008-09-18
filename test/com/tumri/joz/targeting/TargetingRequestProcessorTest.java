@@ -245,7 +245,7 @@ public class TargetingRequestProcessorTest {
     public void testUrlCountryGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"http://consumersearch.com/www/electronics/gps\"" + ")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -258,7 +258,7 @@ public class TargetingRequestProcessorTest {
     public void testCountryGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"http://www.photo.net/bboard/\"" + ")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -271,7 +271,7 @@ public class TargetingRequestProcessorTest {
     public void testRegionGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :region \"KS\"" + ":url \"http://products.howstuffworks.com/computers-buying-guides.htm\"" + ")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -284,7 +284,7 @@ public class TargetingRequestProcessorTest {
     public void testCityGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :city \"Los Angeles\"" + ":url \"http://www.consumersearch.com/www/kitchen/toaster-ovens/\"" + ")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -297,7 +297,7 @@ public class TargetingRequestProcessorTest {
     public void testZipcodeGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :zip-code \"94404\"" + ":url \"http://www.consumersearch.com/www/kitchen/toaster-ovens/\"" + ")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -310,7 +310,7 @@ public class TargetingRequestProcessorTest {
     public void testAreacodeGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :area-code \"650\"" + ":url \"" +  base2UrlName + "/toys/educational/\"" + ")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -323,7 +323,7 @@ public class TargetingRequestProcessorTest {
     public void testDmacodeGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :dma \"DMA1\"" + ")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -336,7 +336,7 @@ public class TargetingRequestProcessorTest {
     public void testThemeGetAdData() {
         try {
             String queryStr = "(get-ad-data :theme \"ecpm-test1-laptops\")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -349,7 +349,7 @@ public class TargetingRequestProcessorTest {
     public void testUrlGetAdData() {
         try {
             String queryStr = "(get-ad-data :url \" http://consumersearch.com/www/electronics/gps\")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -362,7 +362,7 @@ public class TargetingRequestProcessorTest {
     public void testStoreGetAdData() {
         try {
             String queryStr = "(get-ad-data :store-ID \"11364\")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -375,7 +375,7 @@ public class TargetingRequestProcessorTest {
     public void testGetAdDataForTSpecName() {
         try {
             String queryStr = "(get-ad-data :t-spec \"|tspecname|\")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -388,7 +388,7 @@ public class TargetingRequestProcessorTest {
     public void testGetAdDataForTSpecNameNoDefaultRealm() {
         try {
             String queryStr = "(get-ad-data :t-spec \"|tspecname|\")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNull(oSpec);
         } catch(Exception e){
             printStackTrace(e);
@@ -400,7 +400,7 @@ public class TargetingRequestProcessorTest {
     public void testUrl2GetAdData() {
         try {
             String queryStr = "(get-ad-data :url \" http://products.howstuffworks.com/computers-buying-guides.htm\")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -413,7 +413,7 @@ public class TargetingRequestProcessorTest {
     public void testUrl3GetAdData() {
         try {
             String queryStr = "(get-ad-data :url \" http://www.consumersearch.com/www/kitchen/toaster-ovens/\")";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -426,7 +426,7 @@ public class TargetingRequestProcessorTest {
     public void testThemeGetAdDataWithDefaultRealmSet() {
         try {
             String queryStr = "(get-ad-data :theme \" wnd-mens-apparel-shoes\" :revert-to-default-realm t)";
-            OSpec oSpec = testProcessRequest(queryStr);
+            Recipe oSpec = testProcessRequest(queryStr);
             Assert.assertNotNull(oSpec);
             System.out.println(oSpec.getId() + " : " +oSpec.getName());
         } catch(Exception e){
@@ -439,7 +439,7 @@ public class TargetingRequestProcessorTest {
 	public void testDefaultRealm() {
 		try {
 			String queryStr = "(get-ad-data :url \"http://default-realm/\")";
-			OSpec oSpec = testProcessRequest(queryStr);
+			Recipe oSpec = testProcessRequest(queryStr);
 			assertNotNull(oSpec);
 		} catch(Exception e){
 			e.printStackTrace();
@@ -447,11 +447,11 @@ public class TargetingRequestProcessorTest {
 		}
 	}
 
-    private OSpec testProcessRequest(String getAdDataCommandStr) throws Exception {
+    private Recipe testProcessRequest(String getAdDataCommandStr) throws Exception {
         TargetingRequestProcessor processor = TargetingRequestProcessor.getInstance();
         Reader r = new StringReader(getAdDataCommandStr);
         SexpReader lr = new SexpReader (r);
-        OSpec oSpec = null;
+        Recipe recipe = null;
         try {
             Sexp e = lr.read ();
             SexpList l = e.toSexpList ();
@@ -467,7 +467,7 @@ public class TargetingRequestProcessorTest {
             if (cmd_name.equals ("get-ad-data")) {
                 AdDataRequest rqst = new AdDataRequest (e);
                 
-                oSpec = processor.processRequest(rqst);
+                recipe = processor.processRequest(rqst, null);
                 //Assert.assertNotNull(oSpec);
 
             } else {
@@ -477,7 +477,7 @@ public class TargetingRequestProcessorTest {
             throw e;
         }
 
-        return oSpec;
+        return recipe;
 
     }
 
