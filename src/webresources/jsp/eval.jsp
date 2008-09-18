@@ -46,7 +46,7 @@
 	<div>
 		<form id="evalForm" action="/joz/console?mode=view&option=eval" method="post">
 			Enter get-ad-data expression<br>
-			<textarea id="text_eval_expr" name="text_eval_expr" rows="10" cols="75"></textarea><br>
+			<textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:10cm" ></textarea><br>
 			<input type="button" value="Go" onClick="javascript:submit_eval_form()"/>
 		</form>
 	</div>

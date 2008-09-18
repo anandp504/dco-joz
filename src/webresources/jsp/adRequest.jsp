@@ -34,14 +34,16 @@
 <br>
 <b>JOZ AD REQUEST:</b>
 <br>
-<textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:5em"><%
+<textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:5cm"><%
 	if(adReq != null){
 		HashMap<String, String> requestMap = adReq.getRequestMap();
 		Iterator<String> requestIter = requestMap.keySet().iterator();
 		while(requestIter.hasNext()){
 			String resultKey = requestIter.next();
 			String resultVal = requestMap.get(resultKey);
+			if(resultVal != null){
 			%>:<%=resultKey%> <%=resultVal%> <%
+			}//end if
 		}//end while
 	}//end if
 
@@ -51,7 +53,7 @@
 <br>
 <b>JOZ AD RESPONSE:</b>
 <br>
-<textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:40em">
+<textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:17cm">
 <%
 
 	if(adResp!= null){
