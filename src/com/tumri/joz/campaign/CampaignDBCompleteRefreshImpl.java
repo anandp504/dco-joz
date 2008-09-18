@@ -954,6 +954,9 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public Campaign getCampaign(AdPodHandle handle) {
+        if (handle==null || handle.getOid()<=0L){
+            return null;
+        }
         int campaignId = adPodCampaignMap.get().get((int)handle.getOid());
         return campaignMap.get().get(campaignId); 
     }

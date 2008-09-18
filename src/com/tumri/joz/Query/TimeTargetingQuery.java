@@ -39,7 +39,13 @@ public class TimeTargetingQuery extends TargetingQuery {
 
     public boolean accept(Handle v) {
         boolean bAccept = true;
+        if (v==null) {
+            return false;
+        }
         Campaign theCampaign = CampaignDB.getInstance().getCampaign((AdPodHandle)v);
+        if (theCampaign==null){
+            return false;
+        }
         Date start = theCampaign.getFlightEnd();
         Date end = theCampaign.getFlightStart();
 
