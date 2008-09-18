@@ -370,14 +370,16 @@ public class JozDataProviderImpl implements JozDataProvider {
      * @throws JoZClientException
      */
     public JozResponse deleteCampaign(Campaign campaign)throws JoZClientException {
+        if (campaign==null) {
+            throw new JoZClientException("Empty campaign object passed in");
+        }
         JozResponse response = null;
         try {
             JozCampaignRequest campaignQuery = new JozCampaignRequest();
             // convert the Campaign object to XML using the XStream api's
-            XStream xstream = new XStream();
-            String xmlCampaign = xstream.toXML(campaign);
-            log.debug("XML Campaign request \n"+xmlCampaign);
-            campaignQuery.setValue(JozCampaignRequest.KEY_CAMPAIGN, xmlCampaign);
+            Integer cid = campaign.getId();
+            log.debug("Going to delete the Campaign \n"+cid);
+            campaignQuery.setValue(JozCampaignRequest.KEY_CAMPAIGN_ID, cid.toString());
             campaignQuery.setValue(JozCampaignRequest.KEY_COMMAND, JozCampaignRequest.COMMAND_DELETE);
             JozCampaignDataProvider dataProvider = new JozCampaignDataProvider();
             JozCampaignResponse res = dataProvider.processRequest(campaignQuery);
@@ -385,7 +387,7 @@ public class JozDataProviderImpl implements JozDataProvider {
             HashMap<String, String> resultMap = res.getResultMap();
             for (String s : resultMap.keySet()) {
                 if (s.equalsIgnoreCase(JozCampaignResponse.KEY_CAMPAIGN)) {
-                    xstream = new XStream();
+                    XStream xstream = new XStream();
                     // set the alises
                     String xml = resultMap.get(s);
                     log.debug("XML Campaign response " + xml);
