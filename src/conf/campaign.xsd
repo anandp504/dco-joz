@@ -230,7 +230,9 @@
     		<element name="adType" type="string" maxOccurs="1" minOccurs="0"/>   		
     		<element name="clientId" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="clientName" type="string" maxOccurs="1" minOccurs="0"/>
-    		<element name="clientType" type="int" maxOccurs="1" minOccurs="0"/>		         
+    		<element name="clientType" type="int" maxOccurs="1" minOccurs="0"/>
+		    <element name="campaignId" type="int" maxOccurs="1" minOccurs="0"/>
+    		<element name="campaignName" type="string" maxOccurs="1" minOccurs="0"/>	
         </choice>
   </complexType>
   <complexType name="ListingSpecDef">
