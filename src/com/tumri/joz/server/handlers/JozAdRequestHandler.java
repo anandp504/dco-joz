@@ -133,11 +133,11 @@ public class JozAdRequestHandler implements RequestHandler {
             }
             String targetedOSpec = prs.getTargetedTSpecName();
             elapsed_time = System.nanoTime() - start_time;
-	        PerformanceStats.getInstance().registerFinishEvent(STATS_ID, reqParams);
-           // PerformanceMonitor.getInstance().registerSuccess(reqParams, elapsed_time);
 
             write_result(rqst, targetedOSpec,
                     private_label_p, features, elapsed_time, product_handles, response, slotIdAL);
+
+            PerformanceStats.getInstance().registerFinishEvent(STATS_ID, reqParams);
 
             //Get the recipe data
             String recipeData = null;
@@ -161,7 +161,6 @@ public class JozAdRequestHandler implements RequestHandler {
             response.addDetails(JozAdResponse.KEY_RECIPE_NAME,features.getRecipeName());
             response.addDetails(JozAdResponse.KEY_GEO_USED,(features.isGeoUsed()?"Y":"N"));
         } else {
-            //PerformanceMonitor.getInstance().registerFailure(reqParams);
 	        PerformanceStats.getInstance().registerFailedEvent(STATS_ID,reqParams);
             response.addDetails("ERROR","Could not target Recipe for the request");
         }
@@ -250,7 +249,9 @@ public class JozAdRequestHandler implements RequestHandler {
         resp.addDetails(JozAdResponse.KEY_REALM,rqst.getTargetedRealm());
         resp.addDetails(JozAdResponse.KEY_STRATEGY ,ospec);
 
-        resp.addDetails(JozAdResponse.KEY_ISPRIVATELABEL,(private_label_p ? "t" : "nil"));
+        if (private_label_p) {
+            resp.addDetails(JozAdResponse.KEY_ISPRIVATELABEL,"t");
+        }
         resp.addDetails(JozAdResponse.KEY_SOZFEATURES,features.toString(elapsed_time));
     }
 
