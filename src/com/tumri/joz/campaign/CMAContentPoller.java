@@ -24,17 +24,17 @@ public class CMAContentPoller {
 	protected static Logger log = Logger.getLogger(CMAContentPoller.class);
 	protected int refreshWallClockTimeMins = 40; //40 mins on the hour
 	protected static Timer _timer = new Timer();
-    protected static int repeatIntervalMins = 60; //every 1 hour
+    protected static int repeatIntervalMins = 15; //every 15 min
 
 	private static final String CONFIG_WALL_CLOCK_MINUTES = "com.tumri.campaign.file.refresh.time.minutes";
 	private static final String CONFIG_CMA_REFRESH_INTERVAL_MINUTES = "com.tumri.campaign.file.refresh.interval.minutes";
     private static final String CONFIG_CMA_REFRESH_ENABLED = "com.tumri.campaign.file.refresh.enabled";
     private static CMAContentPoller g_cmaContentPoller = null;
-	
+
 	private CMAContentPoller() {
 		super();
 	}
-	
+
 	/**
 	 * Returns an static reference to the CMAContentPoller
 	 * @return
@@ -45,14 +45,14 @@ public class CMAContentPoller {
 		}
 		return g_cmaContentPoller;
 	}
-	
+
 	/**
 	 * Implementation that will invoke the CMA loading.
 	 */
 	public void performTask() throws CampaignDataLoadingException  {
 		loadCampaignData();
 	}
-	
+
 	/**
 	 * Method to load the campaign data
 	 * The logic to check if the refresh is needed, can be implemented inside the Campaign Delta Provider impl.
@@ -68,6 +68,7 @@ public class CMAContentPoller {
             CMAContentProviderStatus.getInstance().addRunHistory(startTime, true, "Refresh successful." +
                     " Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
             CMAContentProviderStatus.getInstance().lastRefreshTime = startTime;
+            log.info("Campaign data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
         } catch (CampaignDataLoadingException e) {
             Writer errorDetails = new StringWriter();
             PrintWriter pw = new PrintWriter(errorDetails);
@@ -81,15 +82,14 @@ public class CMAContentPoller {
             LogUtils.getFatalLog().fatal("Exception caught during campaign data load", e);
         }
 
-        log.info("Campaign data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
     }
-	
+
 	/**
 	 * Perform the initialization tasks for Campaign Data Loading
 	 *
 	 */
 	public void init() throws CampaignDataLoadingException  {
-		
+
 		performTask();
 
 		//Register for the polling
@@ -118,7 +118,7 @@ public class CMAContentPoller {
 	public void shutdown() {
 		_timer.cancel();
 	}
-	
+
 	/**
 	 * Start the timer.
 	 */
