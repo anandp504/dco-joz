@@ -36,6 +36,11 @@
 <br>
 
 <div>
+	<a href="/joz/console?mode=view&option=latest">Request and Response</a>
+</div>
+<br>
+
+<div>
 	<a href="/joz/console?mode=eval">Eval</a>
 </div>
 <br>

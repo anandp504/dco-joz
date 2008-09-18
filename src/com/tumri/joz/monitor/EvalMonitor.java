@@ -1,31 +1,27 @@
 package com.tumri.joz.monitor;
 
-import java.io.StringReader;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-
-import java.util.Map;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-
-import com.tumri.utils.sexp.SexpReader;
-import com.tumri.utils.sexp.SexpIFASLReader;
-import com.tumri.utils.sexp.Sexp;
-import com.tumri.utils.sexp.SexpList;
+import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.CmdGetAdData;
 import com.tumri.joz.jozMain.Command;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.jozMain.AdDataRequest;
-
+import com.tumri.joz.server.domain.JozAdRequest;
+import com.tumri.joz.server.domain.JozAdResponse;
+import com.tumri.joz.server.handlers.JozAdRequestHandler;
+import com.tumri.utils.sexp.Sexp;
+import com.tumri.utils.sexp.SexpIFASLReader;
+import com.tumri.utils.sexp.SexpList;
+import com.tumri.utils.sexp.SexpReader;
+import com.tumri.utils.tcp.server.handlers.InvalidRequestException;
 import org.apache.log4j.Logger;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
   * JoZ Eval Monitor.
@@ -36,9 +32,83 @@ public class EvalMonitor extends ComponentMonitor
 	private static Logger log = Logger.getLogger(EvalMonitor.class);
 	private Long totalProductMatch=null;
 	private String strategy=null;
+	private HashMap<String, String> keys = null;
 
 	public EvalMonitor() {
 	   super("eval", new EvalMonitorStatus("eval"));
+		keys = new HashMap<String, String>();
+		keys.put(":"+ JozAdRequest.KEY_THEME, JozAdRequest.KEY_THEME);
+		keys.put(":"+JozAdRequest.KEY_AD_HEIGHT, JozAdRequest.KEY_AD_HEIGHT);
+		keys.put(":"+JozAdRequest.KEY_AD_TYPE,JozAdRequest.KEY_AD_TYPE);
+		keys.put(":"+JozAdRequest.KEY_AD_WIDTH, JozAdRequest.KEY_AD_WIDTH);
+		keys.put(":"+JozAdRequest.KEY_AD_OFFER_TYPE, JozAdRequest.KEY_AD_OFFER_TYPE);
+		keys.put(":"+JozAdRequest.KEY_ALLOW_TOO_FEW_PRODUCTS, JozAdRequest.KEY_ALLOW_TOO_FEW_PRODUCTS);
+		keys.put(":"+JozAdRequest.KEY_AREACODE, JozAdRequest.KEY_AREACODE);
+		keys.put(":"+JozAdRequest.KEY_CATEGORY, JozAdRequest.KEY_CATEGORY);
+		keys.put(":"+JozAdRequest.KEY_CITY, JozAdRequest.KEY_CITY);
+		keys.put(":"+JozAdRequest.KEY_COUNTRY, JozAdRequest.KEY_COUNTRY);
+		keys.put(":"+JozAdRequest.KEY_DMACODE, JozAdRequest.KEY_DMACODE);
+		keys.put(":"+JozAdRequest.KEY_KEYWORDS, JozAdRequest.KEY_KEYWORDS);
+		keys.put(":"+JozAdRequest.KEY_LATITUDE, JozAdRequest.KEY_LATITUDE);
+		keys.put(":"+JozAdRequest.KEY_LOCATION_ID, JozAdRequest.KEY_LOCATION_ID);
+		keys.put(":"+JozAdRequest.KEY_LONGITUDE, JozAdRequest.KEY_LONGITUDE);
+		keys.put(":"+JozAdRequest.KEY_MAX_PROD_DESC_LEN, JozAdRequest.KEY_MAX_PROD_DESC_LEN);
+		keys.put(":"+JozAdRequest.KEY_MIN_NUM_LEADGENS, JozAdRequest.KEY_MIN_NUM_LEADGENS);
+		keys.put(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD1, JozAdRequest.KEY_MULTI_VALUE_FIELD1);
+		keys.put(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD2, JozAdRequest.KEY_MULTI_VALUE_FIELD2);
+		keys.put(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD3, JozAdRequest.KEY_MULTI_VALUE_FIELD3);
+		keys.put(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD4, JozAdRequest.KEY_MULTI_VALUE_FIELD4);
+		keys.put(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD5, JozAdRequest.KEY_MULTI_VALUE_FIELD5);
+		keys.put(":"+JozAdRequest.KEY_NUM_PRODUCTS, JozAdRequest.KEY_NUM_PRODUCTS);
+		keys.put(":"+JozAdRequest.KEY_RECIPE_ID, JozAdRequest.KEY_RECIPE_ID);
+		keys.put(":"+JozAdRequest.KEY_REGION, JozAdRequest.KEY_REGION);
+		keys.put(":"+JozAdRequest.KEY_REVERT_TO_DEFAULT_REALM, JozAdRequest.KEY_REVERT_TO_DEFAULT_REALM);
+		keys.put(":"+ JozAdRequest.KEY_ROW_SIZE, JozAdRequest.KEY_ROW_SIZE);
+		keys.put(":"+JozAdRequest.KEY_SCRIPT_KEYWORDS, JozAdRequest.KEY_SCRIPT_KEYWORDS);
+		keys.put(":"+JozAdRequest.KEY_STORE_ID, JozAdRequest.KEY_STORE_ID);
+		keys.put(":"+JozAdRequest.KEY_T_SPEC, JozAdRequest.KEY_T_SPEC);
+		keys.put(":"+JozAdRequest.KEY_URL, JozAdRequest.KEY_URL);
+		keys.put(":"+JozAdRequest.KEY_WHICH_ROW, JozAdRequest.KEY_WHICH_ROW);
+		keys.put(":"+JozAdRequest.KEY_ZIP_CODE, JozAdRequest.KEY_ZIP_CODE);
+	}
+
+	public JozAdRequest makeRequest(String requestString){
+		StringTokenizer reqTokenizer = new StringTokenizer(requestString);
+		String key = "";
+		String value = "";
+		JozAdRequest req = new JozAdRequest();
+	   	String cToken = "";
+		while(reqTokenizer.hasMoreTokens()){
+
+			if(keys.containsKey(cToken)){
+				if(!"".equals(value)){
+					req.setValue(keys.get(key), value);
+					value = "";
+				}
+				key = cToken;
+				cToken = reqTokenizer.nextToken();
+			} else {
+				if(!"".equals(value)){
+					value += " ";
+				}
+				value += cToken;
+				cToken = reqTokenizer.nextToken();
+			}
+
+		}
+		req.setValue(keys.get(key), value + cToken);
+		return req;
+	}
+
+	public JozAdResponse getResponse(JozAdRequest req){
+		JozAdRequestHandler handler = new JozAdRequestHandler();
+		JozAdResponse resp = null;
+		try {
+			resp = handler.query(req);
+		} catch (InvalidRequestException e) {
+			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+		}
+		return resp;
 	}
 
 	public MonitorStatus getStatus(String getAdDataExpr) {

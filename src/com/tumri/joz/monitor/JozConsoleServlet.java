@@ -1,18 +1,6 @@
 package com.tumri.joz.monitor;
 
-import com.tumri.content.ContentProvider;
-import com.tumri.content.ContentProviderFactory;
-import com.tumri.content.InvalidConfigException;
-import com.tumri.content.data.ContentProviderStatus;
-import com.tumri.content.impl.file.FileContentProviderImpl;
-import com.tumri.joz.campaign.CMAContentProviderStatus;
-import com.tumri.joz.campaign.CMAContentRefreshMonitor;
-import com.tumri.joz.products.ContentHelper;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.JOZTaxonomy;
-import com.tumri.joz.jozMain.ListingProviderFactory;
-import com.tumri.joz.jozMain.MerchantDB;
-import com.tumri.lls.client.LlsSocketConnectionPool;
+import com.tumri.joz.server.domain.JozAdRequest;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -20,7 +8,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * Servlet class to control the refresh of data
@@ -40,6 +27,7 @@ public class JozConsoleServlet extends HttpServlet {
     protected void doService (HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         String mode = request.getParameter("mode");
+	    String option = request.getParameter("option");
         String responseJSP = "";
         if ("ad".equalsIgnoreCase(mode)) {
             responseJSP = "/jsp/get-ad-data.jsp";
@@ -57,6 +45,20 @@ public class JozConsoleServlet extends HttpServlet {
             responseJSP = "/jsp/llc-status.jsp";
         } else if ("indexdebug".equalsIgnoreCase(mode)) {
             responseJSP = "/jsp/indexDebug.jsp?mode=console";
+        } else if ("view".equalsIgnoreCase(mode)) {
+	        if("latest".equalsIgnoreCase(option)) {
+		        if(AdRequestMonitor.getInstance().getReqResp()!=null){
+		            request.setAttribute("adReq", AdRequestMonitor.getInstance().getReqResp().getFirst());
+		            request.setAttribute("adResp", AdRequestMonitor.getInstance().getReqResp().getSecond());
+		        }
+                responseJSP = "/jsp/adRequest.jsp?mode=console";
+	        } else if("eval".equalsIgnoreCase(option)){
+		        EvalMonitor mon = new EvalMonitor();
+		        JozAdRequest req = mon.makeRequest(request.getParameter("text_eval_expr"));
+		        request.setAttribute("adReq", req);
+		        request.setAttribute("adResp", mon.getResponse(req));
+		        responseJSP = "/jsp/adRequest.jsp?mode=console";
+	        }
         } else {
             //Default send to console
             responseJSP = "/jsp/console.jsp";

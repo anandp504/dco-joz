@@ -24,6 +24,7 @@ import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.jozMain.ListingProviderFactory;
 import com.tumri.joz.jozMain.MerchantDB;
+import com.tumri.joz.monitor.AdRequestMonitor;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.productselection.ProductSelectionProcessor;
@@ -164,6 +165,7 @@ public class JozAdRequestHandler implements RequestHandler {
 	        PerformanceStats.getInstance().registerFailedEvent(STATS_ID,reqParams);
             response.addDetails("ERROR","Could not target Recipe for the request");
         }
+	    AdRequestMonitor.getInstance().setReqResp(query, response);
         return response;
     }
 

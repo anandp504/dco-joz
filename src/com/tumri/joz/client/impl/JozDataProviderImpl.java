@@ -338,7 +338,7 @@ public class JozDataProviderImpl implements JozDataProvider {
             // convert the Campaign object to XML using the XStream api's
             XStream xstream = new XStream();
             String xmlCampaign = xstream.toXML(campaign);
-            log.info("XML Campaign request \n"+xmlCampaign);
+            log.debug("XML Campaign request \n"+xmlCampaign);
             campaignQuery.setValue(JozCampaignRequest.KEY_CAMPAIGN, xmlCampaign);
             campaignQuery.setValue(JozCampaignRequest.KEY_COMMAND, JozCampaignRequest.COMMAND_ADD);
             JozCampaignDataProvider dataProvider = new JozCampaignDataProvider();
@@ -350,7 +350,7 @@ public class JozDataProviderImpl implements JozDataProvider {
                     xstream = new XStream();
                     // set the alises
                     String xml = resultMap.get(s);
-                    log.info("XML Campaign response " + xml);
+                    log.debug("XML Campaign response " + xml);
                     response = (JozResponse) xstream.fromXML(xml);
                     break;
                 }
@@ -376,7 +376,7 @@ public class JozDataProviderImpl implements JozDataProvider {
             // convert the Campaign object to XML using the XStream api's
             XStream xstream = new XStream();
             String xmlCampaign = xstream.toXML(campaign);
-            log.info("XML Campaign request \n"+xmlCampaign);
+            log.debug("XML Campaign request \n"+xmlCampaign);
             campaignQuery.setValue(JozCampaignRequest.KEY_CAMPAIGN, xmlCampaign);
             campaignQuery.setValue(JozCampaignRequest.KEY_COMMAND, JozCampaignRequest.COMMAND_DELETE);
             JozCampaignDataProvider dataProvider = new JozCampaignDataProvider();
@@ -388,7 +388,7 @@ public class JozDataProviderImpl implements JozDataProvider {
                     xstream = new XStream();
                     // set the alises
                     String xml = resultMap.get(s);
-                    log.info("XML Campaign response " + xml);
+                    log.debug("XML Campaign response " + xml);
                     response = (JozResponse) xstream.fromXML(xml);
                     break;
                 }
@@ -425,7 +425,7 @@ public class JozDataProviderImpl implements JozDataProvider {
                     xstream = new XStream();
                     // set the alises
                     String xml = resultMap.get(s);
-                    log.info("XML getTSpecDetails response " + xml);
+                    log.debug("XML getTSpecDetails response " + xml);
                     response = (JozResponse) xstream.fromXML(xml);
                     break;
                 }
@@ -459,7 +459,7 @@ public class JozDataProviderImpl implements JozDataProvider {
                     XStream xstream = new XStream();
                     // set the alises
                     String xml = resultMap.get(s);
-                    log.info("XML getTSpecDetails response " + xml);
+                    log.debug("XML getTSpecDetails response " + xml);
                     response = (JozResponse) xstream.fromXML(xml);
                     break;
                 }
@@ -501,7 +501,7 @@ public class JozDataProviderImpl implements JozDataProvider {
                     xstream.useAttributeFor("name", String.class);
                     xstream.useAttributeFor("count", String.class);
                     String xml = resultMap.get(s);
-                    log.info("XML getTSpecCounts response " + xml);
+                    log.debug("XML getTSpecCounts response " + xml);
                     response = (JozResponse) xstream.fromXML(xml);
                     break;
                 }
@@ -540,7 +540,7 @@ public class JozDataProviderImpl implements JozDataProvider {
                     xstream.useAttributeFor("name", String.class);
                     xstream.useAttributeFor("count", String.class);
                     String xml = resultMap.get(s);
-                    log.info("XML getTSpecCounts response " + xml);
+                    log.debug("XML getTSpecCounts response " + xml);
                     response = (JozResponse) xstream.fromXML(xml);
                     break;
                 }
@@ -583,7 +583,7 @@ public class JozDataProviderImpl implements JozDataProvider {
                     xstream.useAttributeFor("name", String.class);
                     xstream.useAttributeFor("count", String.class);
                     String xml = resultMap.get(s);
-                    log.info("XML getTSpecDetails response " + xml);
+                    log.debug("XML getTSpecDetails response " + xml);
                     response = (JozResponse) xstream.fromXML(xml);
                     break;
                 }
@@ -617,7 +617,7 @@ public class JozDataProviderImpl implements JozDataProvider {
                     XStream xstream = new XStream();
                     // set the alises
                     String xml = resultMap.get(s);
-                    log.info("XML getTSpecDetails response " + xml);
+                    log.debug("XML getTSpecDetails response " + xml);
                     response = (JozResponse) xstream.fromXML(xml);
                     break;
                 }
@@ -664,7 +664,6 @@ public class JozDataProviderImpl implements JozDataProvider {
      * @throws JoZClientException
      */
 	public String getAdvertiserCampaignData(int advertiserId) throws JoZClientException {
-		//JozResponse response = null;
 		String response = null;
 
         try {
@@ -678,12 +677,9 @@ public class JozDataProviderImpl implements JozDataProvider {
             HashMap<String, String> resultMap = res.getResultMap();
             for (String s : resultMap.keySet()) {
                 if (s.equalsIgnoreCase(JozICSCampaignResponse.KEY_CAMPAIGN)) {
-                    XStream xstream = new XStream();
-                	xstream = new XStream();
                     // set the alises
                     String xml = resultMap.get(s);
-                    log.info("XML Campaign response " + xml);
-                    //response = (JozResponse) xstream.fromXML(xml);
+                    log.debug("XML Campaign response " + xml);
                     response = xml;
                     break;
                 }
@@ -712,12 +708,8 @@ public class JozDataProviderImpl implements JozDataProvider {
             HashMap<String, String> resultMap = res.getResultMap();
             for (String s : resultMap.keySet()) {
                 if (s.equalsIgnoreCase(JozICSCampaignResponse.KEY_CAMPAIGN)) {
-                    XStream xstream = new XStream();
-                	xstream = new XStream();
-                    // set the alises
                     String xml = resultMap.get(s);
-                    log.info("XML Campaign response " + xml);
-                    //response = (JozResponse) xstream.fromXML(xml);
+                    log.debug("XML Campaign response " + xml);
                     response = xml;
                     break;
                 }
