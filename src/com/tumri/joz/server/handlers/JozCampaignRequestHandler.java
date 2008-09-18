@@ -107,10 +107,20 @@ public class JozCampaignRequestHandler implements RequestHandler {
                 	Campaign campaign = (Campaign)xstream.fromXML(xmlCampaign);
                 	addCampaignToTransientManager(campaign);
             	}else if(commandType.equalsIgnoreCase(JozCampaignRequest.COMMAND_DELETE)){
-            		String xmlCampaign = query.getValue(JozCampaignRequest.KEY_CAMPAIGN);
-            		log.debug("Request handler \n"+xmlCampaign);
-                	Campaign campaign = (Campaign)xstream.fromXML(xmlCampaign);
-            		deleteCampaignFromTransientManager(campaign);
+                    String campIdStr = query.getValue(JozCampaignRequest.KEY_CAMPAIGN_ID);
+                    if (campIdStr!=null) {
+                        try {
+                            int campId=Integer.parseInt(campIdStr);
+                            deleteCampaignFromTransientManager(campId);
+                        } catch(NumberFormatException e) {
+                            throw new JoZException("Invalid campaign id specified");
+                        }
+                    } else {
+                        String xmlCampaign = query.getValue(JozCampaignRequest.KEY_CAMPAIGN);
+                        log.debug("Request handler \n"+xmlCampaign);
+                        Campaign campaign = (Campaign)xstream.fromXML(xmlCampaign);
+                        deleteCampaignFromTransientManager(campaign);
+                    }
             	}
                 JozResponse resp = new JozResponse();
                 resp.setStatus(JozResponse.JOZ_OPERATION_SUCCESS);
@@ -133,8 +143,14 @@ public class JozCampaignRequestHandler implements RequestHandler {
     }
     
     private void deleteCampaignFromTransientManager(Campaign campaign) throws JoZException{
+        if (campaign==null){
+            throw new JoZException("Campaign object is empty");
+        }
+        deleteCampaignFromTransientManager(campaign.getId());
+    }
+
+    private void deleteCampaignFromTransientManager(int campaignId) throws JoZException{
     	TransientDataManager transientDataMgr = TransientDataManager.getInstance();
-    	int campaignId = campaign.getId();
     	transientDataMgr.deleteCampaign(campaignId);
     }
 }

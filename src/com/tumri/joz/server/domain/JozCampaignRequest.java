@@ -25,6 +25,7 @@ public class JozCampaignRequest extends QueryInputData {
 	public static final String COMMAND_ADD="addCampaign";
 	public static final String COMMAND_DELETE="deleteCampaign";
 	public static final String KEY_CAMPAIGN = "campaign";
+	public static final String KEY_CAMPAIGN_ID = "campaignId";
 	public static final String KEY_ADVERTISER_ID = "advertiserId";
 	public QueryId getQueryId() {
         return QueryId.ADD_CAMPAIGN;
