@@ -415,7 +415,7 @@ public class UrlScavengerTest {
         }
         String queryStr = "(get-ad-data :keywords \"bagsakan\" :url \"" + url + "\")";
         AdDataRequest rqst = createRequestFromCommandString(queryStr);
-        String keywords = URLScavenger.mineKeywords(rqst, stopWords, queryNames);
+        String keywords = URLScavenger.mineKeywords(url, stopWords, queryNames);
         return keywords;
     }
 
