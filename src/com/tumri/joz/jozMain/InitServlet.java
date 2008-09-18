@@ -14,10 +14,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import com.tumri.joz.campaign.CMAContentPoller;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.server.JozServer;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.Polling;
+import com.tumri.utils.stats.PerformanceStats;
 
 public class InitServlet extends HttpServlet {
     
@@ -82,6 +82,7 @@ public class InitServlet extends HttpServlet {
         	jozServerThread.interrupt();
         }
         jozServer.shutdown();
+        PerformanceStats.getInstance().destroy();
     }
     
     private static String getLog4JConfigFilePath() {

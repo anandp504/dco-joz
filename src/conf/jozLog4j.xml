@@ -60,13 +60,13 @@
 
 <category name="com.tumri" additivity="false">
 	<priority value="INFO"/>
-	<appender-ref ref="jozConsole"/>
 	<appender-ref ref="jozLogFile"/>
 </category>
 
 <category name="fatal" additivity="false">
 	<priority value="ERROR"/>
 	<appender-ref ref="jozFatalLogFile"/>
+    <appender-ref ref="jozLogFile"/>
 </category>
 
 <category name="timing" additivity="false">
