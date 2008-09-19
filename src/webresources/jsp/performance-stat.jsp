@@ -37,6 +37,10 @@
 			}
 		} else if("Stop".equals(operation)){
 			PerformanceStats.getInstance().endLogging();
+		} else if("Disable".equals(operation)){
+			PerformanceStats.getInstance().disable();
+		} else if("Enable".equals(operation)){
+			PerformanceStats.getInstance().enable();			
 		}
 	}
 
@@ -48,6 +52,17 @@
 		isStopDisabled = "";
 		isStartDisabled = "disabled";
 	}
+
+	boolean statsDisabled = PerformanceStats.getInstance().isDisabled();
+	String isDisableStatsDisabled = "";
+	String isEnableStatsDisabled = "";
+	if(statsDisabled){
+		isStartDisabled = "disabled";
+		isDisableStatsDisabled = "disabled";
+	} else {
+		isEnableStatsDisabled = "disabled";
+	}
+
 	//
 
 	PerformanceMonitor pm = PerformanceMonitor.getInstance();
@@ -71,8 +86,8 @@
 		    maxRequestTime =perfStatInfo.getMaxTime();
 		    if ((0 != (totalReqs - totalFailedReqs))) {
 		        aveReqTime = (totalTime / (totalReqs - totalFailedReqs));
-		    }
-	    }	    
+	}
+	    }
     }
 %>
 <jsp:include page="header.jsp"/>
@@ -88,7 +103,8 @@
 		<input type="button" id="reset1" name="reset" value="Reset" onClick="javascript:submitForm('Reset')"/>
 		<input type="button" id="startLogging1" name="startLogging" value="StartLogging" <%=" "+ isStartDisabled +" "%> onclick="javascript:submitForm('Start')"/>
 		<input type="button" id="stopLogging1" name="stopLogging" value="StopLogging" <%=" "+ isStopDisabled +" "%> onclick="javascript:submitForm('Stop')"/>
-    
+        <input type="button" id="disableStats1" name="disableStats" value="DisableStats" <%=" "+ isDisableStatsDisabled +" "%> onclick="javascript:submitForm('Disable')"/>
+		<input type="button" id="enableStats1" name="enableStats" value="EnableStats" <%=" "+ isEnableStatsDisabled +" "%> onclick="javascript:submitForm('Enable')"/>
 </div>
 
 <br>
@@ -144,8 +160,10 @@
 		</table>
 		</td>
 		</tr>
+		</table>
 	</div>
-	<br>
+<br>
+
 <div>
 	<form id="perfForm" name="perfForm" method="post" action="/joz/console?mode=perf">
 		<input type="hidden" id="operation" name="operation" value="Reset"/>
@@ -153,6 +171,8 @@
 		<input type="button" id="reset" name="reset" value="Reset" onClick="javascript:submitForm('Reset')"/>
 		<input type="button" id="startLogging" name="startLogging" value="StartLogging" <%=" "+ isStartDisabled +" "%> onclick="javascript:submitForm('Start')"/>
 		<input type="button" id="stopLogging" name="stopLogging" value="StopLogging" <%=" "+ isStopDisabled +" "%> onclick="javascript:submitForm('Stop')"/>
+	    <input type="button" id="disableStats" name="disableStats" value="DisableStats" <%=" "+ isDisableStatsDisabled +" "%> onclick="javascript:submitForm('Disable')"/>
+		<input type="button" id="enableStats" name="enableStats" value="EnableStats" <%=" "+ isEnableStatsDisabled +" "%> onclick="javascript:submitForm('Enable')"/>
 	</form>
 </div>
 </body>
