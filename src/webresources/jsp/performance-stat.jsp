@@ -1,5 +1,10 @@
 <%@ page language="java" import="com.tumri.joz.utils.LogUtils" %>
 <%@ page language="java" import="com.tumri.utils.stats.PerformanceStats" %>
+<%@ page language="java" import="com.tumri.utils.stats.PerfStatInfo" %>
+<%@ page language="java" import="com.tumri.utils.tcp.server.monitor.PerformanceMonitor" %>
+<%@ page language="java" import="java.util.Date" %>
+<%@ page language="java" import="java.util.HashMap" %>
+<%@ page language="java" import="com.tumri.joz.utils.AppProperties" %>
 <%@ page import="com.tumri.utils.stats.PerfStatException" %>
 <%@ page language="java" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -43,6 +48,32 @@
 		isStopDisabled = "";
 		isStartDisabled = "disabled";
 	}
+	//
+
+	PerformanceMonitor pm = PerformanceMonitor.getInstance();
+    int maxThreads = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
+    int activeThreads = pm.getActiveThreads();
+    long totalReqs = -1;
+    long totalFailedReqs = -1;
+    long minRequestTime =-1;
+    long maxRequestTime =-1;
+    long totalTime = -1;
+    long aveReqTime = -1;
+	String TCP_CONNECTION= "TCN";
+	HashMap statsMap = PerformanceStats.getInstance().getStats();
+	if(statsMap != null){
+		PerfStatInfo perfStatInfo = (PerfStatInfo)statsMap.get(TCP_CONNECTION);
+	    if(perfStatInfo != null){
+	    	totalReqs = perfStatInfo.getNumRequests();
+	    	totalTime = perfStatInfo.getTotalTimeElapsed();
+	    	totalFailedReqs = perfStatInfo.getFailedRequests();
+		    minRequestTime =perfStatInfo.getMinTime();
+		    maxRequestTime =perfStatInfo.getMaxTime();
+		    if ((0 != (totalReqs - totalFailedReqs))) {
+		        aveReqTime = (totalTime / (totalReqs - totalFailedReqs));
+		    }
+	    }	    
+    }
 %>
 <jsp:include page="header.jsp"/>
 
@@ -62,8 +93,59 @@
 
 <br>
 <jsp:include page="stats.jsp"/>
-<br>
-
+	<div>
+		<table border="1" cellspacing="0">
+		<tr>
+		<td>Max Threads supported</td>
+		<td><%=maxThreads%></td>
+		</tr>
+		<tr>
+		<td>Active Threads running</td>
+		<td><%=activeThreads%></td>
+		</tr>
+		<tr>
+		<td>Total number of requests</td>
+		<td><%=totalReqs%></td>
+		</tr>
+		<tr>
+		<td>Number of failed calls</td>
+		<td><%=totalFailedReqs%></td>
+		</tr>
+		<tr>
+		<td>Best call performance</td>
+		<td>
+		<table border="1" cellpadding="2" cellspacing="0">
+		<tr>
+		<td>Time:</td>
+		<td><%=(0!=totalReqs)?(minRequestTime/1000):0%> micro seconds</td>
+		</tr>
+		</table>
+		</td>
+		</tr>
+		<tr>
+		<td>Worst call performance</td>
+		<td>
+		<table border="1" cellpadding="2" cellspacing="0">
+		<tr>
+		<td>Time</td>
+		<td><%=(0!=totalReqs)?(maxRequestTime/1000):0%> micro seconds</td>
+		</tr>
+		</table>
+		</td>
+		</tr>
+		<tr>
+		<td>Average call performance</td>
+		<td>
+		<table border="1" cellpadding="2" cellspacing="0">
+		<tr>
+		<td>Time</td>
+		<td><%=(0!=totalReqs)?(aveReqTime/1000):0%> micro seconds</td>
+		</tr>
+		</table>
+		</td>
+		</tr>
+	</div>
+	<br>
 <div>
 	<form id="perfForm" name="perfForm" method="post" action="/joz/console?mode=perf">
 		<input type="hidden" id="operation" name="operation" value="Reset"/>
