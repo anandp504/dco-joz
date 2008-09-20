@@ -54,13 +54,8 @@ public class HealthCheckUtils {
                   bStatus = false;
                   return bStatus;
               }
-
-             //atleast one good connection to LLS
-             HashMap<String, Integer> infoMap = LlsSocketConnectionPool.getInstance().getInfo();
-             if (infoMap==null||infoMap.size()==0) {
-                 bStatus = false;
-                 return bStatus;
-             }
+             //TODO: Check LLS Health
+             
              //All good
              bStatus = true;
          } catch (Exception ex) {
