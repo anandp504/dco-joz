@@ -214,8 +214,16 @@
 	pqmstat=(ProductQueryMonitorStatus)pqm.getStatus(tSpecId);
 
 	if (null == pageAction) {
-		products=pqmstat.getProducts();
-		tp=products.size();
+		if(pqmstat == null){
+			tp = 0;
+		} else {
+			products=pqmstat.getProducts();
+			if(products == null){
+				tp = 0;
+			} else {
+				tp=products.size();
+			}
+		}
 		dp=0;
 		if (tp > 20) {
 			dp=20;
