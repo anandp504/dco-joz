@@ -150,6 +150,7 @@ public class TSpecExecutor {
         if (request.getCurrPage() > -1 && request.getPageSize() > -1) {
            m_currPage = request.getCurrPage();
            m_pageSize = request.getPageSize();
+	       m_tSpecQuery.setStrict(true);
         }
 
         m_tSpecQuery.setBounds(m_pageSize,m_currPage);
