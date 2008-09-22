@@ -200,27 +200,30 @@ public class JozTSpecRequestHandler implements RequestHandler {
     }
 	private void write_result( ArrayList<Handle> product_handles, JozAdResponse resp) throws JoZException {
 		Integer maxDescLength = 100;// default
-        if (product_handles==null) {
-            throw new JoZException("No products returned by the product selection");
-        }
+		if (product_handles==null) {
+			throw new JoZException("No products returned by the product selection");
+		}
+		int phSize = product_handles.size();
+		if((phSize == 0)){
+			return;
+		}
+		long[] pids = new long[phSize];
 
-        long[] pids = new long[product_handles.size()];
+		for (int i=0;i<phSize;i++){
+			pids[i] = product_handles.get(i).getOid();
+		}
 
-        for (int i=0;i<product_handles.size();i++){
-            pids[i] = product_handles.get(i).getOid();
-        }
-
-        ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-                        MerchantDB.getInstance().getMerchantData());
-        ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
-        if (response==null) {
-            throw new JoZException("Invalid response from Listing Provider");
-        }
-        resp.addDetails(JozAdResponse.KEY_PRODUCTS,response.getListingDetails());
-        resp.addDetails(JozAdResponse.KEY_PRODIDS, response.getProductIdList());
-        resp.addDetails(JozAdResponse.KEY_CATEGORIES, response.getCatDetails());
-        resp.addDetails(JozAdResponse.KEY_CATNAMES, response.getCatIdList());
-    }
+		ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+				MerchantDB.getInstance().getMerchantData());
+		ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
+		if (response==null) {
+			throw new JoZException("Invalid response from Listing Provider");
+		}
+		resp.addDetails(JozAdResponse.KEY_PRODUCTS,response.getListingDetails());
+		resp.addDetails(JozAdResponse.KEY_PRODIDS, response.getProductIdList());
+		resp.addDetails(JozAdResponse.KEY_CATEGORIES, response.getCatDetails());
+		resp.addDetails(JozAdResponse.KEY_CATNAMES, response.getCatIdList());
+	}
     	
     private ProductSelectionRequest createProductSelectionRequest(int pageSize,int pageNum){
     	ProductSelectionRequest pr = new ProductSelectionRequest();

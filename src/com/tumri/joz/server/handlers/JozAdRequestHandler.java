@@ -222,29 +222,32 @@ public class JozAdRequestHandler implements RequestHandler {
         if (product_handles==null) {
             throw new JoZException("No products returned by the product selection");
         }
+	    int pHSize = product_handles.size();
+	    if((pHSize == 0)){
+	        return;
+	    }
+		long[] pids = new long[pHSize];
 
-        long[] pids = new long[product_handles.size()];
+		for (int i=0;i<pHSize;i++){
+			pids[i] = product_handles.get(i).getOid();
+		}
 
-        for (int i=0;i<product_handles.size();i++){
-            pids[i] = product_handles.get(i).getOid();
-        }
+		String[] slotIdArr = null;
 
-        String[] slotIdArr = null;
+		if (slotIdAL != null) {
+			slotIdArr = slotIdAL.toArray(new String[0]);
+		}
 
-        if (slotIdAL != null) {
-            slotIdArr = slotIdAL.toArray(new String[0]);
-        }
-
-        ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-                MerchantDB.getInstance().getMerchantData());
-        ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, slotIdArr);
-        if (response==null) {
-            throw new JoZException("Invalid response from Listing Provider");
-        }
-        resp.addDetails(JozAdResponse.KEY_PRODUCTS ,response.getListingDetails());
-        resp.addDetails(JozAdResponse.KEY_PRODIDS ,response.getProductIdList());
-        resp.addDetails(JozAdResponse.KEY_CATEGORIES ,response.getCatDetails());
-        resp.addDetails(JozAdResponse.KEY_CATNAMES,response.getCatIdList());
+		ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+				MerchantDB.getInstance().getMerchantData());
+		ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, slotIdArr);
+		if (response==null) {
+			throw new JoZException("Invalid response from Listing Provider");
+		}
+		resp.addDetails(JozAdResponse.KEY_PRODUCTS ,response.getListingDetails());
+		resp.addDetails(JozAdResponse.KEY_PRODIDS ,response.getProductIdList());
+		resp.addDetails(JozAdResponse.KEY_CATEGORIES ,response.getCatDetails());
+		resp.addDetails(JozAdResponse.KEY_CATNAMES,response.getCatIdList());
 
         resp.addDetails(JozAdResponse.KEY_REALM,rqst.getTargetedRealm());
         resp.addDetails(JozAdResponse.KEY_STRATEGY ,ospec);
