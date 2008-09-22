@@ -715,6 +715,51 @@ public class TestJozAdDataProviderImpl extends TestCase{
 			e.printStackTrace();
 		}
 	}
+
+	@Test
+	public void testTSpecPriceTargeting() {
+		System.out.println();
+		System.out.println("----------TESTING TSPEC PRICE BASED TARGETING ------------");
+		System.out.println();
+		try {
+			JozAdRequest aquery = new JozAdRequest();
+			aquery.setValue(JozAdRequest.KEY_T_SPEC, "admin_custom5");
+
+			JozAdResponse res = _impl.getAdData(aquery);
+
+			if(res != null){
+				printResponseData(res);
+				String errorValue = res.getResultMap().get(JozAdResponse.KEY_ERROR);
+				if(errorValue != null){
+					fail("testTSpecPriceTargeting failed error:" + errorValue);
+					System.out.println("Lookup failed. ResultMap has Error: " + errorValue);
+				}
+				String productIds = res.getResultMap().get(JozAdResponse.KEY_PRODIDS);
+				StringTokenizer idTokenizer = new StringTokenizer(productIds, ",");
+				ArrayList<String> idList = new ArrayList<String>();
+				while(idTokenizer.hasMoreTokens()){
+					String id = idTokenizer.nextToken();
+					idList.add(id);
+				}
+				if(idList.size() > 0){
+					if(!idList.contains("_1594.US7220128") || !idList.contains("_1594.US7207300")){
+						fail("testTSpecPriceTargeting failed: wrong productId returned:" + idList.get(0));
+						System.out.println("testTSpecPriceTargeting failed: wrong productId returned:" + idList.get(0));
+					}
+				} else {
+					fail("testTSpecPriceTargeting failed: incorrect number of ids returned");
+					System.out.println("testTSpecPriceTargeting failed: incorrect number of ids returned");
+				}
+			} else {
+				fail("testTSpecPriceTargeting failed: response == null");
+				System.out.println("Lookup faild. No result");
+			}
+		} catch (JoZClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	@AfterClass
 	public static void teardown() {
 		TcpSocketConnectionPool.getInstance().tearDown();
