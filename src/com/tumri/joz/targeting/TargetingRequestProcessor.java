@@ -118,6 +118,7 @@ public class TargetingRequestProcessor {
                         if (loc!=null) {
                             features.setLocationClientId(loc.getClientId());
                             features.setLocationClientName(loc.getClientName());
+	                        features.setTargetedLocationName(loc.getName());
                         }
                     }
                 }
