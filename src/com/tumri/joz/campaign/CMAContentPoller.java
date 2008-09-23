@@ -22,9 +22,9 @@ import com.tumri.joz.utils.LogUtils;
 public class CMAContentPoller {
 
 	protected static Logger log = Logger.getLogger(CMAContentPoller.class);
-	protected int refreshWallClockTimeMins = 40; //40 mins on the hour
+	protected int refreshWallClockTimeMins = 5; // start at 5 min after an hour
 	protected static Timer _timer = new Timer();
-    protected static int repeatIntervalMins = 15; //every 15 min
+    protected static int repeatIntervalMins = 15; // repeat every 15 min
 
 	private static final String CONFIG_WALL_CLOCK_MINUTES = "com.tumri.campaign.file.refresh.time.minutes";
 	private static final String CONFIG_CMA_REFRESH_INTERVAL_MINUTES = "com.tumri.campaign.file.refresh.interval.minutes";
@@ -124,9 +124,7 @@ public class CMAContentPoller {
 	 */
     private void startTimer()
     {
-        Calendar c = Calendar.getInstance();
-        // StartTimer after CONFIG_CMA_REFRESH_INTERVAL_MINUTES minutes and repeat
-        c.setTimeInMillis(System.currentTimeMillis()+repeatIntervalMins*60*1000);
+        Calendar c = getTimerStartTime();
         _timer.scheduleAtFixedRate(new TimerTask() {
             public void run()
             {
@@ -138,6 +136,24 @@ public class CMAContentPoller {
             }
         }, c.getTime(), repeatIntervalMins*60*1000);
 
+    }
+    
+    private Calendar getTimerStartTime(){
+    	
+    	Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.set(Calendar.SECOND, 0);
+    	c.set(Calendar.MILLISECOND, 0);
+        if(c.get(Calendar.MINUTE) < refreshWallClockTimeMins){
+        	// start at 5 min to the hour
+        	c.set(Calendar.MINUTE, refreshWallClockTimeMins);
+        }else{
+        	// start after 15 min slots starting from 5 min to the hour
+        	int minToAdd = c.get(Calendar.MINUTE) - refreshWallClockTimeMins;
+        	int multiplyFactor = minToAdd/repeatIntervalMins;
+	        c.set(Calendar.MINUTE, refreshWallClockTimeMins + (multiplyFactor+1)*repeatIntervalMins);
+        }
+    	return c;
     }
 
 }
