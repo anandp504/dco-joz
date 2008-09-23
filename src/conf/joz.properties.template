@@ -66,7 +66,7 @@ com.tumri.joz.listing.provider.impl=com.tumri.lls.client.main.LlcListingProvider
 com.tumri.joz.listing.parser.impl=com.tumri.lls.client.response.json.LlcJSONListingDataParserImpl
 com.tumri.llc.server.host=${com.tumri.llc.server.host}
 com.tumri.llc.server.port=20444
-com.tumri.llc.socket.pool.size=10
+com.tumri.llc.socket.pool.size=50
 com.tumri.llc.socket.numRetries=3
 com.tumri.llc.listing.cache.size=0
 
@@ -138,7 +138,7 @@ com.tumri.joz.zipcode.file=zipcodedb.xml
 #Delimiter for multi value queries
 com.tumri.joz.multivalue.delimiter=,
 # TCP settings
-tcpServer.poolSize=100
+tcpServer.poolSize=400
 tcpServer.port=2544
 tcpServer.timeout=5000
 tcpServer.queryHandlers=com.tumri.joz.server.handlers.JozAdRequestHandler,com.tumri.joz.server.handlers.JozProviderRequestHandler,com.tumri.joz.server.handlers.JozMerchantRequestHandler,com.tumri.joz.server.handlers.JozTaxonomyRequestHandler,com.tumri.joz.server.handlers.JozCountRequestHandler,com.tumri.joz.server.handlers.JozCampaignRequestHandler,com.tumri.joz.server.handlers.JozTSpecRequestHandler,com.tumri.joz.server.handlers.JozHealthCheckRequestHandler,com.tumri.joz.server.handlers.JozICSCampaignRequestHandler
