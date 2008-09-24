@@ -145,7 +145,7 @@
 <div>
 	<form id="TSpecSelForm" action="/joz/jsp/tSpecSelection.jsp" method="post">
 		<div>
-			<strong>Select TSpec (Name, ID)</strong> (<%=recipeTSpecInfo.size()%> TSpec(s)):
+			<strong>Select TSpec (Name, ID, NumProds, SlotId)</strong> (<%=recipeTSpecInfo.size()%> TSpec(s)):
 		</div>
 		<select id="TSpecList">
 			<%
@@ -159,7 +159,7 @@
 							out.print("<option value=\""+i+"\">"+tempTSpec+"</option>");
 						} else {
 							isTSpecDisabled = "";
-							out.print("<option value=\""+tempTSpec.getId()+"\">"+tempTSpec.getName()+ ", " + tempTSpec.getId() + "</option>");
+							out.print("<option value=\""+tempTSpec.getId()+"\">"+tempTSpec.getName()+ ", " + tempTSpec.getId() + ", " + recipeTSpecInfo.get(i).getNumProducts() + ", " + recipeTSpecInfo.get(i).getSlotId() + "</option>");
 						}
 
 					}
