@@ -28,6 +28,8 @@ public class JozData {
         loadContent(props.getProperties());
         //Init the CMA data
         loadCampaignData();
+        //Load Zip Data
+        loadZipData();
         //Init LLC
         ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
                         MerchantDB.getInstance().getMerchantData());

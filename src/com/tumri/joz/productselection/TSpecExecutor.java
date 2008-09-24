@@ -37,11 +37,11 @@ import com.tumri.utils.data.SortedArraySet;
 import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
-import java.net.URLDecoder;
-import java.io.UnsupportedEncodingException;
 
 /**
  * Class to execute a given tspec query. The assumption is that if the TSpec contains included products - then all other criteria
@@ -137,7 +137,7 @@ public class TSpecExecutor {
            m_MultiValueQuery = true;
         }
 
-        m_geoFilterEnabled = m_tspec.isGeoEnabledFlag();
+        m_geoFilterEnabled = m_tspec.isGeoEnabledFlag()||m_tspec.isApplyGeoFilter();
 
 
         //Set defaults the current Page and page Size if they have not been specified
@@ -380,20 +380,20 @@ public class TSpecExecutor {
 
     private ConjunctQuery cloneAndAddQuery(ConjunctQuery conjQuery, Product.Attribute kAttr, String val){
         AttributeQuery aQuery;
+
         if (kAttr == IProduct.Attribute.kRadius) {
-           Integer codeId = DictionaryManager.getInstance().getId(IProduct.Attribute.kZip, val);
-           aQuery = new RadiusQuery(kAttr, codeId);
-           //Check if tspec has radius specified
-                if (!m_tspec.isUseRadiusQuery()) {
-                    return null;
-                }
-                int rad = m_tspec.getRadius();
-                if (rad > 0) {
-                    ((RadiusQuery)aQuery).setRadius(rad);
-                }
+            int rad = m_tspec.getRadius();
+            if (!m_tspec.isUseRadiusQuery() || m_tspec.getRadius() ==0) {
+                return null;
+            }
+            Integer codeId = DictionaryManager.getInstance().getId(IProduct.Attribute.kZip, val);
+            aQuery = new RadiusQuery(kAttr, codeId);
+            if (rad > 0) {
+                ((RadiusQuery)aQuery).setRadius(rad);
+            }
         } else {
-           Integer codeId = DictionaryManager.getInstance().getId(kAttr, val);
-           aQuery = new AttributeQuery(kAttr, codeId);
+            Integer codeId = DictionaryManager.getInstance().getId(kAttr, val);
+            aQuery = new AttributeQuery(kAttr, codeId);
         }
         if (aQuery == null) {
             return null;
