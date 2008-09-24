@@ -131,6 +131,92 @@
 			</div>
 		</td>
 	</tr>
+	<tr>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Radius</strong> = " + myTSpec.getRadius() + " ");
+				%>
+			</div>
+			<br>
+		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Use radius query</strong> = " + myTSpec.isUseRadiusQuery() + "<br>");
+				%>
+			</div>
+		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Geo enable flag = </strong>" + myTSpec.isGeoEnabledFlag() + "<br>");
+				%>
+			</div>
+		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Apply Geo Filter = </strong>" + myTSpec.isApplyGeoFilter() + "<br>");
+				%>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Allow External Query</strong> = " + myTSpec.isAllowExternalQuery() + " ");
+				%>
+			</div>
+			<br>
+		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Apploy Keyword Filter</strong> = " + myTSpec.isApplyKeywordFilter() + "<br>");
+				%>
+			</div>
+		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Apply URL Filter = </strong>" + myTSpec.isApplyUrlFilter() + "<br>");
+				%>
+			</div>
+		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Mine Pub URL = </strong>" + myTSpec.isMinePubUrl() + "<br>");
+				%>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Publish URL Keywords within OSpec</strong> = " + myTSpec.isPublishUrlKeywordsWithinOSpec() + " ");
+				%>
+			</div>
+			<br>
+		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Script Keywords within OSpec</strong> = " + myTSpec.isScriptKeywordsWithinOSpec() + "<br>");
+				%>
+			</div>
+		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Too Small Leaf Categories = </strong>" + myTSpec.isTooSmallLeafCategories() + "<br>");
+				%>
+			</div>
+		</td>
+	</tr>
 </table>
 
 <%

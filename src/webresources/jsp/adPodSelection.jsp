@@ -252,11 +252,11 @@
 			geoMap = new ArrayList<GeoAdPodMapping>();
 		}
 		out.print("<strong>Total Number of Geo AdPod Mappings</strong> = " + geoMap.size() + "<br>");
-		out.print("<strong>GeoAdPodMapping: ID</strong><br>");
+		out.print("<strong>GeoAdPodMapping: ID, Type, Value </strong><br>");
 		for(int i = 0; i < geoMap.size(); i++){
 			GeoAdPodMapping map = geoMap.get(i);
 			if(map != null){
-				out.print("&nbsp &nbsp &nbsp &nbsp " + map.getId() + " " + map.getGeoValue() + "<br>");
+				out.print("&nbsp &nbsp &nbsp &nbsp " + map.getId() + ", " + map.getType() + ", " + map.getGeoValue() + "<br>");
 			}
 		}
 
