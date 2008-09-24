@@ -99,20 +99,26 @@ public class ProductQueryMonitor extends ComponentMonitor
             throw new JoZException("No products returned by the product selection");
         }
 
-        long[] pids = new long[handles.size()];
+        String jsonStr = null;
+        ListingResponse response = null;
 
-        for (int i=0;i<handles.size();i++){
-            pids[i] = handles.get(i).getOid();
+        if (handles.size()>0) {
+            long[] pids = new long[handles.size()];
+
+            for (int i=0;i<handles.size();i++){
+                pids[i] = handles.get(i).getOid();
+            }
+
+            ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+                    MerchantDB.getInstance().getMerchantData());
+            response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
+            if (response==null) {
+                throw new JoZException("Invalid response from Listing Provider");
+            }
+
+            jsonStr = response.getListingDetails();
+
         }
-
-        ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-                MerchantDB.getInstance().getMerchantData());
-        ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
-        if (response==null) {
-            throw new JoZException("Invalid response from Listing Provider");
-        }
-
-        String jsonStr = response.getListingDetails();
         if (jsonStr==null || "".equals(jsonStr)) {
             throw new JozMonitorException("Products not found.");
         }
