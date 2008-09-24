@@ -41,7 +41,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
         try {
             doQuery((JozTSpecRequest)input,(JozTSpecResponse)response);
         } catch (ClassCastException ex) {
-            throw new InvalidRequestException("Only type JozMerchantRequest & JozMerchantResponse supported.",ex);
+            throw new InvalidRequestException("Only type JozTSpecRequest & JozTSpecResponse supported.",ex);
         }
     }
 
@@ -53,10 +53,10 @@ public class JozTSpecRequestHandler implements RequestHandler {
         try {
             processRequest(input, response);
         } catch(JoZException e) {
-            response.addDetails(JozMerchantResponse.KEY_ERROR,"Joz exception on processing the request : " + e.getMessage());
+            response.addDetails(JozTSpecResponse.KEY_ERROR,"Joz exception on processing the request : " + e.getMessage());
             log.error("Jozexception caught",e);
         } catch (Throwable t) {
-            response.addDetails(JozMerchantResponse.KEY_ERROR,"Unexpected exception on processing the request : " + t.getMessage());
+            response.addDetails(JozTSpecResponse.KEY_ERROR,"Unexpected exception on processing the request : " + t.getMessage());
             log.error("Unexpected Exception caught",t);
         }
     }
@@ -68,7 +68,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
      * @throws Exception
      */
     private void processRequest(JozTSpecRequest query, JozTSpecResponse response) throws JoZException{
-        log.info("Received JozCampaign data request");
+        log.debug("Received TSpec eval request");
         try {
             JozResponse resp = new JozResponse();
 
@@ -79,6 +79,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
                 String xmlTSpec = query.getValue(JozTSpecRequest.KEY_TSPEC);
                 String pageNumStr = query.getValue(JozTSpecRequest.KEY_PAGE_NUM);
                 String pageSizeStr = query.getValue(JozTSpecRequest.KEY_PAGE_SIZE);
+                log.debug("TSpec XML = " + xmlTSpec);
                 TSpec tSpec = (TSpec)xstream.fromXML(xmlTSpec);
                 int pageNum = Integer.parseInt(pageNumStr);
                 int pageSize = Integer.parseInt(pageSizeStr);
@@ -117,7 +118,8 @@ public class JozTSpecRequestHandler implements RequestHandler {
             }else if(commandType.equalsIgnoreCase(JozTSpecRequest.KEY_GET_PRODUCTS_COUNTS_TSPEC)){
 
                 String xmlTSpec = query.getValue(JozTSpecRequest.KEY_TSPEC);
-                //
+                log.debug("TSpec XML = " + xmlTSpec);
+                
                 String pageNumStr = query.getValue(JozTSpecRequest.KEY_PAGE_NUM);
                 String pageSizeStr = query.getValue(JozTSpecRequest.KEY_PAGE_SIZE);
                 TSpec tSpec = (TSpec)xstream.fromXML(xmlTSpec);
@@ -163,14 +165,14 @@ public class JozTSpecRequestHandler implements RequestHandler {
             response.addDetails(JozTSpecResponse.KEY_RESPONSE, xml);
 
         } catch (Throwable ex) {
-            log.error("Error while fetching list of merchants. Request:\"" + toString() + "\".",ex);
-            response.addDetails(JozResponse.KEY_ERROR, "Exception on getting merchants");
+            log.error("Error while processing tspec request. Request:\"" + toString() + "\".",ex);
+            response.addDetails(JozResponse.KEY_ERROR, "Exception on processing tspec request");
         }
     }
     
     private void getTSpecDetails(TSpec tSpec,int pageSize,int pageNum,JozAdResponse adResponse) throws JoZException{
-    	log.info("TSpec "+tSpec);
-    	log.info("pageNum "+pageNum);
+    	log.debug("TSpec "+tSpec);
+    	log.debug("pageNum "+pageNum);
 
     	ProductSelectionRequest pr = createProductSelectionRequest(pageSize,pageNum);
     	TSpecExecutor queryExecutor = new TSpecExecutor(pr);
@@ -239,8 +241,8 @@ public class JozTSpecRequestHandler implements RequestHandler {
     }
 
     private void getTSpecDetails(int tSpecId,int pageSize,int pageNum,JozAdResponse adResponse) throws JoZException{
-    	log.info("TSpecId "+tSpecId);
-    	log.info("pageNum "+pageNum);
+    	log.debug("TSpecId "+tSpecId);
+    	log.debug("pageNum "+pageNum);
     	ProductSelectionRequest pr = createProductSelectionRequest(pageSize,pageNum);
     	TSpecExecutor queryExecutor = new TSpecExecutor(pr);
     	ArrayList<Handle> prodResults = queryExecutor.processQuery(tSpecId);
@@ -248,7 +250,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
     }
     
    private JozCounts getTSpecCounts(TSpec tSpec) throws JoZException{
-	   log.info("TSpec "+tSpec);
+	   log.debug("TSpec "+tSpec);
 	   JozCounts counts = new JozCounts();
        HashMap<String, CountsHelper.Counter>[] counters = CountsHelper.getCounters(tSpec);
 
@@ -276,7 +278,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
     }
 
     private JozCounts getTSpecCounts(int tSpecId) throws JoZException{
-    	log.info("TSpecId "+tSpecId);
+    	log.debug("TSpecId "+tSpecId);
 
  	   JozCounts counts = new JozCounts();
         HashMap<String, CountsHelper.Counter>[] counters = CountsHelper.getCounters(tSpecId);

@@ -66,11 +66,7 @@ public class ProductSelectionProcessor {
                             pr.setPageSize(numProds);
                             pr.setCurrPage(0);
                         } else {
-                            numProds = pr.getPageSize();
-                        }
-                        //Default numProducts to 12
-                        if (numProds == 0) {
-                            numProds = 12;
+                            continue;
                         }
                         ArrayList<Handle> results = new ArrayList<Handle>();
                         if (request.get_ad_offer_type()== AdDataRequest.AdOfferType.PRODUCT_LEADGEN) {
