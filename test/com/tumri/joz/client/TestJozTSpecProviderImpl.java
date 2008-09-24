@@ -107,7 +107,27 @@ public class TestJozTSpecProviderImpl extends TestCase {
 			fail("testTSpecGetDetailsByTSpec FAILED");
 			e.printStackTrace();
 		}
+    }@Test
+    public void testTSpecIncludedProducts() {
+    	try {
+			TSpec tSpec = new TSpec();
+			tSpec.setName("TestTSpec");
+			//tSpec.addIncludedCategories(new CategoryInfo("GLASSVIEW.TUMRI_14240","Women\'s Tops"));
+			//tSpec.addIncludedCategories(new CategoryInfo("GLASSVIEW.TUMRI_14198",""));
+			//tSpec.addIncludedKeywords(new KeywordInfo("Motorola Nokia Blackberry Apple LG Samsung"));
+			//tSpec.addIncludedCategories(new CategoryInfo("GLASSVIEW.TUMRI_14361",""));		
+			tSpec.addIncludedProducts(new ProductInfo("_1305.US3781596"));
+			int pageSize = 12;
+			int pageNum = 0;
+			JozResponse  response = provider.getTSpecDetails(tSpec,pageSize,pageNum);
+			JozAdResponse adResponse = response.getAdResponse();
+            inspectResponseData(adResponse);
+		} catch (JoZClientException e) {
+			fail("testTSpecGetDetailsByTSpec FAILED");
+			e.printStackTrace();
+		}
     }
+    
     @Test
     public void testTSpecGetDetailsByTSpecWithPagination() {
     	try {
