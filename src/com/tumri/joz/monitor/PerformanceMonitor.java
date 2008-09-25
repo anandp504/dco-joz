@@ -1,14 +1,9 @@
 package com.tumri.joz.monitor;
 
-import java.util.Map;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.log4j.Logger;
 
 /**
   * JoZ Performance statistics monitor.
@@ -28,8 +23,6 @@ public class PerformanceMonitor extends ComponentMonitor
 	private ConcurrentHashMap<String,Long> failedTspecsMap=new ConcurrentHashMap<String,Long>();
 	private static Date startDate=new Date();
 
-    private static Logger log = Logger.getLogger(PerformanceMonitor.class);
-
     private PerformanceMonitor()
     {
        super("product-requests", new PerformanceMonitorStatus("performance"));
@@ -46,21 +39,22 @@ public class PerformanceMonitor extends ComponentMonitor
 		return instance;
 	}
 
-	public void registerSuccess(String tspecName,long elapsedTime) {
+    @SuppressWarnings("unchecked")
+    public void registerSuccess(String tspecName,long elapsedTime) {
 		if (totalRequests.get() == failedRequests.get()) {
 			maxRequestTime.set(elapsedTime);
-			maxTimedTspecName.set((String)tspecName);
+			maxTimedTspecName.set(tspecName);
 			minRequestTime.set(elapsedTime);
-			minTimedTspecName.set((String)tspecName);
+			minTimedTspecName.set(tspecName);
 		}
 		else {
 			if (elapsedTime < minRequestTime.get()) {
 				minRequestTime.set(elapsedTime);
-				minTimedTspecName.set((String)tspecName);
+				minTimedTspecName.set(tspecName);
 			}
 			else if ( elapsedTime > maxRequestTime.get()) {
 				maxRequestTime.set(elapsedTime);
-				maxTimedTspecName.set((String)tspecName);
+				maxTimedTspecName.set(tspecName);
 			}
 		}
 		totalTime.addAndGet(elapsedTime);
@@ -69,12 +63,12 @@ public class PerformanceMonitor extends ComponentMonitor
 
 	public void registerFailure(String tspecName) {
 		failedRequests.getAndIncrement();
-		Long failedCount=(Long)failedTspecsMap.get(tspecName);
+		Long failedCount=failedTspecsMap.get(tspecName);
 		if (null == failedCount) {
-			failedTspecsMap.put(tspecName,new Long(1));
+			failedTspecsMap.put(tspecName,1L);
 		}
 		else {
-			failedTspecsMap.put(tspecName,new Long(failedCount.longValue()+1));
+			failedTspecsMap.put(tspecName, failedCount + 1);
 		}
 	}
 

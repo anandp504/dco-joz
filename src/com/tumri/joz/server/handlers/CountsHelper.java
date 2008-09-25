@@ -105,6 +105,8 @@ public class CountsHelper {
         return retVal;
 
     }
+    
+    @SuppressWarnings("unchecked")
     public static HashMap<String, Counter>[] getCounters(TSpec tSpec) throws JoZException {
         HashMap<String, Counter>[] retVal = new HashMap[3];
         HashMap<String, Counter> category_counts = new HashMap<String, Counter>();
@@ -131,7 +133,8 @@ public class CountsHelper {
         }
         return retVal;
     }
-    
+
+    @SuppressWarnings("unchecked")
     public static HashMap<String, Counter>[] getCounters(int tSpecId) throws JoZException {
         HashMap<String, Counter>[] retVal = new HashMap[3];
         HashMap<String, Counter> category_counts = new HashMap<String, Counter>();
@@ -167,6 +170,7 @@ public class CountsHelper {
      * @param kAttr  the current product attribute
      * @return HashMap<String, Counter>
      */
+    @SuppressWarnings("unchecked")
     private static HashMap<String, Counter> getGlobalAttributeCount(HashMap<String, Counter> attrCounts,
                                                                     IProduct.Attribute kAttr) {
         ProductAttributeIndex<Integer,Handle> ai = ProductDB.getInstance().getIndex(kAttr);
@@ -188,6 +192,7 @@ public class CountsHelper {
      * @return HashMap<String, Counter>
      * @throws JoZException - from any called statements
      */
+    @SuppressWarnings("unchecked")
     private static HashMap<String, Counter> getOSpecAttributeCount(HashMap<String, Counter> attrCounts,
     		CNFQuery query, IProduct.Attribute kAttr) throws JoZException{
         ProductAttributeIndex<Integer,Handle> ai = ProductDB.getInstance().getIndex(kAttr);
@@ -228,8 +233,12 @@ public class CountsHelper {
 
     /**
      * For the given set of included product, return the count of the attribute
-     * @return
+     * @param attrCounts  - map of counters
+     * @param sortedInclProds  - incl prods
+     * @param kAttr        - product attr
+     * @return map of counters
      */
+    @SuppressWarnings("unchecked")
     private static HashMap<String, Counter> getIncludedProductAttributeCount(HashMap<String, Counter> attrCounts,
                                                                              SortedSet<Handle> sortedInclProds,
                                                                              IProduct.Attribute kAttr) {
@@ -239,14 +248,15 @@ public class CountsHelper {
             for (Integer theKey: keySet) {
                 String keyStrVal = DictionaryManager.getValue(kAttr, theKey);
                 //Intersect between the 2 sets
-                ProductSetIntersector aIntersector = new ProductSetIntersector();
+                ProductSetIntersector aIntersector;
+                aIntersector = new ProductSetIntersector();
                 aIntersector.include(ai.get(theKey), AttributeWeights.getWeight(kAttr));
                 aIntersector.include(sortedInclProds, AttributeWeights.getWeight(kAttr));
                 aIntersector.setStrict(true);
                 aIntersector.setMax(0);
                 SortedSet<Handle> results = aIntersector.intersect();
                 //Walk thru the loop - to avoid the warning of size() on SetIntersector
-                for (Handle h: results) {
+                for (int i=0;i<results.size();i++) {
                     incrementCounter(attrCounts, keyStrVal, kAttr);
                 }
             }
@@ -256,9 +266,9 @@ public class CountsHelper {
 
     /**
      * Convinence method to increment the count by 1
-     * @param attrCounts
-     * @param keyStrVal
-     * @param kAttr
+     * @param attrCounts  - map of counters
+     * @param keyStrVal  - key value
+     * @param kAttr        - product attr
      */
     private static void incrementCounter(HashMap<String, Counter> attrCounts, String keyStrVal, IProduct.Attribute kAttr) {
         incrementCounter(1, attrCounts, keyStrVal, kAttr);
@@ -267,9 +277,10 @@ public class CountsHelper {
     /**
      * Increment the counter taking into consideration the special case for Category, where parent counts are also
      * to be included.
-     * @param attrCounts
-     * @param keyStrVal
-     * @param kAttr
+     * @param size  - size
+     * @param attrCounts  - map of counters
+     * @param keyStrVal  - key value
+     * @param kAttr        - product attr
      */
     private static void incrementCounter(int size, HashMap<String, Counter> attrCounts, String keyStrVal, IProduct.Attribute kAttr) {
         if (keyStrVal != null) {
@@ -291,9 +302,9 @@ public class CountsHelper {
 
     /**
      * Increment the count for the category, as well as all its parents
-     * @param size
-     * @param catIdStr
-     * @param attrCounts
+     * @param size  - size
+     * @param catIdStr  - id value
+     * @param attrCounts  - map of counters
      */
     private static void incrementCategoryCount(int size, String catIdStr, HashMap<String, Counter> attrCounts) {
         List<String> categories = new ArrayList<String>();
@@ -310,6 +321,8 @@ public class CountsHelper {
 
     /**
      * Return list of all categories in cats and their parents.
+     * @param cats input list
+     * @return list of cats
      */
     private static List<String> getAllCategories(List<String> cats) {
         JOZTaxonomy tax = JOZTaxonomy.getInstance();

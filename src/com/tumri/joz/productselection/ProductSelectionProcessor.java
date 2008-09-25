@@ -41,7 +41,8 @@ public class ProductSelectionProcessor {
 
     private static Logger log = Logger.getLogger (ProductSelectionProcessor.class);
 	public static final String PROCESS_STATS_ID = "PS";
-	
+
+    @SuppressWarnings("unchecked")
     public ProductSelectionResults processRequest(AdDataRequest request, Features features) {
         ProductSelectionResults pResults = null;
         try {
@@ -240,7 +241,10 @@ public class ProductSelectionProcessor {
 
     /**
      * Execute the current tspec and add to the results map
-     * @param pr
+     * @param tspecId - the tspec
+     * @param pr - request
+     * @param f - features
+     * @return ArrayList<Handle> - results
      */
     private ArrayList<Handle> doProductSelection(int tspecId, ProductSelectionRequest pr, Features f) {
         TSpecExecutor qp = new TSpecExecutor(pr, f);

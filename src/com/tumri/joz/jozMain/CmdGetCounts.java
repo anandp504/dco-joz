@@ -113,7 +113,7 @@ public class CmdGetCounts extends CommandDeferWriting {
         // This is the only way that the client currently knows that this is the count for 
         // root category (essentially for the entire t-spec).
         SexpList category_list = new SexpList();
-        Counter c = category_counts.get(rootCatId.toString());
+        Counter c = category_counts.get(rootCatId);
         if (c != null) {
             category_list.addLast(new SexpList(new SexpString("GLASSVIEW.Product"), new SexpInteger(c.get())));
             // Remove it once we have added it.
@@ -198,16 +198,18 @@ public class CmdGetCounts extends CommandDeferWriting {
 
     /**
      * Compute the global attribute counts for the given attribute
-     * @param kAttr
-     * @return
+     * @param attrCounts - hashmap of attributes and counts
+     * @param kAttr - Product Attribute
+     * @return HashMap<String, Counter>
      */
+    @SuppressWarnings("unchecked")
     private static HashMap<String, Counter> getGlobalAttributeCount(HashMap<String, Counter> attrCounts,
                                                                     IProduct.Attribute kAttr) {
         ProductAttributeIndex<Integer,Handle> ai = ProductDB.getInstance().getIndex(kAttr);
         if (ai != null) {
             Set<Integer> keySet = ai.getKeys();
             for (Integer theKey: keySet) {
-                String keyStrVal = DictionaryManager.getInstance().getValue(kAttr, theKey);
+                String keyStrVal = DictionaryManager.getValue(kAttr, theKey);
                 incrementCounter(ai.getCount(theKey),attrCounts, keyStrVal, kAttr);
             }
         }
@@ -216,10 +218,13 @@ public class CmdGetCounts extends CommandDeferWriting {
 
     /**
      * Get the OSpec attribute count for the given OSpec
-     * @param tspecName
-     * @param kAttr
-     * @return
+     * @param attrCounts - hashmap of attributes and counts
+     * @param tspecName - Name of tspec
+     * @param kAttr - Product Attribute
+     * @return HashMap<String, Counter>
+     * @throws BadCommandException - when command is bad
      */
+    @SuppressWarnings("unchecked")
     private static HashMap<String, Counter> getOSpecAttributeCount(HashMap<String, Counter> attrCounts,
                                                                    String tspecName, IProduct.Attribute kAttr) throws BadCommandException{
         ProductAttributeIndex<Integer,Handle> ai = ProductDB.getInstance().getIndex(kAttr);
@@ -247,7 +252,7 @@ public class CmdGetCounts extends CommandDeferWriting {
                     Set<Integer> keySet = ai.getKeys();
 
                     for (Integer theKey: keySet) {
-                        String keyStrVal = DictionaryManager.getInstance().getValue(kAttr, theKey);
+                        String keyStrVal = DictionaryManager.getValue(kAttr, theKey);
                         SimpleQuery sq;
                         if (kAttr == IProduct.Attribute.kCategory) {
                             sq = new CategoryQuery(theKey);
@@ -274,8 +279,12 @@ public class CmdGetCounts extends CommandDeferWriting {
 
     /**
      * For the given set of included product, return the count of the attribute
-     * @return
+     * @param attrCounts - hashmap of attributes and counts
+     * @param kAttr - Product Attribute
+     * @param sortedInclProds - Included Prods
+     * @return HashMap<String, Counter>
      */
+    @SuppressWarnings("unchecked")
     private static HashMap<String, Counter> getIncludedProductAttributeCount(HashMap<String, Counter> attrCounts,
                                                                              SortedSet<Handle> sortedInclProds,
                                                                              IProduct.Attribute kAttr) {
@@ -283,16 +292,17 @@ public class CmdGetCounts extends CommandDeferWriting {
         if (ai != null) {
             Set<Integer> keySet = ai.getKeys();
             for (Integer theKey: keySet) {
-                String keyStrVal = DictionaryManager.getInstance().getValue(kAttr, theKey);
+                String keyStrVal = DictionaryManager.getValue(kAttr, theKey);
                 //Intersect between the 2 sets
-                ProductSetIntersector aIntersector = new ProductSetIntersector();
+                ProductSetIntersector aIntersector;
+                aIntersector = new ProductSetIntersector();
                 aIntersector.include(ai.get(theKey), AttributeWeights.getWeight(kAttr));
                 aIntersector.include(sortedInclProds, AttributeWeights.getWeight(kAttr));
                 aIntersector.setStrict(true);
                 aIntersector.setMax(0);
                 SortedSet<Handle> results = aIntersector.intersect();
                 //Walk thru the loop - to avoid the warning of size() on SetIntersector
-                for (Handle h: results) {
+                for (int i=0;i<results.size();i++) {
                     incrementCounter(attrCounts, keyStrVal, kAttr);
                 }
             }
@@ -302,9 +312,9 @@ public class CmdGetCounts extends CommandDeferWriting {
 
     /**
      * Convinence method to increment the count by 1
-     * @param attrCounts
-     * @param keyStrVal
-     * @param kAttr
+     * @param attrCounts - attr counts
+     * @param keyStrVal - key string
+     * @param kAttr - product attribute
      */
     private static void incrementCounter(HashMap<String, Counter> attrCounts, String keyStrVal, IProduct.Attribute kAttr) {
         incrementCounter(1, attrCounts, keyStrVal, kAttr);
@@ -313,9 +323,10 @@ public class CmdGetCounts extends CommandDeferWriting {
     /**
      * Increment the counter taking into consideration the special case for Category, where parent counts are also
      * to be included.
-     * @param attrCounts
-     * @param keyStrVal
-     * @param kAttr
+     * @param size - Size
+     * @param attrCounts - attr counts
+     * @param keyStrVal - key string
+     * @param kAttr - product attribute
      */
     private static void incrementCounter(int size, HashMap<String, Counter> attrCounts, String keyStrVal, IProduct.Attribute kAttr) {
         if (keyStrVal != null) {
@@ -344,9 +355,9 @@ public class CmdGetCounts extends CommandDeferWriting {
 
     /**
      * Increment the count for the category, as well as all its parents
-     * @param size
-     * @param catIdStr
-     * @param attrCounts
+     * @param size  - Size
+     * @param catIdStr    - cat id str
+     * @param attrCounts  - mao of counters
      */
     private static void incrementCategoryCount(int size, String catIdStr, HashMap<String, Counter> attrCounts) {
         List<String> categories = new ArrayList<String>();
@@ -363,6 +374,8 @@ public class CmdGetCounts extends CommandDeferWriting {
     
     /**
      * Return list of all categories in cats and their parents.
+     * @param cats - Category ids
+     * @return List<String> list of cats
      */
     private static List<String> getAllCategories(List<String> cats) {
         JOZTaxonomy tax = JOZTaxonomy.getInstance();

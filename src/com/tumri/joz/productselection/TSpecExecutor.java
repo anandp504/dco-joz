@@ -78,8 +78,8 @@ public class TSpecExecutor {
 
     /**
      * Process the query using the tspec Id, which is used to get teh query from teh cache
-     * @param tSpecId
-     * @return
+     * @param tSpecId  - the id
+     * @return - list of product handles
      */
     public ArrayList<Handle> processQuery(int tSpecId) {
         m_tspecId = tSpecId;
@@ -97,14 +97,13 @@ public class TSpecExecutor {
         //Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
         m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(tSpecId).clone();
 	   	setupRequestParms();
-        ArrayList resultAL = executeTSpec();
-        return resultAL;
+        return executeTSpec();
     }
 
     /**
      * Process the TSpec object that is passed in.
-     * @param tSpec
-     * @return
+     * @param tSpec - The tspec
+     * @return - list of handles
      */
     public ArrayList<Handle> processQuery(TSpec tSpec) {
 
@@ -116,8 +115,7 @@ public class TSpecExecutor {
         //Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
         m_tSpecQuery = TSpecQueryCacheHelper.getQuery(tSpec);
 	    setupRequestParms();
-        ArrayList resultAL = executeTSpec();
-        return resultAL;
+        return executeTSpec();
     }
 
     /**
@@ -185,8 +183,7 @@ public class TSpecExecutor {
 
     private void addRequestCategoryQuery(String requestCategory) {
         ArrayList<Integer> catList = new ArrayList<Integer>();
-        DictionaryManager dm = DictionaryManager.getInstance ();
-        Integer catId = dm.getId (IProduct.Attribute.kCategory, requestCategory);
+        Integer catId = DictionaryManager.getId (IProduct.Attribute.kCategory, requestCategory);
         catList.add(catId);
         SimpleQuery catQuery = new AttributeQuery (IProduct.Attribute.kCategory, catList);
         CNFQuery copytSpecQuery = (CNFQuery)m_tSpecQuery.clone();
@@ -216,8 +213,7 @@ public class TSpecExecutor {
         if (!bSimpleQueries) {
             return;
         }
-        DictionaryManager dm = DictionaryManager.getInstance ();
-        Integer leadGenTypeId = dm.getId (IProduct.Attribute.kProductType, "LEADGEN");
+        Integer leadGenTypeId = DictionaryManager.getId (IProduct.Attribute.kProductType, "LEADGEN");
         ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
         if (offerType== AdDataRequest.AdOfferType.LEADGEN_ONLY) {
             Integer adHeight = request.getAdHeight();
@@ -238,9 +234,8 @@ public class TSpecExecutor {
     }
 
     private SimpleQuery createGeoEnabledQuery() {
-        Integer geoFlagId = DictionaryManager.getInstance().getId(Product.Attribute.kGeoEnabledFlag, "true");
-        AttributeQuery geoEnabledQuery = new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
-        return geoEnabledQuery;
+        Integer geoFlagId = DictionaryManager.getId(Product.Attribute.kGeoEnabledFlag, "true");
+        return new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
     }
 
     private void addGeoFilterQuery(int pageSize, int currPage) {
@@ -386,17 +381,14 @@ public class TSpecExecutor {
             if (!m_tspec.isUseRadiusQuery() || m_tspec.getRadius() ==0) {
                 return null;
             }
-            Integer codeId = DictionaryManager.getInstance().getId(IProduct.Attribute.kZip, val);
+            Integer codeId = DictionaryManager.getId(IProduct.Attribute.kZip, val);
             aQuery = new RadiusQuery(kAttr, codeId);
             if (rad > 0) {
                 ((RadiusQuery)aQuery).setRadius(rad);
             }
         } else {
-            Integer codeId = DictionaryManager.getInstance().getId(kAttr, val);
+            Integer codeId = DictionaryManager.getId(kAttr, val);
             aQuery = new AttributeQuery(kAttr, codeId);
-        }
-        if (aQuery == null) {
-            return null;
         }
         ConjunctQuery cloneConjQuery = (ConjunctQuery)conjQuery.clone();
         cloneConjQuery.addQuery(aQuery);
@@ -407,7 +399,7 @@ public class TSpecExecutor {
 
     /**
      * Inspects the request and adds multivalue delim fields for Product Selection.
-     * @param request
+     * @param request - the request
      */
     private void addMultiValueRequestQueries(ProductSelectionRequest request) {
         if (!m_tspec.isAllowExternalQuery()) {
@@ -494,6 +486,7 @@ public class TSpecExecutor {
     /**
      * Performs the URL scavenging and runs the query
      * @param url - input Ad Data request
+     * @return keywords
      */
     private String doURLKeywordSearch(String url) {
         if (url==null || url.equals("")){
@@ -510,8 +503,7 @@ public class TSpecExecutor {
         if (tmpstopWords!=null){
             stopWords = stopWords + " " + tmpstopWords;
         }
-        String urlKeywords = URLScavenger.mineKeywords(url, stopWords, queryNames);
-        return urlKeywords;
+        return URLScavenger.mineKeywords(url, stopWords, queryNames);
     }
 
     /**
@@ -522,6 +514,7 @@ public class TSpecExecutor {
      * @param currSize - the current page size
      * @return ArrayList of products that were backfilled
      */
+    @SuppressWarnings("unchecked")
     private ArrayList<Handle> doBackFill(int pageSize, int currSize){
 		//Check if backfill is needed bcos of the keyword query
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
@@ -557,7 +550,6 @@ public class TSpecExecutor {
 			m_tSpecQuery.setReference(ref);
 			SortedSet<Handle> newResults = m_tSpecQuery.exec();
 			backFillProds.addAll(newResults);
-			currSize = currSize + backFillProds.size();
 		}
 
 		return backFillProds;
@@ -571,8 +563,8 @@ public class TSpecExecutor {
 
     /**
      * Returns the sorted set of included products if the oSpec has included products
-     * @param tSpec
-     * @return
+     * @param tSpec - the tspec
+     * @return - the included prods
      */
     private ArrayList<Handle> getIncludedProducts(TSpec tSpec) {
         ArrayList<Handle> prodsAL = new ArrayList<Handle>();
@@ -613,7 +605,7 @@ public class TSpecExecutor {
      * Perform tspec execution
      * @return ArrayList of product handles
      */
-    private ArrayList executeTSpec(){
+    private ArrayList<Handle> executeTSpec(){
         // Clone the query always
         m_tSpecQuery = (CNFQuery)m_tSpecQuery.clone();
         SortedSet<Handle> qResult;
@@ -637,7 +629,7 @@ public class TSpecExecutor {
             addRequestCategoryQuery(requestCategory);
         }
 
-        ArrayList resultAL = new ArrayList<Handle>();
+        ArrayList<Handle> resultAL = new ArrayList<Handle>();
 
         //5. Product Type
         addProductTypeQuery(request.getOfferType());
@@ -673,7 +665,7 @@ public class TSpecExecutor {
 
         //Cull the result by num products
         int numProds = request.getPageSize();
-        if ((resultAL!=null) && (numProds > 0) && (resultAL.size() > numProds)){
+        if ((numProds > 0) && (resultAL.size() > numProds)){
             while(resultAL.size() > numProds){
                 resultAL.remove(resultAL.size()-1);
             }
