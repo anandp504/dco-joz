@@ -1,7 +1,7 @@
 <list xmlns='http://www.tumri.com/campaign' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.tumri.com/campaign campaign.xsd'>
   <Campaign>
     <id>10000</id>
-    <name>Adv_cmp1</name>
+    <name>Adv_cmp111&amp;&gt;&quot;&lt;&apos;xyz</name>
     <creationDate>1220121000000</creationDate>
     <ownerId>tumri</ownerId>
     <insertionOrderId>6000</insertionOrderId>
@@ -79,6 +79,13 @@
                   <name>GAP</name>
                 </ProviderInfo>
               </IncludedProviders>
+	            <IncludedCategories>
+		            <CategoryInfo>
+					  <tspecId>2009</tspecId>
+					  <name>GLASSVIEW.TUMRI_14399</name>
+					  <displayName>Sports &amp; Outdoor Play</displayName>
+		             </CategoryInfo>
+	            </IncludedCategories>
             </ListingQuery>
           </ListingQueries>
         </ListingSpec>
@@ -124,8 +131,21 @@
             <ownerId>tumri</ownerId>
             <creationDate>1220172736000</creationDate>
             <updateDate>1220172766000</updateDate>
-            <rowVersion>2</rowVersion>
-            <Properties>
+	          <rowVersion>2</rowVersion>
+	          <Properties>
+		          <Property>
+			          <name>page1_creative_landing_page</name>
+			          <title>Landing page URL for page1 image click</title>
+			          <value>http://shop.lenovo.com/us/landing_pages/sales/ecoupon?&amp;cid=TUMRI</value>
+			          <type>String</type>
+			          <group>Layout</group>
+			          <recipeId>1002</recipeId>
+			          <id>998</id>
+			          <ownerId>tumri</ownerId>
+			          <creationDate>1221121192000</creationDate>
+			          <updateDate>1221121192000</updateDate>
+			          <rowVersion>1</rowVersion>
+		          </Property>
               <Property>
                 <name>numCustomText</name>
                 <title>Number of custom text</title>
