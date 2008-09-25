@@ -73,6 +73,12 @@
 <br>
 <div>
 	<%
+		out.print("<strong>Recipe: Design</strong> = " + myRecipe.getDesign() + "<br>");
+	%>
+</div>
+<br>
+<div>
+	<%
 		out.print("<strong>Recipe: Description</strong> = " + myRecipe.getDescription() + "<br>");
 	%>
 </div>
