@@ -143,14 +143,14 @@
 		<td>
 			<div>
 				<%
-					out.print("<strong>TSpec: Use radius query</strong> = " + myTSpec.isUseRadiusQuery() + "<br>");
+					out.print("<strong>TSpec: Use Radius Query</strong> = " + myTSpec.isUseRadiusQuery() + "<br>");
 				%>
 			</div>
 		</td>
 		<td>
 			<div>
 				<%
-					out.print("<strong>TSpec: Geo enable flag = </strong>" + myTSpec.isGeoEnabledFlag() + "<br>");
+					out.print("<strong>TSpec: Geo Enable Flag = </strong>" + myTSpec.isGeoEnabledFlag() + "<br>");
 				%>
 			</div>
 		</td>
@@ -174,7 +174,7 @@
 		<td>
 			<div>
 				<%
-					out.print("<strong>TSpec: Apploy Keyword Filter</strong> = " + myTSpec.isApplyKeywordFilter() + "<br>");
+					out.print("<strong>TSpec: Apply Keyword Filter</strong> = " + myTSpec.isApplyKeywordFilter() + "<br>");
 				%>
 			</div>
 		</td>
