@@ -15,20 +15,17 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.server.JozServer;
-import com.tumri.joz.server.JozNioServer;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.Polling;
-import com.tumri.utils.tcp.server.TCPServerException;
 import com.tumri.utils.stats.PerformanceStats;
 
 public class InitServlet extends HttpServlet {
-    
+
     private static Logger log = null;
     private static final String g_Log4JPropertiesFile = "jozLog4j.xml";
     private Thread jozServerThread = null;
-    //private JozNioServer jozServer = null;
     private JozServer jozServer = null;
-    
+
     static {
         String fileName = getLog4JConfigFilePath();
     	File f = new File(fileName);
@@ -40,10 +37,10 @@ public class InitServlet extends HttpServlet {
             log.error("Log4j configuration file " + g_Log4JPropertiesFile + " missing.");
         }
     }
-    
+
     public void init() throws ServletException {
         log.info("Initializing joz ...");
-        
+
         try {
             JozData.init();
 
@@ -56,18 +53,8 @@ public class InitServlet extends HttpServlet {
             log.info("port = "+port);
             log.info("queryHandlers = "+queryHandlers);
             log.info("timeout = "+timeout);
-            
-//            jozServer = new JozNioServer(port,poolSize, queryHandlers);
-//            jozServerThread = new Thread("JoZServerThread") {
-//                public void run() {
-//                	try {
-//                        jozServer.start();
-//                    } catch(TCPServerException e) {
-//                        log.fatal("Could not start the Joz Nio Server", e);
-//                    }
-//                }
-//            };
-             jozServer = new JozServer(poolSize,port,timeout,queryHandlers);
+
+            jozServer = new JozServer(poolSize,port,timeout,queryHandlers);
             jozServerThread = new Thread("JoZServerThread") {
                 public void run() {
                 	jozServer.runServer();
