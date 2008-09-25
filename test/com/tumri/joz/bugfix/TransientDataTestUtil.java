@@ -35,17 +35,8 @@ public class TransientDataTestUtil {
             fail("Error occured while making get-ad-data request");
         }
 
-        if(expectedOSpecName == null) {
-            if(recipe != null) {
-                if(!recipe.equals(CampaignDB.getInstance().getDefaultOSpec())) {
-                    fail("Invalid Recipe returned for given get-ad-data request");
-                }
-            }
-        }
-        else {
-            assertNotNull(recipe);
-            assertEquals(recipe.getName(), expectedOSpecName);
-        }
+        assertNotNull(recipe);
+        assertEquals(recipe.getName(), expectedOSpecName);
     }
 
     public static void validateOSpecResultforGetAdDataRequest(String getStr, String[] expectedOSpecNameArray) {
@@ -56,24 +47,15 @@ public class TransientDataTestUtil {
             e.printStackTrace();
             fail("Error occured while making get-ad-data request");
         }
-        if(expectedOSpecNameArray == null) {
-            if(recipe != null) {
-                if(!recipe.equals(CampaignDB.getInstance().getDefaultOSpec())) {
-                    fail("Invalid OSpec returned for given get-ad-data request");
-                }
+        assertNotNull(recipe);
+        boolean success = false;
+        for(int i=0; i<expectedOSpecNameArray.length; i++) {
+            if(recipe.getName().equals(expectedOSpecNameArray[i])) {
+                success = true;
+                break;
             }
         }
-        else {
-            assertNotNull(recipe);
-            boolean success = false;
-            for(int i=0; i<expectedOSpecNameArray.length; i++) {
-                if(recipe.getName().equals(expectedOSpecNameArray[i])) {
-                    success = true;
-                    break;
-                }
-            }
-            assertEquals(success, true);
-        }
+        assertEquals(success, true);
     }
 
     public static void addNewTSpec(String name) {
@@ -118,19 +100,19 @@ public class TransientDataTestUtil {
     }
 
     public static Sexp testProcessRequest(String sexpCommandStr) {
-		Reader r = new StringReader(sexpCommandStr);
-		SexpReader lr = new SexpReader (r);
-		Sexp e = null;
-		try {
-			e = lr.read ();
-		} catch(Exception exp) {
-			System.out.println("Exception caught when parsing the request string ");
-			exp.printStackTrace();
-		}
+        Reader r = new StringReader(sexpCommandStr);
+        SexpReader lr = new SexpReader (r);
+        Sexp e = null;
+        try {
+            e = lr.read ();
+        } catch(Exception exp) {
+            System.out.println("Exception caught when parsing the request string ");
+            exp.printStackTrace();
+        }
 
-		return e;
+        return e;
 
-	}
+    }
 
     public static Recipe testTargetingRequest(String getAdDataCommandStr) throws Exception {
         TargetingRequestProcessor processor = TargetingRequestProcessor.getInstance();
