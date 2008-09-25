@@ -25,7 +25,7 @@ public class TSpecQueryCacheHelper {
         ConjunctQuery _cjquery = new ConjunctQuery (new ProductQueryProcessor());
         //Keyword
         String keywordExp = theTSpec.getLoadTimeKeywordExpression();
-        if (keywordExp != null){
+        if (keywordExp != null && !"".equals(keywordExp.trim())){
             KeywordQuery kwQuery = new KeywordQuery(keywordExp,true);
             _cjquery.addQuery(kwQuery);
         }
