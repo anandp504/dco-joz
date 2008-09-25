@@ -37,7 +37,7 @@ public class TargetingRequestProcessor {
         //long startTime = System.nanoTime();
 	    PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
         Recipe theRecipe = null;
-        OSpec oSpec = null;
+        OSpec oSpec;
         if(request == null) {
             return null;
         }
@@ -147,8 +147,8 @@ public class TargetingRequestProcessor {
 
     /**
      * Select an Recipe for the given request
-     * @param request
-     * @return
+     * @param request  - the request
+     * @return  results
      */
     private SiteTargetingResults doSiteTargeting(AdDataRequest request) {
         Recipe theRecipe = null;
@@ -245,7 +245,7 @@ public class TargetingRequestProcessor {
     private AdPodHandle selectAdPodHandle(List<AdPodHandle> list) {
         AdPodHandle handle = null;
         int totalWeight = 0;
-        int weightRatio = 0;
+        int weightRatio;
         int[] weightArray = new int[list.size()];
         for(int i=0; i<list.size(); i++) {
             weightArray[i] = Math.abs(list.get(i).getWeight());
@@ -282,7 +282,7 @@ public class TargetingRequestProcessor {
     private Recipe selectRecipe(List<Recipe> list) {
         Recipe recipe = null;
         int totalWeight = 0;
-        int weightRatio = 0;
+        int weightRatio;
         int[] weightArray = new int[list.size()];
         for(int i=0; i<list.size(); i++) {
             weightArray[i] = Math.abs(list.get(i).getWeight());
@@ -317,6 +317,7 @@ public class TargetingRequestProcessor {
         return recipe;
     }
 
+    @SuppressWarnings("unchecked")
     private List<AdPodHandle> getHighestScoreAdPodHandles(SortedSet<Handle> results) {
         List<AdPodHandle> handles = new ArrayList<AdPodHandle>();
         if(results != null) {

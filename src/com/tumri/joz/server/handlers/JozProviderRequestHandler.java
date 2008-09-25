@@ -80,10 +80,11 @@ public class JozProviderRequestHandler implements RequestHandler {
 
     /**
      * Create the Provider listing
-     * @param query
+     * @param query - query
      * @return
      * @throws Exception
      */
+    @SuppressWarnings("unchecked")
     private void processRequest(JozProviderRequest query,  JozProviderResponse response) throws JoZException{
         //GetProviders does not have any specific query parmaters right now
         //Build XML String
