@@ -159,7 +159,7 @@ public class TargetingRequestProcessor {
         String urlName       = request.get_url();
         String adType = request.getAdType();
 
-        SortedSet<Handle> results = null;
+       SortedSet<Handle> results = null;
 
         if(locationIdStr != null && !"".equals(locationIdStr)) {
             locationId = Integer.parseInt(locationIdStr);
@@ -288,12 +288,9 @@ public class TargetingRequestProcessor {
             weightArray[i] = Math.abs(list.get(i).getWeight());
             totalWeight += list.get(i).getWeight();
         }
-        if(totalWeight == 0) {
-            //Invalid weight assigned to the recipes. Overriding with equal weight for all the adpods
-            for(Recipe tr : list) {
-                tr.setWeight(1);
-                totalWeight += 1;
-            }
+        if(totalWeight <= 0) {
+            log.warn("Total weight assigned to recipes is 0. Skipping Recipe selection");
+            return null;
         }
         try {
             weightRatio = new Random().nextInt(totalWeight);
