@@ -34,6 +34,7 @@ public class TestJozCampaignCreator {
 	public void makeXML() throws IOException {
 		boolean append = true;
 		providers.add("OVERSTOCK.COM");
+		providers.add("OVERSTOCK.COM");
 		providers.add("INTEL");
 		providers.add("BESTBUY");
 		providers.add("LENOVO");
@@ -43,6 +44,9 @@ public class TestJozCampaignCreator {
 		providers.add("NASCAR");
 		providers.add("TOYSRUS");
 		providers.add("NIKE");
+		providers.add("   ");
+		providers.add("\t");
+		providers.add("\n");
 
 		adTypes.add("mediumrectangle");
 		adTypes.add("skyscraper");
@@ -66,28 +70,41 @@ public class TestJozCampaignCreator {
 		zipcodes.add("94702");
 		zipcodes.add("12345");
 		zipcodes.add("98765");
+		zipcodes.add("   ");
+		zipcodes.add("\t");
+		zipcodes.add("\n");
 
 		countries.add("Mexico");
 		countries.add("United States");
 		countries.add("Japan");
 		countries.add("Canada");
 		countries.add("France");
+		countries.add("   ");
+		countries.add("\t");
+		countries.add("\n");
 
 		areacodes.add("714");
 		areacodes.add("650");
 		areacodes.add("408");
 		areacodes.add("415");
 		areacodes.add("323");
+		areacodes.add("   ");
+		areacodes.add("\t");
+		areacodes.add("\n");
 
 		dmacodes.add("803");
 		dmacodes.add("807");
 		dmacodes.add("839");
 		dmacodes.add("501");
 		dmacodes.add("602");
+		dmacodes.add("   ");
+		dmacodes.add("\t");
+		dmacodes.add("\n");
 
+		categories.add("   ");
+		categories.add("\t");
+		categories.add("\n");
 		readCategoryFile();
-
-
 
 		File outFile = null;
 		File outDir = new File(writeDir);
@@ -211,7 +228,7 @@ public class TestJozCampaignCreator {
 
 		List<GeoAdPodMapping> geoList = new ArrayList<GeoAdPodMapping>();
 
-		if(r.nextInt(100) < 30){
+		if(r.nextInt(100) < 50){
 			GeoAdPodMapping geoMapping = makeGeoMapping(id*10+1, id);
 			geoList.add(geoMapping);
 			newAdPod.setGeoAdPodMappings(geoList);
@@ -331,8 +348,10 @@ public class TestJozCampaignCreator {
 		UIProperty prop = makeUIProperty(recipeId*10+5, "Property"+(recipeId*10+5), "val");
 		prop.setRecipeId(recipeId);
 		newRecipe.addProperty(prop);
+		String designName = getRandomDesign(adType);
+		newRecipe.setDesign(designName);
 
-		UIProperty design = makeUIProperty(recipeId*10+7, "design", getRandomDesign(adType));
+		UIProperty design = makeUIProperty(recipeId*10+7, "design", designName);
 		design.setRecipeId(recipeId);
 		newRecipe.addProperty(design);
 
@@ -357,7 +376,7 @@ public class TestJozCampaignCreator {
 		for(int i = 0; i < numTSpecs; i++){
 			TSpec tspec;
 			if(!random){
-				tspec = makeTSpec(id*10+i, "TSpec"+(id*10+i), chooseSpec, random);
+				tspec = makeTSpec1(id*10+i, "TSpec"+(id*10+i), chooseSpec, random);
 			} else {
 				tspec = makeRandomTSpec(id*10+i, "TSpec"+(id*10+i), chooseSpec, random);
 			}
@@ -370,6 +389,7 @@ public class TestJozCampaignCreator {
 	public RecipeTSpecInfo makeRecipeTSpecInfo(int id){
 		RecipeTSpecInfo newRecipeTSpecInfo = new RecipeTSpecInfo();
 		newRecipeTSpecInfo.setTspecId(id);
+		newRecipeTSpecInfo.setNumProducts(13);
 		return newRecipeTSpecInfo;
 	}
 
@@ -378,12 +398,31 @@ public class TestJozCampaignCreator {
 		newTSpec.setId(id);
 		newTSpec.setName(name);
 		newTSpec.setLowPrice(0);
-		newTSpec.setHighPrice(1000000);
+		newTSpec.setHighPrice(10000000);
 		newTSpec.addIncludedProviders(makeProviderInfo(id, getProvider(chooseSpec % providers.size())));
 
 		return newTSpec;
 	}
+	public TSpec makeTSpec0(int id, String name, int chooseSpec, boolean random){
+		TSpec newTSpec = new TSpec();
+		newTSpec.setId(id);
+		newTSpec.setName(name);
+		newTSpec.setLowPrice(0);
+		newTSpec.setHighPrice(0);
+		newTSpec.addIncludedProviders(makeProviderInfo(id, getProvider(chooseSpec % providers.size())));
 
+		return newTSpec;
+	}
+	public TSpec makeTSpec1(int id, String name, int chooseSpec, boolean random){
+		TSpec newTSpec = new TSpec();
+		newTSpec.setId(id);
+		newTSpec.setName(name);
+		newTSpec.setLowPrice(-1);
+		newTSpec.setHighPrice(-1);
+		newTSpec.addIncludedProviders(makeProviderInfo(id, getProvider(chooseSpec % providers.size())));
+
+		return newTSpec;
+	}
 	private TSpec makeRandomTSpec(int id, String name, int chooseSpec, boolean random){
 		TSpec newTSpec = new TSpec();
 		newTSpec.setId(id);
