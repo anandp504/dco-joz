@@ -24,10 +24,6 @@ public abstract class CampaignDB {
 
     private static Logger log = Logger.getLogger (CampaignDB.class);
 
-    private String defaultRealmName = "http://default-realm/";
-
-    private String defaultRealmOSpecName = "T-SPEC-http://default-realm/";
-
     private static CampaignDB campaignDB = CampaignDBCompleteRefreshImpl.getInstance(); //CampaignDBIncrementalRefreshImpl.getInstance();
 
     public static CampaignDB getInstance() {
@@ -35,52 +31,7 @@ public abstract class CampaignDB {
     }
 
     protected void initialize() {
-        String realmName = null;
-        String realmOSpecName = null;
-        try {
-            realmName = AppProperties.getInstance().getProperty("com.tumri.targeting.default.realm.name");
-        }
-        catch(NullPointerException e) {
-            //ignore the error and pick the default realm name specified specified in java class instead
-            log.warn("Default realm name not specified joz.properties file", e);
-        }
-        catch(Exception e) {
-            //ignore the error and pick the default realm name specified specified in java class instead
-            log.warn("Default realm name not specified joz.properties file", e);
-        }
-
-        if(realmName != null && !("".equals(realmName))) {
-            defaultRealmName = realmName;
-        }
-
-        try {
-            realmOSpecName = AppProperties.getInstance().getProperty("com.tumri.targeting.default.realm.ospec.name");
-        }
-        catch(NullPointerException e) {
-            //ignore the error and pick the default realm name specified specified in java class instead
-            log.warn("Default realm OSpec name not specified joz.properties file", e);
-        }
-        catch(Exception e) {
-            //ignore the error and pick the default realm name specified specified in java class instead
-            log.warn("Default realm OSpec name not specified joz.properties file", e);
-        }
-
-        if(realmOSpecName != null && !("".equals(realmOSpecName))) {
-            defaultRealmOSpecName = realmOSpecName;
-        }
-
     }
-
-
-    public String getDefaultRealmName() {
-        return defaultRealmName;    
-    }
-
-    public String getDefaultRealmOSpecName() {
-        return defaultRealmOSpecName;    
-    }
-
-    public abstract OSpec getDefaultOSpec();
 
     public abstract OSpec getOSpecForAdPod(int adPodId);
 

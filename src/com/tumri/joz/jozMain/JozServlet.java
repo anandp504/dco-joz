@@ -69,16 +69,6 @@ public class JozServlet extends HttpServlet {
             }
         } catch(BadCommandException e) {
             log.error("Exception caught when parsing the command, going to show default realm : " + query, e);
-            //Show default realm if this is a get-ad-data request
-            if (query!=null && query.indexOf("get-ad-data") > -1) {
-                String defaultRealmQuery = AppProperties.getInstance().getDefaultRealmGetAdDataCommandStr();
-                try {
-                    Command cmd = Command.parse(defaultRealmQuery);
-                    cmd.process_and_write(out);
-                } catch (Exception ex){
-                    log.error("Could not execute default realm query", ex);
-                }
-            }
         } catch (Throwable t) {
             log.error("Exception caught processing joz request : " + query, t);
             log.error("Elapsed time = " + (System.nanoTime() - start_time) + " ns.");
