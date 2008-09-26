@@ -276,7 +276,8 @@ public class JozTSpecRequestHandler implements RequestHandler {
            JozProviderCount providerCount = new JozProviderCount(count.getKey(), new Integer(count.getValue().get()).toString());
            counts.addProviderCount(providerCount);
        }
-       counts.setTotalCount(getTotalCount(category_counts));       
+       counts.setTotalCount(getTotalCount(category_counts));
+       counts.setTumriCount(getTumriCount(category_counts));     
        return counts;
     }
 
@@ -307,6 +308,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
             counts.addProviderCount(providerCount);
         }
         counts.setTotalCount(getTotalCount(category_counts));
+        counts.setTumriCount(getTumriCount(category_counts));
         return counts;
     }
     private int getTotalCount(HashMap<String, CountsHelper.Counter> counts){
@@ -322,6 +324,26 @@ public class JozTSpecRequestHandler implements RequestHandler {
     		}
         }
     	return totalCount;
+    }
+    private int getTumriCount(HashMap<String, CountsHelper.Counter> counts){
+    	int tumriCount = -1;
+    	Category rootCat;
+        Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
+        if (t != null) {
+            rootCat = t.getRootCategory();
+            Category[] catList = rootCat.getChildren();
+            
+            for(Category cat:catList){
+            	String name = cat.getName();
+            	if(name.equalsIgnoreCase("tumri")){
+            		CountsHelper.Counter counter = ((counts==null)?null:counts.get(name));
+            		if (counter != null) {
+            			tumriCount = counter.get();
+            		}
+            	}
+            }
+        }
+    	return tumriCount;
     }
 
 }

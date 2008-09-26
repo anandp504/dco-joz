@@ -8,7 +8,14 @@ public class JozCounts {
     private List<JozBrandCount> brand_count = new ArrayList<JozBrandCount>();
     private List<JozProviderCount> provider_count = new ArrayList<JozProviderCount>();
     private int totalCount = -1;
-    public void addCategoryCount(JozCategoryCount categoryCount){
+    private int tumriCount = -1;
+    public int getTumriCount() {
+		return tumriCount;
+	}
+	public void setTumriCount(int tumriCount) {
+		this.tumriCount = tumriCount;
+	}
+	public void addCategoryCount(JozCategoryCount categoryCount){
     	category_count.add(categoryCount);
     }
     public void addBrandCount(JozBrandCount brandCount){
