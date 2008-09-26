@@ -114,7 +114,8 @@ public class TestJozAdDataProviderImpl extends TestCase{
 		try {
 			JozAdRequest aquery = new JozAdRequest();
 			aquery.setValue(JozAdRequest.KEY_URL, "http://abc.com");
-			aquery.setValue(JozAdRequest.KEY_T_SPEC, "admin_custom3");
+			///aquery.setValue(JozAdRequest.KEY_T_SPEC, "admin_custom3");
+			aquery.setValue(JozAdRequest.KEY_RECIPE_ID, "1003");
 			aquery.setValue(JozAdRequest.KEY_ZIP_CODE, "94041");
 
 			JozAdResponse res = _impl.getAdData(aquery);
@@ -139,11 +140,11 @@ public class TestJozAdDataProviderImpl extends TestCase{
 	@Test
 	public void testGetGeoData() {
 		System.out.println();
-		System.out.println("----------TESTING TSpec and Geo Targeting ------------");
+		System.out.println("----------TESTING Recipe and Geo Targeting ------------");
 		System.out.println();
 		try {
 			JozAdRequest aquery = new JozAdRequest();
-			aquery.setValue(JozAdRequest.KEY_T_SPEC, "admin_custom1");
+			aquery.setValue(JozAdRequest.KEY_RECIPE_ID, "1001");
 			aquery.setValue(JozAdRequest.KEY_ZIP_CODE, "94041");
 			JozAdResponse res = _impl.getAdData(aquery);
 
@@ -167,11 +168,11 @@ public class TestJozAdDataProviderImpl extends TestCase{
 	@Test
 	public void testGetGeoData2() {
 		System.out.println();
-		System.out.println("----------TESTING TSpec and Geo Targeting 2------------");
+		System.out.println("----------TESTING Recipe and Geo Targeting 2------------");
 		System.out.println();
 		try {
 			JozAdRequest aquery = new JozAdRequest();
-			aquery.setValue(JozAdRequest.KEY_T_SPEC, "admin_custom4");
+			aquery.setValue(JozAdRequest.KEY_RECIPE_ID, "1004");
 			aquery.setValue(JozAdRequest.KEY_CITY, "aslkdfjasdf");
 			JozAdResponse res = _impl.getAdData(aquery);
 
@@ -717,13 +718,14 @@ public class TestJozAdDataProviderImpl extends TestCase{
 	}
 
 	@Test
-	public void testTSpecPriceTargeting() {
+	public void testRecipePriceTargeting() {
 		System.out.println();
-		System.out.println("----------TESTING TSPEC PRICE BASED TARGETING ------------");
+		System.out.println("----------TESTING RECIPE PRICE BASED TARGETING ------------");
 		System.out.println();
 		try {
 			JozAdRequest aquery = new JozAdRequest();
-			aquery.setValue(JozAdRequest.KEY_T_SPEC, "admin_custom5");
+			aquery.setValue(JozAdRequest.KEY_RECIPE_ID, "1005");
+			aquery.setValue(JozAdRequest.KEY_NUM_PRODUCTS, "5");
 
 			JozAdResponse res = _impl.getAdData(aquery);
 
@@ -731,7 +733,7 @@ public class TestJozAdDataProviderImpl extends TestCase{
 				printResponseData(res);
 				String errorValue = res.getResultMap().get(JozAdResponse.KEY_ERROR);
 				if(errorValue != null){
-					fail("testTSpecPriceTargeting failed error:" + errorValue);
+					fail("testRecipePriceTargeting failed error:" + errorValue);
 					System.out.println("Lookup failed. ResultMap has Error: " + errorValue);
 				}
 				String productIds = res.getResultMap().get(JozAdResponse.KEY_PRODIDS);
@@ -743,15 +745,15 @@ public class TestJozAdDataProviderImpl extends TestCase{
 				}
 				if(idList.size() > 0){
 					if(!idList.contains("_1594.US7220128") || !idList.contains("_1594.US7207300")){
-						fail("testTSpecPriceTargeting failed: wrong productId returned:" + idList.get(0));
-						System.out.println("testTSpecPriceTargeting failed: wrong productId returned:" + idList.get(0));
+						fail("testRecipePriceTargeting failed: wrong productId returned:" + idList.get(0));
+						System.out.println("testRecipePriceTargeting failed: wrong productId returned:" + idList.get(0));
 					}
 				} else {
-					fail("testTSpecPriceTargeting failed: incorrect number of ids returned");
-					System.out.println("testTSpecPriceTargeting failed: incorrect number of ids returned");
+					fail("testRecipePriceTargeting failed: incorrect number of ids returned");
+					System.out.println("testRecipePriceTargeting failed: incorrect number of ids returned");
 				}
 			} else {
-				fail("testTSpecPriceTargeting failed: response == null");
+				fail("testRecipePriceTargeting failed: response == null");
 				System.out.println("Lookup faild. No result");
 			}
 		} catch (JoZClientException e) {
