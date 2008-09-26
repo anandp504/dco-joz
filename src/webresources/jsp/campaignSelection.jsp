@@ -30,6 +30,10 @@
 			var form=document.getElementById("AdGroupSelForm");
 			form.submit();
 		};
+		function saveCamp() {
+			var perfForm=document.getElementById("SaveCamp");
+			perfForm.submit();
+		}
 	</script>
 </head>
 <body>
@@ -65,6 +69,9 @@
 	Campaign Information
 </div>
 <br>
+<form id="SaveCamp" action="/joz/console?mode=dl&option=camp&id=<%=myCampaign.getId()%>" method="post">
+		<input type="button" value="Save Campaign" onClick="javascript:saveCamp()"/>
+</form>
 <br>
 <div>
 	<%

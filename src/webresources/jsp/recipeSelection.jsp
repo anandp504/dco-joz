@@ -29,6 +29,10 @@
 			var form=document.getElementById("AdPodSelForm");
 			form.submit();
 		};
+		function saveRecipe() {
+			var perfForm=document.getElementById("SaveRecipe");
+			perfForm.submit();
+		}
 	</script>
 </head>
 <body>
@@ -58,6 +62,9 @@
 	Recipe Information
 </div>
 <br>
+<form id="SaveRecipe" action="/joz/console?mode=dl&option=recipe&id=<%=myRecipe.getId()%>" method="post">
+		<input type="button" value="Save Recipe" onClick="javascript:saveRecipe()"/>
+</form>
 <br>
 <div>
 	<%

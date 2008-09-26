@@ -29,6 +29,12 @@
 			var form=document.getElementById("OSpecSelForm");
 			form.submit();
 		};
+
+		function saveAdPod() {
+			var perfForm=document.getElementById("SaveAdPod");
+			perfForm.submit();
+		}
+
 	</script>
 </head>
 <body>
@@ -59,6 +65,9 @@
 	AdPod Information
 </div>
 <br>
+<form id="SaveAdPod" action="/joz/console?mode=dl&option=adpod&id=<%=myAdPod.getId()%>" method="post">
+		<input type="button" value="Save AdPod" onClick="javascript:saveAdPod()"/>
+</form>
 <br>
 <div>
 	<%

@@ -68,6 +68,10 @@
             form.submit();
         }
         ;
+	    function saveList() {
+			var perfForm=document.getElementById("SaveList");
+			perfForm.submit();
+		}
     </script>
 </head>
 <body>
@@ -213,7 +217,10 @@
 		<input type="button" value="Get TSpec" onClick= "submitTSpecForm()"/>
 	</form>
 </div>
-
+<br>
+<form id="SaveList" action="/joz/console?mode=dl&option=list" method="post">
+		<input type="button" value="Save Campaigns.xml" onClick="javascript:saveList()"/>
+</form>
 <br>
 </body>
 </html>

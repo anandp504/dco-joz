@@ -28,6 +28,10 @@
 			var form=document.getElementById("OSpecSelForm");
 			form.submit();
 		};
+		function saveTSpec() {
+			var perfForm=document.getElementById("SaveTSpec");
+			perfForm.submit();
+		}
 	</script>
 </head>
 <body>
@@ -53,6 +57,9 @@
 	TSpec Information
 </div>
 <br>
+<form id="SaveTSpec" action="/joz/console?mode=dl&option=tspec&id=<%=myTSpec.getId()%>" method="post">
+		<input type="button" value="Save TSpec" onClick="javascript:saveTSpec()"/>
+</form>
 <br>
 <table border="1">
 	<tr>
