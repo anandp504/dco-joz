@@ -7,6 +7,7 @@ public class JozCounts {
 	private List<JozCategoryCount> category_count = new ArrayList<JozCategoryCount>();
     private List<JozBrandCount> brand_count = new ArrayList<JozBrandCount>();
     private List<JozProviderCount> provider_count = new ArrayList<JozProviderCount>();
+    private int totalCount = -1;
     public void addCategoryCount(JozCategoryCount categoryCount){
     	category_count.add(categoryCount);
     }
@@ -33,5 +34,11 @@ public class JozCounts {
 	}
 	public void setProvider(List<JozProviderCount> provider) {
 		this.provider_count = provider;
+	}
+	public int getTotalCount() {
+		return totalCount;
+	}
+	public void setTotalCount(int totalCount) {
+		this.totalCount = totalCount;
 	}
 }

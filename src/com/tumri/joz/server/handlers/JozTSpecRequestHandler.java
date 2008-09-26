@@ -5,6 +5,8 @@ import com.thoughtworks.xstream.XStream;
 import com.tumri.cma.domain.Recipe;
 import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.domain.UIProperty;
+import com.tumri.content.data.Category;
+import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.JoZException;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.ListingProviderFactory;
@@ -273,7 +275,8 @@ public class JozTSpecRequestHandler implements RequestHandler {
        for (Map.Entry<String, CountsHelper.Counter> count : prov_counts) {
            JozProviderCount providerCount = new JozProviderCount(count.getKey(), new Integer(count.getValue().get()).toString());
            counts.addProviderCount(providerCount);
-       }               
+       }
+       counts.setTotalCount(getTotalCount(category_counts));       
        return counts;
     }
 
@@ -302,9 +305,23 @@ public class JozTSpecRequestHandler implements RequestHandler {
         for (Map.Entry<String, CountsHelper.Counter> count : prov_counts) {
             JozProviderCount providerCount = new JozProviderCount(count.getKey(), new Integer(count.getValue().get()).toString());
             counts.addProviderCount(providerCount);
-        }               
+        }
+        counts.setTotalCount(getTotalCount(category_counts));
         return counts;
     }
-    
+    private int getTotalCount(HashMap<String, CountsHelper.Counter> counts){
+    	int totalCount = -1;
+    	Category rootCat;
+        Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
+        if (t != null) {
+            rootCat = t.getRootCategory();
+            String name = rootCat.getName();
+    		CountsHelper.Counter counter = ((counts==null)?null:counts.get(name));
+    		if (counter != null) {
+    			totalCount = counter.get();
+    		}
+        }
+    	return totalCount;
+    }
 
 }
