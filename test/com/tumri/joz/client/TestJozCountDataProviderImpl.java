@@ -103,20 +103,83 @@ public class TestJozCountDataProviderImpl extends TestCase{
         }
     }
 
+	@Test
+	public void testStart(){
+		init();
+	}
     
     @Test
     public void testGetCountsData() {
     	try {
-    		init();
 			JozCountRequest aquery = new JozCountRequest();
 			
 			//aquery.setValue(JozCountRequest.KEY_TSPEC, "T-SPEC-http://default-realm/");
 			aquery.setValue(JozCountRequest.KEY_TSPEC, "admin_custom");
 			JozCounts counts = provider.getCountData(aquery).getCounts();
 			Assert.assertNotNull(counts);
+		    if(counts.getProvider().size() != 1){
+			    fail("testGetCountsData failed: number or providers wrong");
+		    } else if(counts.getTotalCount() != 245){
+			    fail("testGetCountsData failed: Total Counts wrong");
+		    }
+
 			System.out.println("Num Categories : "+counts.getCategory().size());
 			System.out.println("Num Brands : "+counts.getBrand().size());
 			System.out.println("Num Providers : "+counts.getProvider().size());
+		    System.out.println("Total Count : " + counts.getTotalCount());
+		    System.out.println("Tumri Count : "+ counts.getTumriCount());
+		} catch (JoZClientException e) {
+			fail("Error in testGetCountsData");
+			e.printStackTrace();
+		}
+    }
+
+    @Test
+    public void testGetCountsData2() {
+    	try {
+			JozCountRequest aquery = new JozCountRequest();
+
+			//aquery.setValue(JozCountRequest.KEY_TSPEC, "T-SPEC-http://default-realm/");
+			aquery.setValue(JozCountRequest.KEY_TSPEC, "admin_custom5");
+			JozCounts counts = provider.getCountData(aquery).getCounts();
+			Assert.assertNotNull(counts);
+		    if(counts.getProvider().size() != 1){
+			    fail("testGetCountsData2 failed: number or providers wrong");
+		    } else if(counts.getTotalCount() != 2){
+			    fail("testGetCountsData2 failed: Total Counts wrong");
+		    }
+
+			System.out.println("Num Categories : "+counts.getCategory().size());
+			System.out.println("Num Brands : "+counts.getBrand().size());
+			System.out.println("Num Providers : "+counts.getProvider().size());
+		    System.out.println("Total Count : " + counts.getTotalCount());
+		    System.out.println("Tumri Count : "+ counts.getTumriCount());
+		} catch (JoZClientException e) {
+			fail("Error in testGetCountsData");
+			e.printStackTrace();
+		}
+    }
+
+	@Test
+    public void testGetCountsData3() {
+    	try {
+			JozCountRequest aquery = new JozCountRequest();
+
+			//aquery.setValue(JozCountRequest.KEY_TSPEC, "T-SPEC-http://default-realm/");
+			aquery.setValue(JozCountRequest.KEY_TSPEC, "admin_custom6");
+			JozCounts counts = provider.getCountData(aquery).getCounts();
+			Assert.assertNotNull(counts);
+		    if(counts.getProvider().size() != 1){
+			    fail("testGetCountsData3 failed: number or providers wrong");
+		    } else if(counts.getTotalCount() != 12){
+			    fail("testGetCountsData3 failed: Total Counts wrong");
+		    }
+
+			System.out.println("Num Categories : "+counts.getCategory().size());
+			System.out.println("Num Brands : "+counts.getBrand().size());
+			System.out.println("Num Providers : "+counts.getProvider().size());
+		    System.out.println("Total Count : " + counts.getTotalCount());
+		    System.out.println("Tumri Count : "+ counts.getTumriCount());
 		} catch (JoZClientException e) {
 			fail("Error in testGetCountsData");
 			e.printStackTrace();
