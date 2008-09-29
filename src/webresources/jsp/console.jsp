@@ -67,5 +67,9 @@
 	<a href="/joz/console?mode=indexdebug">Index Debug Util</a>
 </div>
 <br>
+<div>
+	<a href="/joz/console?mode=log">Log Info</a>
+</div>
+<br>
 </body>
 </html>

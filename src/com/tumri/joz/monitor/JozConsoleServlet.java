@@ -8,6 +8,7 @@ import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.persistence.xml.CampaignXMLDateConverter;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.server.domain.JozAdRequest;
+import com.tumri.joz.utils.LogUtils;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -128,7 +129,12 @@ public class JozConsoleServlet extends HttpServlet {
 	        output.flush();
 			output.close();
 			responseJSP = "/console";
-        } else {
+        } else if("log".equalsIgnoreCase(mode)){
+	        if(id != null && option != null && !"".equals(id) && !"".equals(option)){
+	            LogUtils.setLogLevel(id, option);
+	        }
+	        responseJSP = "/jsp/log.jsp";
+        }else {
             //Default send to console
             responseJSP = "/jsp/console.jsp";
         }

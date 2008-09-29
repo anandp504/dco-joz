@@ -697,6 +697,8 @@ public class TestJozCampaignCreator {
 			designs.add("brand1");
 			designs.add("brand2");
 			designs.add("everest2");
+			designs.add("everestflash");
+			designs.add("everestflash");
 		} else if ("skyscraper".equals(adType)){
 			designs.add("brand1");
 			designs.add("brand2");
