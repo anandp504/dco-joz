@@ -66,7 +66,7 @@ com.tumri.joz.listing.provider.impl=com.tumri.lls.client.main.LlcListingProvider
 com.tumri.joz.listing.parser.impl=com.tumri.lls.client.response.json.LlcJSONListingDataParserImpl
 com.tumri.llc.server.host=${com.tumri.llc.server.host}
 com.tumri.llc.server.port=20444
-com.tumri.llc.socket.pool.size=50
+com.tumri.llc.socket.pool.size=100
 com.tumri.llc.socket.numRetries=3
 com.tumri.llc.listing.cache.size=0
 
