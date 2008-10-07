@@ -698,15 +698,19 @@ public class TestJozCampaignCreator {
 			designs.add("brand2");
 			designs.add("everest2");
 			designs.add("everestflash");
-			designs.add("everestflash");
+			designs.add("flashcontainer");
+			designs.add("flashcontainer");
 		} else if ("skyscraper".equals(adType)){
 			designs.add("brand1");
 			designs.add("brand2");
+			designs.add("flashcontainer");
 		} else if ("leaderboard".equals(adType)){
 			designs.add("brand1");
 			designs.add("brand2");
+			designs.add("flashcontainer");
 		} else if ("custom300x600".equals(adType)){
 			designs.add("brand2");
+			designs.add("flashcontainer");
 		} else {
 			designs.add("brand1");
 			designs.add("brand2");
