@@ -244,11 +244,11 @@
 			locations = new ArrayList<Location>();
 		}
 		out.print("<strong>Total Number of Locations</strong> = " + locations.size() + "<br>");
-		out.print("<strong>locations: ExternalId, ID, Name, ClientId, ExternalId</strong><br>");
+		out.print("<strong>locations: ExternalId, ID, Name, ClientId</strong><br>");
 		for(int i = 0; i < locations.size(); i++){
 			Location loc = locations.get(i);
 			if(loc!=null){
-				out.print("&nbsp &nbsp &nbsp &nbsp " + loc.getExternalId() + ", " + loc.getId() + ", " + loc.getName() + ", " + loc.getClientId() + ", " + loc.getExternalId() + "<br>");
+				out.print("&nbsp &nbsp &nbsp &nbsp " + loc.getExternalId() + ", " + loc.getId() + ", " + loc.getName() + ", " + loc.getClientId() + "<br>");
 			}
 		}
 
