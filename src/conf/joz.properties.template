@@ -25,9 +25,11 @@ com.tumri.campaign.file.tspecFileNamePattern=t-specs.lisp
 com.tumri.campaign.file.mappingFileNamePattern=mapping.lisp
 com.tumri.campaign.file.refresh.enabled=${com.tumri.campaign.file.refresh.enabled}
 com.tumri.campaign.file.refresh.time.minutes=40
-com.tumri.campaign.file.refresh.interval.minutes=60
+com.tumri.campaign.file.refresh.interval.minutes=15
 com.tumri.campaign.file.triggerLoadFileName=cmaload.txt
 com.tumri.campaign.file.polling.mode=calendar
+com.tumri.campaign.file.xmlFileNamePattern=campaigns.xml
+com.tumri.campaign.file.xmlSchemaFileNamePattern=campaign.xsd
 
 #com.tumri.content.file.mup.dataDir=
 #com.tumri.content.file.taxonomy.dataDir=
@@ -41,7 +43,10 @@ com.tumri.joz.version.file.name=joz_version.properties
 #Targeting related score
 com.tumri.targeting.locationScore = 1.0
 com.tumri.targeting.themeScore    = 0.9
-com.tumri.targeting.urlScore      = 0.8
+com.tumri.targeting.urlScore      = 1.0
+com.tumri.targeting.urlNoneScore       = 0.2
+com.tumri.targeting.urlNoneWeight      = 1
+
 com.tumri.targeting.defaultScore  = 0.1
 com.tumri.targeting.countryScore  = 0.75
 com.tumri.targeting.regionScore   = 0.80
@@ -120,7 +125,9 @@ result.page.size = 15000
 
 # This properties should be set only if instructed by the development team
 # Example: cma.factory.impl = com.tumri.cma.misc.CMAFactoryImpl
-cma.factory.impl = com.tumri.cma.misc.CMALispFactoryImpl
+#cma.factory.impl = com.tumri.cma.misc.CMALispFactoryImpl
+#cma.factory.impl = com.tumri.cma.misc.CMAXMLFactoryImpl
+cma.factory.impl = com.tumri.cma.misc.CMAXMLSAXParserFactoryImpl
 
 #URL Scavenging global stop words
 com.tumri.productselection.global.stopwords=.com,.org,.gov,.net,.biz,.uk,.fr,.in,.php,.html,.htm,.css,.js,www,http://,cache://,rss://,feed://,http,
@@ -130,3 +137,9 @@ com.tumri.joz.zipcode.file=zipcodedb.xml
 
 #Delimiter for multi value queries
 com.tumri.joz.multivalue.delimiter=,
+# TCP settings
+tcpServer.poolSize=400
+tcpServer.port=2544
+tcpServer.timeout=5000
+tcpServer.queryHandlers=com.tumri.joz.server.handlers.JozAdRequestHandler,com.tumri.joz.server.handlers.JozProviderRequestHandler,com.tumri.joz.server.handlers.JozMerchantRequestHandler,com.tumri.joz.server.handlers.JozTaxonomyRequestHandler,com.tumri.joz.server.handlers.JozCountRequestHandler,com.tumri.joz.server.handlers.JozCampaignRequestHandler,com.tumri.joz.server.handlers.JozTSpecRequestHandler,com.tumri.joz.server.handlers.JozHealthCheckRequestHandler,com.tumri.joz.server.handlers.JozICSCampaignRequestHandler
+
