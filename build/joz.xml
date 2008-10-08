@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <project name="joz-joz" default="no-default" basedir="..">
+
 	<target name="no-default">
 		<echo>This is a dummy target. No targets in this file is to be invoked directly.</echo>
 	</target>
@@ -153,8 +154,6 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
     </path>
 
     <target name="build-jozclient" depends="init">
-	    <property file="${root.dir}/build/joz_version.properties"/>
-		<property name="jozclient.name" value="jozclient_${build_version}"/>
         <delete dir="${stage.dir}/jozclient"/>
         <mkdir dir="${stage.dir}/jozclient"/>
 
@@ -168,11 +167,12 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 	    <compilerarg value="-Xlint:deprecation"/>
         </javac>
 
-        <jar destfile="${stage.dir}/jozclient/${jozclient.name}.jar">
+        <jar destfile="${stage.dir}/jozclient/jozclient.jar">
             <fileset dir="${classes.dir}"
 		     includes="com/tumri/joz/client/**,com/tumri/joz/server/domain/**"/>
         </jar>
-	    <move file="${stage.dir}/jozclient/${jozclient.name}.jar" todir="${joz.lib.dir}"/>
+
+        <move file="${stage.dir}/jozclient/jozclient.jar" todir="${dist.dir}"/>
     </target>
 	<target name="build-jozclient-docs" depends="">
 		<delete dir="${stage.dir}/javadocs"/>
