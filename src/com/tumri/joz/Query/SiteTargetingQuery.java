@@ -23,10 +23,12 @@ import java.util.Iterator;
 public class SiteTargetingQuery extends TargetingQuery {
     private int locationId;
     private String themeName;
+    private String adType;
 
-    public SiteTargetingQuery(int locationId, String themeName) {
+    public SiteTargetingQuery(int locationId, String themeName, String adType) {
         this.locationId = locationId;
         this.themeName = themeName;
+        this.adType = adType;
     }
 
     public Type getType() {                                                                   
@@ -66,9 +68,9 @@ public class SiteTargetingQuery extends TargetingQuery {
     @SuppressWarnings({"unchecked"})
     private SortedSet<Handle> execThemeQuery() {
         SortedSet<Handle> results = null;
-        if(themeName != null && !themeName.equals("")) {
+        if(themeName != null && !themeName.equals("") && adType != null && !adType.equals("")) {
             //Do a look up for the Location ID for the given theme. ThemeQuery is executed as a location query internally
-            Integer thmLocId = CampaignDB.getInstance().getLocationIdForName(themeName);
+            Integer thmLocId = CampaignDB.getInstance().getLocationIdForName(themeName+adType);
             if (thmLocId != null) {
                 locationId = thmLocId.intValue();
             } else {
