@@ -139,11 +139,11 @@ public class TargetingRequestProcessor {
 //        long endTime =  System.nanoTime();
 //        long totalTargetingTime = endTime - startTime;
 
-        log.debug(request.toString(true));
         if (theRecipe == null) {
-            log.error("Could not target Recipe for the given request");
-        } 
-       // log.debug("Targeting Processing time: " + (totalTargetingTime/1000) + " usecs");
+            log.error("Could not target Recipe for the given request. " + request.toString(true));
+        } else {
+            log.debug(request.toString(true));
+        }
         return theRecipe;
     }
 
@@ -221,7 +221,7 @@ public class TargetingRequestProcessor {
             }
         }
         if (theRecipe!=null) {
-            log.info("Targeted recipe : " + theRecipe.getName() + " . id= " + theRecipe.getId());
+            log.debug("Targeted recipe : " + theRecipe.getName() + " . id= " + theRecipe.getId());
             str.setCurrRecipe(theRecipe);
         }
         return str;

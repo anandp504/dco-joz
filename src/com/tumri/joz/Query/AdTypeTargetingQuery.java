@@ -1,19 +1,11 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.index.AtomicAdpodIndex;
-import com.tumri.joz.index.AdpodIndex;
-import com.tumri.joz.campaign.CampaignDB;
-import com.tumri.joz.campaign.UrlNormalizer;
-import com.tumri.joz.campaign.AdPodHandle;
-import com.tumri.joz.targeting.TargetingScoreHelper;
-import com.tumri.utils.data.MultiSortedSet;
-import com.tumri.utils.data.SortedArraySet;
-import com.tumri.utils.data.RWLocked;
 import com.tumri.cma.domain.AdPod;
-import com.tumri.cma.domain.Campaign;
+import com.tumri.joz.campaign.AdPodHandle;
+import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.products.Handle;
 
-import java.util.*;
+import java.util.SortedSet;
 
 /**
  * Targeting Filter impementation for Adtype.
@@ -23,12 +15,8 @@ import java.util.*;
 public class AdTypeTargetingQuery extends TargetingQuery {
 
     private String adType = null;
-    private static final String DEFAULT_AD_TYPE = "mediumrectangle";
 
     public AdTypeTargetingQuery(String at) {
-       if (at==null || at.equals("")) {
-           at = DEFAULT_AD_TYPE;
-       }
        this.adType = at;
     }
     
@@ -49,9 +37,12 @@ public class AdTypeTargetingQuery extends TargetingQuery {
     }
 
     public boolean accept(Handle v) {
+        if (adType==null||"".equals(adType)) {
+            //If adtype is not specified in request, we select the adpod
+            return true;
+        }
         AdPod aPod = CampaignDB.getInstance().getAdPod((AdPodHandle)v);
         String currAdType = aPod.getAdType();
-        boolean bAccept = currAdType.equalsIgnoreCase(adType);
-        return bAccept;
+        return currAdType.equalsIgnoreCase(adType);
     }
 }
