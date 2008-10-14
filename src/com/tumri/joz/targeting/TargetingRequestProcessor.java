@@ -91,19 +91,14 @@ public class TargetingRequestProcessor {
 	                features.setCampaignClientName(str.getCampaignClientName());
                     features.setRecipeId(theRecipe.getId());
                     features.setRecipeName(theRecipe.getName());
-                    features.setRecipeName(theRecipe.getName());
                     String theme = request.get_theme();
                     String adtype = request.getAdType();
                     Integer targetedLocationId = null;
                     if (theme != null&&!theme.equals("")&&adtype!=null&&!"".equals(adtype)) {
                         features.setTargetedLocationName(theme);
-                        try {
-                            targetedLocationId = CampaignDB.getInstance().getLocationIdForName(theme+adtype);
-                            if (targetedLocationId!=null){
-                                features.setTargetedLocationId(Integer.toString(targetedLocationId));
-                            }
-                        } catch(NumberFormatException e) {
-                           //
+                        targetedLocationId = CampaignDB.getInstance().getLocationIdForName(theme+adtype);
+                        if (targetedLocationId!=null){
+                            features.setTargetedLocationId(Integer.toString(targetedLocationId));
                         }
                     }
                     String locationIdStr = request.get_store_id();
@@ -112,7 +107,7 @@ public class TargetingRequestProcessor {
                             targetedLocationId = Integer.parseInt(locationIdStr);
                             features.setTargetedLocationId(locationIdStr);
                         } catch(NumberFormatException e) {
-                           //
+                            log.warn("Invalid value specified for the location : " + locationIdStr,e);
                         }
                     }
                     if (targetedLocationId!=null) {
@@ -127,7 +122,7 @@ public class TargetingRequestProcessor {
             }
         }
         catch(NumberFormatException e){
-        	log.warn("Invalid value specified for the location : " + e.getMessage());
+        	log.warn("Invalid value specified for the location : ",e);
         }
         catch(Throwable t) {
             //It is critical to catch any unexpected error so that the JoZ server doesnt exit
