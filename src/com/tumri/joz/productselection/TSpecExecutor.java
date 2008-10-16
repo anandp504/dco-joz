@@ -641,7 +641,15 @@ public class TSpecExecutor {
         //6. Exec TSpec query
         qResult = m_tSpecQuery.exec();
 
+        //If Geo Filtered, sort by score
+        if (m_geoFilterEnabled && !m_ExternalKeywords) {
+            SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
+            geoSortedResult.addAll(qResult);
+            qResult = geoSortedResult;
+        }
+
         resultAL.addAll(qResult);
+
 
         //Set the cached reference for randomization
         if (m_tSpecQuery.getReference() != null && qResult.size() >0 ) {
