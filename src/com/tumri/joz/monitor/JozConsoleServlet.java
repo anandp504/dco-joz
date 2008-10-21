@@ -7,8 +7,13 @@ import com.tumri.cma.domain.Recipe;
 import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.persistence.xml.CampaignXMLDateConverter;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.client.JoZClientException;
+import com.tumri.joz.client.impl.JozDataProviderImpl;
 import com.tumri.joz.server.domain.JozAdRequest;
+import com.tumri.joz.server.domain.JozQARequest;
+import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
+import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -134,7 +139,30 @@ public class JozConsoleServlet extends HttpServlet {
 	            LogUtils.setLogLevel(id, option);
 	        }
 	        responseJSP = "/jsp/log.jsp";
-        }else {
+        } else if("qareport".equalsIgnoreCase(mode)){
+	        int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
+			int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
+
+	        JozDataProviderImpl impl = new JozDataProviderImpl("localhost", port,poolSize,3);
+			JozQARequest req = new JozQARequest();
+	        String advertisersString = request.getParameter("advertisers");
+
+		    ArrayList<String> advertiserNames = new ArrayList<String>();
+
+	        if(advertisersString != null){
+				StringTokenizer tokenizer = new StringTokenizer(advertisersString, ',');
+		        advertiserNames = tokenizer.getTokens();
+			}
+			req.setAdvertisers(advertiserNames);
+	        
+	        try {
+		        request.setAttribute("jozQAResp", impl.getQAReport(req));
+		        request.setAttribute("jozQAReq", req);
+	        } catch (JoZClientException e) {
+		        log.error("Error getting JozQAResponse: ",e);
+	        }
+	        responseJSP = "/jsp/jozQAReport.jsp?mode=console";
+        } else {
             //Default send to console
             responseJSP = "/jsp/console.jsp";
         }

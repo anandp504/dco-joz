@@ -1,26 +1,19 @@
 package com.tumri.joz.client.impl;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import com.thoughtworks.xstream.XStream;
+import com.tumri.cma.domain.Campaign;
+import com.tumri.cma.domain.TSpec;
+import com.tumri.joz.client.JoZClientException;
+import com.tumri.joz.client.JozDataProvider;
+import com.tumri.joz.client.helper.*;
+import com.tumri.joz.server.domain.*;
+import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
+import org.apache.log4j.Logger;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
-
-import org.apache.log4j.Logger;
-
-import com.tumri.cma.domain.Campaign;
-import com.tumri.cma.domain.TSpec;
-import com.tumri.joz.server.domain.*;
-import com.tumri.joz.client.JozDataProvider;
-import com.tumri.joz.client.JoZClientException;
-import com.tumri.joz.client.helper.*;
-import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
-
-import com.thoughtworks.xstream.XStream;
 /**
  * Implements the JozDataProvider interface and provides a single entry point to all interactions
  * in JoZ. Usage is as follows:
@@ -722,6 +715,31 @@ public class JozDataProviderImpl implements JozDataProvider {
         }
         return response;
 	}
+
+	/**
+	 * @param req: JozQARequest containing a list of advertisers
+	 * @return JozQAResponse containing QA Report for failed recipes
+	 * @throws JoZClientException
+	 * Use:
+	 * Construct a JozQARequest with desired Advertisers. Create a new JozDataProviderImpl.
+	 * Process the request using JozDataProviderImpl.getQAReport(JozQARequest) which returns a JozQAResponse object containing the QA information.
+	 */
+	public JozQAResponse getQAReport(JozQARequest req) throws JoZClientException {
+		JozQAResponse resp;
+        try {
+            JozQADataProvider dataProvider = new JozQADataProvider();
+            JozQAResponseWrapper responseWrapper = dataProvider.processRequest(req);
+	        String xml = responseWrapper.getResultMap().get(JozQAResponseWrapper.KEY_QAREPORTDETAIL);
+			XStream xstream = new XStream();
+			resp = (JozQAResponse)xstream.fromXML(xml);
+        } catch (Throwable e) {
+            log.error("Exception in fetching QA Report", e);
+            throw new JoZClientException("Exception in fetching QA Report",e);
+        }
+
+        return resp;
+	}
+
 	/**
      *  Gets all campaigns. 
      * @return  String xml response  as string

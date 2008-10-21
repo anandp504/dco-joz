@@ -71,5 +71,9 @@
 	<a href="/joz/console?mode=log">Log Info</a>
 </div>
 <br>
+<div>
+	<a href="/joz/console?mode=qareport">Joz QA Report</a>
+</div>
+<br>
 </body>
 </html>

@@ -17,22 +17,8 @@
  */
 package com.tumri.joz.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.tumri.cma.domain.AdPod;
 import com.tumri.cma.domain.Campaign;
-import com.tumri.cma.domain.GeoAdPodMapping;
-import com.tumri.cma.domain.Geocode;
-import com.tumri.cma.domain.Location;
-import com.tumri.cma.domain.LocationAdPodMapping;
-import com.tumri.cma.domain.OSpec;
-import com.tumri.cma.domain.Recipe;
 import com.tumri.cma.domain.TSpec;
-import com.tumri.cma.domain.ThemeAdPodMapping;
-import com.tumri.cma.domain.Url;
-import com.tumri.cma.domain.UrlAdPodMapping;
-import com.tumri.joz.campaign.TransientDataException;
 import com.tumri.joz.server.domain.*;
 
 /**
@@ -194,7 +180,12 @@ public interface JozDataProvider {
      * @throws JoZClientException
      */
     public String getAllAdvertisersCampaignData()throws JoZClientException;
-    
+	/**
+	 * @param req: JozQARequest containing a list of advertisers
+	 * @return JozQAResponse containing QA Report for failed recipes
+	 * @throws JoZClientException
+	 */
+	public JozQAResponse getQAReport(JozQARequest req) throws JoZClientException;
     /**
      * Adds adpod to JoZ
      * @param campaignId the parent campaign to the adpod
