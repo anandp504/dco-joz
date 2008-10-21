@@ -46,6 +46,11 @@
 <br>
   
 <div>
+	<a href="/joz/console?mode=productdb">Query ProductDB</a>
+</div>
+<br>
+
+<div>
 	<a href="/joz/console?mode=sm">Service multiplexer</a> (<a href="sm-test-input.jsp">test</a>)
 </div>
 <br>

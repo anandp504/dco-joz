@@ -864,4 +864,13 @@ public class ProductDB {
        m_allProducts.clear();
        m_map.clear();
   }
+
+  public Enumeration<IProduct.Attribute> getIndices() {
+      return m_indices.keys();
+  }
+
+  public int getSize() {
+      return m_allProducts.size();
+  }
+
 }

@@ -61,6 +61,8 @@ public class JozConsoleServlet extends HttpServlet {
             responseJSP = "/jsp/llc-status.jsp";
         } else if ("indexdebug".equalsIgnoreCase(mode)) {
             responseJSP = "/jsp/indexDebug.jsp?mode=console";
+        } else if ("productdb".equalsIgnoreCase(mode)) {
+            responseJSP = "/jsp/productDb.jsp";
         } else if ("view".equalsIgnoreCase(mode)) {
 	        if("latest".equalsIgnoreCase(option)) {
 		        if(AdRequestMonitor.getInstance().getReqResp()!=null){

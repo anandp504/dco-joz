@@ -3,6 +3,7 @@ package com.tumri.joz.utils;
 import com.tumri.content.data.*;
 import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.products.IProduct;
 import org.apache.log4j.Logger;
 
 /**
@@ -347,5 +348,68 @@ public class IndexUtils {
         return id;
     }
 
+    public static String getIndexName(IProduct.Attribute id) {
+        String name = null;
+        if (id ==Product.Attribute.kCategory) {
+            name = "category";
+        } else if (id == Product.Attribute.kPrice) {
+            name = "price";
+        } else if (id == Product.Attribute.kBrand) {
+            name = "brand";
+        } else if (id ==Product.Attribute.kSupplier) {
+            name = "supplier";
+        } else if (id == Product.Attribute.kProvider) {
+            name = "provider";
+        } else if (id == Product.Attribute.kImageWidth) {
+            name = "imagewidth";
+        } else if (id == Product.Attribute.kImageHeight) {
+            name = "imageheight";
+        } else if (id == Product.Attribute.kCPO) {
+            name = "cpo";
+        } else if (id == Product.Attribute.kCPC) {
+            name = "cpc";
+        } else if (id == Product.Attribute.kProductType) {
+            name = "producttype";
+        } else if (id == Product.Attribute.kCountry) {
+            name = "country";
+        } else if (id == Product.Attribute.kState) {
+            name = "state";
+        } else if (id == Product.Attribute.kCity) {
+            name = "city";
+        } else if (id == Product.Attribute.kZip) {
+            name = "zip";
+        } else if (id == Product.Attribute.kDMA) {
+            name = "dma";
+        } else if (id == Product.Attribute.kArea) {
+            name = "area";
+        } else if (id == Product.Attribute.kGeoEnabledFlag) {
+            name = "geoenabled";
+        } else if (id == Product.Attribute.kProviderCategory) {
+            name = "providercategory";
+        } else if (id == Product.Attribute.kGlobalId) {
+            name = "globalid";
+        } else if (id == Product.Attribute.kCategoryField1) {
+            name = "categoryfield1";
+        } else if (id == Product.Attribute.kCategoryField2) {
+            name = "categoryfield2";
+        } else if (id == Product.Attribute.kCategoryField3) {
+            name = "categoryfield3";
+        } else if (id == Product.Attribute.kCategoryField4) {
+            name = "categoryfield4";
+        } else if (id == Product.Attribute.kCategoryField5) {
+            name = "categoryfield5";
+        } else if (id == Product.Attribute.kMultiValueField1) {
+            name = "multivaluefield1";
+        } else if (id == Product.Attribute.kMultiValueField2) {
+            name = "multivaluefield2";
+        } else if (id == Product.Attribute.kMultiValueField3) {
+            name = "multivaluefield3";
+        } else if (id == Product.Attribute.kMultiValueField4) {
+            name = "multivaluefield4";
+        } else if (id == Product.Attribute.kMultiValueField5) {
+            name = "multivaluefield5";
+        }
 
+        return name;
+    }
 }
