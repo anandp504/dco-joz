@@ -4,6 +4,7 @@ import com.tumri.joz.utils.FSUtils;
 import com.tumri.joz.products.JozIndexHelper;
 import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.index.creator.JozIndexUpdater;
+import com.tumri.joz.index.creator.JozIndexCreator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
@@ -48,29 +49,10 @@ public class TestJozIndexCreation {
 
     @Test
     public void testIndexing() {
-        //Invoke the creation of indexes
-        //String[] args0 = {"-currentDocDir","/tmp/joztest/old","-indexDir","/tmp/joztest/old/lucene","-jozIndexDir","/tmp/joztest/old/jozIndex"};
-        //new ProductIndex().index(args0);
-
-        //Invoke the validation of index
-        //assert(new File("/tmp/joztest/old/lucene").exists());
-        //assert(new File("/tmp/joztest/old/jozIndex").exists());
-
-        //String[] args1 = {"-currentDocDir","/tmp/joztest/new","-previousDocDir","/tmp/joztest/old",
-        //        "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
-//        String[] args1 = {"-currentDocDir","/tmp/joztest/new",
-//                "-indexDir","/tmp/joztest/new/lucene","-jozIndexDir","/tmp/joztest/new/jozIndex"};
-        //new ProductIndex().index(args1);
-
-        //Invoke the validation of index
-        //assert(new File("/tmp/joztest/new/lucene").exists());
-        //assert(new File("/tmp/joztest/new/jozIndex").exists());
-
-        //Produce the debug file
-        //JozIndexUpdater.setInstance(true, true, "/tmp");
-        JozIndexHelper.loadIndex("/opt/joz/data/caa/current/jozIndex");
-
-        assert(new File("/tmp/jozIndexDebugFile.txt").exists());
+        //Do the indexing
+        JozIndexCreator ic = new JozIndexCreator("/tmp/new", "/tmp/old", "/tmp/jozindex", 10000);
+        ic.createJozIndexes();
+        
         //TODO: Validate the file.
     }
 
