@@ -157,6 +157,10 @@ public class ProviderIndexCreator {
                             //Product appears in both MUPs
                             compareAndUpdateIndices(pid1Dbl, prodDetailsMap1, prodDetailsMap2);
                         } else if (pid1Dbl>pid2Dbl){
+                            //pid2 has been deleted from MUP
+                            if (prodDetailsMap2!=null && pid2Dbl != null) {
+                                deleteIndices(prodDetailsMap2, pid2Dbl);
+                            }
                             bReadSecondFile = true;
                         } else {
                             //pid1 is a new product in MUP

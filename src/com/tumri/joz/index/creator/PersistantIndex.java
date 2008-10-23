@@ -1,9 +1,6 @@
 package com.tumri.joz.index.creator;
 
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.ProductHandle;
-import com.tumri.joz.products.ProductHandleFactory;
+import com.tumri.joz.products.*;
 import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.content.data.Product;
 
@@ -116,7 +113,7 @@ public class PersistantIndex implements Serializable{
                     }
                 }
                 //Now add these to the index
-                JozIndexUpdater.getInstance().handleLine(indexName, indexVal, currPids, op);
+                JozIndexHelper.getInstance().getUpdater().handleLine(indexName, indexVal, currPids, op);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
                 throw new NotSerializableException("ClassNotFoundException caught during read");

@@ -1,10 +1,6 @@
-<%@ page language="java" import="java.util.*" %>
-<%@ page language="java" import="com.tumri.joz.monitor.*" %>
-<%@ page language="java" import="com.tumri.joz.campaign.*" %>
-<%@ page language="java" import="com.tumri.joz.products.JOZTaxonomy" %>
-<%@ page language="java" import="com.tumri.content.data.Category" %>
-<%@ page language="java" import="com.tumri.cma.domain.*" %>
-<%@ page language="java" import="com.tumri.joz.utils.*" %>
+<%@ page language="java" import="com.tumri.joz.utils.IndexDebugUtils" %>
+<%@ page language="java" import="java.util.ArrayList" %>
+<%@ page language="java" import="java.util.StringTokenizer" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -55,7 +51,7 @@ Index Debuging Util: <i>View Product Listings Accross *.bin Files<i>
 <div>
 	<br>
 	<div>
-		<form id="indexDebugInputForm" action="indexDebug.jsp" method="post">
+		<form id="indexDebugInputForm" action="/jsp/indexDebug.jsp" method="post">
 			<strong>Input Index Debugging Command Line:</strong>
 			<input type="text"  name="indexDebug"  id="indexDebugInput" value="<%=commandLine%>" size="75"/>
 			<input type="submit" value="Get DebugInfo"/>
@@ -98,12 +94,10 @@ Index Debuging Util: <i>View Product Listings Accross *.bin Files<i>
 			//For Debuging: out.print("args[" + i + "] = " + args[i] + "<br>");
 		}
 		IndexDebugUtils debugUtil = new IndexDebugUtils();
-		StringBuffer debugBuff = new StringBuffer();
+		StringBuffer debugBuff = debugUtil.execute(args);
 		if(saveDirFlag || saveFileFlag){
-			debugUtil.execute(args);
 			out.print("<i>Data Written to File<i>");
 		} else {
-			debugBuff = debugUtil.returnBuffer(args);
 			out.print(debugBuff);
 		}
 	}

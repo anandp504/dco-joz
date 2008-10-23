@@ -28,9 +28,6 @@ public class JozIndexCreator {
         MAX_LINES_PER_CHUNK = linesPerChunk;
     }
 
-    private void init() {
-    }
-
     /**
      * Entry point to create the Indexes
      * @param args
@@ -174,19 +171,32 @@ public class JozIndexCreator {
     }
 
     /**
-     * Helper method to get the provider from file name
-     * @return
+     * Gets the provider name from a given mup file by tokenizing by _ char
+     * It is assumed that the provider name will be between the first _ char and the 5th _ char from the end
+     * Returns an empty string if the file name was not of correct syntax
+     * @param fileName - mup file name
+     * @return - provider name
      */
     private static String getProviderFromFileName(String fileName) {
-        String fileNamePrefix = "";
-        StringTokenizer st = new StringTokenizer(fileName, "_");
-        st.nextToken(); // Ignore first
-        fileNamePrefix =st.nextToken() ;
-        return fileNamePrefix;
+        String providerName = "";
+        if (fileName!=null) {
+            String[] parts = fileName.split("_");
+            if (parts.length<7) {
+                return "";
+            }
+            for (int i=1; i<parts.length-5; i++) {
+                String delim = "";
+                if (i>1) {
+                    delim = "_";
+                }
+                providerName = providerName + delim + parts[i];
+            }
+        }
+        return providerName;
     }
 
     /**
-     * Helper method to get the provider from file name
+     * Helper method to get joz index file name prefix
      * @return
      */
     private static String getJozIndexFileNamePrefix(String fileName) {

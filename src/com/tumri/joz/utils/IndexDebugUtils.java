@@ -1,6 +1,5 @@
 package com.tumri.joz.utils;
 
-import com.tumri.joz.index.creator.JozIndexUpdater;
 import com.tumri.joz.products.JozIndexHelper;
 import org.apache.log4j.Logger;
 
@@ -49,20 +48,17 @@ import java.util.ArrayList;
  */
 
 public class IndexDebugUtils {
-	protected static Logger log = Logger.getLogger(JozIndexHelper.class);
-	protected static StringBuffer myDebugBuff = new StringBuffer();
-
+	private static Logger log = Logger.getLogger(JozIndexHelper.class);
 
 	public IndexDebugUtils(){
-		System.out.println("Initiating IndexDebugUtils");
-
+		log.info("Initiating IndexDebugUtils");
 	}
 
 	/**
-	 * given a set of command line arguments executes the data collection and saves it to a file
+	 * given a set of command line arguments executes the data collection and saves it to a file if needed
 	 * @param args CommandLine set of arguments
 	 */
-	public void execute(String args[]){
+	public StringBuffer execute(String args[]){
 
 		String writeFile = new String();
 		String writeDir = new String();
@@ -84,12 +80,14 @@ public class IndexDebugUtils {
 		String binFilesFlag = "-binFile";
 		String binLocationFlag = "-binLoc";
 		String prodIdsFlag = "-prodId";
-
+        boolean bWrite = false;
 		for(int i = 0; i < args.length; i++){
 			if(saveDirFlag.equals(args[i])){
 				writeDir = args[++i];
-			} else if(saveFileFlag.equals(args[i])){
+                bWrite = true;
+            } else if(saveFileFlag.equals(args[i])){
 				writeFile = args[++i];
+                bWrite = true;
 			} else if(binFilesFlag.equals(args[i])){
 				myBinFiles.add(args[++i]);
 			} else if(binLocationFlag.equals(args[i])){
@@ -97,177 +95,79 @@ public class IndexDebugUtils {
 			} else if(prodIdsFlag.equals(args[i])){
 				myPids.add(new Long(args[++i]));
 			} else {
-				System.out.println("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
-				return ;
+				return new StringBuffer("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
 			}
 		}
 
-
-		JozIndexUpdater.setInstance(true, true, myPids);
-
-		collect(writeDir, writeFile, myBinFiles, binLoc, myPids);
-	}
-
-	/**
-	 * given a command line set of arguments returns the collected StringBuffer
-	 * @param args commandLine set of arguments
-	 * @return StringBuffer
-	 */
-	public StringBuffer returnBuffer(String args[]){
-
-		String writeFile = new String();
-		String writeDir = new String();
-		String binLoc = new String();
-		/**
-		 *  myPids is an ArrayList of product ids of which we wish to collect data.
-		 *  If zero ids are inputed through the command Line then we include all product ids
-		 *  in our data collection process.
-		 */
-		ArrayList<Long> myPids = new ArrayList<Long>();
-		/**
-		 *  myBinFiles is an ArrayList of *.bin files from which we wish to generate data.
-		 *  If zero files are inputed through the command Line then we include all *.bin files
-		 *  in our data collection process.
-		 */
-		ArrayList<String> myBinFiles = new ArrayList<String>();
-		String saveDirFlag = "-saveDir";
-		String saveFileFlag = "-saveFile";
-		String binFilesFlag = "-binFile";
-		String binLocationFlag = "-binLoc";
-		String prodIdsFlag = "-prodId";
-
-		for(int i = 0; i < args.length; i++){
-			if(saveDirFlag.equals(args[i])){
-				writeDir = args[++i];
-			} else if(saveFileFlag.equals(args[i])){
-				writeFile = args[++i];
-			} else if(binFilesFlag.equals(args[i])){
-				myBinFiles.add(args[++i]);
-			} else if(binLocationFlag.equals(args[i])){
-				binLoc = args[++i];
-			} else if(prodIdsFlag.equals(args[i])){
-				myPids.add(new Long(args[++i]));
-			} else {
-				System.out.println("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
-				return new StringBuffer("Formating Example: -saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
-			}
-		}
-
-
-		JozIndexUpdater.setInstance(true, true, myPids);
-
-		if(binLoc.length()>0){
-			if (!new File(binLoc).exists()) {
-				boolean success = new File(binLoc).mkdirs();
-			}
-			JozIndexHelper.loadIndex(binLoc, myBinFiles);
-		} else {
-			JozIndexHelper.loadIndex("/opt/Tumri/joz/data/caa/current/jozindex", myBinFiles);
-		}
-		return JozIndexUpdater.getBuffer();
-
+        StringBuffer myDebugBuff = getBuffer(binLoc, myBinFiles, myPids);
+        if (bWrite) {
+            saveToFileandDir(myDebugBuff, writeDir, writeFile);
+        }
+        return myDebugBuff;
 	}
 
 	public static void main(String args[]) {
-		System.out.println("Initiating IndexDebugUtils");
-		String writeFile = new String();
-		String writeDir = new String();
-		String binLoc = new String();
-		/**
-		 *  myPids is an ArrayList of product ids of which we wish to collect data.
-		 *  If zero ids are inputed through the command Line then we include all product ids
-		 *  in our data collection process.
-		 */
-		ArrayList<Long> myPids = new ArrayList<Long>();
-		/**
-		 *  myBinFiles is an ArrayList of *.bin files from which we wish to generate data.
-		 *  If zero files are inputed through the command Line then we include all *.bin files
-		 *  in our data collection process.
-		 */
-		ArrayList<String> myBinFiles = new ArrayList<String>();
+        IndexDebugUtils debugUtil = new IndexDebugUtils();
+        debugUtil.execute(args);
+    }
 
+    /**
+     * Helper method to get the index details in a string buffer 
+     * @param binLoc  - Location of the joz index files. If not specified this will be the default location
+     * @param binFiles - the specific bin files that need to be inspected
+     * @param prodIds  - Specifc product ids that need to be inspected
+     * @return  - result string
+     */
+    private StringBuffer getBuffer(String binLoc, ArrayList<String> binFiles, ArrayList<Long> prodIds) {
+        StringBuffer result = null;
+        try {
+            JozIndexHelper.getInstance().setColdStart(true);
+            JozIndexHelper.getInstance().setDebugMode(true);
+            JozIndexHelper.getInstance().getUpdater().setProdIds(prodIds);
+            if(binLoc!= null && !"".equals(binLoc)){
+                if (!new File(binLoc).exists()) {
+                    return new StringBuffer("Specified binLoc does not exist : " + binLoc);
+                }
+                JozIndexHelper.getInstance().loadIndexForDebug(binLoc, binFiles);
+            } else {
+                JozIndexHelper.getInstance().loadIndexForDebug("/opt/Tumri/joz/data/caa/current/jozindex", binFiles);
+            }
+            result = JozIndexHelper.getInstance().getUpdater().getBuffer();
+        } finally {
+            resetDebugMode();
+        }
+        return result;
 
-		String saveDirFlag = "-saveDir";
-		String saveFileFlag = "-saveFile";
-		String binFilesFlag = "-binFile";
-		String binLocationFlag = "-binLoc";
-		String prodIdsFlag = "-prodId";
+    }
 
-		for(int i = 0; i < args.length; i++){
-			if(saveDirFlag.equals(args[i])){
-				writeDir = args[++i];
-			} else if(saveFileFlag.equals(args[i])){
-				writeFile = args[++i];
-			} else if(binFilesFlag.equals(args[i])){
-				myBinFiles.add(args[++i]);
-			} else if(binLocationFlag.equals(args[i])){
-				binLoc = args[++i];
-			} else if(prodIdsFlag.equals(args[i])){
-				myPids.add(new Long(args[++i]));
-			} else {
-				System.out.println("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
-				return;
-			}
-		}
-
-
-		JozIndexUpdater.setInstance(true, true, myPids);
-
-		collect(writeDir, writeFile, myBinFiles, binLoc, myPids);
-
-		//TODO: Validate the file.
-
-	}
-
-	/**
-	 * Public method to collect data specified by the parameters
-	 * @param saveDir the directory to which the collected data will be saved
-	 * @param saveFile the file name under which the collected data will be saved
-	 * @param binFiles a list of *.bin files to collect data from
-	 * @param binLoc the directory where the *.bin files are located
-	 * @param prodIds a list of productIds to collect data from
-	 */
-	public static void collect(String saveDir, String saveFile, ArrayList<String> binFiles, String binLoc, ArrayList<Long> prodIds){
-		JozIndexUpdater.setInstance(true, true, prodIds);
-		if(binLoc.length()>0){
-			if (!new File(binLoc).exists()) {
-				boolean success = new File(binLoc).mkdirs();
-			}
-			JozIndexHelper.loadIndex(binLoc, binFiles);
-		} else {
-			JozIndexHelper.loadIndex("/opt/Tumri/joz/data/caa/current/jozindex", binFiles);
-		}
-		myDebugBuff = JozIndexUpdater.getBuffer();
-		saveToFileandDir(saveDir, saveFile);
-	}
-
-	/**
+    /**
 	 * 	contains logic to determin which dir and file should be used for output
 	 */
-	private static void saveToFileandDir(String dir, String file){
+	private void saveToFileandDir(StringBuffer myDebugBuff,String dir, String file){
 		if(dir.length() > 0){
 			if(file.length() > 0){ //both file and dir given
-				writeToFile(dir, "/" + file);
+				writeToFile(myDebugBuff, dir, "/" + file);
 			} else { //only dir given
-				writeToFile(dir, "/jozIndexDebugFile.txt");
+				writeToFile(myDebugBuff, dir, "/jozIndexDebugFile.txt");
 			}
 		} else {
 			if (file.length() >0){ //only file given
-				writeToFile("/tmp", "/" + file);
+				writeToFile(myDebugBuff, "/tmp", "/" + file);
 			} else { //neither given
-				writeToFile("/tmp", "/jozIndexDebugFile.txt");
+				writeToFile(myDebugBuff, "/tmp", "/jozIndexDebugFile.txt");
 			}
 		}
 	}
-	/**
+
+    /**
 	 *contains actual File operations save a specific file at a specific directory
 	 */
-	private static void writeToFile(String writeDir, String writeFile){
+	private void writeToFile(StringBuffer myDebugBuff,String writeDir, String writeFile){
 		File debugOutFile = null;
 		File debugDir = new File(writeDir);
 
 		if (!debugDir.exists()) {
-			boolean success = debugDir.mkdirs();
+			debugDir.mkdirs();
 		}
 
 		debugOutFile = new File(writeDir + writeFile);
@@ -285,12 +185,22 @@ public class IndexDebugUtils {
 			log.error("Could not write to debug file", e);
 		} finally {
 			try {
-				fw.close();
+				if (fw!=null) {
+                    fw.close();
+                }
 			} catch(Exception e) {
 				System.err.println("Error: " + e.getMessage());
 			}
 		}
 		assert(new File(writeDir + writeFile).exists());
 	}
+
+    /**
+     * Method to reset the debug mode nback to false
+     */
+    private void resetDebugMode() {
+        JozIndexHelper.getInstance().setDebugMode(false);
+        JozIndexHelper.getInstance().getUpdater().reset();
+    }
 
 }

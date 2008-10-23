@@ -84,7 +84,7 @@ public class JozRefreshDataServlet extends HttpServlet {
     /**
      * Helper method to refresh listing data
      */
-    private String doRefreshListingData(String revertMode) throws InvalidConfigException  {
+    private synchronized String doRefreshListingData(String revertMode) throws InvalidConfigException  {
         if (revertMode != null) {
             ProductDB.getInstance().clearProductDB();
         }
@@ -102,7 +102,7 @@ public class JozRefreshDataServlet extends HttpServlet {
     /**
      * Helper method to refresh campaign data
      */
-    private String doRefreshCampaignData() {
+    private synchronized String doRefreshCampaignData() {
         CMAContentRefreshMonitor.getInstance().loadCampaignData();
         CMAContentProviderStatus status = CMAContentProviderStatus.getInstance();
         String success = (status.lastRunStatus == true? "success" : "failed");

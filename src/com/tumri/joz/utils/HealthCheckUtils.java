@@ -19,6 +19,8 @@ package com.tumri.joz.utils;
 
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.lls.client.LlsSocketConnectionPool;
 import org.apache.log4j.Logger;
 
@@ -37,6 +39,7 @@ public class HealthCheckUtils {
      * Does the Health check for Joz
      * 1) CampaignDB not empty
      * 2) ProductDB not empty
+     * 3) Provider Index not empty
      * 3) Valid connection to LLS
      * @return  true for success, false for failure
      */
@@ -54,6 +57,13 @@ public class HealthCheckUtils {
                   bStatus = false;
                   return bStatus;
               }
+
+             // The joz Provider index must not be empty
+             ProductAttributeIndex provIndex=ProductDB.getInstance().getIndex(IProduct.Attribute.kProvider);
+             if (provIndex==null || provIndex.getKeys().isEmpty()) {
+                 bStatus = false;
+                 return bStatus;
+             }
              //TODO: Check LLS Health
              
              //All good

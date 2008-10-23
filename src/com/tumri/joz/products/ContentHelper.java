@@ -180,9 +180,11 @@ public class ContentHelper implements ContentListener {
     }
 
 
-    protected static void updateJozIndexes(boolean bColdStart) {
+    private static void updateJozIndexes(boolean bColdStart) {
         //Load Joz Indexes
-        JozIndexHelper.getInstance(bColdStart).loadJozIndex();
+        JozIndexHelper.getInstance().setColdStart(bColdStart);
+        JozIndexHelper.getInstance().setDebugMode(false);
+        JozIndexHelper.getInstance().loadJozIndex();
         // Need to update the lucene index before deleting old products.
         initLucene();
         // Clear all Ospec Query Cache.

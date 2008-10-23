@@ -1,7 +1,7 @@
 package com.tumri.joz.index.creator;
 
-import com.tumri.content.data.ProductAttributeDetails;
 import com.tumri.content.data.Product;
+import com.tumri.content.data.ProductAttributeDetails;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.JozIndexHelper;
 import com.tumri.joz.products.ProductDB;
@@ -10,150 +10,121 @@ import com.tumri.joz.utils.IndexUtils;
 import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
 
-import java.io.FileWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.TreeMap;
-import java.net.URLDecoder;
 
 /**
- * Implementation class that will handle the update of Joz Indexes, or write a debug file if required.
+ * Implementation class that will handle the update of Joz Indexes, or write to a buffer for inspection purposes.
  * @author: nipun
  * Date: Feb 15, 2008
  * Time: 8:46:27 PM
  */
 public class JozIndexUpdater {
-	private static StringBuffer debugBuffer = new StringBuffer();
-    boolean bDebug = false;
-    boolean bColdStart = false;
-    private static JozIndexUpdater _instance = null;
+    private StringBuffer debugBuffer = new StringBuffer();
     private static Logger log = Logger.getLogger(JozIndexUpdater.class);
-	protected static ArrayList<Long> productIds = new ArrayList<Long>();
+    protected ArrayList<Long> productIds = new ArrayList<Long>();
     private static final char MULTI_VALUE_INDEX_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
-    
-    /**
-     * Return a instance of the JozIndexUpdater
-     * @return
-     */
-    public static JozIndexUpdater getInstance() {
-        if (_instance == null) {
-            boolean bColdStart = JozIndexHelper.isColdStart();
-            boolean bDebug = false;
-            try {
-                bDebug = Boolean.parseBoolean(AppProperties.getInstance().getProperty("com.tumri.joz.index.reader.debug"));
-            } catch (Exception e) {
-                //
-            }
-            if (bDebug) {
-                log.info("Debug mode = true. The index will be written to a file, and not loaded into Joz");
-            }
-            _instance = new JozIndexUpdater(bDebug, bColdStart);
-        } else {
-            _instance.bColdStart = JozIndexHelper.isColdStart();
-        }
-        return _instance;
+
+
+    public JozIndexUpdater() {
+        debugBuffer = new StringBuffer(); //need to clear buffer each time this class is constructed.
     }
 
-    private JozIndexUpdater(boolean bDebug, boolean bColdStart) {
-        this.bDebug = bDebug;
-        this.bColdStart = bColdStart;
-	    debugBuffer = new StringBuffer(); //need to clear buffer each time this class is constructed.
+    public void setProdIds(ArrayList<Long> prods) {
+        productIds = prods;
+    }
+
+    public void reset() {
+        productIds.clear();
+        debugBuffer = new StringBuffer();
     }
 
     /**
-     * To be used by the test framework
-     */
-    public static void setInstance(boolean coldStart, boolean bDebug) {
-        _instance = new JozIndexUpdater(bDebug, coldStart);
-    }
-	/**  JozIndexUpdater.setInstance was overloaded to handle an extra ArrayList parameter.
-	 *  This allows specific product Ids to be specified for collecting data.
-	 *  JozIndexUpdater.handleDebug() was also overloaded to allow the inclusion of
-	 *  the product Id ArrayList.
-	 *  JozIndexUpdater.updateLine() was also changed to select which overloaded
-	 *  handleDebug() to call depending upon the inputed ArrayList of Product Ids.
-	 */
-	public static void setInstance(boolean coldStart, boolean bDebug, ArrayList<Long> myPids) {
-		productIds = myPids;
-        _instance = new JozIndexUpdater(bDebug, coldStart);
-    }
-
-    /**
-     * Public method to handle a set of lines
+     * Handle the event when a set of index details are read in
      * @param indexName Name of the index that is being updated
      * @param pids Current set of products
      */
     public void handleLine(String indexType, String indexName, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation) {
-	    if (bDebug) {
-	        if(productIds.size()>0){
-		        handleDebug(indexType,  indexName,pids, operation, productIds);
-	        }   else {
+        if (JozIndexHelper.getInstance().isDebugMode()) {
+            if(productIds.size()>0){
+                handleDebug(indexType,  indexName,pids, operation, productIds);
+            }   else {
                 handleDebug(indexType,  indexName,pids, operation);
-	        }
-
+            }
         } else {
+            //Update the ProductDB
             handleUpdate(indexType, indexName,pids, operation);
         }
     }
 
-	public static StringBuffer getBuffer(){
-		return debugBuffer;
-	}
-	/*  This method is originally part of JozIndexUpdater.java.
-	*   It was overwritten to allow for selcting which productIds to generate data from.
-	*
-	*/
-	protected void handleDebug(String indexType, String indexVal, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation, ArrayList<Long> ids) {
-		FileWriter fw = null;
-		boolean flag = false;
-		char _delim = '\t';
+    /**
+     * Return the buffer that contains the details read from the index files
+     * @return
+     */
+    public StringBuffer getBuffer(){
+        return debugBuffer;
+    }
 
-		String mode = "";
-		switch(operation) {
-			case kAdd:
-				mode = "ADD";
-				break;
-			case kAddModified:
-				mode = "ADD-MOD";
-				break;
-			case kDelete:
-				mode = "DELETE";
-				break;
-			case kDelModified:
-				mode = "DELETE-MOD";
-				break;
-			case kNoChange:
-				mode = "NO-CHANGE";
-				break;
-		}
-		StringBuffer line = new StringBuffer();
-		String preFix = indexType + _delim + indexVal + _delim + mode + _delim;
+    /**
+     * Write the index details into a StringBuffer - in the case of debug mode
+     * @param indexType
+     * @param indexVal
+     * @param pids
+     * @param operation
+     * @param ids
+     */
+    protected void handleDebug(String indexType, String indexVal, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation, ArrayList<Long> ids) {
+        boolean flag = false;
+        char _delim = '\t';
 
-		int count = 0;
-		boolean bNewLine = true;
-		for (Handle p:pids) {
-			long tempId = p.getOid();               //new line
-			if(ids.contains(new Long(tempId))){     //new line
-				flag = true;
-				if (bNewLine) {
-				   line.append(preFix);
-					bNewLine = false;
-				}
-				line.append(tempId + ",");          //changed line
-				count++;
-				if (count>24){
-					line.append("\n");
-					count =0;
-					bNewLine = true;
-				}
-			}
-		}
-		if(flag){
-			line.append("\n");
-		}
-		debugBuffer.append(line);
+        String mode = "";
+        switch(operation) {
+            case kAdd:
+                mode = "ADD";
+                break;
+            case kAddModified:
+                mode = "ADD-MOD";
+                break;
+            case kDelete:
+                mode = "DELETE";
+                break;
+            case kDelModified:
+                mode = "DELETE-MOD";
+                break;
+            case kNoChange:
+                mode = "NO-CHANGE";
+                break;
+        }
+        StringBuffer line = new StringBuffer();
+        String preFix = indexType + _delim + indexVal + _delim + mode + _delim;
 
-	}
+        int count = 0;
+        boolean bNewLine = true;
+        for (Handle p:pids) {
+            long tempId = p.getOid();               //new line
+            if(ids.contains(new Long(tempId))){     //new line
+                flag = true;
+                if (bNewLine) {
+                    line.append(preFix);
+                    bNewLine = false;
+                }
+                line.append(tempId + ",");          //changed line
+                count++;
+                if (count>24){
+                    line.append("\n");
+                    count =0;
+                    bNewLine = true;
+                }
+            }
+        }
+        if(flag){
+            line.append("\n");
+        }
+        debugBuffer.append(line);
+
+    }
 
 
     /**
@@ -162,47 +133,46 @@ public class JozIndexUpdater {
      * <Index Name> <Index Val> <MODE>  <Comma separated product IDs>
      */
     private void handleDebug(String indexType, String indexVal, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation) {
-        FileWriter fw = null;
         char _delim = '\t';
 
-            String mode = "";
-            switch(operation) {
-                case kAdd:
-                    mode = "ADD";
-                    break;
-                case kAddModified:
-                    mode = "ADD-MOD";
-                    break;
-                case kDelete:
-                    mode = "DELETE";
-                    break;
-                case kDelModified:
-                    mode = "DELETE-MOD";
-                    break;
-                case kNoChange:
-                    mode = "NO-CHANGE";
-                    break;
-            }
-            StringBuffer line = new StringBuffer();
-            String preFix = indexType + _delim + indexVal + _delim + mode + _delim;
+        String mode = "";
+        switch(operation) {
+            case kAdd:
+                mode = "ADD";
+                break;
+            case kAddModified:
+                mode = "ADD-MOD";
+                break;
+            case kDelete:
+                mode = "DELETE";
+                break;
+            case kDelModified:
+                mode = "DELETE-MOD";
+                break;
+            case kNoChange:
+                mode = "NO-CHANGE";
+                break;
+        }
+        StringBuffer line = new StringBuffer();
+        String preFix = indexType + _delim + indexVal + _delim + mode + _delim;
 
-            int count = 0;
-            boolean bNewLine = true;
-            for (Handle p:pids) {
-                if (bNewLine) {
-                   line.append(preFix);
-                    bNewLine = false;
-                }
-                line.append(p.getOid() + ",");
-                count++;
-                if (count>24){
-                    line.append("\n");
-                    count =0;
-                    bNewLine = true;
-                }
+        int count = 0;
+        boolean bNewLine = true;
+        for (Handle p:pids) {
+            if (bNewLine) {
+                line.append(preFix);
+                bNewLine = false;
             }
-            line.append("\n");
-	    debugBuffer.append(line);
+            line.append(p.getOid() + ",");
+            count++;
+            if (count>24){
+                line.append("\n");
+                count =0;
+                bNewLine = true;
+            }
+        }
+        line.append("\n");
+        debugBuffer.append(line);
 
     }
 
@@ -210,7 +180,7 @@ public class JozIndexUpdater {
      * Update the index
      */
     private void handleUpdate(String indexType, String indexName, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation) {
-        if (bColdStart)  {
+        if (JozIndexHelper.getInstance().isColdStart())  {
             if (operation == PersistantIndexLine.IndexOperation.kDelete
                     || operation == PersistantIndexLine.IndexOperation.kDelModified) {
                 //Skip Deletes for Cold Start
