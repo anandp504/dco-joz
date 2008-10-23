@@ -725,13 +725,15 @@ public class JozDataProviderImpl implements JozDataProvider {
 	 * Process the request using JozDataProviderImpl.getQAReport(JozQARequest) which returns a JozQAResponse object containing the QA information.
 	 */
 	public JozQAResponse getQAReport(JozQARequest req) throws JoZClientException {
-		JozQAResponse resp;
+		JozQAResponse resp = null;
         try {
             JozQADataProvider dataProvider = new JozQADataProvider();
             JozQAResponseWrapper responseWrapper = dataProvider.processRequest(req);
 	        String xml = responseWrapper.getResultMap().get(JozQAResponseWrapper.KEY_QAREPORTDETAIL);
 			XStream xstream = new XStream();
-			resp = (JozQAResponse)xstream.fromXML(xml);
+	        if(xml != null){
+				resp = (JozQAResponse)xstream.fromXML(xml);
+	        }
         } catch (Throwable e) {
             log.error("Exception in fetching QA Report", e);
             throw new JoZClientException("Exception in fetching QA Report",e);

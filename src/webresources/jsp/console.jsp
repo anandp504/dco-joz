@@ -80,5 +80,9 @@
 	<a href="/joz/console?mode=qareport">Joz QA Report</a>
 </div>
 <br>
+<div>
+	<a href="/joz/console?mode=execute">TSpec Executor</a>
+</div>
+<br>
 </body>
 </html>

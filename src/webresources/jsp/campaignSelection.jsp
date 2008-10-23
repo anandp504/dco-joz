@@ -105,6 +105,28 @@
 <br>
 <div>
 	<%
+		Date startDate = null;
+		if((startDate = myCampaign.getFlightStart()) != null){
+			out.print("<strong> Campaign: Flight Start Date </strong> = " + startDate.toString() + "<br>");
+		} else {
+			out.print("<strong> Campaign: Flight Start Date </strong> = " + startDate + "<br>");
+		}
+	%>
+</div>
+<br>
+<div>
+	<%
+		Date endDate = null;
+		if((endDate = myCampaign.getFlightEnd()) != null){
+			out.print("<strong> Campaign: Flight End Date </strong> = " + endDate.toString() + "<br>");
+		} else {
+			out.print("<strong> Campaign: Flight End Date </strong> = " + endDate + "<br>");
+		}
+	%>
+</div>
+<br>
+<div>
+	<%
 		out.print("<strong> Campaign: Source </strong> = " + myCampaign.getSource() + "<br>");
 	%>
 </div>

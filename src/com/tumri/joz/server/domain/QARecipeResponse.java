@@ -21,6 +21,14 @@ public class QARecipeResponse {
 	private HashSet<JozQAError> jozQAWarnings = new HashSet<JozQAError>();
 	private ArrayList<String> details = new ArrayList<String>();
 
+	public int getNumWarnings(){
+		return jozQAWarnings.size();
+	}
+
+	public int getNumErrors(){
+		return jozQAErrors.size();
+	}
+
 	public ArrayList<String> getDetails() {
 		return details;
 	}

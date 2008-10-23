@@ -88,7 +88,7 @@
 		</select>
 		<input type="hidden"  name="option"  id="option" value=""/>
 		<input type="hidden" name="mode" id="mode" value="log"/>
-		<input type="button" value="Sel Level" onClick="javascript:submitLevel()"/>
+		<input type="button" value="Set Level" onClick="javascript:submitLevel()"/>
 	</form>
 </div>
 </body>

@@ -123,9 +123,9 @@
 	     </td>
 		    <td valign="top">
 			    <%
-				    if(fRecResp.getNumFailedTSpecs() > 0){
+				    if(fRecResp.getNumErrors() > 0){
 			    %>
-			    <h4>TSpec Errors: <%=fRecResp.getNumFailedTSpecs()%></h4>
+			    <h4>TSpec Errors: <%=fRecResp.getNumErrors()%></h4>
 			<%
 				} //end if around header
 				HashSet<JozQAError> errors = fRecResp.getJozQAErrors();
@@ -140,9 +140,9 @@
 					</ul>
 				<%} //close error for%>
 			    <%
-				    if(fRecResp.getNumWarnedTSpecs() > 0){
+				    if(fRecResp.getNumWarnings() > 0){
 			    %>
-			    <h4>TSpec Warnings: <%=fRecResp.getNumWarnedTSpecs()%></h4>
+			    <h4>TSpec Warnings: <%=fRecResp.getNumWarnings()%></h4>
 			    <%
 				    }//end if around header
 			    HashSet<JozQAError> warnings = fRecResp.getJozQAWarnings();
@@ -190,9 +190,9 @@
 	     </td>
 		    <td valign="top">
 			    <%
-				    if(wRecResp.getNumWarnedTSpecs() > 0){
+				    if(wRecResp.getNumWarnings() > 0){
 			    %>
-			    <h4>TSpec Warnings: <%=wRecResp.getNumWarnedTSpecs()%></h4>
+			    <h4>TSpec Warnings: <%=wRecResp.getNumWarnings()%></h4>
 			<%
 				}//end if around header
 				HashSet<JozQAError> warns = wRecResp.getJozQAWarnings();

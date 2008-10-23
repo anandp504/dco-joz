@@ -1,6 +1,10 @@
-<%@ page language="java" import="com.tumri.joz.utils.IndexDebugUtils" %>
-<%@ page language="java" import="java.util.ArrayList" %>
-<%@ page language="java" import="java.util.StringTokenizer" %>
+<%@ page language="java" import="java.util.*" %>
+<%@ page language="java" import="com.tumri.joz.monitor.*" %>
+<%@ page language="java" import="com.tumri.joz.campaign.*" %>
+<%@ page language="java" import="com.tumri.joz.products.JOZTaxonomy" %>
+<%@ page language="java" import="com.tumri.content.data.Category" %>
+<%@ page language="java" import="com.tumri.cma.domain.*" %>
+<%@ page language="java" import="com.tumri.joz.utils.*" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -18,7 +22,7 @@
     <a href="/joz/console">home</a>
 </div>
 <%
-	String commandLine = request.getParameter("mode");
+	String commandLine = request.getParameter("indexDebug");
 	boolean homeFlag = false;
 	boolean saveDirFlag = false;
 	boolean saveFileFlag = false;
@@ -51,7 +55,7 @@ Index Debuging Util: <i>View Product Listings Accross *.bin Files<i>
 <div>
 	<br>
 	<div>
-		<form id="indexDebugInputForm" action="/jsp/indexDebug.jsp" method="post">
+		<form id="indexDebugInputForm" action="/joz/jsp/indexDebug.jsp" method="post">
 			<strong>Input Index Debugging Command Line:</strong>
 			<input type="text"  name="indexDebug"  id="indexDebugInput" value="<%=commandLine%>" size="75"/>
 			<input type="submit" value="Get DebugInfo"/>

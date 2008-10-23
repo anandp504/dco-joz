@@ -98,7 +98,7 @@
             } else if (indexName!=null && indexKey!=null && results!=null) {
         %>
          <div>
-                <strong>Query results for <%=indexName%> index lookup for key <%=indexKey%></strong> (<%=results.size()%> products found)%>:
+                <strong>Query results for <%=indexName%> index lookup for key <%=indexKey%></strong> (<%=results.size()%> products found)
          </div>
         <%
                 for (Handle h : results) {

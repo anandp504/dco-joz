@@ -24,28 +24,16 @@ import com.tumri.cma.domain.Location;
 import com.tumri.cma.domain.Recipe;
 import com.tumri.joz.JoZException;
 import com.tumri.joz.campaign.TransientDataManager;
-import com.tumri.joz.server.domain.JozAdPod;
-import com.tumri.joz.server.domain.JozAdvertiser;
-import com.tumri.joz.server.domain.JozCampaign;
-import com.tumri.joz.server.domain.JozCampaignRequest;
-import com.tumri.joz.server.domain.JozCampaignResponse;
-import com.tumri.joz.server.domain.JozICSCampaignRequest;
-import com.tumri.joz.server.domain.JozICSCampaignResponse;
-import com.tumri.joz.server.domain.JozLocation;
-import com.tumri.joz.server.domain.JozMerchant;
-import com.tumri.joz.server.domain.JozMerchantRequest;
-import com.tumri.joz.server.domain.JozMerchantResponse;
-import com.tumri.joz.server.domain.JozProvider;
-import com.tumri.joz.server.domain.JozRecipe;
-import com.tumri.joz.server.domain.JozResponse;
+import com.tumri.joz.server.domain.*;
 import com.tumri.utils.tcp.server.domain.QueryId;
 import com.tumri.utils.tcp.server.domain.QueryInputData;
 import com.tumri.utils.tcp.server.domain.QueryResponseData;
 import com.tumri.utils.tcp.server.handlers.InvalidRequestException;
 import com.tumri.utils.tcp.server.handlers.RequestHandler;
 import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -149,10 +137,13 @@ public class JozICSCampaignRequestHandler implements RequestHandler {
     			JozAdvertiser advertiser = new JozAdvertiser();
     			advertiser.setId(""+clientId);
     	    	advertiser.setName(clientName);
-    	    	advertisers.add(advertiser);
-    		}
+			    if(!advertisers.contains(advertiser)){
+		            advertisers.add(advertiser);
+			    }
+		    }
     	}
-    	return advertisers;
+	    Collections.sort(advertisers);
+	    return advertisers;
     }
     private JozCampaign getJozCampaign(Campaign campaign){
     	JozCampaign jozCampaign = new JozCampaign();

@@ -150,7 +150,7 @@ public class TestJozCampaignCreator {
 
 
 
-			for(int j = i; j < 500; j++){
+			for(int j = i; j < 100; j++){
 				int numTSpecs = r.nextInt(2) + 1;
 				int numRecipes = r.nextInt(2) + 1;
 				int numAdPods = r.nextInt(2) + 1;
@@ -181,8 +181,15 @@ public class TestJozCampaignCreator {
 		List<AdPod> adPods = new ArrayList<AdPod>();
 		newCamp.setId(cId);
 		newCamp.setName(cName);
-		newCamp.setClientId((cId%2) + 1);
-		newCamp.setClientName("TumriDesigners"+cId%2);
+		newCamp.setClientId((cId%20) + 1);
+		newCamp.setClientName("TumriDesigners"+cId%20);
+		long x = System.currentTimeMillis()+ 2000000000;
+		x+=2000000000;
+		x+=2000000000;
+
+		Date endDate = new Date(x);
+		newCamp.setFlightEnd(endDate);
+		newCamp.setFlightStart(new Date(System.currentTimeMillis()));
 		for(int i = 0; i < numAdPods; i++){
 			if(random == true){
 				numTSpecs  = numTSpecs>0?numTSpecs:1;

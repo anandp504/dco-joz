@@ -117,7 +117,8 @@ public class JozQARequestHandler implements RequestHandler {
 				validAdvertisers.add(clientName);
 				Date today = new Date();
 				boolean failCampaign = false;
-				if(camp.getFlightStart().after(today) || camp.getFlightEnd().before(today)){
+				if(camp.getFlightEnd() == null || camp.getFlightStart() == null|| camp.getFlightStart().after(today)
+						|| camp.getFlightEnd().before(today)){
 					failCampaign = true;
 				}
 				List<AdPod> adPods = camp.getAdpods();
@@ -166,18 +167,18 @@ public class JozQARequestHandler implements RequestHandler {
 		boolean recipeWarn = false;
 		boolean allSpecs0 = true;
 		boolean geoEnabled = false;
+		boolean nullTSpec = false;
 		String clientName = camp.getClientName();
 		QARecipeResponse recipeResponse = new QARecipeResponse();
 		recipeResponse.setRecipeId(recipe.getId());
 		recipeResponse.setRecipeName(recipe.getName());
 		//if campaign is invalid: ie not running
 		if(failCampaign){
-			if(camp.getFlightEnd().before(today)){
+			if(camp.getFlightEnd() == null || camp.getFlightEnd().before(today)){
 				recipeResponse.addDetail("Failed: Campaign Flight is over.");
-			} else if(camp.getFlightStart().after(today)){
+			}
+			if(camp.getFlightStart() == null || camp.getFlightStart().after(today)){
 				recipeResponse.addDetail("Failed: Campaign Flight hasn't begun.");
-			} else {
-				recipeResponse.addDetail("Failed: Entire Campaign Failed.");
 			}
 			resp.registerRecipeFailure(clientName, recipeResponse);
 			success = false;
@@ -192,7 +193,13 @@ public class JozQARequestHandler implements RequestHandler {
 			int numReqProducts = tSpecInfo.getNumProducts();
 			int tSpecId = tSpecInfo.getTspecId();
 			TSpec eTSpec = CampaignDB.getInstance().getTspec(tSpecId);
+			if(eTSpec == null){
+				eTSpec = new TSpec();
+				eTSpec.setId(tSpecId);
+				nullTSpec = true;
+			}
 			JozQAError error = new JozQAError(camp, adPod, recipe, eTSpec, numReqProducts);
+
 			boolean geoEnabledTSpec = false;
 			//Geo-Enabled check
 			if(eTSpec.isGeoEnabledFlag() || eTSpec.isApplyGeoFilter()){
@@ -207,7 +214,12 @@ public class JozQARequestHandler implements RequestHandler {
 				allSpecs0 = false;
 			}
 			//conditions under which we do not want to execute the TSpec
-			if(geoEnabledTSpec || allSpecs0){
+			if(geoEnabledTSpec || allSpecs0 || nullTSpec){
+				if(nullTSpec){
+					recipeResponse.addFailedTSpec(eTSpec);
+					recipeResponse.addJozQAError(error);
+					error.addDetail("No TSpec with given Id found in campaignDB.");
+				}
 				continue;
 			}
 			//execute TSpec
@@ -226,6 +238,10 @@ public class JozQARequestHandler implements RequestHandler {
 		if(geoEnabled){
 			recipeWarn = true;
 			recipeResponse.addDetail("Warn: Recipe has TSpecs which are Geo-Enabled and were not processed.");
+		}
+		if(nullTSpec){
+			recipeFail = true;
+			recipeResponse.addDetail("TSpec Failed: No TSpec with specified Id found.");
 		}
 
 		//add RecipeResponse according to status: failed, warned, successful.
