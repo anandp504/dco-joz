@@ -212,8 +212,9 @@ public class JozIndexHelper {
             //Add any new products into the db
             if (!debugMode) {
                 ProductDB.getInstance().addNewProducts(ProductHandleFactory.getInstance().getProducts());
-                ProductHandleFactory.getInstance().clearProducts();
             }
+            ProductHandleFactory.getInstance().clearProducts();
+
         } catch (IOException ex) {
             log.error("Could not load index file.");
             throw ex;

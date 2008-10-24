@@ -137,6 +137,7 @@ public class ProviderIndexCreator {
             HashMap<String, String> prodDetailsMap2 = null;
             boolean bReadSecondFile = true;
             Long pid2Dbl = null;
+            Long prevpid1Dbl = null;
 
             while(!eof1) {
                 line1 = readLine(br1);
@@ -157,8 +158,8 @@ public class ProviderIndexCreator {
                             //Product appears in both MUPs
                             compareAndUpdateIndices(pid1Dbl, prodDetailsMap1, prodDetailsMap2);
                         } else if (pid1Dbl>pid2Dbl){
-                            //pid2 has been deleted from MUP
-                            if (prodDetailsMap2!=null && pid2Dbl != null) {
+                            //pid2 may have been deleted from the current mup
+                            if (prodDetailsMap2!=null && pid2Dbl != null && !pid2Dbl.equals(prevpid1Dbl)) {
                                 deleteIndices(prodDetailsMap2, pid2Dbl);
                             }
                             bReadSecondFile = true;
@@ -194,7 +195,7 @@ public class ProviderIndexCreator {
                             addIndices(prodDetailsMap1, pid1Dbl);
                         }
                     }
-
+                    prevpid1Dbl = pid1Dbl;
                 }
 
                 if (bAddMode) {
@@ -489,6 +490,7 @@ public class ProviderIndexCreator {
                 tmpFile.delete();
             }
         } catch (IOException e) {
+           log.error("Sort and Copy failed for file", e);
            bSuccess = false;
         } catch (InterruptedException e) {
            bSuccess = false;

@@ -104,7 +104,7 @@ public class PersistantIndex implements Serializable{
                     long pid = in.readLong();
                     //Get the handle
                     Handle p = ProductDB.getInstance().getHandle(pid);
-                    if (p==null && op !=  PersistantIndexLine.IndexOperation.kDelete) {
+                    if (p==null && (JozIndexHelper.getInstance().isDebugMode() || op !=  PersistantIndexLine.IndexOperation.kDelete)) {
                         //New product
                         p = ProductHandleFactory.getInstance().getHandle(pid);
                     }
