@@ -174,20 +174,20 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 
         <move file="${stage.dir}/jozclient/jozclient.jar" todir="${dist.dir}"/>
     </target>
-	<target name="build-jozclient-docs" depends="">
-		<delete dir="${stage.dir}/javadocs"/>
-		<mkdir dir="${stage.dir}/javadocs"/>
-		<javadoc destdir="${stage.dir}/javadocs" classpathref="project.class.path" author="false" version="true" use="true" windowtitle="Joz Client API">
-			<fileset dir="${src.dir}" defaultexcludes="yes">
-                <include name="com/tumri/joz/client/**" />
-			</fileset>
-			<doctitle>
-				<![CDATA[<h1>Joz Client API</h1>]]>
-            </doctitle>
-			<bottom>
-				<![CDATA[<i>Copyright &#169; 2007 Tumri Inc. All Rights Reserved.</i>]]>
-	        </bottom>
-			<tag name="todo" scope="all" description="To do:" />
+	<target name="java-doc" depends="">
+		<delete dir="${dist.dir}/javadocs"/>
+		<mkdir dir="${dist.dir}/javadocs"/>
+		<javadoc destdir="${dist.dir}/javadocs"
+                 classpathref="project.class.path" author="false" version="true" use="true"
+                 windowtitle="Joz Client API">
+            <classpath refid="project.class.path"/>
+            <packageset dir="${src.dir}" defaultexcludes="yes">
+            <include name="com/tumri/joz/**"/>
+            </packageset>
+            <doctitle><![CDATA[<h1>Joz API</h1>]]></doctitle>
+            <bottom>
+            <![CDATA[<i>Copyright &#169; 2007 Tumri Inc. All Rights Reserved.</i>]]>
+            </bottom>
 		</javadoc>
 	</target>
 

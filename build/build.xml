@@ -72,7 +72,7 @@
     <!-- ****************************************************************** -->
 
     <target name="build"
-            depends="build-Joz-war,build-indexer-jar,build-jozclient,build-jozclient-docs,dist"
+            depends="build-Joz-war,build-indexer-jar,build-jozclient,dist"
             description="Build everything and create the dist package.">
     </target>
 
@@ -155,12 +155,14 @@
 
     <target name="top-install" depends="install"/>
 
-    <target name="top-build-doc">
-	<!-- FIXME: wip -->
+    <target name="top-build-doc" depends="java-doc">
     </target>
 
     <target name="top-install-doc">
-	<!-- FIXME: wip -->
+        <copy toDir="${doc.install.dir}/javadocs/tas/joz"
+              overwrite="true">
+            <fileset dir="${dist.dir}/javadocs"/>
+        </copy>
     </target>
 
     <target name="top-run-tests" depends="run-tests"/>
