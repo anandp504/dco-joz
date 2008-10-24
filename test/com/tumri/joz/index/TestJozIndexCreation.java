@@ -2,10 +2,12 @@ package com.tumri.joz.index;
 
 import com.tumri.joz.index.creator.JozIndexCreator;
 import com.tumri.joz.utils.IndexDebugUtils;
-import org.junit.Test;
 import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
 
 /**
  * Class to test creation on index from a given MUP
@@ -47,7 +49,7 @@ public class TestJozIndexCreation extends TestCase{
 //        TestProductData.writeTaxonomy(_baseDir);
 //    }
 
-    @Test
+   // @Test
     public void testIndexingSameContent() {
         //Do the indexing
 	    String oldDir = "/tmp/testJozIndex/old/old1";
@@ -60,18 +62,18 @@ public class TestJozIndexCreation extends TestCase{
 	    String[] args = new String[2];
 	    args[0] = "-binLoc";
 	    args[1] = binDir;
-	    debugBuff = debugUtil.returnBuffer(args);
+	    debugBuff = debugUtil.execute(args);
 
 	    ic = new JozIndexCreator(oldDir, newDir, binDir, 10000);
 	    ic.createJozIndexes();
 	    StringBuffer debugBuff2;
-	    debugBuff2 = debugUtil.returnBuffer(args);
+	    debugBuff2 = debugUtil.execute(args);
 	    if(!debugBuff.toString().equals(debugBuff2.toString())){
 		    fail("outputs not equal");
 	    }
     }
 
-	@Test
+	//@Test
     public void testIndexingSameFile() {
         //Do the indexing
 	    String oldDir = "/tmp/testJozIndex/old/old1";
@@ -83,12 +85,12 @@ public class TestJozIndexCreation extends TestCase{
 	    String[] args = new String[2];
 	    args[0] = "-binLoc";
 	    args[1] = binDir;
-	    debugBuff = debugUtil.returnBuffer(args);
+	    debugBuff = debugUtil.execute(args);
 
 	    ic = new JozIndexCreator(oldDir, oldDir, binDir, 10000);
 	    ic.createJozIndexes();
 	    StringBuffer debugBuff2;
-	    debugBuff2 = debugUtil.returnBuffer(args);
+	    debugBuff2 = debugUtil.execute(args);
 	    if(!debugBuff.toString().equals(debugBuff2.toString())){
 		    fail("outputs not equal");
 	    }
@@ -107,12 +109,12 @@ public class TestJozIndexCreation extends TestCase{
 	    String[] args = new String[2];
 	    args[0] = "-binLoc";
 	    args[1] = binDir;
-	    debugBuff = debugUtil.returnBuffer(args);
+	    debugBuff = debugUtil.execute(args);
 
 	    ic = new JozIndexCreator(oldDir, newDir, binDir, 10000);
 	    ic.createJozIndexes();
 	    StringBuffer debugBuff2;
-	    debugBuff2 = debugUtil.returnBuffer(args);
+	    debugBuff2 = debugUtil.execute(args);
 	    if(debugBuff.toString().equals(debugBuff2.toString())){
 		    fail("outputs are equal");
 	    }
@@ -126,7 +128,7 @@ public class TestJozIndexCreation extends TestCase{
 
 		if(numDeletes1 != 0){
 			fail("num Deletes should be zero for (old, new)");
-		}                                                     
+		}
 
 		if(numAdds2 != 0){
 			fail("num Adds should be zero for (new, old)");
@@ -153,12 +155,12 @@ public class TestJozIndexCreation extends TestCase{
 	    String[] args = new String[2];
 	    args[0] = "-binLoc";
 	    args[1] = binDir;
-	    debugBuff = debugUtil.returnBuffer(args);
+	    debugBuff = debugUtil.execute(args);
 
 	    ic = new JozIndexCreator(oldDir, newDir, binDir, 10000);
 	    ic.createJozIndexes();
 	    StringBuffer debugBuff2;
-	    debugBuff2 = debugUtil.returnBuffer(args);
+	    debugBuff2 = debugUtil.execute(args);
 	    if(!debugBuff.toString().equals(debugBuff2.toString())){
 		    fail("outputs not equal");
 	    }
@@ -177,12 +179,12 @@ public class TestJozIndexCreation extends TestCase{
 	    String[] args = new String[2];
 	    args[0] = "-binLoc";
 	    args[1] = binDir;
-	    debugBuff = debugUtil.returnBuffer(args);
+	    debugBuff = debugUtil.execute(args);
 
 	    ic = new JozIndexCreator(oldDir, newDir, binDir, 10000);
 	    ic.createJozIndexes();
 	    StringBuffer debugBuff2;
-	    debugBuff2 = debugUtil.returnBuffer(args);
+	    debugBuff2 = debugUtil.execute(args);
 	    if(debugBuff.toString().equals(debugBuff2.toString())){
 		    fail("outputs are equal");
 	    }
@@ -213,6 +215,86 @@ public class TestJozIndexCreation extends TestCase{
 		}
 		if(numNoChanges1 != numNoChanges2){
 			fail("num NO-CHANGES are not equal");
+		}
+    }
+
+	@Test
+    public void testIndexingAllProviders() {
+		String oldDir = "/tmp/testJozIndex/old/old4";
+		String newDir = "/tmp/testJozIndex/new/new4";
+		String binDir = "/tmp/testJozIndex/jozIndex";
+
+        JozIndexCreator ic = new JozIndexCreator(newDir, oldDir, binDir, 10000);
+        ic.createJozIndexes();
+
+		File dir = new File(oldDir);
+		File dir2 = new File(newDir);
+		File[] files = dir.listFiles();
+		ArrayList<StringBuffer> bufferList1 = new ArrayList<StringBuffer>();
+		ArrayList<StringBuffer> bufferList2 = new ArrayList<StringBuffer>();
+		IndexDebugUtils debugUtil = new IndexDebugUtils();
+		// This filter only returns directories
+		FileFilter fileFilter = new FileFilter() {
+			public boolean accept(File file) {
+				return file.isDirectory();
+			}
+		};
+		files = dir.listFiles(fileFilter);
+		for(File file: files){
+			String binName = file.getName();
+			StringBuffer debugBuff;
+			String[] args = new String[4];
+			args[0] = "-binLoc";
+			args[1] = binDir;
+			args[2] = "-binFile";
+			args[3] = binName;
+			debugBuff = debugUtil.execute(args);
+			bufferList1.add(debugBuff);
+		}
+		ic = new JozIndexCreator(oldDir, newDir, binDir, 10000);
+		ic.createJozIndexes();
+		files = dir2.listFiles(fileFilter);
+		for(File file: files){
+			String binName = file.getName();
+			StringBuffer debugBuff;
+			String[] args = new String[4];
+			args[0] = "-binLoc";
+			args[1] = binDir;
+			args[2] = "-binFile";
+			args[3] = binName;
+			debugBuff = debugUtil.execute(args);
+			bufferList2.add(debugBuff);
+		}
+
+		if(bufferList1.size() != bufferList2.size()){
+			fail("bufferList1.size() != bufferList2.size()");
+		}
+		for(int i = 0; i < bufferList1.size(); i++){
+			StringBuffer buffer1 = bufferList1.get(i);
+			StringBuffer buffer2 = bufferList2.get(i);
+
+			int numAllAdds1 = countWord(buffer1.toString(), "ADD");
+			int numAllDeletes1 = countWord(buffer1.toString(), "DELETE");
+			int numNoChanges1 = countWord(buffer1.toString(), "NO-CHANGE");
+			int numAddMods1 = countWord(buffer1.toString(), "ADD-MOD");
+			int numDeleteMods1 = countWord(buffer1.toString(), "DELETE-MOD");
+			int numAdds1 = numAllAdds1 - numAddMods1;
+			int numDeletes1 = numAllDeletes1 - numDeleteMods1;
+
+			int numAllAdds2 = countWord(buffer2.toString(), "ADD");
+			int numAllDeletes2 = countWord(buffer2.toString(), "DELETE");
+			int numNoChanges2 = countWord(buffer2.toString(), "NO-CHANGE");
+			int numAddMods2 = countWord(buffer2.toString(), "ADD-MOD");
+			int numDeleteMods2 = countWord(buffer2.toString(), "DELETE-MOD");
+			int numAdds2 = numAllAdds2 - numAddMods2;
+			int numDeletes2 = numAllDeletes2 - numDeleteMods2;
+
+			if(numAdds1 != numDeletes2){
+				fail("buffer"+i+"'s numAdds1 != numDeletes2");
+			}
+			if(numAdds2 != numDeletes1){
+				fail("buffer"+i+"'s numAdds2 != numDeletes1");
+			}
 		}
     }
 
