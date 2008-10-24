@@ -7,11 +7,11 @@ import com.tumri.cma.domain.Recipe;
 import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.persistence.xml.CampaignXMLDateConverter;
 import com.tumri.joz.campaign.CampaignDB;
-import com.tumri.joz.client.JoZClientException;
-import com.tumri.joz.client.impl.JozDataProviderImpl;
 import com.tumri.joz.server.domain.JozAdRequest;
 import com.tumri.joz.server.domain.JozQARequest;
-import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.server.domain.JozQAResponse;
+import com.tumri.joz.server.domain.JozQAResponseWrapper;
+import com.tumri.joz.server.handlers.JozQARequestHandler;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
@@ -142,14 +142,13 @@ public class JozConsoleServlet extends HttpServlet {
 			}
 			responseJSP = "/jsp/log.jsp";
 		} else if("qareport".equalsIgnoreCase(mode)){
-			int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
-			int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
-
-			JozDataProviderImpl impl = new JozDataProviderImpl("localhost", port,poolSize,3);
+			JozQARequestHandler qaHandler = new JozQARequestHandler();
 			JozQARequest req = new JozQARequest();
-			String advertisersString = request.getParameter("advertisers");
-
+			JozQAResponseWrapper wrapper = new JozQAResponseWrapper();
+			JozQAResponse qaResponse = new JozQAResponse();
 			ArrayList<String> advertiserNames = new ArrayList<String>();
+
+			String advertisersString = request.getParameter("advertisers");
 
 			if(advertisersString != null){
 				StringTokenizer tokenizer = new StringTokenizer(advertisersString, ',');
@@ -157,13 +156,16 @@ public class JozConsoleServlet extends HttpServlet {
 			}
 			req.setAdvertisers(advertiserNames);
 
-			try {
-				request.setAttribute("jozQAResp", impl.getQAReport(req));
-				request.setAttribute("jozQAReq", req);
-			} catch (JoZClientException e) {
-				log.error("Error getting JozQAResponse: ",e);
+			qaHandler.doQuery(req, wrapper);
+			String xml = wrapper.getResultMap().get(JozQAResponseWrapper.KEY_QAREPORTDETAIL);
+			XStream xstream = new XStream();
+			if(xml != null){
+				qaResponse = (JozQAResponse)xstream.fromXML(xml);
 			}
+			request.setAttribute("jozQAResp", qaResponse);
+			request.setAttribute("jozQAReq", req);
 			responseJSP = "/jsp/jozQAReport.jsp?mode=console";
+
 		} else if ("execute".equalsIgnoreCase(mode)) {
 			if("tspec".equalsIgnoreCase(option)){
 
