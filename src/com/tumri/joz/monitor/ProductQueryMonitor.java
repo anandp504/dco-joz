@@ -232,10 +232,13 @@ public class ProductQueryMonitor extends ComponentMonitor
 						value += " ";
 					}
 					value += cToken;
-					cToken = key;
+					cToken =key;
+					if(cToken!=null){
+						cToken = cToken.trim();
+					}
 				}
 				if(keys.contains(cToken)){
-					if(":offertype".equalsIgnoreCase(cToken)){
+					if(":offertype".equalsIgnoreCase(key)){
 						if(!"".equals(value)){
 							if("leadgen".equalsIgnoreCase(value)){
 								pr.setOfferType(AdDataRequest.AdOfferType.LEADGEN_ONLY);
@@ -245,93 +248,93 @@ public class ProductQueryMonitor extends ComponentMonitor
 								pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
 							}
 						}
-					} else if(":num_products".equalsIgnoreCase(cToken)){
-						if(!"".equals(value)){
-							pr.setPageSize(Integer.parseInt(value));
+					} else if(":num_products".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setPageSize(Integer.parseInt(value.trim()));
 						}
-					} else if(":city".equalsIgnoreCase(cToken)){
-						if(!"".equals(value)){
-							pr.setCityCode(value);
+					} else if(":city".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setCityCode(value.trim());
 						}
-					} else if(":state".equalsIgnoreCase(cToken)){
-						if(!"".equals(value)){
-							pr.setStateCode(value);
+					} else if(":state".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setStateCode(value.trim());
 						}
-					} else if(":country".equalsIgnoreCase(cToken)){
-						if(!"".equals(value)){
-							pr.setCountryCode(value);
+					} else if(":country".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setCountryCode(value.trim());
 						}
-					} else if(":zipcode".equalsIgnoreCase(cToken)){
-						if(!"".equals(value)){
-							pr.setZipCode(value);
+					} else if(":zipcode".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setZipCode(value.trim());
 						}
-					} else if(":dmacode".equalsIgnoreCase(cToken)){
-						if(!"".equals(value)){
-							pr.setDmaCode(value);
+					} else if(":dmacode".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setDmaCode(value.trim());
 						}
-					} else if(":areacode".equalsIgnoreCase(cToken)){
-						if(!"".equals(value)){
-							pr.setAreaCode(value);
+					} else if(":areacode".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setAreaCode(value.trim());
 						}
 					} else if(":brandomize".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value.trim())){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim().trim())){
 								pr.setBRandomize(false);
 							} else {
 								pr.setBRandomize(true);
 							}
 						}
 					} else if(":mineurls".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value.trim())){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim().trim())){
 								pr.setBMineUrls(false);
 							} else {
 								pr.setBMineUrls(true);
 							}
 						}
 					} else if(":bpaginate".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value.trim())){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim().trim())){
 								pr.setBPaginate(false);
 							} else {
 								pr.setBPaginate(true);
 							}
 						}
 					} else if(":bbackfill".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value.trim())){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim().trim())){
 								pr.setBBackFill(false);
 							} else {
 								pr.setBBackFill(true);
 							}
 						}
 					} else if(":requestkeywords".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							pr.setRequestKeyWords(value);
+						if(!"".equals(value.trim())){
+							pr.setRequestKeyWords(value.trim());
 						}
 					} else if(":requestcategory".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							pr.setRequestCategory(value);
+						if(!"".equals(value.trim())){
+							pr.setRequestCategory(value.trim());
 						}
-					} else if(":multivaluequery1".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							pr.setMultiValueQuery1(value);
+					} else if(":multivalue.trim()query1".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setMultiValueQuery1(value.trim());
 						}
-					} else if(":multivaluequery2".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							pr.setMultiValueQuery2(value);
+					} else if(":multivalue.trim()query2".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setMultiValueQuery2(value.trim());
 						}
-					} else if(":multivaluequery3".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							pr.setMultiValueQuery3(value);
+					} else if(":multivalue.trim()query3".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setMultiValueQuery3(value.trim());
 						}
-					} else if(":multivaluequery4".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							pr.setMultiValueQuery4(value);
+					} else if(":multivalue.trim()query4".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setMultiValueQuery4(value.trim());
 						}
-					} else if(":multivaluequery5".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							pr.setMultiValueQuery5(value);
+					} else if(":multivalue.trim()query5".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							pr.setMultiValueQuery5(value.trim());
 						}
 					}
 				}else {
@@ -340,11 +343,17 @@ public class ProductQueryMonitor extends ComponentMonitor
 					}
 					value += cToken;
 					cToken = args.get(i);
+					if(cToken!=null){
+						cToken = cToken.trim();
+					}
 					continue;
 				}
 				value = "";
 				key = cToken;
 				cToken = args.get(i);
+				if(cToken!=null){
+					cToken = cToken.trim();
+				}
 			}
 		}
 		if(pr.getPageSize() <= 0){
@@ -392,71 +401,74 @@ public class ProductQueryMonitor extends ComponentMonitor
 					}
 					value += cToken;
 					cToken = key;
+					if(cToken!=null){
+						cToken = cToken.trim();
+					}
 				}
 				if(keys.contains(cToken)){
 					if(":allowexternalquery".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
 								tSpec.setAllowExternalQuery(false);
 							} else {
 								tSpec.setAllowExternalQuery(true);
 							}
 						}
 					} else if(":useradiusquery".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
 								tSpec.setUseRadiusQuery(false);
 							} else {
 								tSpec.setUseRadiusQuery(true);
 							}
 						}
 					} else if(":radius".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							tSpec.setRadius(Integer.parseInt(value));
+						if(!"".equals(value.trim())){
+							tSpec.setRadius(Integer.parseInt(value.trim()));
 						}
 					} else if(":minepuburl".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
 								tSpec.setMinePubUrl(false);
 							} else {
 								tSpec.setMinePubUrl(true);
 							}
 						}
 					} else if(":lowprice".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							tSpec.setLowPrice(Integer.parseInt(value));
+						if(!"".equals(value.trim())){
+							tSpec.setLowPrice(Integer.parseInt(value.trim()));
 						}
 					} else if(":highprice".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							tSpec.setHighPrice(Integer.parseInt(value));
+						if(!"".equals(value.trim())){
+							tSpec.setHighPrice(Integer.parseInt(value.trim()));
 						}
 					} else if(":applygeofilter".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
 								tSpec.setApplyGeoFilter(false);
 							}else{
 								tSpec.setApplyGeoFilter(true);
 							}
 						}
 					} else if(":applyurlfilter".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
 								tSpec.setApplyUrlFilter(false);
 							} else {
 								tSpec.setApplyUrlFilter(true);
 							}
 						}
 					} else if(":applykeywordfilter".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("false".equalsIgnoreCase(value)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
 								tSpec.setApplyKeywordFilter(false);
 							} else {
 								tSpec.setApplyKeywordFilter(true);
 							}
 						}
 					} else if(":includedproviders".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> incProvs = st.getTokens();
 							for(String prov: incProvs){
 								ProviderInfo provInfo = new ProviderInfo(prov.trim());
@@ -464,8 +476,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":excludedproviders".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> exProvs = st.getTokens();
 							for(String prov: exProvs){
 								ProviderInfo provInfo = new ProviderInfo(prov.trim());
@@ -473,8 +485,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":excludedcategories".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> exCats = st.getTokens();
 							for(String cat: exCats){
 								CategoryInfo catInfo = new CategoryInfo(cat.trim(), cat.trim());
@@ -482,8 +494,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":includedcategories".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> incCats = st.getTokens();
 							for(String cat: incCats){
 								CategoryInfo catInfo = new CategoryInfo(cat.trim(), cat.trim());
@@ -491,8 +503,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":includedbrands".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> incbrands = st.getTokens();
 							for(String brand: incbrands){
 								BrandInfo brandInfo = new BrandInfo(brand.trim(), brand.trim());
@@ -500,8 +512,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":excludedbrands".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> exbrands = st.getTokens();
 							for(String brand: exbrands){
 								BrandInfo brandInfo = new BrandInfo(brand.trim(), brand.trim());
@@ -509,8 +521,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":excludedmerchants".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> exMerchs = st.getTokens();
 							for(String merch: exMerchs){
 								MerchantInfo merchInfo = new MerchantInfo(merch.trim());
@@ -518,8 +530,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":includedmerchants".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> incMerchs = st.getTokens();
 							for(String merch: incMerchs){
 								MerchantInfo merchInfo = new MerchantInfo(merch.trim());
@@ -527,8 +539,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":includedproducts".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> incProds = st.getTokens();
 							for(String prod: incProds){
 								ProductInfo prodInfo = new ProductInfo(prod.trim());
@@ -536,8 +548,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":excludedproducts".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> exProds = st.getTokens();
 							for(String prod: exProds){
 								ProductInfo prodInfo = new ProductInfo(prod.trim());
@@ -545,8 +557,8 @@ public class ProductQueryMonitor extends ComponentMonitor
 							}
 						}
 					} else if(":includedkeywords".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value,',');
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
 							ArrayList<String> incKeywords = st.getTokens();
 							for(String keyword: incKeywords){
 								KeywordInfo keywordInfo = new KeywordInfo(keyword.trim());
@@ -560,11 +572,17 @@ public class ProductQueryMonitor extends ComponentMonitor
 					}
 					value += cToken;
 					cToken = args.get(i);
+					if(cToken != null){
+						cToken = cToken.trim();
+					}
 					continue;
 				}
 				value = "";
 				key = cToken;
 				cToken = args.get(i);
+				if(cToken != null){
+					cToken = cToken.trim();
+				}
 			}
 		}
 
