@@ -17,23 +17,23 @@
              String success = null;
              String datetime = null;
              String requestValue = request.getQueryString();
-             if ((requestValue != null) && requestValue.equals("qac")) {
-                     //Clear the product db when refreshing for qac
-                     ProductDB.getInstance().clearProductDB();
-             }
-             ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
-             ContentProvider cp = f.getContentProvider();
-             cp.refresh();
-             ContentProviderStatus status = cp.getStatus();
-             //Invoke the content refresh on Listings Data client
-             ListingProviderFactory.refreshData(JOZTaxonomy.getInstance().getTaxonomy(),
-                     MerchantDB.getInstance().getMerchantData());
+             if ((requestValue == null) || requestValue.equals("qac")) {
+                 //Clear the product db when refreshing for qac
+                 ProductDB.getInstance().clearProductDB();
+                 ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
+                 ContentProvider cp = f.getContentProvider();
+                 cp.refresh();
+                 ContentProviderStatus status = cp.getStatus();
+                 //Invoke the content refresh on Listings Data client
+                 ListingProviderFactory.refreshData(JOZTaxonomy.getInstance().getTaxonomy(),
+                         MerchantDB.getInstance().getMerchantData());
 
-             success = (status.lastRunStatus == true ? "successful" : "failed");
-             datetime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")).format(status.lastRefreshTime);
+                 success = (status.lastRunStatus == true ? "successful" : "failed");
+                 datetime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")).format(status.lastRefreshTime);
+             }
          %>
         <%
-           if (requestValue == null) {
+                if (requestValue == null) {
         %>
         <jsp:include page="header.jsp"/>
         <div id="homelink" style="text-align: right">
@@ -45,7 +45,8 @@
                 <p>Refresh time: &nbsp;&nbsp; <%=datetime%> </p>
         </div>
         <br>
-        <% } else if (requestValue.equals("qac")) {
+        <% }
+                 else if (requestValue.equals("qac")) {
                         out.print(success);
                  }
         %>
