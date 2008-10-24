@@ -22,22 +22,8 @@ public class JozMonitorException extends JoZException
   }
   // implementation details
 
-  private static ResourceBundle rb;
-  private static String propertiesFile = "com.tumri.joz.monitor.jozmonitor";
-  private static Logger log = Logger.getLogger(JozMonitorException.class);
-
   protected static String getExceptionString(String key)
   {
-    try {
-        if (rb == null)
-            rb = ResourceBundle.getBundle(propertiesFile);
-        if (rb != null)
-            return rb.getString(key);
-    }
-    catch (Exception ex)
-    {
-      log.error("Could not find string: "+ex+"  in the jozmonitor properties file");
-    }
     return key;
   }
 }
