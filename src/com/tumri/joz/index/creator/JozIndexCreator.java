@@ -159,10 +159,12 @@ public class JozIndexCreator {
      * @return
      */
     private static File findOldMupFile(File currentFile,List<File> oldFiles) {
-        String fileNamePrefix = getProviderFromFileName(currentFile.getName());
+        String currProvName = getProviderFromFileName(currentFile.getName());
         File result = null;
         for(File f: oldFiles) {
-            if (f.getName().indexOf("_" + fileNamePrefix + "_") > -1) {
+            String oldProvName = getProviderFromFileName(f.getName());
+
+            if (oldProvName.equals(currProvName)) {
                 result = f;
                 break;
             }
