@@ -30,11 +30,22 @@
         if (indexName!=null && indexKey!=null) {
             //Do a lookup
             IProduct.Attribute kAttr = IndexUtils.getAttribute(indexName);
-            ProductAttributeIndex theIndex=ProductDB.getInstance().getIndex(IndexUtils.getAttribute(indexName));
-            Integer keyId = DictionaryManager.getInstance().getId (kAttr, indexKey);
-            if (theIndex!= null && keyId!=null) {
-                results = theIndex.get(keyId);
-            }
+			ProductAttributeIndex theIndex=ProductDB.getInstance().getIndex(IndexUtils.getAttribute(indexName));
+			if("price".equalsIgnoreCase(indexName) || "cpo".equalsIgnoreCase(indexName) || "cpc".equalsIgnoreCase(indexName)){
+				Double price;
+				try{
+					price = Double.parseDouble(indexKey);
+					results = theIndex.get(price);
+
+				} catch(NumberFormatException e){
+					price = null;
+				}
+			} else {
+				Integer keyId = DictionaryManager.getInstance().getId (kAttr, indexKey);
+				if (theIndex!= null && keyId!=null && keyId>=0) {
+					results = theIndex.get(keyId);
+				}
+			}
         }
     %>
   	<jsp:include page="header.jsp"/>
@@ -54,12 +65,13 @@
 	</div>
 	<br>
         <form id="ProdSelForm" action="/joz/jsp/productDb.jsp" method="post">
-            <table>
-                <tr>
+            <table cellpadding="5">
+                <tr  align="center">
+		            <th>Select Index to Query:</th>
+		            <th>Enter value of the index:</th>
+	             </tr>
+	            <tr  align="center">
                     <td>
-                        <div>
-                            <strong>Select Index to Query</strong>
-                        </div>
                         <select id="IndexName" name="IndexName">
                             <%
                                 while(indices.hasMoreElements()) {
@@ -79,15 +91,13 @@
 
                     </td>
                     <td>
-                        <div>
-                            <strong>Enter value of the index</strong>
-                        </div>
                         <input type="text"  name="IndexKey"  id="indexKey" value="<%=indexKey!=null?indexKey:""%>"/>
                     </td>
                 </tr>
             </table>
             <input type="button" value="Submit Query" onClick="javascript:submitQueryForm()"/>
         </form>
+	<br>
         <!-- Query Results -->
         <%
             if (indexName!=null && indexKey!=null && results==null) {
