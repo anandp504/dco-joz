@@ -105,7 +105,12 @@ public class JozQARequestHandler implements RequestHandler {
 		ArrayList<Campaign> camps = CampaignDB.getInstance().getCampaigns();
 		for(Campaign camp:camps){ //for each campaign with a corrosponding clientName
 			String clientName = camp.getClientName();
+
 			if(zeroInitAdv){
+				if(clientName == null){
+					log.error("No Client Name: Campaign Name = " + camp.getName() + "; Id = " + camp.getId());
+					continue;
+				}
 				if(!advertisers.contains(clientName)){
 					advertisers.add(clientName);
 				}
