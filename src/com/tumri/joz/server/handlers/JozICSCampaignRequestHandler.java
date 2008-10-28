@@ -134,11 +134,13 @@ public class JozICSCampaignRequestHandler implements RequestHandler {
     		for(Campaign campaign:campaigns){
     			int clientId = campaign.getClientId();
     			String clientName = campaign.getClientName();
-    			JozAdvertiser advertiser = new JozAdvertiser();
-    			advertiser.setId(""+clientId);
-    	    	advertiser.setName(clientName);
-			    if(!advertisers.contains(advertiser)){
-		            advertisers.add(advertiser);
+			    if(clientName != null && !"".equals(clientName.trim())){
+					JozAdvertiser advertiser = new JozAdvertiser();
+					advertiser.setId(""+clientId);
+					advertiser.setName(clientName);
+					if(!advertisers.contains(advertiser)){
+						advertisers.add(advertiser);
+					}
 			    }
 		    }
     	}
