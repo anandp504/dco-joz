@@ -755,6 +755,7 @@ public class ProductIndex {
         writer.close();
         return newProviderIndexDir;
     }
+
     /**
      * Helper method to find the old MUP from the given list of files.
      * @param currentFile
@@ -765,7 +766,8 @@ public class ProductIndex {
         String fileNamePrefix = getProviderFromFileName(currentFile.getName());
         File result = null;
         for(File f: oldFiles) {
-            if (f.getName().indexOf("_" + fileNamePrefix + "_") > -1) {
+            String oldProvName = getProviderFromFileName(f.getName());
+            if (oldProvName.equals(fileNamePrefix)) {
                 result = f;
                 break;
             }
@@ -774,15 +776,28 @@ public class ProductIndex {
     }
 
     /**
-     * Helper method to get the provider from file name
-     * @return
+     * Gets the provider name from a given mup file by tokenizing by _ char
+     * It is assumed that the provider name will be between the first _ char and the 5th _ char from the end
+     * Returns an empty string if the file name was not of correct syntax
+     * @param fileName - mup file name
+     * @return - provider name
      */
-    private String getProviderFromFileName(String fileName) {
-        String fileNamePrefix = "";
-        StringTokenizer st = new StringTokenizer(fileName, "_");
-        st.nextToken(); // Ignore first
-        fileNamePrefix =st.nextToken() ;
-        return fileNamePrefix;
+    private static String getProviderFromFileName(String fileName) {
+        String providerName = "";
+        if (fileName!=null) {
+            String[] parts = fileName.split("_");
+            if (parts.length<7) {
+                return "";
+            }
+            for (int i=1; i<parts.length-5; i++) {
+                String delim = "";
+                if (i>1) {
+                    delim = "_";
+                }
+                providerName = providerName + delim + parts[i];
+            }
+        }
+        return providerName;
     }
 
     /**
