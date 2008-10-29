@@ -1,42 +1,36 @@
 package com.tumri.joz.keywordServer;
 
+import com.tumri.content.ContentProvider;
+import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.InvalidConfigException;
+import com.tumri.content.data.Category;
+import com.tumri.content.data.Content;
+import com.tumri.content.impl.file.FileContentConfigValues;
+import com.tumri.joz.index.creator.JozIndexCreator;
+import com.tumri.joz.products.*;
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.FSUtils;
 import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexModifier;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.memory.AnalyzerUtil;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocCollector;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.memory.AnalyzerUtil;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexModifier;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.*;
-import java.util.StringTokenizer;
 import java.io.*;
-
-import com.tumri.joz.utils.AppProperties;
-import com.tumri.joz.utils.FSUtils;
-import com.tumri.joz.products.*;
-import com.tumri.joz.index.creator.JozIndexCreator;
-import com.tumri.joz.index.creator.ProviderIndexBuilder;
-import com.tumri.content.impl.file.FileContentConfigValues;
-import com.tumri.content.data.Category;
-import com.tumri.content.data.Product;
-import com.tumri.content.data.ContentProviderStatus;
-import com.tumri.content.data.Content;
-import com.tumri.content.ContentProviderFactory;
-import com.tumri.content.InvalidConfigException;
-import com.tumri.content.ContentProvider;
-import com.tumri.utils.strings.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by IntelliJ IDEA.
@@ -410,8 +404,6 @@ public class ProductIndex {
                     }
                 }
                 log.info("Total number documents added to lucene = " + i);
-            } catch(IOException e) {
-               log.error("IOException caught during the index creation", e);
             } finally {
                 if (br1 != null) {
                     br1.close();
@@ -647,10 +639,10 @@ public class ProductIndex {
             }
             log.info("Completed in : " + ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes");
         }
-        catch (IOException e) {
+        catch (Throwable e) {
             log.error("something screwed up: ", e);
             // If we fail we must exit with a non-zero error code.
-            System.exit(1);
+            System.exit(-1);
         }
 
     }
@@ -838,6 +830,7 @@ public class ProductIndex {
             log.info("Successfully Merged lucene index... Time Taken : " + ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes");
         } catch (IOException e) {
             log.error("Exception caught when merging the indexes",e );
+	        System.exit(-1);
         }
     }
 
