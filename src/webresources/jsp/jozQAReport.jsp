@@ -25,9 +25,7 @@
 	JozQAResponse adResp = (JozQAResponse)request.getAttribute("jozQAResp");
 	JozQARequest adReq=(JozQARequest)request.getAttribute("jozQAReq");
 %>
-<br>
-<b>JOZ QA REQUEST:</b>
-<br>
+<h2>JOZ QA REQUEST:</h2>
 <br>
 	<div>
 		<form id="evalForm" action="/joz/console?mode=qareport" method="post">
@@ -45,30 +43,81 @@
 
 
 <br>
-<br>
-<b>JOZ QA RESPONSE:</b>
-<br>
+<h2>JOZ QA RESPONSE:</h2>
 
-<h4>Overall-Response:</h4>
+<h3>Response-Overview:</h3>
 <%
 	if(adResp!= null){
 		ArrayList<QAAdvertiserResponse> advInfos= adResp.getAdvertiserInfos();
 		%>
-<ul>
-	<li>All Recipes for All Advertisers Passed = <%=adResp.isSuccess()%></li>
-	<li>Total Number of Failed Recipes = <%=adResp.getTotalNumFailedRecipes()%></li>
-	<li>Total Number of Successful Recipes = <%=adResp.getTotalNumSuccessRecieps()%></li>
-	<li>Total Number of Warned Recipes = <%=adResp.getTotalNumWarnRecipes()%></li>
-	<li>details =
-		<ul>
-		<%
-		for(String desc: adResp.getDetails()){
-			%><li><%=desc%></li><%
-		}
-		%>
-		</ul>
-	</li>
-</ul>
+
+		<table cellpadding="3" border="1">
+			<tr align="center">
+				<th>Overall Success</th>
+				<th>Failed Recipes</th>
+				<th>Warned Recipes</th>
+				<th>Successful Recipes</th>
+			</tr>
+			<tr align="center">
+				<%
+					Boolean bool = adResp.isSuccess();
+					if(bool){
+						%><td align="center" bgcolor="#22DD44"><b>True</b></td><%
+					} else {
+						%><td align="center" bgcolor="#FF6666"><b>False</b></td><%
+					}
+				%>
+				<td align="center"><%=adResp.getTotalNumFailedRecipes()%></td>
+				<td align="center"><%=adResp.getTotalNumSuccessRecieps()%></td>
+				<td align="center"><%=adResp.getTotalNumWarnRecipes()%></td>
+			</tr>
+		</table>
+
+	<br>
+
+		<table id="overallTable" border="1" cellpadding="3">
+			<tr align="center">
+				<th>Advertiser Name</th>
+				<th>Status</th>
+				<th>Failed Recipes</th>
+				<th>Warned Recipes</th>
+			</tr>
+			<%
+			for(QAAdvertiserResponse resp: advInfos){
+				int numFRecipes = resp.getNumFailedRecipes();
+				int numWRecipes = resp.getNumWarnedRecipes();
+			%>
+				<tr align="center">
+					<td align="center"><A href="#<%=resp.getAdvertiserName()%>"><%=resp.getAdvertiserName()%></A></td>
+					<%
+					if(numFRecipes > 0){
+						%><td align="center" bgcolor="#FF6666">Failed</td><%
+					} else if(numWRecipes > 0){
+						%><td align="center" bgcolor="#EECC44">Warned</td><%
+					} else {
+						%><td align="center" bgcolor="#22DD44">Succeeded</td><%
+					}
+					%>
+					<td><%=numFRecipes%></td>
+					<td><%=numWRecipes%></td>
+				</tr>
+			<%}%>
+		</table>
+
+	<br>
+
+		<table cellpadding="3" border="1">
+			<tr>
+				<th>Details</th>
+			</tr>
+			<%
+			for(String desc: adResp.getDetails()){
+				%><tr><td><%=desc%></td></tr><%
+			}
+			%>
+		</table>
+
+<h3>Overall-Response:</h3>
 <table border="1" cellpadding="10">
 <tr align="center">
     <th>Advertiser Name</th>
@@ -83,7 +132,7 @@
 		int numTotalRecipes = numFailedRecipes + numWarnedRecipes;
 %>
 <tr>
-    <td valign="top" align="center" rowspan="<%=numTotalRecipes + 2%>"><%=resp.getAdvertiserName()%></td>
+    <td valign="top" align="center" rowspan="<%=numTotalRecipes + 2%>" id="<%=resp.getAdvertiserName()%>"><%=resp.getAdvertiserName()%><br><A href="#overallTable">(Top)</A></td>
 
     <td valign="top" rowspan="<%=numTotalRecipes + 2%>">
 	    <h4>Overall Advertiser Info:</h4>
