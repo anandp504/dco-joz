@@ -18,8 +18,13 @@
 package com.tumri.joz.server;
 
 
-import com.tumri.utils.tcp.server.TcpServer;
+import com.tumri.utils.tcp.server.TCPServerException;
+import com.tumri.utils.nio.server.NioServer;
 import com.tumri.joz.jozMain.JozData;
+
+import java.io.IOException;
+
+import org.apache.log4j.Logger;
 
 
 /**
@@ -27,24 +32,43 @@ import com.tumri.joz.jozMain.JozData;
  * Date: Jun 9, 2008
  * Time: 2:01:37 PM
  */
-public class JozServer extends TcpServer implements JozBaseServer {
+public class JozNioServer implements JozBaseServer {
+    private NioServer server = null;
+    private static Logger log = Logger.getLogger(NioServer.class);
 
-    public JozServer(int pSize, int port, int timeout,String queryHandlers) {
-        super(pSize, port, timeout,queryHandlers);
+    public JozNioServer(int p, int poolsize, String qh) throws TCPServerException {
+        try {
+            server = new NioServer(null, p, poolsize, qh);
+        } catch (IOException e) {
+            log.fatal("Could not initialize the NIOServer", e);
+            throw new TCPServerException(e);
+        }
     }
 
+    /**
+     * Start the server
+     */
     public void start() {
-        runServer();
+        if (server!=null) server.startServer();
     }
 
+    /**
+     * Stop the server
+     */
     public void stop() {
-        shutdown();
+        if (server!=null) server.stopServer();
     }
 
     public static void main(String[] args){
         //Intialize Joz
         JozData.init ();
         String queryHandlers = new String("com.tumri.joz.server.handlers.JozAdRequestHandler,com.tumri.joz.server.handlers.JozProviderRequestHandler,com.tumri.joz.server.handlers.JozMerchantRequestHandler,com.tumri.joz.server.handlers.JozTaxonomyRequestHandler,com.tumri.joz.server.handlers.JozCountRequestHandler,com.tumri.joz.server.handlers.JozCampaignRequestHandler,com.tumri.joz.server.handlers.JozTSpecRequestHandler,com.tumri.joz.server.handlers.JozHealthCheckRequestHandler,com.tumri.joz.server.handlers.JozICSCampaignRequestHandler");
-        (new JozServer(10,2544,5000,queryHandlers)).start();
+        try {
+            JozNioServer server = new JozNioServer(2544,10, queryHandlers);
+            server.start();
+        } catch (Exception e) {
+           System.out.println("Server excption on start");
+            e.printStackTrace();
+        }
     }
 }

@@ -17,10 +17,8 @@
  */
 package com.tumri.joz.client.helper;
 
-import com.tumri.cma.domain.Campaign;
 import com.tumri.joz.server.domain.JozCampaignRequest;
 import com.tumri.joz.server.domain.JozCampaignResponse;
-import com.tumri.joz.server.domain.JozResponse;
 import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
 import org.apache.log4j.Logger;
 

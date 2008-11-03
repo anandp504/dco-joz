@@ -30,6 +30,7 @@ public class AppProperties {
   private static final String CONFIG_JOZ_RELEASE_VERSION_PROPERTY_NAME = "com.tumri.joz.release.version.property";
   private static final String CONFIG_JOZ_CODE_LABEL_PROPERTY_NAME= "com.tumri.joz.code.label.property";
   private static final String CONFIG_JOZ_MULTI_VALUE_DELIMITER = "com.tumri.joz.multivalue.delimiter";
+  private static final String CONFIG_JOZ_SERVER_NIO_MODE = "com.tumri.joz.server.nio.mode";
 
   private static AppProperties g_properties;
   private Properties m_jozVersionProperties;
@@ -107,6 +108,10 @@ public class AppProperties {
           retChar = arr[0];
       }
       return retChar;
+  }
+
+  public boolean isNioEnabled(){
+      return "true".equals(getProperty(CONFIG_JOZ_SERVER_NIO_MODE));
   }
     
   /**

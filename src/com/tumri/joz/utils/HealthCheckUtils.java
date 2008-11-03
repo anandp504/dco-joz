@@ -21,7 +21,11 @@ import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.index.ProductAttributeIndex;
+import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.jozMain.ListingProviderFactory;
+import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.lls.client.LlsSocketConnectionPool;
+import com.tumri.lls.client.main.ListingProvider;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
@@ -34,7 +38,6 @@ import java.util.HashMap;
 public class HealthCheckUtils {
 
     private static Logger log = Logger.getLogger(HealthCheckUtils.class);
-
     /**
      * Does the Health check for Joz
      * 1) CampaignDB not empty
@@ -45,18 +48,18 @@ public class HealthCheckUtils {
      */
     public static boolean doHealthCheck() {
         boolean bStatus;
-         try {
-             // Atleast one campaign must be loaded
-              if(CampaignDB.getInstance().isEmpty()){
-                  bStatus = false;
-                  return bStatus;
-              }
+        try {
+            // Atleast one campaign must be loaded
+            if(CampaignDB.getInstance().isEmpty()){
+                bStatus = false;
+                return bStatus;
+            }
 
-              // atleast one product must be loaded
-              if (ProductDB.getInstance().isEmpty()){
-                  bStatus = false;
-                  return bStatus;
-              }
+            // atleast one product must be loaded
+            if (ProductDB.getInstance().isEmpty()){
+                bStatus = false;
+                return bStatus;
+            }
 
              // The joz Provider index must not be empty
              ProductAttributeIndex provIndex=ProductDB.getInstance().getIndex(IProduct.Attribute.kProvider);
@@ -64,8 +67,16 @@ public class HealthCheckUtils {
                  bStatus = false;
                  return bStatus;
              }
-             //TODO: Check LLS Health
-             
+
+            ListingProvider  _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+                        MerchantDB.getInstance().getMerchantData());
+
+            //Check for LLS health
+            if (!_prov.doHealthCheck()) {
+                bStatus = false;
+                return bStatus;
+            }
+
              //All good
              bStatus = true;
          } catch (Exception ex) {

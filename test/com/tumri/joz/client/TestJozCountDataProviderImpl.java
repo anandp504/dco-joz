@@ -29,7 +29,7 @@ import com.tumri.joz.utils.AppProperties;
 import com.tumri.lls.server.domain.listing.ListingsHelper;
 import com.tumri.lls.server.domain.listingformat.ListingFormatHelper;
 import com.tumri.lls.server.main.LLSServerException;
-import com.tumri.lls.server.main.LlsServer;
+import com.tumri.lls.server.main.LLSTcpServer;
 import com.tumri.lls.server.utils.LlsAppProperties;
 import com.tumri.utils.Polling;
 import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
@@ -57,14 +57,17 @@ public class TestJozCountDataProviderImpl extends TestCase{
     private static Thread jozServerThread = null;
     private static JozServer jozServer = null;
     private static Thread llsServerThread = null;
-    private static LlsServer llsServer = null;
+    private static LLSTcpServer llsServer = null;
     @BeforeClass
     public static void init() {
         
         try {
         	//      	
         	System.out.println("Starting Lls");
-        	
+            int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
+            int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
+            int timeout= Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.timeout"));
+
         	LlsAppProperties.getInstance("lls.properties");
             try {
                 ListingsHelper.init();
@@ -73,7 +76,7 @@ public class TestJozCountDataProviderImpl extends TestCase{
                 System.out.println("Error initializing the LLS server");
                 System.exit(1);
             }
-            llsServer = new LlsServer();
+            llsServer = new LLSTcpServer(poolSize, port, timeout);
             llsServerThread = new Thread("LLSServerThread") {
                 public void run() {
                 	llsServer.runServer();
@@ -85,9 +88,6 @@ public class TestJozCountDataProviderImpl extends TestCase{
         	         
         	JozData.init();
 
-            int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
-            int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
-            int timeout= Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.timeout"));
             String queryHandlers = AppProperties.getInstance().getProperty("tcpServer.queryHandlers");
 
             jozServer = new JozServer(poolSize,port,timeout,queryHandlers);

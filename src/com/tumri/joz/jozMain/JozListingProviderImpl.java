@@ -1,6 +1,7 @@
 package com.tumri.joz.jozMain;
 
 import com.tumri.lls.client.main.ListingProvider;
+import com.tumri.lls.client.main.LLCClientException;
 import com.tumri.lls.client.response.ListingResponse;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.content.data.Category;
@@ -93,6 +94,10 @@ public class JozListingProviderImpl implements ListingProvider {
      */
     public boolean doContentRefresh(Taxonomy t, MerchantDataProvider m) {
         //do nothing
+        return true;
+    }
+
+    public boolean doHealthCheck() throws LLCClientException {
         return true;
     }
 }

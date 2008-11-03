@@ -2,29 +2,30 @@
 
 package com.tumri.joz.jozMain;
 
-import java.io.File;
-import java.io.IOException;
+import com.tumri.joz.campaign.CMAContentPoller;
+import com.tumri.joz.server.JozBaseServer;
+import com.tumri.joz.server.JozNioServer;
+import com.tumri.joz.server.JozServer;
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.Polling;
+import com.tumri.utils.stats.PerformanceStats;
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
-
-import com.tumri.joz.campaign.CMAContentPoller;
-import com.tumri.joz.server.JozServer;
-import com.tumri.joz.utils.AppProperties;
-import com.tumri.utils.Polling;
-import com.tumri.utils.stats.PerformanceStats;
+import java.io.File;
+import java.io.IOException;
 
 public class InitServlet extends HttpServlet {
 
     private static Logger log = null;
     private static final String g_Log4JPropertiesFile = "jozLog4j.xml";
     private Thread jozServerThread = null;
-    private JozServer jozServer = null;
+    private JozBaseServer jozServer = null;
+
 
     static {
         String fileName = getLog4JConfigFilePath();
@@ -54,13 +55,19 @@ public class InitServlet extends HttpServlet {
             log.info("queryHandlers = "+queryHandlers);
             log.info("timeout = "+timeout);
 
-            jozServer = new JozServer(poolSize,port,timeout,queryHandlers);
+            if (AppProperties.getInstance().isNioEnabled()) {
+                log.info("Nio mode enabled");
+                jozServer = new JozNioServer(port,poolSize,queryHandlers);
+            } else {
+                jozServer = new JozServer(poolSize,port,timeout,queryHandlers);
+            }
             jozServerThread = new Thread("JoZServerThread") {
                 public void run() {
-                	jozServer.runServer();
+                    jozServer.start();
                 }
             };
-            jozServerThread.start();          
+
+            jozServerThread.start();
             log.info("Started joz server .....");
         } catch (Exception e) {
             log.error(e.toString());
@@ -81,22 +88,19 @@ public class InitServlet extends HttpServlet {
         if  (jozServerThread!=null) {
         	jozServerThread.interrupt();
         }
-        jozServer.shutdown();
+        jozServer.stop();
         PerformanceStats.getInstance().destroy();
     }
     
     private static String getLog4JConfigFilePath() {
-    	String log4JFilePath = "";
+    	String log4JFilePath;
     	String catalinaBase = System.getProperty("catalina.base");
     	if (catalinaBase != null) {
-    		String confFile = catalinaBase + File.separator + "conf" + File.separator + g_Log4JPropertiesFile;
-    		if (confFile != null){
-    			log4JFilePath = confFile;
-    		} else {
-    			System.out.println("Could not locate the resource file "+g_Log4JPropertiesFile + " in tomcat as catalina.base is not defined. Will try ../conf");
-    			log4JFilePath = "../conf/" +g_Log4JPropertiesFile ;
-    		}
-    	}
+    		log4JFilePath = catalinaBase + File.separator + "conf" + File.separator + g_Log4JPropertiesFile;
+        } else {
+            System.out.println("Could not locate the resource file "+g_Log4JPropertiesFile + " in tomcat as catalina.base is not defined. Will try ../conf");
+            log4JFilePath = "../conf/" +g_Log4JPropertiesFile ;
+        }
     	return log4JFilePath;
     }
  

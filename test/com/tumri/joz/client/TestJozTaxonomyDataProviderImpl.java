@@ -20,8 +20,8 @@ package com.tumri.joz.client;
 import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.client.helper.JozTaxonomyDataProvider;
 import com.tumri.joz.client.impl.JozDataProviderImpl;
-import com.tumri.joz.jozMain.JozData;
 import com.tumri.joz.jozMain.ListingProviderFactory;
+import com.tumri.joz.jozMain.JozData;
 import com.tumri.joz.server.JozServer;
 import com.tumri.joz.server.domain.JozCategory;
 import com.tumri.joz.server.domain.JozTaxonomy;
@@ -29,20 +29,18 @@ import com.tumri.joz.server.domain.JozTaxonomyRequest;
 import com.tumri.joz.server.domain.JozTaxonomyResponse;
 import com.tumri.joz.utils.AppProperties;
 
+import com.tumri.lls.server.main.LLSServerException;
+import com.tumri.lls.server.main.LLSTcpServer;
+import com.tumri.lls.server.utils.LlsAppProperties;
 import com.tumri.lls.server.domain.listing.ListingsHelper;
 import com.tumri.lls.server.domain.listingformat.ListingFormatHelper;
-import com.tumri.lls.server.main.LLSServerException;
-import com.tumri.lls.server.main.LlsServer;
-import com.tumri.lls.server.utils.LlsAppProperties;
 
 import com.tumri.utils.Polling;
 import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +65,7 @@ public class TestJozTaxonomyDataProviderImpl extends TestCase {
     private static JozDataProvider provider= null;
     
     private static Thread llsServerThread = null;
-    private static LlsServer llsServer = null;
+    private static LLSTcpServer llsServer = null;
 
     
     //@BeforeClass
@@ -77,7 +75,10 @@ public class TestJozTaxonomyDataProviderImpl extends TestCase {
         	
         	//      	
         	System.out.println("Starting Lls");
-        	
+            int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
+            int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
+            int timeout= Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.timeout"));
+
         	LlsAppProperties.getInstance("lls.properties");
             try {
                 ListingsHelper.init();
@@ -86,7 +87,7 @@ public class TestJozTaxonomyDataProviderImpl extends TestCase {
                 System.out.println("Error initializing the LLS server");
                 System.exit(1);
             }
-            llsServer = new LlsServer();
+            llsServer = new LLSTcpServer(poolSize,port,timeout);
             llsServerThread = new Thread("LLSServerThread") {
                 public void run() {
                 	llsServer.runServer();
@@ -95,12 +96,9 @@ public class TestJozTaxonomyDataProviderImpl extends TestCase {
             llsServerThread.start();
 
         	System.out.println("Starting Joz");
-        	         
+
         	JozData.init();
 
-            int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
-            int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
-            int timeout= Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.timeout"));
             String queryHandlers = AppProperties.getInstance().getProperty("tcpServer.queryHandlers");
 
             jozServer = new JozServer(poolSize,port,timeout,queryHandlers);
@@ -110,7 +108,7 @@ public class TestJozTaxonomyDataProviderImpl extends TestCase {
                 }
             };
             jozServerThread.start();
-            provider = new JozDataProviderImpl(host, port,poolSize,numRetries);
+            provider = new JozDataProviderImpl("localhost", 2544,10,3);
         	           
         } catch (Exception e) {
             System.out.println("exception in initialisation of JozServer");
@@ -127,7 +125,7 @@ public class TestJozTaxonomyDataProviderImpl extends TestCase {
     	try {
     		
 			JozTaxonomyRequest aquery = new JozTaxonomyRequest();
-			aquery.setValue(JozTaxonomyRequest.KEY_CATEGORY, "GLASSVIEW.TUMRI_14111");
+			//aquery.setValue(JozTaxonomyRequest.KEY_CATEGORY, "GLASSVIEW.TUMRI_14111");
 
 			JozTaxonomy tax = provider.getTaxonomy(aquery).getTaxonomy();
 			Assert.assertNotNull(tax);

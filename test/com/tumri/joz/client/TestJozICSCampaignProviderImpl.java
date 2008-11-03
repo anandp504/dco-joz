@@ -1,38 +1,23 @@
 package com.tumri.joz.client;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 
 import junit.framework.TestCase;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-import com.tumri.cma.domain.Campaign;
 import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.client.impl.JozDataProviderImpl;
 import com.tumri.joz.jozMain.JozData;
 import com.tumri.joz.jozMain.ListingProviderFactory;
-import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.server.JozServer;
-import com.tumri.joz.server.domain.JozAdPod;
-import com.tumri.joz.server.domain.JozAdvertiser;
-import com.tumri.joz.server.domain.JozCampaign;
-import com.tumri.joz.server.domain.JozLocation;
-import com.tumri.joz.server.domain.JozProvider;
-import com.tumri.joz.server.domain.JozRecipe;
-import com.tumri.joz.server.domain.JozResponse;
 import com.tumri.joz.utils.AppProperties;
-import com.tumri.joz.utils.FSUtils;
 import com.tumri.lls.server.domain.listing.ListingsHelper;
 import com.tumri.lls.server.domain.listingformat.ListingFormatHelper;
 import com.tumri.lls.server.main.LLSServerException;
-import com.tumri.lls.server.main.LlsServer;
+import com.tumri.lls.server.main.LLSTcpServer;
 import com.tumri.lls.server.utils.LlsAppProperties;
 import com.tumri.utils.Polling;
 import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
@@ -45,14 +30,17 @@ public class TestJozICSCampaignProviderImpl extends TestCase {
     private static JozServer jozServer = null;
     private static  JozDataProvider provider = null;
     private static Thread llsServerThread = null;
-    private static LlsServer llsServer = null;
+    private static LLSTcpServer llsServer = null;
    // @BeforeClass
     public static void init() {
         
         try {
              System.out.println("Starting Lls");
              System.out.println(new Date().getTime());
-        	
+            int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
+            int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
+            int timeout= Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.timeout"));
+
         	LlsAppProperties.getInstance("lls.properties");
             try {
                 ListingsHelper.init();
@@ -61,7 +49,7 @@ public class TestJozICSCampaignProviderImpl extends TestCase {
                 System.out.println("Error initializing the LLS server");
                 System.exit(1);
             }
-            llsServer = new LlsServer();
+            llsServer = new LLSTcpServer(poolSize, port, timeout);
             llsServerThread = new Thread("LLSServerThread") {
                 public void run() {
                 	llsServer.runServer();
@@ -72,9 +60,6 @@ public class TestJozICSCampaignProviderImpl extends TestCase {
         	System.out.println("Starting Joz");
             JozData.init();
 
-            int poolSize = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
-            int port = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.port"));
-            int timeout= Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.timeout"));
             String queryHandlers = AppProperties.getInstance().getProperty("tcpServer.queryHandlers");
 
             jozServer = new JozServer(poolSize,port,timeout,queryHandlers);

@@ -16,7 +16,6 @@
  *
  */
 package com.tumri.joz.client.helper;
-import com.tumri.joz.server.domain.JozCampaignResponse;
 import com.tumri.joz.server.domain.JozICSCampaignRequest;
 import com.tumri.joz.server.domain.JozICSCampaignResponse;
 import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
