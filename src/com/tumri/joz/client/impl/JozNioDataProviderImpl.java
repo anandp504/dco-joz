@@ -18,6 +18,7 @@ import com.tumri.joz.server.domain.*;
 import com.tumri.joz.client.JozDataProvider;
 import com.tumri.joz.client.JoZClientException;
 import com.tumri.joz.client.helper.nio.JozNIODataProvider;
+import com.tumri.joz.client.helper.JozQADataProvider;
 import com.tumri.utils.nio.client.NioClient;
 import com.tumri.utils.tcp.server.TCPServerException;
 
@@ -41,16 +42,6 @@ public class JozNioDataProviderImpl implements JozDataProvider {
     private static String JOZ_SERVER_PORT="joz_server_port";
     private static String JOZ_POOLSIZE="joz_poolsize";
     private static String JOZ_NUM_RETRIES="joz_num_retries";
-
-    /**
-     * @param req: JozQARequest containing a list of advertisers
-     * @return JozQAResponse containing QA Report for failed recipes
-     * @throws com.tumri.joz.client.JoZClientException
-     *
-     */
-    public JozQAResponse getQAReport(JozQARequest req) throws JoZClientException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     private Properties m_properties;
     private static boolean bInit = false;
@@ -740,7 +731,34 @@ public class JozNioDataProviderImpl implements JozDataProvider {
         }
         return response;
 	}
-	/**
+
+   /**
+	 * @param req: JozQARequest containing a list of advertisers
+	 * @return JozQAResponse containing QA Report for failed recipes
+	 * @throws JoZClientException
+	 * Use:
+	 * Construct a JozQARequest with desired Advertisers. Create a new JozDataProviderImpl.
+	 * Process the request using JozDataProviderImpl.getQAReport(JozQARequest) which returns a JozQAResponse object containing the QA information.
+	 */
+	public JozQAResponse getQAReport(JozQARequest req) throws JoZClientException {
+		JozQAResponse resp = null;
+        try {
+            JozNIODataProvider dataProvider = new JozNIODataProvider();
+            JozQAResponseWrapper responseWrapper = (JozQAResponseWrapper)dataProvider.processRequest(req);
+	        String xml = responseWrapper.getResultMap().get(JozQAResponseWrapper.KEY_QAREPORTDETAIL);
+			XStream xstream = new XStream();
+	        if(xml != null){
+				resp = (JozQAResponse)xstream.fromXML(xml);
+	        }
+        } catch (Throwable e) {
+            log.error("Exception in fetching QA Report", e);
+            throw new JoZClientException("Exception in fetching QA Report",e);
+        }
+
+        return resp;
+	}
+
+    /**
      *  Gets all campaigns.
      * @return  String xml response  as string
      * @throws com.tumri.joz.client.JoZClientException
