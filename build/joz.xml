@@ -20,10 +20,10 @@
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-memory-2.1.0.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${caa.lib.dir}/caa.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${llc.lib.dir}/llc.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/cma.jar"/>
-	    <copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/jyaml-1.2.jar"/>
-	    <copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/ibatis-2.3.0.677.jar"/>
-	    <copy todir="${stage.dir}/IndexCreator" file="${utils.lib.dir}/utils.jar"/>
+		<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/${cma.lib.file}"/>
+	    <!--<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/jyaml-1.2.jar"/>-->
+	    <!--<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/ibatis-2.3.0.677.jar"/>-->
+	    <copy todir="${stage.dir}/IndexCreator" file="${utils.lib.dir}/${utils.lib.file}"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/log4j-1.2.6.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-codec-1.3.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"/>
@@ -32,7 +32,7 @@
 		<touch file="${stage.dir}/IndexCreator/createIndex.sh"/>
 
 		<echo file="${stage.dir}/IndexCreator/createIndex.sh">#!/bin/sh</echo>
-		<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx2g -classpath .:joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:caa.jar:jyaml-1.2.jar:ibatis-2.3.0.677.jar:cma.jar:utils.jar:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
+		<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx2g -classpath .:joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:caa.jar:${cma.lib.file}:${utils.lib.file}:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
 		<chmod file="${stage.dir}/IndexCreator/createIndex.sh" perm="a+x"></chmod>
 
         <touch file="${stage.dir}/IndexCreator/log4j.properties"/>
@@ -114,14 +114,14 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
         </jar>
 
         <copy todir="${stage.dir}/TestListingGenerator" file="${caa.lib.dir}/caa.jar"/>
-        <copy todir="${stage.dir}/TestListingGenerator" file="${utils.lib.dir}/utils.jar"/>
+        <copy todir="${stage.dir}/TestListingGenerator" file="${utils.lib.dir}/${utils.lib.file}"/>
         <copy todir="${stage.dir}/TestListingGenerator">
             <fileset dir="${test.dir}/data" includes="*.*"/>
         </copy>
         <touch file="${stage.dir}/TestListingGenerator/createListing.sh"/>
 
         <echo file="${stage.dir}/TestListingGenerator/createListing.sh">#!/bin/sh</echo>
-        <echo file="${stage.dir}/TestListingGenerator/createListing.sh">java -Xms512m -Xmx1g -classpath .:caa.jar:utils.jar:testListingGen.jar com.tumri.joz.util.ListingTestDataProvider $@</echo>
+        <echo file="${stage.dir}/TestListingGenerator/createListing.sh">java -Xms512m -Xmx1g -classpath .:caa.jar:${utils.lib.file}:testListingGen.jar com.tumri.joz.util.ListingTestDataProvider $@</echo>
         <chmod file="${stage.dir}/TestListingGenerator/createListing.sh" perm="a+x"></chmod>
 
         <tar destfile="${stage.dir}/TestListingGenerator/TestListingGenerator.tar">
@@ -146,10 +146,10 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
             <include name="*.jar"/>
         </fileset>
 	<fileset dir="${utils.lib.dir}">
-            <include name="*.jar"/>
+            <include name="${utils.lib.file}"/>
 	</fileset>
 	<fileset dir="${cma.lib.dir}">
-            <include name="*.jar"/>
+            <include name="${cma.lib.file}"/>
 	</fileset>
     </path>
 
@@ -200,7 +200,7 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
                optimize="on"
                srcdir="${src.dir}"
                includes="**/*.java"
-	       excludes="com/tumri/joz/testsuite/*.java">
+	        excludes="com/tumri/joz/testsuite/*.java">
             <classpath refid="project.class.path"/>
             <compilerarg value="-Xlint:unchecked"/>
 	    <compilerarg value="-Xlint:deprecation"/>
@@ -252,10 +252,11 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 				<exclude name="mysql-connector-java-3.1.14-bin.jar"/>        
       		</lib>
 	    	<lib dir="${zini.lib.dir}" includes="zini.catalog.api.jar"/>
-	    	<lib dir="${utils.lib.dir}" includes="utils.jar"/>
-	    	<lib dir="${cma.lib.dir}" includes="cma.jar"/>
-      		<lib dir="${cma.lib.dir}" includes="jyaml-1.2.jar"/>
-      		<lib dir="${cma.lib.dir}" includes="ibatis-2.3.0.677.jar"/>
+	    	<lib dir="${utils.lib.dir}" includes="${utils.lib.file}"/>
+		    <lib dir="${cma.lib.dir}" includes="${cma.lib.file}"/>
+			<lib dir="${jcl.lib.dir}" includes="${jcl.lib.file}"/>
+		      <!--<lib dir="${cma.lib.dir}" includes="jyaml-1.2.jar"/>-->
+      		<!--<lib dir="${cma.lib.dir}" includes="ibatis-2.3.0.677.jar"/>-->
       		<lib dir="${caa.lib.dir}" includes="caa.jar"/>
       		<lib dir="${llc.lib.dir}" includes="llc.jar"/>
 			<!-- JMN - Include both *_version.properties and label file. -->
