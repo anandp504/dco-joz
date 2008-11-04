@@ -18,17 +18,14 @@
 package com.tumri.joz.utils;
 
 import com.tumri.joz.campaign.CampaignDB;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.index.ProductAttributeIndex;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.jozMain.ListingProviderFactory;
 import com.tumri.joz.jozMain.MerchantDB;
-import com.tumri.lls.client.LlsSocketConnectionPool;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.products.ProductDB;
 import com.tumri.lls.client.main.ListingProvider;
 import org.apache.log4j.Logger;
-
-import java.util.HashMap;
 
 /**
  * @author: nipun
