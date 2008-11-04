@@ -17,11 +17,6 @@
     </servlet>
 
     <servlet>
-	<servlet-name>Joz</servlet-name>
-	<servlet-class>com.tumri.joz.jozMain.JozServlet</servlet-class>
-    </servlet>
-
-    <servlet>
 	<servlet-name>JozMonitor</servlet-name>
 	<servlet-class>com.tumri.joz.monitor.JozMonitorServlet</servlet-class>
     </servlet>
@@ -40,16 +35,6 @@
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
-
-    <servlet-mapping>
-	<servlet-name>Joz</servlet-name>
-	<url-pattern>/init</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-	<servlet-name>Joz</servlet-name>
-	<url-pattern>/joz</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
 	<servlet-name>JozMonitor</servlet-name>
