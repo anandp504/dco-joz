@@ -1,14 +1,11 @@
 package com.tumri.joz.jozMain;
 
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.strings.JStringBuilder;
+
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
-
-import com.tumri.utils.sexp.SexpKeyword;
-import com.tumri.utils.sexp.SexpList;
-import com.tumri.utils.sexp.SexpString;
-import com.tumri.utils.strings.JStringBuilder;
-import com.tumri.joz.utils.AppProperties;
 
 /**
  * Container for the feature list passed back in get-ad-data requests.
