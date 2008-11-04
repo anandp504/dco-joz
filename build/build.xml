@@ -31,9 +31,6 @@
         <fileset dir="${ext.lib.dir}">
             <include name="*.jar"/>
         </fileset>
-	<fileset dir="${zini.lib.dir}">
-            <include name="*.jar"/>
-	</fileset>
 	<fileset dir="${utils.lib.dir}">
             <include name="${utils.lib.file}"/>
 	</fileset>

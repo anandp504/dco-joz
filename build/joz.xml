@@ -251,7 +251,6 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 	    		<exclude name="servlet-api.jar"/>
 				<exclude name="mysql-connector-java-3.1.14-bin.jar"/>        
       		</lib>
-	    	<lib dir="${zini.lib.dir}" includes="zini.catalog.api.jar"/>
 	    	<lib dir="${utils.lib.dir}" includes="${utils.lib.file}"/>
 		    <lib dir="${cma.lib.dir}" includes="${cma.lib.file}"/>
 			<lib dir="${jcl.lib.dir}" includes="${jcl.lib.file}"/>
