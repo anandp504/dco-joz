@@ -35,7 +35,7 @@
 		<table>
             <tr><th><strong>IP ADDRESS</strong></th><th><strong>COUNT</strong></th></tr>
         <% if (connMap == null || connMap.isEmpty()) { %>
-             <tr><td>LLC not configured properly, please check if LLS communication is enabled.</td></tr>
+             <tr><td>No active connections with LLS found in pool.</td></tr>
          <%} else {
              Iterator iter = connMap.keySet().iterator();
              while (iter.hasNext()) {
