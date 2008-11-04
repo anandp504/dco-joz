@@ -1,17 +1,23 @@
-<%@ page import="com.tumri.lls.client.LlsSocketConnectionPool" %>
+<%@ page import="com.tumri.joz.utils.AppProperties" %>
+<%@ page import="com.tumri.utils.nio.NioSocketChannelPool" %>
+<%@ page import="com.tumri.utils.tcp.client.TcpSocketConnectionPool" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	  <title>Joz Console : LLC Status</title>
-  </head>
-  <body>
-	<%
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Joz Console : LLC Status</title>
+</head>
+<body>
+<%
         HashMap<String, Integer> connMap = null;
         try {
-            connMap = LlsSocketConnectionPool.getInstance().getInfo();
+            if (AppProperties.getInstance().isNioEnabled()) {
+                connMap = NioSocketChannelPool.getInstance().getInfo();
+            } else {
+                connMap = TcpSocketConnectionPool.getInstance().getInfo();
+            }
         } catch (Exception e) {
             //
         }

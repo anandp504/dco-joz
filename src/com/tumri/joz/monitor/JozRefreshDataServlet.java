@@ -4,15 +4,15 @@ import com.tumri.content.ContentProvider;
 import com.tumri.content.ContentProviderFactory;
 import com.tumri.content.InvalidConfigException;
 import com.tumri.content.data.ContentProviderStatus;
-import com.tumri.content.impl.file.FileContentProviderImpl;
 import com.tumri.joz.campaign.CMAContentProviderStatus;
 import com.tumri.joz.campaign.CMAContentRefreshMonitor;
-import com.tumri.joz.products.ContentHelper;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.jozMain.ListingProviderFactory;
 import com.tumri.joz.jozMain.MerchantDB;
-import com.tumri.lls.client.LlsSocketConnectionPool;
+import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.nio.NioSocketChannelPool;
+import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -113,7 +113,11 @@ public class JozRefreshDataServlet extends HttpServlet {
      * Helper method to refresh socket data
      */
     private String doResetSocketPool() {
-        LlsSocketConnectionPool.getInstance().reset();
+        if (AppProperties.getInstance().isNioEnabled()) {
+            NioSocketChannelPool.getInstance().reset();            
+        } else {
+            TcpSocketConnectionPool.getInstance().reset();
+        }
         //Wait for 5 secs for the connections to be restored
         try {
             Thread.sleep(5000);
