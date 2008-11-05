@@ -100,10 +100,12 @@ public class JozNioDataProviderImpl implements JozDataProvider {
             return;
         }
         try {
+            log.info("Going to start the JozNioClient");
             NioClient.getInstance().init(host, port, poolSize, numRetries);
+            log.info("Finished starting the JozNioClient");
             bInit = true;
         } catch(TCPServerException e) {
-            log.fatal("Could not initialize NioClient", e);
+            log.fatal("Could not initialize JozNioClient", e);
             bInit = false;
         }
     }
