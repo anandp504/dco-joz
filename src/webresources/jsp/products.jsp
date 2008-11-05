@@ -143,11 +143,14 @@
 	List<ProductInfo> excludedProducts = tspec.getExcludedProducts();
 	List<ProductInfo> includedProducts = tspec.getIncludedProducts();
 	List<KeywordInfo> includedKeywords = tspec.getIncludedKeywords();
-	String imageUrlPrefix="http://images.tumri.net/iCornerStore"; //Default pointing to US.
-	String region=((AppProperties.getInstance()).getProperty("com.tumri.campaign.data.region.name")).trim();
-	if (region.equals("UK")) {
-		imageUrlPrefix="http://images-emea.tumri.net/iCornerStore";
-	}
+	String imageUrlPrefix=((AppProperties.getInstance()).getProperty("ProductImagesHostUrl")).trim();
+	if(null == imageUrlPrefix || imageUrlPrefix.equals("")){
+		imageUrlPrefix="http://images.tumri.net/iCornerStore"; //Default pointing to US.
+		String region=((AppProperties.getInstance()).getProperty("com.tumri.campaign.data.region.name")).trim();
+		if (region.equals("UK")) {
+			imageUrlPrefix="http://images-emea.tumri.net/iCornerStore";
+		}
+	}	
 %>
 
 <!-- Sample Product Data

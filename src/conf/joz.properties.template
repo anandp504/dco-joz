@@ -146,3 +146,6 @@ tcpServer.queryHandlers=com.tumri.joz.server.handlers.JozAdRequestHandler,com.tu
 
 #True means NIO mode
 com.tumri.joz.server.nio.mode=true
+
+#Image URL
+ProductImagesHostUrl=http://images.tumri.net/iCornerStore
