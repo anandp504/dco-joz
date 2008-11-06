@@ -38,10 +38,10 @@
             <include name="${cma.lib.file}"/>
 	</fileset>	
  	<fileset dir="${caa.lib.dir}">
-             <include name="*.jar"/>
+             <include name="${caa.lib.file}"/>
    	</fileset>	
     <fileset dir="${llc.lib.dir}">
-             <include name="llc.jar"/>
+             <include name="${llc.lib.file}"/>
     </fileset>
 	<fileset dir="${dist.dir}">
 	    <include name="*.jar"/>
