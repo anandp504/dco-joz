@@ -25,7 +25,6 @@
     <property file="${top.root.dir}/build/joz_version.properties"/>
 	
     <import file="joz.xml"/>
-    <!--<import file="jozclientapi.xml"/>-->
 
     <path id="project.class.path">
         <fileset dir="${ext.lib.dir}">

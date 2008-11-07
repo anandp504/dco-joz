@@ -141,39 +141,7 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 
     </target>
 
-    <path id="jozclient.class.path">
-        <fileset dir="${ext.lib.dir}">
-            <include name="*.jar"/>
-        </fileset>
-	<fileset dir="${utils.lib.dir}">
-            <include name="${utils.lib.file}"/>
-	</fileset>
-	<fileset dir="${cma.lib.dir}">
-            <include name="${cma.lib.file}"/>
-	</fileset>
-    </path>
 
-    <target name="build-jozclient" depends="init">
-        <delete dir="${stage.dir}/jozclient"/>
-        <mkdir dir="${stage.dir}/jozclient"/>
-
-        <javac destdir="${classes.dir}"
-               debug="on"
-               optimize="on"
-               srcdir="${src.dir}"
-               includes="com/tumri/joz/client/**,com/tumri/joz/server/domain/**">
-            <classpath refid="jozclient.class.path"/>
-            <compilerarg value="-Xlint:unchecked"/>
-	    <compilerarg value="-Xlint:deprecation"/>
-        </javac>
-
-        <jar destfile="${stage.dir}/jozclient/jozclient.jar">
-            <fileset dir="${classes.dir}"
-		     includes="com/tumri/joz/client/**,com/tumri/joz/server/domain/**"/>
-        </jar>
-
-        <move file="${stage.dir}/jozclient/jozclient.jar" todir="${dist.dir}"/>
-    </target>
 	<target name="java-doc" depends="">
 		<delete dir="${dist.dir}/javadocs"/>
 		<mkdir dir="${dist.dir}/javadocs"/>
