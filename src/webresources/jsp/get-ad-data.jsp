@@ -99,8 +99,8 @@
 	for(int i = 0; i < myTSpecs.size(); i++){
 		TSpec tempTSpec = myTSpecs.get(i);
 		if(tempTSpec != null){
-			tSpecNames.add(tempTSpec.getName()!=null?tempTSpec.getName().trim():String.valueOf(tempTSpec.getId()));
-			tSpecHash.put(tempTSpec.getName()!=null?tempTSpec.getName().trim():String.valueOf(tempTSpec.getId()), tempTSpec);
+			tSpecNames.add(tempTSpec.getName()!=null?tempTSpec.getName().trim() + " " + String.valueOf(tempTSpec.getId()):String.valueOf(tempTSpec.getId()));
+			tSpecHash.put(tempTSpec.getName()!=null?tempTSpec.getName().trim() + " " + String.valueOf(tempTSpec.getId()):String.valueOf(tempTSpec.getId()), tempTSpec);
 		}
 
 	}
@@ -110,8 +110,8 @@
 	for(int i=0;i<myAdPods.size();i++) {
         AdPod tempAdPod = myAdPods.get(i);
         if (tempAdPod!=null) {
-			adPodNames.add(tempAdPod.getName()!=null?tempAdPod.getName().trim():String.valueOf(tempAdPod.getId()));
-			adPodHash.put(tempAdPod.getName()!=null?tempAdPod.getName().trim():String.valueOf(tempAdPod.getId()), tempAdPod);
+			adPodNames.add(tempAdPod.getName()!=null?tempAdPod.getName().trim() + " " + String.valueOf(tempAdPod.getId()):String.valueOf(tempAdPod.getId()));
+			adPodHash.put(tempAdPod.getName()!=null?tempAdPod.getName().trim() + " " + String.valueOf(tempAdPod.getId()):String.valueOf(tempAdPod.getId()), tempAdPod);
         }
     }
 
@@ -120,8 +120,8 @@
 	for(int i=0;i<myCampaigns.size();i++) {
 		Campaign tempCampaign = myCampaigns.get(i);
 		if(tempCampaign!=null){
-			campaignNames.add(tempCampaign.getName()!=null?tempCampaign.getName().trim():String.valueOf(tempCampaign.getId()));
-			campaignHash.put(tempCampaign.getName()!=null?tempCampaign.getName().trim():String.valueOf(tempCampaign.getId()), tempCampaign);
+			campaignNames.add(tempCampaign.getName()!=null?tempCampaign.getName().trim() + " " + String.valueOf(tempCampaign.getId()):String.valueOf(tempCampaign.getId()));
+			campaignHash.put(tempCampaign.getName()!=null?tempCampaign.getName().trim() + " " + String.valueOf(tempCampaign.getId()):String.valueOf(tempCampaign.getId()), tempCampaign);
 		}
 	}
 
@@ -130,8 +130,8 @@
 	for(int i=0;i<myRecipes.size();i++) {
 		Recipe tempRecipe = myRecipes.get(i);
 		if(tempRecipe != null){
-			recipeNames.add(tempRecipe.getName()!=null?tempRecipe.getName().trim():String.valueOf(tempRecipe.getId()));
-			recipeHash.put(tempRecipe.getName()!=null?tempRecipe.getName().trim():String.valueOf(tempRecipe.getId()), tempRecipe);
+			recipeNames.add(tempRecipe.getName()!=null?tempRecipe.getName().trim() + " " + String.valueOf(tempRecipe.getId()):String.valueOf(tempRecipe.getId()));
+			recipeHash.put(tempRecipe.getName()!=null?tempRecipe.getName().trim() + " " + String.valueOf(tempRecipe.getId()):String.valueOf(tempRecipe.getId()), tempRecipe);
 		}
 	}
 

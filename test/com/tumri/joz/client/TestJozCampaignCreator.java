@@ -49,6 +49,8 @@ public class TestJozCampaignCreator {
 		providers.add("\n");
 
 		adTypes.add("mediumrectangle");
+		adTypes.add("mediumrectangle");
+		adTypes.add("mediumrectangle");
 		adTypes.add("skyscraper");
 		adTypes.add("leaderboard");
 		adTypes.add("custom300x600");
@@ -229,7 +231,7 @@ public class TestJozCampaignCreator {
 //		ArrayList<Integer> adPodIds = new ArrayList<Integer>();
 //		adPodIds.add(new Integer(id));
 //		loc.setAdPodIds(adPodIds);
-		loc.setClientId(camp.getId()%2 + 1);
+		loc.setClientId(camp.getId()%20 + 1);
 		adPodLocations.add(loc);
 		newAdPod.setLocations(adPodLocations);
 
@@ -616,7 +618,7 @@ public class TestJozCampaignCreator {
 		return tspec;
 	}
 	protected void readCategoryFile() {
-		String file = "/opt/Tumri/joz/data/caa/current/data/US_Tumri-Taxonomy_4.7_Taxonomy_1.0_.utf8";
+		String file = "/opt/Tumri/joz/data/caa/current/data/US_Tumri-Taxonomy_5.2_Taxonomy_1.0_.utf8";
 		ArrayList<String> requests;
 		try {
 			requests = new ArrayList<String>();
@@ -706,7 +708,13 @@ public class TestJozCampaignCreator {
 			designs.add("everest2");
 			designs.add("everestflash");
 			designs.add("flashcontainer");
-			designs.add("flashcontainer");
+			designs.add("carousel");
+			designs.add("flashtemplate");
+			designs.add("intelpolling");
+			designs.add("intelpolling");
+			designs.add("intelitabs");
+			designs.add("k2flash");
+			designs.add("swiftpoc");
 		} else if ("skyscraper".equals(adType)){
 			designs.add("brand1");
 			designs.add("brand2");
