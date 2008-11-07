@@ -67,9 +67,9 @@
 						%><td align="center" bgcolor="#FF6666"><b>False</b></td><%
 					}
 				%>
-				<td align="center"><%=adResp.getTotalNumFailedRecipes()%></td>
-				<td align="center"><%=adResp.getTotalNumSuccessRecieps()%></td>
+				<td align="center"><%=adResp.getTotalNumFailedRecipes()%></td>				
 				<td align="center"><%=adResp.getTotalNumWarnRecipes()%></td>
+				<td align="center"><%=adResp.getTotalNumSuccessRecieps()%></td>
 			</tr>
 		</table>
 
