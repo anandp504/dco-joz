@@ -64,7 +64,7 @@
 	}
 
 	//
-
+    boolean bNio = AppProperties.getInstance().isNioEnabled();
 	PerformanceMonitor pm = PerformanceMonitor.getInstance();
     int maxThreads = Integer.parseInt(AppProperties.getInstance().getProperty("tcpServer.poolSize"));
     int activeThreads = pm.getActiveThreads();
@@ -91,14 +91,25 @@
 <div>
     <table border="1" cellspacing="0" title="Joz Server Threads Info">
         <caption>Joz Server Threads Info</caption>
-    <tr>
-    <td>Max Threads supported</td>
-    <td><%=maxThreads%></td>
-    </tr>
-    <tr>
-    <td>Active Threads running</td>
-    <td><%=activeThreads%></td>
-    </tr>
+    <% if (bNio) { %>
+        <tr>
+        <td>Worker Threads</td>
+        <td><%=maxThreads%></td>
+        </tr>
+        <tr>
+        <td>Active Client connections (Nio)</td>
+        <td><%=activeThreads%></td>
+        </tr>
+    <% } else { %>
+        <tr>
+        <td>Max Threads supported</td>
+        <td><%=maxThreads%></td>
+        </tr>
+        <tr>
+        <td>Active Threads running</td>
+        <td><%=activeThreads%></td>
+        </tr>
+    <% }  %>
     </table>
 </div>
 
