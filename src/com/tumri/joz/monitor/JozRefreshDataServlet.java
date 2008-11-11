@@ -114,7 +114,7 @@ public class JozRefreshDataServlet extends HttpServlet {
      */
     private String doResetSocketPool() {
         if (AppProperties.getInstance().isNioEnabled()) {
-            NioSocketChannelPool.getInstance().reset();            
+            NioSocketChannelPool.getInstance().initConnections(true);            
         } else {
             TcpSocketConnectionPool.getInstance().reset();
         }
