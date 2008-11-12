@@ -240,7 +240,7 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
 	List<ProviderInfo> includedProviders = myTSpec.getIncludedProviders();
 	List<ProductInfo> excludedProducts = myTSpec.getExcludedProducts();
 	List<ProductInfo> includedProducts = myTSpec.getIncludedProducts();
-	List<KeywordInfo> includedKeywords = myTSpec.getIncludedKeywords();
+	String includedKeywords = myTSpec.getLoadTimeKeywordExpression();
 	out.print("<table border = \"1\">");
 
 	out.print("<tr>");
@@ -401,14 +401,11 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
 	}
 	out.print("</td>");
 	out.print("<td>");
-	out.print("<strong>TSpec: Included Keywords:</strong>");
+	out.print("<strong>TSpec: Keyword:</strong>");
 	out.print("<br>");
 	if (includedKeywords != null) {
-		for (int i=0; i<includedKeywords.size(); i++) {
-			out.print("&nbsp;&nbsp;&nbsp;"+includedKeywords.get(i).getName());
-			out.print("<br>");
-		}
-		out.print("<br>");
+        out.print("&nbsp;&nbsp;&nbsp;"+includedKeywords);
+        out.print("<br>");
 	} else {
 		out.print("&nbsp;&nbsp;&nbsp; Null <br><br>");
 	}

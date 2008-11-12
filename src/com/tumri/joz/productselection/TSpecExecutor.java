@@ -123,7 +123,7 @@ public class TSpecExecutor {
      */
     private void setupRequestParms(){
 
-        if (request.getRequestKeyWords()!=null) {
+        if (request.getRequestKeyWords()!=null && !request.getRequestKeyWords().trim().equals("")) {
             m_ExternalKeywords = true;
         }
 
