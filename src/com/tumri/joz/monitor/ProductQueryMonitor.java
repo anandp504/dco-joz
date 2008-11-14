@@ -13,8 +13,8 @@ import com.tumri.joz.productselection.TSpecExecutor;
 import com.tumri.lls.client.main.ListingProvider;
 import com.tumri.lls.client.response.ListingResponse;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
+//import org.json.JSONArray;
+//import org.json.JSONObject;
 
 import java.util.*;
 
@@ -161,21 +161,21 @@ public class ProductQueryMonitor extends ComponentMonitor
 
         //jsonStr = jsonStr.replaceAll("\\\\\\\\\"","\\\\\\\\\\\\\"");
         try {
-            JSONArray jsonArray = new JSONArray(jsonStr);
-            for (int i=0; i<jsonArray.length(); i++) {
-                Map<String, String> attributes = new HashMap<String, String>();
-                JSONObject jsonObj  = (JSONObject)jsonArray.get(i);
-                Iterator it = jsonObj.keys();
-                String key = null;
-                String value = null;
-                while (it.hasNext()) {
-                    key = (String)it.next();
-                    value = (String)jsonObj.get(key);
-                    if (key != null)
-                        attributes.put(key, value);
-                }
-                products.add(attributes);
-            }
+//            JSONArray jsonArray = new JSONArray(jsonStr);
+//            for (int i=0; i<jsonArray.length(); i++) {
+//                Map<String, String> attributes = new HashMap<String, String>();
+//                JSONObject jsonObj  = (JSONObject)jsonArray.get(i);
+//                Iterator it = jsonObj.keys();
+//                String key = null;
+//                String value = null;
+//                while (it.hasNext()) {
+//                    key = (String)it.next();
+//                    value = (String)jsonObj.get(key);
+//                    if (key != null)
+//                        attributes.put(key, value);
+//                }
+//                products.add(attributes);
+//            }
         }
         catch (Exception ex) {
             log.info(jsonStr);
@@ -201,7 +201,6 @@ public class ProductQueryMonitor extends ComponentMonitor
 		keys.add(":brandomize");
 		keys.add(":bmineurls");
 		keys.add(":bpaginate");
-		keys.add(":bbackfill");
 		keys.add(":requestkeywords");
 		keys.add(":requestcategory");
 		keys.add(":multivaluequery1");
@@ -298,14 +297,6 @@ public class ProductQueryMonitor extends ComponentMonitor
 								pr.setBPaginate(false);
 							} else {
 								pr.setBPaginate(true);
-							}
-						}
-					} else if(":bbackfill".equalsIgnoreCase(key)){
-						if(!"".equals(value.trim())){
-							if("false".equalsIgnoreCase(value.trim().trim())){
-								pr.setBBackFill(false);
-							} else {
-								pr.setBBackFill(true);
 							}
 						}
 					} else if(":requestkeywords".equalsIgnoreCase(key)){

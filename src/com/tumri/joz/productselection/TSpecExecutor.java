@@ -60,7 +60,6 @@ public class TSpecExecutor {
     private static final char MULTI_VALUE_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
     private boolean m_geoFilterEnabled = false;
     private boolean m_ExternalKeywords = false;
-    private boolean m_MultiValueQuery = false;
     private int m_currPage = 0;
     private int m_pageSize = 0;
     private Features m_feature = null; 
@@ -127,14 +126,6 @@ public class TSpecExecutor {
             m_ExternalKeywords = true;
         }
 
-        if (request.getMultiValueQuery1()!=null ||
-                request.getMultiValueQuery2()!=null ||
-                request.getMultiValueQuery3()!=null ||
-                request.getMultiValueQuery4()!=null ||
-                request.getMultiValueQuery5()!=null ) {
-           m_MultiValueQuery = true;
-        }
-
         m_geoFilterEnabled = m_tspec.isGeoEnabledFlag()||m_tspec.isApplyGeoFilter();
 
 
@@ -167,7 +158,8 @@ public class TSpecExecutor {
      */
     private void doKeywordSearch(String keywords, boolean bCreateNew) {
         KeywordQuery sKwQuery;
-        if ((keywords!=null)&&(!"".equals(keywords))) {
+        if ((keywords!=null)&&(!"".equals(keywords.trim()))) {
+            m_ExternalKeywords = true;
             sKwQuery = new KeywordQuery(keywords,false);
             if (bCreateNew) {
                 //Ensure that we dont clone again if the TSpec is a new one
@@ -479,7 +471,6 @@ public class TSpecExecutor {
         for (ConjunctQuery conjunctQuery : cnjQueries) {
             conjunctQuery.addQuery(aQuery);
         }
-        m_MultiValueQuery = true;
         m_tSpecQuery = copytSpecQuery;
     }
 
@@ -507,52 +498,54 @@ public class TSpecExecutor {
     }
 
     /**
-     * Perform the backfill of products when required
-     * For ScriptKeywords and Mined PubUrl keywords the backfill is done from within the tspec first.
-     * For Multivalue queries with geo, backfill is done by dropping the multivalue query and doing the backfill from tspec
+     * Perform the backfill of products only in the case of external keywords
+     * Backfill is merely executing the same tspec again without the additional keywords
      * @param pageSize - the request page Size
      * @param currSize - the current page size
      * @return ArrayList of products that were backfilled
      */
     @SuppressWarnings("unchecked")
     private ArrayList<Handle> doBackFill(int pageSize, int currSize){
-		//Check if backfill is needed bcos of the keyword query
 		ArrayList<Handle> backFillProds = new ArrayList<Handle>();
 
-        //For keyword queries with geo enabled or multivalue, do backfill by dropping the keyword query and doing the geo query again
-        if (m_geoFilterEnabled  && (m_ExternalKeywords|| m_MultiValueQuery) && pageSize>0 && currSize<pageSize) {
+        if (pageSize>0 && currSize<pageSize) {
+            //do backfill by dropping the keyword query
             m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(m_tspecId).clone();
-            addGeoFilterQuery(pageSize-currSize, m_currPage);
+            addProductTypeQuery(request.getOfferType());
             //randomize
             Handle ref = ProductDB.getInstance().genReference();
-			m_tSpecQuery.setReference(ref);
-            SortedSet<Handle> newResults = m_tSpecQuery.exec();
-            if (m_tSpecQuery.getReference() != null && newResults.size() >0 ) {
-                CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-                cachedQuery.setCacheReference(newResults.last());
+            m_tSpecQuery.setReference(ref);
+
+            if (m_geoFilterEnabled) {
+                //For keyword queries with geo enabled or multivalue, do backfill by dropping the keyword query and 
+                // doing the geo query again
+                addGeoFilterQuery(pageSize-currSize, m_currPage);
+                SortedSet<Handle> newResults = m_tSpecQuery.exec();
+                if (m_tSpecQuery.getReference() != null && newResults.size() >0 ) {
+                    CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
+                    cachedQuery.setCacheReference(newResults.last());
+                }
+                //Sort by the score
+                SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
+                geoSortedResult.addAll(newResults);
+                backFillProds.addAll(geoSortedResult);
+            } else {
+                //Never select any products that have Geo enabled while backfilling for keyword queries
+                addGeoEnabledQuery(true);
+                //We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
+                int tmpSize = pageSize-currSize+5;
+                m_tSpecQuery.setBounds(tmpSize,0);
+                m_tSpecQuery.setStrict(false);
+                SortedSet<Handle> newResults = m_tSpecQuery.exec();
+                if (m_tSpecQuery.getReference() != null && newResults.size() >0 ) {
+                    CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
+                    cachedQuery.setCacheReference(newResults.last());
+                }
+                backFillProds.addAll(newResults);
             }
-            //Sort by the score
-            SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
-            geoSortedResult.addAll(newResults);
-            backFillProds.addAll(geoSortedResult);
-            currSize = currSize + backFillProds.size();
         }
 
-        if (!m_geoFilterEnabled && m_ExternalKeywords && pageSize>0 && currSize<pageSize){
-			m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(m_tspecId).clone();
-            //Never select any products that have Geo enabled while backfilling for keyword queries
-            addGeoEnabledQuery(true);
-            //We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
-            int tmpSize = pageSize-currSize+5;
-			m_tSpecQuery.setBounds(tmpSize,0);
-			m_tSpecQuery.setStrict(false);
-			Handle ref = ProductDB.getInstance().genReference();
-			m_tSpecQuery.setReference(ref);
-			SortedSet<Handle> newResults = m_tSpecQuery.exec();
-			backFillProds.addAll(newResults);
-		}
-
-		return backFillProds;
+        return backFillProds;
     }
 
     private void addGeoEnabledQuery(boolean bNegation) {
@@ -658,7 +651,7 @@ public class TSpecExecutor {
         }
 
         ArrayList<Handle> backFillProds = null;
-        if (request.isBBackFill() && qResult!=null){
+        if ((m_ExternalKeywords) && qResult!=null){
             backFillProds = doBackFill(request.getPageSize(),qResult.size());
         }
 

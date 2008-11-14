@@ -35,7 +35,6 @@ public class ProductSelectionRequest {
     private int pageSize = -1;
     private int currPage = -1;
     private boolean bPaginate = false;
-    private boolean bBackFill = false;
 
     private String requestKeyWords = "";
     private String requestCategory = null;
@@ -80,14 +79,6 @@ public class ProductSelectionRequest {
 
     public void setCurrPage(int currPage) {
         this.currPage = currPage;
-    }
-
-    public boolean isBBackFill() {
-        return bBackFill;
-    }
-
-    public void setBBackFill(boolean bBackFill) {
-        this.bBackFill = bBackFill;
     }
 
     public String getRequestKeyWords() {
@@ -260,7 +251,6 @@ public class ProductSelectionRequest {
 		sb.append("pageSize = ".toUpperCase() + pageSize + " ");
 		sb.append("currPage = ".toUpperCase() + currPage + " ");
 		sb.append("bPaginate = ".toUpperCase() + bPaginate + " ");
-		sb.append("bBackFill = ".toUpperCase() + bBackFill + " ");
 		sb.append("requestKeyWords = ".toUpperCase() + requestKeyWords + " ");
 		sb.append("requestCategory = ".toUpperCase() + requestCategory + " ");
 		sb.append("offerType = ".toUpperCase() + offerType + " ");
