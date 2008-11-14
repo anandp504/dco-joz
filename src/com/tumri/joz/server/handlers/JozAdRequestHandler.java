@@ -160,7 +160,6 @@ public class JozAdRequestHandler implements RequestHandler {
             response.addDetails(JozAdResponse.KEY_LOCATION_CLIENT_NAME,features.getTargetedLocationName());
             response.addDetails(JozAdResponse.KEY_RECIPE_NAME,features.getRecipeName());
             response.addDetails(JozAdResponse.KEY_GEO_USED,(features.isGeoUsed()?"Y":"N"));
-            response.addDetails(JozAdResponse.KEY_SOZFEATURES,features.toString());
         } else {
 	        PerformanceStats.getInstance().registerFailedEvent(STATS_ID,reqParams);
             response.addDetails("ERROR","Could not target Recipe for the request");

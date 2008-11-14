@@ -71,9 +71,10 @@ public class Features {
         		String featureKeyStr = featureKeys.next();
         		String featureValStr = jozFeaturesMap.get(featureKeyStr);
         		if (featureKeyStr!=null && !"".equals(featureKeyStr) && featureValStr!=null && !"".equals(featureValStr)) {
-        			featureBuiltUpStr = featureBuiltUpStr + "," + featureKeyStr + "=" + featureValStr;
-        		}
+        			featureBuiltUpStr = featureBuiltUpStr + "," + featureKeyStr + "=" + featureValStr; 
+		        }
         	}
+	        sbuild.append(featureBuiltUpStr);
             sbuild.append(")");
         }
        return sbuild.toString();
@@ -191,4 +192,41 @@ public class Features {
     public void setLocationClientName(String locationClientName) {
         this.locationClientName = locationClientName;
     }
+
+	/*public String toString(){
+		StringBuffer buff = new StringBuffer();
+
+		buff.append("_joz_version = " + _joz_version);
+		buff.append(" | ");
+		buff.append("_host_name = " +  _host_name);
+		buff.append(" | ");
+		buff.append("jozFeaturesMap = " + jozFeaturesMap);
+		buff.append(" | ");
+		buff.append("campaignId = " + campaignId);
+		buff.append(" | ");
+		buff.append("campaignName = " + campaignName);
+		buff.append(" | ");
+		buff.append("adPodId = " + adPodId);
+		buff.append(" | ");
+		buff.append("adpodName = " + adpodName);
+		buff.append(" | ");
+		buff.append("recipeId = " + recipeId);
+		buff.append(" | ");
+		buff.append("recipeName = " + recipeName);
+		buff.append(" | ");
+		buff.append("campaignClientId = " + campaignClientId);
+		buff.append(" | ");
+		buff.append("campaignClientName = " + campaignClientName);
+		buff.append(" | ");
+		buff.append("bGeoUsed = " + bGeoUsed);
+		buff.append(" | ");
+		buff.append("targetedLocationId = " + targetedLocationId);
+		buff.append(" | ");
+		buff.append("targetedLocationName = " + targetedLocationName);
+		buff.append(" | ");
+		buff.append("locationClientId = " + locationClientId);
+		buff.append(" | ");
+		buff.append("locationClientName = " + locationClientName);
+		return buff.toString();
+	}*/
 }

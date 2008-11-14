@@ -138,15 +138,16 @@ public class ProductSelectionProcessor {
             pr.setBMineUrls(true);
         }
 
-        String keywords = null;
+        String keywords = "";
         String scriptKeywords = request.get_script_keywords();
-		if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords))) {
-            keywords= scriptKeywords;
+		if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords.trim()))) {
+            keywords= scriptKeywords.trim();
         }
         
         String requestKeyWords = request.get_keywords();
-        if ((requestKeyWords!=null)&&(!"".equals(requestKeyWords))) {
-            keywords = keywords + " " + requestKeyWords;
+        if ((requestKeyWords!=null)&&(!"".equals(requestKeyWords.trim()))) {
+            keywords = keywords + " " + requestKeyWords.trim();
+	        keywords = keywords.trim();
         }
 
         if (keywords!=null && !"".equals(keywords)) {
