@@ -136,7 +136,9 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
       boolean added = false;
       for (int i = 0; i < m_includes.size(); i++) {
         SortedSet<Value> lValues = m_includes.get(i);
-        if (set.size() < lValues.size()) { // insert in a sorted order with smallest set first
+        IWeight<Value> lWeight   = m_includesWeight.get(i);
+        if ((set.size() < lValues.size() && (lWeight.mustMatch() == weight.mustMatch())) ||
+            (!lWeight.mustMatch() && weight.mustMatch())) { // insert in a sorted order with smallest set first
           m_includes.add(i,set);
           m_includesWeight.add(i,weight);
           added = true;
