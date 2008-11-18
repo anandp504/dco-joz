@@ -80,6 +80,9 @@ public class EvalMonitor extends ComponentMonitor
 			}
 
 		}
+		if(!"".equals(cToken)){
+			value+=" ";
+		}
 		req.setValue(keys.get(key), value + cToken);
 		return req;
 	}

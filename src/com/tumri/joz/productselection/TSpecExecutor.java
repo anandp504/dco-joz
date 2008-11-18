@@ -515,7 +515,11 @@ public class TSpecExecutor {
             //randomize
             Handle ref = ProductDB.getInstance().genReference();
             m_tSpecQuery.setReference(ref);
-
+	        addMultiValueRequestQueries(request);
+	        String requestCategory = request.getRequestCategory();
+			if ((requestCategory!=null)&&(!"".equals(requestCategory.trim()))) {
+				addRequestCategoryQuery(requestCategory);
+			}
             if (m_geoFilterEnabled) {
                 //For keyword queries with geo enabled or multivalue, do backfill by dropping the keyword query and 
                 // doing the geo query again
