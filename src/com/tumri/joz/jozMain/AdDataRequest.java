@@ -88,6 +88,7 @@ public class AdDataRequest {
 
         this._revert_to_default_realm = "true".equalsIgnoreCase(req.getValue(JozAdRequest.KEY_REVERT_TO_DEFAULT_REALM))?true:false;
         this._keywords =req.getValue(JozAdRequest.KEY_KEYWORDS);
+        this._script_keywords =req.getValue(JozAdRequest.KEY_SCRIPT_KEYWORDS);
         //this._include_cat_counts = "true".equalsIgnoreCase(req.getValue(JozAdRequest.KEY_INCLUDE_CAT_COUNTS))?true:false;
 //        try {
 //            this._seed = Integer.parseInt(req.getValue(JozAdRequest.KEY_SEED));
