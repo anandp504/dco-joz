@@ -13,6 +13,8 @@ import com.tumri.joz.productselection.TSpecExecutor;
 import com.tumri.lls.client.main.ListingProvider;
 import com.tumri.lls.client.response.ListingResponse;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 //import org.json.JSONArray;
 //import org.json.JSONObject;
 
@@ -159,23 +161,23 @@ public class ProductQueryMonitor extends ComponentMonitor
 
         ((ProductQueryMonitorStatus)status.getStatus()).setProductRawData(rawData.toString());
 
-        //jsonStr = jsonStr.replaceAll("\\\\\\\\\"","\\\\\\\\\\\\\"");
+        jsonStr = jsonStr.replaceAll("\\\\\\\\\"","\\\\\\\\\\\\\"");
         try {
-//            JSONArray jsonArray = new JSONArray(jsonStr);
-//            for (int i=0; i<jsonArray.length(); i++) {
-//                Map<String, String> attributes = new HashMap<String, String>();
-//                JSONObject jsonObj  = (JSONObject)jsonArray.get(i);
-//                Iterator it = jsonObj.keys();
-//                String key = null;
-//                String value = null;
-//                while (it.hasNext()) {
-//                    key = (String)it.next();
-//                    value = (String)jsonObj.get(key);
-//                    if (key != null)
-//                        attributes.put(key, value);
-//                }
-//                products.add(attributes);
-//            }
+            JSONArray jsonArray = new JSONArray(jsonStr);
+            for (int i=0; i<jsonArray.length(); i++) {
+                Map<String, String> attributes = new HashMap<String, String>();
+                JSONObject jsonObj  = (JSONObject)jsonArray.get(i);
+                Iterator it = jsonObj.keys();
+                String key = null;
+                String value = null;
+                while (it.hasNext()) {
+                    key = (String)it.next();
+                    value = (String)jsonObj.get(key);
+                    if (key != null)
+                        attributes.put(key, value);
+                }
+                products.add(attributes);
+            }
         }
         catch (Exception ex) {
             log.info(jsonStr);
