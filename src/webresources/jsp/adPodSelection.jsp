@@ -19,7 +19,7 @@
 		function submitRecipeForm() {
 			var obj=document.getElementById("RecipeList");
 			var selTspec=document.getElementById("selRecipe");
-			selTspec.value=obj.options[obj.selectedIndex].text;
+			selTspec.value=obj.options[obj.selectedIndex].value;
 			var form=document.getElementById("RecipeSelForm");
 			form.submit();
 		};
@@ -331,7 +331,7 @@
 			<%
 				for(int i=0;i<recipes.size();i++) {
 					if(recipes.get(i) != null){
-						out.print("<option value=\""+i+"\">"+recipes.get(i).getId()+"</option>");
+						out.print("<option value=\""+recipes.get(i).getId()+"\">"+recipes.get(i).getName()+", " +recipes.get(i).getId()+"</option>");
 					}
 				}
 			%>
