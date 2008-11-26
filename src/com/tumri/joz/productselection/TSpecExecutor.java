@@ -393,47 +393,47 @@ public class TSpecExecutor {
      * Inspects the request and adds multivalue delim fields for Product Selection.
      * @param request - the request
      */
-    private void addMultiValueRequestQueries(ProductSelectionRequest request) {
+    private void addExternalFilterRequestQueries(ProductSelectionRequest request) {
         if (!m_tspec.isAllowExternalQuery()) {
             return;
         }
-        String multiValueField1 = request.getMultiValueQuery1();
-        if (multiValueField1 != null && !multiValueField1.equals(""))  {
-            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField1, multiValueField1);
+        String externalFilterField1 = request.getExternalFilterQuery1();
+        if (externalFilterField1 != null && !externalFilterField1.equals(""))  {
+            addExternalFilterFieldQuery(IProduct.Attribute.kExternalFilterField1, externalFilterField1);
             if (m_feature!=null) {
-                m_feature.addFeatureDetail("MultiValueField1", multiValueField1);
+                m_feature.addFeatureDetail("ExternalFilterField1", externalFilterField1);
             }
         }
 
-        String multiValueField2 = request.getMultiValueQuery2();
-        if (multiValueField2 != null && !multiValueField2.equals(""))  {
-            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField2, multiValueField2);
+        String externalFilterField2 = request.getExternalFilterQuery2();
+        if (externalFilterField2 != null && !externalFilterField2.equals(""))  {
+            addExternalFilterFieldQuery(IProduct.Attribute.kExternalFilterField2, externalFilterField2);
             if (m_feature!=null) {
-                m_feature.addFeatureDetail("MultiValueField2", multiValueField2);
+                m_feature.addFeatureDetail("ExternalFilterField2", externalFilterField2);
             }
        }
 
-        String multiValueField3 = request.getMultiValueQuery3();
-        if (multiValueField3 != null && !multiValueField3.equals(""))  {
-            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField3, multiValueField3);
+        String externalFilterField3 = request.getExternalFilterQuery3();
+        if (externalFilterField3 != null && !externalFilterField3.equals(""))  {
+            addExternalFilterFieldQuery(IProduct.Attribute.kExternalFilterField3, externalFilterField3);
             if (m_feature!=null) {
-                m_feature.addFeatureDetail("MultiValueField3", multiValueField3);
+                m_feature.addFeatureDetail("ExternalFilterField3", externalFilterField3);
             }
         }
 
-        String multiValueField4 = request.getMultiValueQuery4();
-        if (multiValueField4 != null && !multiValueField4.equals(""))  {
-            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField4, multiValueField4);
+        String externalFilterField4 = request.getExternalFilterQuery4();
+        if (externalFilterField4 != null && !externalFilterField4.equals(""))  {
+            addExternalFilterFieldQuery(IProduct.Attribute.kExternalFilterField4, externalFilterField4);
             if (m_feature!=null) {
-                m_feature.addFeatureDetail("MultiValueField4", multiValueField4);
+                m_feature.addFeatureDetail("ExternalFilterField4", externalFilterField4);
             }
         }
 
-        String multiValueField5 = request.getMultiValueQuery5();
-        if (multiValueField5 != null && !multiValueField5.equals(""))  {
-            addMultiValueFieldQuery(IProduct.Attribute.kMultiValueField5, multiValueField5);
+        String externalFilterField5 = request.getExternalFilterQuery5();
+        if (externalFilterField5 != null && !externalFilterField5.equals(""))  {
+            addExternalFilterFieldQuery(IProduct.Attribute.kExternalFilterField5, externalFilterField5);
             if (m_feature!=null) {
-                m_feature.addFeatureDetail("MultiValueField5", multiValueField5);
+                m_feature.addFeatureDetail("ExternalFilterField5", externalFilterField5);
             }
 
         }
@@ -443,10 +443,10 @@ public class TSpecExecutor {
     /**
      * Adds a multi value field query to the current tspec being executed
      * @param kAttr - Product Attribute
-     * @param multiValueField - The multi value field passed from iCS
+     * @param externalFilterField - The multi value field passed from iCS
      */
-    private void addMultiValueFieldQuery(IProduct.Attribute kAttr, String multiValueField) {
-        StringTokenizer st = new StringTokenizer(multiValueField, MULTI_VALUE_DELIM);
+    private void addExternalFilterFieldQuery(IProduct.Attribute kAttr, String externalFilterField) {
+        StringTokenizer st = new StringTokenizer(externalFilterField, MULTI_VALUE_DELIM);
         ArrayList<String> multiValueAL = st.getTokens();
         ArrayList<Long> multiValueIdAL = new ArrayList<Long>();
         for (String val : multiValueAL) {
@@ -515,7 +515,7 @@ public class TSpecExecutor {
             //randomize
             Handle ref = ProductDB.getInstance().genReference();
             m_tSpecQuery.setReference(ref);
-	        addMultiValueRequestQueries(request);
+	        addExternalFilterRequestQueries(request);
 	        String requestCategory = request.getRequestCategory();
 			if ((requestCategory!=null)&&(!"".equals(requestCategory.trim()))) {
 				addRequestCategoryQuery(requestCategory);
@@ -631,7 +631,7 @@ public class TSpecExecutor {
         //5. Product Type
         addProductTypeQuery(request.getOfferType());
 
-        addMultiValueRequestQueries(request);
+        addExternalFilterRequestQueries(request);
 
         addGeoFilterQuery(m_pageSize, m_currPage);
 

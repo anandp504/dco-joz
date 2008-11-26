@@ -35,9 +35,11 @@
 				(":"+JozAdRequest.KEY_AD_OFFER_TYPE)%> <%=(":"+JozAdRequest.KEY_ALLOW_TOO_FEW_PRODUCTS)%> <%=(":"+JozAdRequest.KEY_AREACODE)%> <%=(":"+JozAdRequest.KEY_CATEGORY)%> <%=
 	(":"+JozAdRequest.KEY_CITY)%> <%=(":"+JozAdRequest.KEY_COUNTRY)%> <%=(":"+JozAdRequest.KEY_DMACODE)%> <%=(":"+JozAdRequest.KEY_KEYWORDS)%> <%=
 	(":"+JozAdRequest.KEY_LATITUDE)%> <%=(":"+JozAdRequest.KEY_LOCATION_ID)%> <%=(":"+JozAdRequest.KEY_LONGITUDE)%> <%=
-	(":"+JozAdRequest.KEY_MAX_PROD_DESC_LEN)%> <%=(":"+JozAdRequest.KEY_MIN_NUM_LEADGENS)%> <%=(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD1)%> <%=(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD2)%> <%=
-	(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD3)%> <%=(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD4)%> <%=
-	(":"+JozAdRequest.KEY_MULTI_VALUE_FIELD5)%> <%=(":"+JozAdRequest.KEY_NUM_PRODUCTS)%> <%=(":"+JozAdRequest.KEY_RECIPE_ID)%> <%=(":"+JozAdRequest.KEY_REGION)%> <%=
+	(":"+JozAdRequest.KEY_MAX_PROD_DESC_LEN)%> <%=(":"+JozAdRequest.KEY_MIN_NUM_LEADGENS)%> <%=(":"+JozAdRequest.KEY_EXTERNAL_FILTER_FIELD1)%> <%=(":"+JozAdRequest.KEY_EXTERNAL_FILTER_FIELD2)%> <%=
+	(":"+JozAdRequest.KEY_EXTERNAL_FILTER_FIELD3)%> <%=(":"+JozAdRequest.KEY_EXTERNAL_FILTER_FIELD4)%> <%=
+	(":"+JozAdRequest.KEY_EXTERNAL_FILTER_FIELD5)%> <%=(":"+JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1)%> <%=(":"+JozAdRequest.KEY_EXTERNAL_TARGET_FIELD2)%> <%=
+	(":"+JozAdRequest.KEY_EXTERNAL_TARGET_FIELD3)%><%=(":"+JozAdRequest.KEY_EXTERNAL_TARGET_FIELD4)%><%=(":"+JozAdRequest.KEY_EXTERNAL_TARGET_FIELD5)%> <%=(":"+JozAdRequest.KEY_NUM_PRODUCTS)%> <%=
+	(":"+JozAdRequest.KEY_RECIPE_ID)%> <%=(":"+JozAdRequest.KEY_REGION)%> <%=
 	(":"+JozAdRequest.KEY_REVERT_TO_DEFAULT_REALM)%> <%=(":"+ JozAdRequest.KEY_ROW_SIZE)%> <%=(":"+JozAdRequest.KEY_SCRIPT_KEYWORDS)%> <%=(":"+JozAdRequest.KEY_STORE_ID)%> <%=
 	(":"+JozAdRequest.KEY_T_SPEC)%> <%=(":"+JozAdRequest.KEY_URL)%> <%=(":"+JozAdRequest.KEY_WHICH_ROW)%> <%=(":"+JozAdRequest.KEY_ZIP_CODE)%> )
 			</i>

@@ -139,11 +139,48 @@ public class AdDataRequest {
         }catch (Exception e) {
             this.recipeId = null;
         }
-	    this.multiValueField1 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD1);
-	    this.multiValueField2 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD2);
-	    this.multiValueField3 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD3);
-	    this.multiValueField4 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD4);
-	    this.multiValueField5 = req.getValue(JozAdRequest.KEY_MULTI_VALUE_FIELD5);
+	    //For Flexible Product Filtering
+	    this.externalFilterField1 = req.getValue(JozAdRequest.KEY_EXTERNAL_FILTER_FIELD1);
+	    if(externalFilterField1 != null){
+		    externalFilterField1 = externalFilterField1.trim();
+	    }
+	    this.externalFilterField2 = req.getValue(JozAdRequest.KEY_EXTERNAL_FILTER_FIELD2);
+	    if(externalFilterField2 != null){
+		    externalFilterField2 = externalFilterField2.trim();
+	    }
+	    this.externalFilterField3 = req.getValue(JozAdRequest.KEY_EXTERNAL_FILTER_FIELD3);
+	    if(externalFilterField3 != null){
+		    externalFilterField3 = externalFilterField3.trim();
+	    }
+	    this.externalFilterField4 = req.getValue(JozAdRequest.KEY_EXTERNAL_FILTER_FIELD4);
+	    if(externalFilterField4 != null){
+		    externalFilterField4 = externalFilterField4.trim();
+	    }
+	    this.externalFilterField5 = req.getValue(JozAdRequest.KEY_EXTERNAL_FILTER_FIELD5);
+	    if(externalFilterField5 != null){
+		    externalFilterField5 = externalFilterField5.trim();
+	    }
+	    //For Flexible AdPod Targeting
+	    this.externalTargetField1 = req.getValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1);
+	    if(externalTargetField1 != null){
+		    externalTargetField1 = externalTargetField1.trim();
+	    }
+	    this.externalTargetField2 = req.getValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD2);
+	    if(externalTargetField2 != null){
+		    externalTargetField2 = externalTargetField2.trim();
+	    }
+	    this.externalTargetField3 = req.getValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD3);
+	    if(externalTargetField3 != null){
+		    externalTargetField3 = externalTargetField3.trim();
+	    }
+	    this.externalTargetField4 = req.getValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD4);
+	    if(externalTargetField4 != null){
+		    externalTargetField4 = externalTargetField4.trim();
+	    }
+	    this.externalTargetField5 = req.getValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD5);
+	    if(externalTargetField5 != null){
+		    externalTargetField5 = externalTargetField5.trim();
+	    }
     }
     
     public enum AdOfferType {
@@ -294,24 +331,44 @@ public class AdDataRequest {
         return _longitude;
     }
 
-    public String getMultiValueField1() {
-        return multiValueField1;
+    public String getExternalFilterField1() {
+        return externalFilterField1;
     }
 
-    public String getMultiValueField2() {
-        return multiValueField2;
+    public String getExternalFilterField2() {
+        return externalFilterField2;
     }
 
-    public String getMultiValueField3() {
-        return multiValueField3;
+    public String getExternalFilterField3() {
+        return externalFilterField3;
     }
 
-    public String getMultiValueField4() {
-        return multiValueField4;
+    public String getExternalFilterField4() {
+        return externalFilterField4;
     }
 
-    public String getMultiValueField5() {
-        return multiValueField5;
+    public String getExternalFilterField5() {
+        return externalFilterField5;
+    }
+
+	public String getExternalTargetField1() {
+        return externalTargetField1;
+    }
+
+    public String getExternalTargetField2() {
+        return externalTargetField2;
+    }
+
+    public String getExternalTargetField3() {
+        return externalTargetField3;
+    }
+
+    public String getExternalTargetField4() {
+        return externalTargetField4;
+    }
+
+    public String getExternalTargetField5() {
+        return externalTargetField5;
     }
 
     public String getTargetedRealm() {
@@ -389,11 +446,11 @@ public class AdDataRequest {
             
             b.append(" :latitude ").append(_latitude);
             b.append(" :longitude ").append(_longitude);
-            b.append(" :multivaluefield1 ").append(multiValueField1);
-            b.append(" :multivaluefield2 ").append(multiValueField2);
-            b.append(" :multivaluefield3 ").append(multiValueField3);
-            b.append(" :multivaluefield3 ").append(multiValueField4);
-            b.append(" :multivaluefield5 ").append(multiValueField5);
+            b.append(" :multivaluefield1 ").append(externalFilterField1);
+            b.append(" :multivaluefield2 ").append(externalFilterField2);
+            b.append(" :multivaluefield3 ").append(externalFilterField3);
+            b.append(" :multivaluefield3 ").append(externalFilterField4);
+            b.append(" :multivaluefield5 ").append(externalFilterField5);
 
             
             b.append(" :ad-type ").append(
@@ -689,11 +746,17 @@ public class AdDataRequest {
 
     String targetedRealm = "";
 
-    String multiValueField1 = null;
-    String multiValueField2 = null;
-    String multiValueField3 = null;
-    String multiValueField4 = null;
-    String multiValueField5 = null;
+    String externalFilterField1 = null;
+    String externalFilterField2 = null;
+    String externalFilterField3 = null;
+    String externalFilterField4 = null;
+    String externalFilterField5 = null;
+	
+	String externalTargetField1 = null;
+    String externalTargetField2 = null;
+    String externalTargetField3 = null;
+    String externalTargetField4 = null;
+    String externalTargetField5 = null;
     String adType = "";
 
     
@@ -883,26 +946,26 @@ public class AdDataRequest {
                     
                     
                     case MULTIVALUE_FIELD1:
-                        this.multiValueField1 = SexpUtils.get_next_string(name, iter);
+                        this.externalFilterField1 = SexpUtils.get_next_string(name, iter);
                         
                     case ADTYPE:
                         this.adType = SexpUtils.get_next_string(name, iter);
                         break;
 
                     case MULTIVALUE_FIELD2:
-                        this.multiValueField3 = SexpUtils.get_next_string(name, iter);
+                        this.externalFilterField2 = SexpUtils.get_next_string(name, iter);
                         break;
 
                     case MULTIVALUE_FIELD3:
-                        this.multiValueField3 = SexpUtils.get_next_string(name, iter);
+                        this.externalFilterField3 = SexpUtils.get_next_string(name, iter);
                         break;
 
                     case MULTIVALUE_FIELD4:
-                        this.multiValueField4 = SexpUtils.get_next_string(name, iter);
+                        this.externalFilterField4 = SexpUtils.get_next_string(name, iter);
                         break;
 
                     case MULTIVALUE_FIELD5:
-                        this.multiValueField5 = SexpUtils.get_next_string(name, iter);
+                        this.externalFilterField5 = SexpUtils.get_next_string(name, iter);
                         break;
 
                         

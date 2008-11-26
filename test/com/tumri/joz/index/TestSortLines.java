@@ -18,7 +18,7 @@ public class TestSortLines {
     static final String TAXONOMY_CATSPEC_FILE_FORMAT = ".*-CategorySpec_.*.utf8";
 
     public static void main(String[] args) {
-        long key = createLongIndexKey(Product.Attribute.kMultiValueField1, 932456);
+        long key = createLongIndexKey(Product.Attribute.kExternalFilterField1, 932456);
         int[] result = getValuesFromLongAttrKey(key);
         System.out.println(result[0]);
         System.out.println(result[1]);

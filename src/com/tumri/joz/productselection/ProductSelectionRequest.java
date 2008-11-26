@@ -39,11 +39,11 @@ public class ProductSelectionRequest {
     private String requestKeyWords = "";
     private String requestCategory = null;
     private AdDataRequest.AdOfferType offerType = null;
-    private String multiValueQuery1 = null;
-    private String multiValueQuery2 = null;
-    private String multiValueQuery3 = null;
-    private String multiValueQuery4 = null;
-    private String multiValueQuery5 = null;
+    private String externalFilterQuery1 = null;
+    private String externalFilterQuery2 = null;
+    private String externalFilterQuery3 = null;
+    private String externalFilterQuery4 = null;
+    private String externalFilterQuery5 = null;
     
     private int adWidth = -1;
     private int adHeight = -1;
@@ -201,44 +201,44 @@ public class ProductSelectionRequest {
         this.bPaginate = bPaginate;
     }
 
-    public String getMultiValueQuery1() {
-        return multiValueQuery1;
+    public String getExternalFilterQuery1() {
+        return externalFilterQuery1;
     }
 
-    public void setMultiValueQuery1(String multiValueQuery1) {
-        this.multiValueQuery1 = multiValueQuery1;
+    public void setExternalFilterQuery1(String externalFilterQuery1) {
+        this.externalFilterQuery1 = externalFilterQuery1;
     }
 
-    public String getMultiValueQuery2() {
-        return multiValueQuery2;
+    public String getExternalFilterQuery2() {
+        return externalFilterQuery2;
     }
 
-    public void setMultiValueQuery2(String multiValueQuery2) {
-        this.multiValueQuery2 = multiValueQuery2;
+    public void setExternalFilterQuery2(String externalFilterQuery2) {
+        this.externalFilterQuery2 = externalFilterQuery2;
     }
 
-    public String getMultiValueQuery3() {
-        return multiValueQuery3;
+    public String getExternalFilterQuery3() {
+        return externalFilterQuery3;
     }
 
-    public void setMultiValueQuery3(String multiValueQuery3) {
-        this.multiValueQuery3 = multiValueQuery3;
+    public void setExternalFilterQuery3(String externalFilterQuery3) {
+        this.externalFilterQuery3 = externalFilterQuery3;
     }
 
-    public String getMultiValueQuery4() {
-        return multiValueQuery4;
+    public String getExternalFilterQuery4() {
+        return externalFilterQuery4;
     }
 
-    public void setMultiValueQuery4(String multiValueQuery4) {
-        this.multiValueQuery4 = multiValueQuery4;
+    public void setExternalFilterQuery4(String externalFilterQuery4) {
+        this.externalFilterQuery4 = externalFilterQuery4;
     }
 
-    public String getMultiValueQuery5() {
-        return multiValueQuery5;
+    public String getExternalFilterQuery5() {
+        return externalFilterQuery5;
     }
 
-    public void setMultiValueQuery5(String multiValueQuery5) {
-        this.multiValueQuery5 = multiValueQuery5;
+    public void setExternalFilterQuery5(String externalFilterQuery5) {
+        this.externalFilterQuery5 = externalFilterQuery5;
     }
 
 	public String toString(){
@@ -254,11 +254,11 @@ public class ProductSelectionRequest {
 		sb.append("requestKeyWords = ".toUpperCase() + requestKeyWords + " ");
 		sb.append("requestCategory = ".toUpperCase() + requestCategory + " ");
 		sb.append("offerType = ".toUpperCase() + offerType + " ");
-		sb.append("multiValueQuery1 = ".toUpperCase() + multiValueQuery1 + " ");
-		sb.append("multiValueQuery2 = ".toUpperCase() + multiValueQuery2 + " ");
-		sb.append("multiValueQuery3 = ".toUpperCase() + multiValueQuery3 + " ");
-		sb.append("multiValueQuery4 = ".toUpperCase() + multiValueQuery4 + " ");
-		sb.append("multiValueQuery5 = ".toUpperCase() + multiValueQuery5 + " ");
+		sb.append("externalFilterQuery1 = ".toUpperCase() + externalFilterQuery1 + " ");
+		sb.append("externalFilterQuery2 = ".toUpperCase() + externalFilterQuery2 + " ");
+		sb.append("externalFilterQuery3 = ".toUpperCase() + externalFilterQuery3 + " ");
+		sb.append("externalFilterQuery4 = ".toUpperCase() + externalFilterQuery4 + " ");
+		sb.append("externalFilterQuery5 = ".toUpperCase() + externalFilterQuery5 + " ");
 		sb.append("adWidth = ".toUpperCase() + adWidth + " ");
 		sb.append("adHeight = ".toUpperCase() + adHeight + " ");
 		sb.append("bMineUrls = ".toUpperCase() + bMineUrls + " ");

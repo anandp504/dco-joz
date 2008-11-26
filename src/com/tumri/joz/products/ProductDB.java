@@ -679,9 +679,9 @@ public class ProductDB {
           }
       }
       {
-        Integer k = p.getMultiValueField1();
+        Integer k = p.getExternalFilterField1();
         if (k!= null) {
-            long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField1,k);
+            long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kExternalFilterField1,k);
             ArrayList<Handle> list = mmultitextattr.get(k);
             if (list == null) {
               list = new ArrayList<Handle>();
@@ -691,9 +691,9 @@ public class ProductDB {
         }
       }
       {
-        Integer k = p.getMultiValueField2();
+        Integer k = p.getExternalFilterField2();
           if (k!= null) {
-              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField2,k);
+              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kExternalFilterField2,k);
               ArrayList<Handle> list = mmultitextattr.get(k);
               if (list == null) {
                 list = new ArrayList<Handle>();
@@ -703,9 +703,9 @@ public class ProductDB {
           }
       }
       {
-        Integer k = p.getMultiValueField3();
+        Integer k = p.getExternalFilterField3();
           if (k!= null) {
-              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField3,k);
+              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kExternalFilterField3,k);
               ArrayList<Handle> list = mmultitextattr.get(k);
               if (list == null) {
                 list = new ArrayList<Handle>();
@@ -715,9 +715,9 @@ public class ProductDB {
           }
       }
       {
-        Integer k = p.getMultiValueField4();
+        Integer k = p.getExternalFilterField4();
           if (k!= null) {
-              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField4,k);
+              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kExternalFilterField4,k);
               ArrayList<Handle> list = mmultitextattr.get(k);
               if (list == null) {
                 list = new ArrayList<Handle>();
@@ -727,9 +727,9 @@ public class ProductDB {
           }
       }
       {
-        Integer k = p.getMultiValueField5();
+        Integer k = p.getExternalFilterField5();
           if (k!= null) {
-              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kMultiValueField5,k);
+              long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kExternalFilterField5,k);
               ArrayList<Handle> list = mmultitextattr.get(k);
               if (list == null) {
                 list = new ArrayList<Handle>();

@@ -35,19 +35,19 @@ public class IndexUtils {
             case kCategoryField5:
                 result = 5;
                 break;
-            case kMultiValueField1:
+            case kExternalFilterField1:
                 result = 1;
                 break;
-            case kMultiValueField2:
+            case kExternalFilterField2:
                 result = 2;
                 break;
-            case kMultiValueField3:
+            case kExternalFilterField3:
                 result = 3;
                 break;
-            case kMultiValueField4:
+            case kExternalFilterField4:
                 result = 4;
                 break;
-            case kMultiValueField5:
+            case kExternalFilterField5:
                 result = 5;
                 break;
         }
@@ -260,20 +260,20 @@ public class IndexUtils {
             case kCategoryField5:
                 id = DictionaryManager.getId(Product.Attribute.kCategoryField5, indexVal);
                 break;
-            case kMultiValueField1:
-                id = DictionaryManager.getId(Product.Attribute.kMultiValueField1, indexVal);
+            case kExternalFilterField1:
+                id = DictionaryManager.getId(Product.Attribute.kExternalFilterField1, indexVal);
                 break;
-            case kMultiValueField2:
-                id = DictionaryManager.getId(Product.Attribute.kMultiValueField2, indexVal);
+            case kExternalFilterField2:
+                id = DictionaryManager.getId(Product.Attribute.kExternalFilterField2, indexVal);
                 break;
-            case kMultiValueField3:
-                id = DictionaryManager.getId(Product.Attribute.kMultiValueField3, indexVal);
+            case kExternalFilterField3:
+                id = DictionaryManager.getId(Product.Attribute.kExternalFilterField3, indexVal);
                 break;
-            case kMultiValueField4:
-                id = DictionaryManager.getId(Product.Attribute.kMultiValueField4, indexVal);
+            case kExternalFilterField4:
+                id = DictionaryManager.getId(Product.Attribute.kExternalFilterField4, indexVal);
                 break;
-            case kMultiValueField5:
-                id = DictionaryManager.getId(Product.Attribute.kMultiValueField5, indexVal);
+            case kExternalFilterField5:
+                id = DictionaryManager.getId(Product.Attribute.kExternalFilterField5, indexVal);
                 break;
         }
         return id;
@@ -334,16 +334,16 @@ public class IndexUtils {
             id = Product.Attribute.kCategoryField4;
         } else if (indexType.equals("categoryfield5")) {
             id = Product.Attribute.kCategoryField5;
-        } else if (indexType.equals("multivaluefield1")) {
-            id = Product.Attribute.kMultiValueField1;
-        } else if (indexType.equals("multivaluefield2")) {
-            id = Product.Attribute.kMultiValueField2;
-        } else if (indexType.equals("multivaluefield3")) {
-            id = Product.Attribute.kMultiValueField3;
-        } else if (indexType.equals("multivaluefield4")) {
-            id = Product.Attribute.kMultiValueField4;
-        } else if (indexType.equals("multivaluefield5")) {
-            id = Product.Attribute.kMultiValueField5;
+        } else if (indexType.equals("externalfilterf1")) {
+            id = Product.Attribute.kExternalFilterField1;
+        } else if (indexType.equals("externalfilterf2")) {
+            id = Product.Attribute.kExternalFilterField2;
+        } else if (indexType.equals("externalfilterf3")) {
+            id = Product.Attribute.kExternalFilterField3;
+        } else if (indexType.equals("externalfilterf4")) {
+            id = Product.Attribute.kExternalFilterField4;
+        } else if (indexType.equals("externalfilterf5")) {
+            id = Product.Attribute.kExternalFilterField5;
         }
         return id;
     }
@@ -398,16 +398,16 @@ public class IndexUtils {
             name = "categoryfield4";
         } else if (id == Product.Attribute.kCategoryField5) {
             name = "categoryfield5";
-        } else if (id == Product.Attribute.kMultiValueField1) {
-            name = "multivaluefield1";
-        } else if (id == Product.Attribute.kMultiValueField2) {
-            name = "multivaluefield2";
-        } else if (id == Product.Attribute.kMultiValueField3) {
-            name = "multivaluefield3";
-        } else if (id == Product.Attribute.kMultiValueField4) {
-            name = "multivaluefield4";
-        } else if (id == Product.Attribute.kMultiValueField5) {
-            name = "multivaluefield5";
+        } else if (id == Product.Attribute.kExternalFilterField1) {
+            name = "externalfilterf1";
+        } else if (id == Product.Attribute.kExternalFilterField2) {
+            name = "externalfilterf2";
+        } else if (id == Product.Attribute.kExternalFilterField3) {
+            name = "externalfilterf3";
+        } else if (id == Product.Attribute.kExternalFilterField4) {
+            name = "externalfilterf4";
+        } else if (id == Product.Attribute.kExternalFilterField5) {
+            name = "externalfilterf5";
         }
 
         return name;

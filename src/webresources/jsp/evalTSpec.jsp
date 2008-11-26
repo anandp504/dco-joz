@@ -39,8 +39,8 @@
 		<form id="evalForm" action="/joz/console?mode=execute&option=tspec" method="post">
 			<h4>Enter ProductSelectionRequest Info:</h4>
 			<i>(Keys= :num_products :offertype :city :state :country :zipcode :dmacode :areacode
-			:brandomize :bmineurls :bpaginate :bbackfill :requestkeywords :requestcategory :multivaluequery1
-			:multivaluequery2 :multivaluequery3 :multivaluequery4 :multivaluequery5)</i>
+			:brandomize :bmineurls :bpaginate :bbackfill :requestkeywords :requestcategory :externalfilterquery1
+			:externalfilterquery2 :externalfilterquery3 :externalfilterquery4 :externalfilterquery5)</i>
 			<br>
 			<textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:2cm" ><%
 				if(psrReq != null){
@@ -53,7 +53,7 @@
 			<i>(Keys = :allowexternalquery :useradiusquery :radius :minepuburl :lowprice
 			:highprice :applygeofilter :applyurlfilter :applykeywordfilter :includedproviders
 			:excludedproviders :excludedcategories :includedcategories :includedbrands :excludedbrands
-			:excludedmerchants :includedmerchants :includedproducts :excludedproducts :includedkeywords)</i>
+			:excludedmerchants :includedmerchants :includedproducts :excludedproducts :LTKExpression)</i>
 			<br>
 			<i>Note: Keys that can take more than one value(includedproviders, excludedproviders, etc...) can be
 			followed by a comma serated list of values.</i>

@@ -212,29 +212,29 @@ public class ProductSelectionProcessor {
             pr.setAreaCode(areaCode);
         }
 
-        String multiValueField1 = request.getMultiValueField1();
-        if (multiValueField1!= null) {
-            pr.setMultiValueQuery1(multiValueField1);
+        String externalFilterField1 = request.getExternalFilterField1();
+        if (externalFilterField1!= null) {
+            pr.setExternalFilterQuery1(externalFilterField1);
         }
 
-        String multiValueField2 = request.getMultiValueField2();
-        if (multiValueField2!= null) {
-            pr.setMultiValueQuery1(multiValueField2);
+        String externalFilterField2 = request.getExternalFilterField2();
+        if (externalFilterField2!= null) {
+            pr.setExternalFilterQuery1(externalFilterField2);
         }
 
-        String multiValueField3 = request.getMultiValueField3();
-        if (multiValueField3!= null) {
-            pr.setMultiValueQuery1(multiValueField3);
+        String externalFilterField3 = request.getExternalFilterField3();
+        if (externalFilterField3!= null) {
+            pr.setExternalFilterQuery1(externalFilterField3);
         }
 
-        String multiValueField4 = request.getMultiValueField4();
-        if (multiValueField4!= null) {
-            pr.setMultiValueQuery4(multiValueField4);
+        String externalFilterField4 = request.getExternalFilterField4();
+        if (externalFilterField4!= null) {
+            pr.setExternalFilterQuery4(externalFilterField4);
         }
 
-        String multiValueField5 = request.getMultiValueField5();
-        if (multiValueField5!= null) {
-            pr.setMultiValueQuery1(multiValueField5);
+        String externalFilterField5 = request.getExternalFilterField5();
+        if (externalFilterField5!= null) {
+            pr.setExternalFilterQuery1(externalFilterField5);
         }
 
         return pr;

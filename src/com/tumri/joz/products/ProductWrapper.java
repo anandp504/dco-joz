@@ -337,44 +337,44 @@ public class ProductWrapper implements IProduct {
         return prod.getThumbnail();
     }
 
-    public Integer getMultiValueField1() {
-        return prod.getMultiValueField1();
+    public Integer getExternalFilterField1() {
+        return prod.getExternalFilterField1();
     }
 
-    public String getMultiValueField1Str() {
-        return prod.getMultiValueField1Str();
+    public String getExternalFilterField1Str() {
+        return prod.getExternalFilterField1Str();
     }
 
-    public Integer getMultiValueField2() {
-        return prod.getMultiValueField2();
+    public Integer getExternalFilterField2() {
+        return prod.getExternalFilterField2();
     }
 
-    public String getMultiValueField2Str() {
-        return prod.getMultiValueField2Str();
+    public String getExternalFilterField2Str() {
+        return prod.getExternalFilterField2Str();
     }
 
-    public Integer getMultiValueField3() {
-        return prod.getMultiValueField3();
+    public Integer getExternalFilterField3() {
+        return prod.getExternalFilterField3();
     }
 
-    public String getMultiValueField3Str() {
-        return prod.getMultiValueField3Str();
+    public String getExternalFilterField3Str() {
+        return prod.getExternalFilterField3Str();
     }
 
-    public Integer getMultiValueField4() {
-        return prod.getMultiValueField4();
+    public Integer getExternalFilterField4() {
+        return prod.getExternalFilterField4();
     }
 
-    public String getMultiValueField4Str() {
-        return prod.getMultiValueField4Str();
+    public String getExternalFilterField4Str() {
+        return prod.getExternalFilterField4Str();
     }
 
-    public Integer getMultiValueField5() {
-        return prod.getMultiValueField5();
+    public Integer getExternalFilterField5() {
+        return prod.getExternalFilterField5();
     }
 
-    public String getMultiValueField5Str() {
-        return prod.getMultiValueField5Str();
+    public String getExternalFilterField5Str() {
+        return prod.getExternalFilterField5Str();
     }
 
     public int compareTo(Object ip) {

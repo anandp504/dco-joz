@@ -28,21 +28,21 @@ import java.util.*;
 public class ProductQueryMonitor extends ComponentMonitor
 {
 
-    private static Logger log = Logger.getLogger(ProductQueryMonitor.class);
+	private static Logger log = Logger.getLogger(ProductQueryMonitor.class);
 
-    public ProductQueryMonitor()
-    {
-       super("getaddata", new ProductQueryMonitorStatus("getaddata"));
-    }
+	public ProductQueryMonitor()
+	{
+		super("getaddata", new ProductQueryMonitorStatus("getaddata"));
+	}
 
-    /**
-     * Method not supported
-     * @param tSpecId
-     * @return
-     */
-    public MonitorStatus getStatus(String tSpecId) {
-        throw new UnsupportedOperationException("Method not supported");
-    }
+	/**
+	 * Method not supported
+	 * @param tSpecId
+	 * @return
+	 */
+	public MonitorStatus getStatus(String tSpecId) {
+		throw new UnsupportedOperationException("Method not supported");
+	}
 
 	public MonitorStatus getStatus(String prS, String tSpecS){
 		ProductSelectionRequest pr = generateProductSelectionRequest(prS);
@@ -50,144 +50,144 @@ public class ProductQueryMonitor extends ComponentMonitor
 
 		List<Map<String, String>>  results;
 
-        try {
-            ArrayList<Handle> handles = doProductSelection(tSpec, pr, new Features());
-            results = getProductData(handles);
-        }
-        catch(Exception ex) {
-            log.error("Error reading sexpression:  "+ex.getMessage());
-            results = null;
-        }
+		try {
+			ArrayList<Handle> handles = doProductSelection(tSpec, pr, new Features());
+			results = getProductData(handles);
+		}
+		catch(Exception ex) {
+			log.error("Error reading sexpression:  "+ex.getMessage());
+			results = null;
+		}
 
-        ((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
-	    ((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(pr.toString());
+		((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
+		((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(pr.toString());
 
-        return status;
+		return status;
 
 	}
 
 
 
-    /**
-     * Method to get the product information for a tspec
-     * @param tSpecId
-     * @return
-     */
-    public MonitorStatus getStatus(int tSpecId)
-    {
+	/**
+	 * Method to get the product information for a tspec
+	 * @param tSpecId
+	 * @return
+	 */
+	public MonitorStatus getStatus(int tSpecId)
+	{
 
-        ProductSelectionRequest pr = new ProductSelectionRequest();
-        pr.setPageSize(100);
-        pr.setCurrPage(0);
-        pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
-        pr.setBPaginate(true);
-        pr.setBRandomize(false);
-        pr.setRequestKeyWords(null);
-        pr.setBMineUrls(false);
+		ProductSelectionRequest pr = new ProductSelectionRequest();
+		pr.setPageSize(100);
+		pr.setCurrPage(0);
+		pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
+		pr.setBPaginate(true);
+		pr.setBRandomize(false);
+		pr.setRequestKeyWords(null);
+		pr.setBMineUrls(false);
 
 
-        List<Map<String, String>>  results;
+		List<Map<String, String>>  results;
 
-        try {
-            ArrayList<Handle> handles = doProductSelection(tSpecId, pr, new Features() );
-            results = getProductData(handles);
-        }
-        catch(Exception ex) {
-            log.error("Error reading sexpression:  "+ex.getMessage());
-            results = null;
-        }
+		try {
+			ArrayList<Handle> handles = doProductSelection(tSpecId, pr, new Features() );
+			results = getProductData(handles);
+		}
+		catch(Exception ex) {
+			log.error("Error reading sexpression:  "+ex.getMessage());
+			results = null;
+		}
 
-        ((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
-	    ((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(pr.toString());
-        return status;
-    }
+		((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
+		((ProductQueryMonitorStatus)status.getStatus()).setProductQuery(pr.toString());
+		return status;
+	}
 
-    /**
-     * Execute the current tspec and add to the results map
-     * @param pr
-     */
-    private ArrayList<Handle> doProductSelection(int tspecId, ProductSelectionRequest pr, Features f) {
-        TSpecExecutor qp = new TSpecExecutor(pr, f);
-        return qp.processQuery(tspecId);
-    }
+	/**
+	 * Execute the current tspec and add to the results map
+	 * @param pr
+	 */
+	private ArrayList<Handle> doProductSelection(int tspecId, ProductSelectionRequest pr, Features f) {
+		TSpecExecutor qp = new TSpecExecutor(pr, f);
+		return qp.processQuery(tspecId);
+	}
 
 	private ArrayList<Handle> doProductSelection(TSpec tSpec, ProductSelectionRequest pr, Features f) {
 		TSpecExecutor qp = new TSpecExecutor(pr, f);
 		return qp.processQuery(tSpec);
 	}
 
-    /**
-     * Get the JSON Product listing response from LLC Client.
-     * @param handles
-     * @return
-     * @throws JoZException
-     */
-    private List<Map<String, String>> getProductData( ArrayList<Handle> handles) throws JoZException {
-        Integer maxDescLength = 100;// default
-        List<Map<String, String>> products=new ArrayList<Map<String,String>>();
+	/**
+	 * Get the JSON Product listing response from LLC Client.
+	 * @param handles
+	 * @return
+	 * @throws JoZException
+	 */
+	private List<Map<String, String>> getProductData( ArrayList<Handle> handles) throws JoZException {
+		Integer maxDescLength = 100;// default
+		List<Map<String, String>> products=new ArrayList<Map<String,String>>();
 
-        if (handles==null) {
-            throw new JoZException("No products returned by the product selection");
-        }
+		if (handles==null) {
+			throw new JoZException("No products returned by the product selection");
+		}
 
-        String jsonStr = null;
-        ListingResponse response = null;
+		String jsonStr = null;
+		ListingResponse response = null;
 
-        if (handles.size()>0) {
-            long[] pids = new long[handles.size()];
+		if (handles.size()>0) {
+			long[] pids = new long[handles.size()];
 
-            for (int i=0;i<handles.size();i++){
-                pids[i] = handles.get(i).getOid();
-            }
+			for (int i=0;i<handles.size();i++){
+				pids[i] = handles.get(i).getOid();
+			}
 
-            ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-                    MerchantDB.getInstance().getMerchantData());
-            response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
-            if (response==null) {
-                throw new JoZException("Invalid response from Listing Provider");
-            }
+			ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+					MerchantDB.getInstance().getMerchantData());
+			response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
+			if (response==null) {
+				throw new JoZException("Invalid response from Listing Provider");
+			}
 
-            jsonStr = response.getListingDetails();
+			jsonStr = response.getListingDetails();
 
-        }
-        if (jsonStr==null || "".equals(jsonStr)) {
-            throw new JozMonitorException("Products not found.");
-        }
-        StringBuffer rawData = new StringBuffer();
-        rawData.append("[PRODUCTS = " + jsonStr + "] ");
-        rawData.append("[PROD-IDS = " + response.getProductIdList() + "] ");
-        rawData.append("[CATEGORIES = " + response.getCatDetails() + "] ");
-        rawData.append("[CAT-NAMES = " + response.getCatIdList() + "] ");
+		}
+		if (jsonStr==null || "".equals(jsonStr)) {
+			throw new JozMonitorException("Products not found.");
+		}
+		StringBuffer rawData = new StringBuffer();
+		rawData.append("[PRODUCTS = " + jsonStr + "] ");
+		rawData.append("[PROD-IDS = " + response.getProductIdList() + "] ");
+		rawData.append("[CATEGORIES = " + response.getCatDetails() + "] ");
+		rawData.append("[CAT-NAMES = " + response.getCatIdList() + "] ");
 
-        ((ProductQueryMonitorStatus)status.getStatus()).setProductRawData(rawData.toString());
+		((ProductQueryMonitorStatus)status.getStatus()).setProductRawData(rawData.toString());
 
-        jsonStr = jsonStr.replaceAll("\\\\\\\\\"","\\\\\\\\\\\\\"");
-        try {
-            JSONArray jsonArray = new JSONArray(jsonStr);
-            for (int i=0; i<jsonArray.length(); i++) {
-                Map<String, String> attributes = new HashMap<String, String>();
-                JSONObject jsonObj  = (JSONObject)jsonArray.get(i);
-                Iterator it = jsonObj.keys();
-                String key = null;
-                String value = null;
-                while (it.hasNext()) {
-                    key = (String)it.next();
-                    value = (String)jsonObj.get(key);
-                    if (key != null)
-                        attributes.put(key, value);
-                }
-                products.add(attributes);
-            }
-        }
-        catch (Exception ex) {
-            log.info(jsonStr);
-            log.error("Error in json parsing : " + ex);
-            throw new JozMonitorException("Unexpected Json library error.");
-        }
+		jsonStr = jsonStr.replaceAll("\\\\\\\\\"","\\\\\\\\\\\\\"");
+		try {
+			JSONArray jsonArray = new JSONArray(jsonStr);
+			for (int i=0; i<jsonArray.length(); i++) {
+				Map<String, String> attributes = new HashMap<String, String>();
+				JSONObject jsonObj  = (JSONObject)jsonArray.get(i);
+				Iterator it = jsonObj.keys();
+				String key = null;
+				String value = null;
+				while (it.hasNext()) {
+					key = (String)it.next();
+					value = (String)jsonObj.get(key);
+					if (key != null)
+						attributes.put(key, value);
+				}
+				products.add(attributes);
+			}
+		}
+		catch (Exception ex) {
+			log.info(jsonStr);
+			log.error("Error in json parsing : " + ex);
+			throw new JozMonitorException("Unexpected Json library error.");
+		}
 
-        return products;
+		return products;
 
-    }
+	}
 
 	private static ProductSelectionRequest generateProductSelectionRequest(String req){
 		ProductSelectionRequest pr = new ProductSelectionRequest();
@@ -205,11 +205,11 @@ public class ProductQueryMonitor extends ComponentMonitor
 		keys.add(":bpaginate");
 		keys.add(":requestkeywords");
 		keys.add(":requestcategory");
-		keys.add(":multivaluequery1");
-		keys.add(":multivaluequery2");
-		keys.add(":multivaluequery3");
-		keys.add(":multivaluequery4");
-		keys.add(":multivaluequery5");
+		keys.add(":externalfilterquery1");
+		keys.add(":externalfilterquery2");
+		keys.add(":externalfilterquery3");
+		keys.add(":externalfilterquery4");
+		keys.add(":externalfilterquery5");
 
 		if(req == null || "".equals(req.trim())){
 			pr.setCurrPage(0);
@@ -309,25 +309,25 @@ public class ProductQueryMonitor extends ComponentMonitor
 						if(!"".equals(value.trim())){
 							pr.setRequestCategory(value.trim());
 						}
-					} else if(":multivalue.trim()query1".equalsIgnoreCase(key)){
+					} else if(":externalfilterquery1".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setMultiValueQuery1(value.trim());
+							pr.setExternalFilterQuery1(value.trim());
 						}
-					} else if(":multivalue.trim()query2".equalsIgnoreCase(key)){
+					} else if(":externalfilterquery2".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setMultiValueQuery2(value.trim());
+							pr.setExternalFilterQuery2(value.trim());
 						}
-					} else if(":multivalue.trim()query3".equalsIgnoreCase(key)){
+					} else if(":externalfilterquery3".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setMultiValueQuery3(value.trim());
+							pr.setExternalFilterQuery3(value.trim());
 						}
-					} else if(":multivalue.trim()query4".equalsIgnoreCase(key)){
+					} else if(":externalfilterquery4".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setMultiValueQuery4(value.trim());
+							pr.setExternalFilterQuery4(value.trim());
 						}
-					} else if(":multivalue.trim()query5".equalsIgnoreCase(key)){
+					} else if(":externalfilterquery5".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setMultiValueQuery5(value.trim());
+							pr.setExternalFilterQuery5(value.trim());
 						}
 					}
 				}else {
@@ -378,7 +378,7 @@ public class ProductQueryMonitor extends ComponentMonitor
 		keys.add(":includedmerchants");
 		keys.add(":includedproducts");
 		keys.add(":excludedproducts");
-		keys.add(":includedkeywords");
+		keys.add(":LTKExpression");
 
 		if(req != null && !"".equals(req.trim())){
 			com.tumri.utils.strings.StringTokenizer reqTokenizer = new com.tumri.utils.strings.StringTokenizer(req, ' ');
@@ -549,14 +549,9 @@ public class ProductQueryMonitor extends ComponentMonitor
 								tSpec.addExcludedProducts(prodInfo);
 							}
 						}
-					} else if(":includedkeywords".equalsIgnoreCase(key)){
+					} else if(":LTKExpression".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
-							ArrayList<String> incKeywords = st.getTokens();
-							for(String keyword: incKeywords){
-								KeywordInfo keywordInfo = new KeywordInfo(keyword.trim());
-								tSpec.addIncludedKeywords(keywordInfo);
-							}
+							tSpec.setLoadTimeKeywordExpression(value.trim());
 						}
 					}
 				} else {
