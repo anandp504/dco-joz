@@ -206,5 +206,13 @@ public abstract class CampaignDB {
     public abstract ArrayList<TSpec> getTSpecs();
 
     public abstract ArrayList<Recipe> getRecipes();
+    
+    public abstract void loadExternalVariableAdPods(Iterator<AdPodExternalVariableMapping> iterator);
+    
+    public abstract void loadNonExternalVariableAdPods(Iterator<AdPod> iterator);
+    
+    public abstract AtomicAdpodIndex<String, Handle> getExternalVariableAdPodMappingIndex();
+    
+    public abstract AtomicAdpodIndex<String, Handle> getNonExternalVariableAdPodMappingIndex();
 
 }

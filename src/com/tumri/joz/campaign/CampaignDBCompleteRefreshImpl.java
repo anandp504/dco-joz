@@ -73,7 +73,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     //This map is only used by dynamic data request - incorp-mapping-delta.
     private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodGeoNoneHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
     private AtomicReference<RWLockedTreeMap<Integer,Handle>> adPodUrlNoneHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
-
+    private AtomicReference<RWLockedTreeMap<Integer,Handle>>  adPodExternalVariableNoneHandlesMap = new AtomicReference<RWLockedTreeMap<Integer, Handle>>(new RWLockedTreeMap<Integer, Handle>());
+    
     // All indices required in targeting
     private AtomicAdpodIndex<Integer, Handle> adpodLocationMappingIndex = new AtomicAdpodIndex<Integer, Handle>(new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation));
     private AtomicAdpodIndex<String, Handle>  adpodThemeMappingIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kTheme));
@@ -88,6 +89,9 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private AtomicAdpodIndex<String, Handle>  adpodGeoDmacodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kDMACode));
     private AtomicAdpodIndex<String, Handle>  adpodGeoAreacodeIndex     = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAreaCode));
     private AtomicAdpodIndex<String, Handle>  adpodGeoZipcodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kZipCode));
+    //private AtomicAdpodIndex<Integer, Handle> adpodLocationMappingIndex = new AtomicAdpodIndex<Integer, Handle>(new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation));
+    private AtomicAdpodIndex<String, Handle>  adpodExternalVariableMappingIndex = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTarget));
+    private AtomicAdpodIndex<String, Handle>  adpodExternalVariableNoneMappingIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTargetNone));
 
     private CampaignDBCompleteRefreshImpl() {
         initialize();
@@ -1157,4 +1161,96 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         }
         return recipeArrayList;
     }
+
+	@Override
+	public void loadExternalVariableAdPods(Iterator<AdPodExternalVariableMapping> iterator) {
+		if(iterator == null) {
+            return;
+        }
+		if(iterator.hasNext()) {
+			Map<String,List<Handle>>   extVariableAdPodMap = new HashMap<String, List<Handle>>();
+            AdpodIndex<String, Handle> index       = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTarget);
+            AdPod adPod;
+            List<Handle> list;
+
+            while(iterator.hasNext()) {
+                AdPodExternalVariableMapping extVariableAdPodMapping = iterator.next();
+                String externalTarget = extVariableAdPodMapping.getExternalTarget();
+                adPod = adPodMap.get().safeGet(extVariableAdPodMapping.getAdPodId());
+                if(externalTarget != null && adPod != null) {
+                    
+                    list = extVariableAdPodMap.get(externalTarget);
+                    if(list == null) {
+                        list = new ArrayList<Handle>();
+                    }
+                    int oid = adPod.getId(); 
+                    list.add(new AdPodHandle(oid, TargetingScoreHelper.getInstance().getTargetingVariableScore()));
+                    extVariableAdPodMap.put(externalTarget, list);
+                }
+                else {
+                    //Adpod not found, some inconsistency caused this. The externaltarget-adpod mapping for that particular
+                    // adpod will not be added to index.
+                    log.error("The Adpod was not found in the externaltarget/adPodMap when looking it up while creating externaltarget-adpod-mapping Indexes");
+                }
+            }
+            index.put(extVariableAdPodMap);
+            adpodExternalVariableMappingIndex.set(index);
+        }
+		
+	}
+
+	@Override
+	public void loadNonExternalVariableAdPods(Iterator<AdPod> iterator) {
+		if(iterator == null) {
+            return;
+        }
+        int nonExtVariableAdPodCount = 0;
+        Map<String,List<Handle>> extVariableNoneAdPodMap;
+        if(iterator.hasNext()) {
+        	extVariableNoneAdPodMap = new HashMap<String, List<Handle>>();
+            AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTargetNone);
+            List<Handle> list = new ArrayList<Handle>();
+            while(iterator.hasNext()) {
+                AdPod adPod = iterator.next();
+                list.add(new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getTargetingVariableNoneScore(), TargetingScoreHelper.getInstance().getTargetingVariableNoneWeight()));
+                nonExtVariableAdPodCount++;
+            }
+            log.info("Non-external Target Adpod Size: " + nonExtVariableAdPodCount);
+
+            extVariableNoneAdPodMap.put(AdpodIndex.EXTERNAL_VARIABLE_NONE, list);
+            index.put(extVariableNoneAdPodMap);
+            adpodExternalVariableNoneMappingIndex.set(index);
+
+            //Reset the map that holds on to adpod handles for dynamic request - incorpmappingdelta
+            adPodExternalVariableNoneHandlesMap.compareAndSet(adPodExternalVariableNoneHandlesMap.get(), new RWLockedTreeMap<Integer, Handle>());
+        }
+	}
+	 public void addNonExternalTargetAdPod(int adPodId) {
+	        if(adPodExternalVariableNoneHandlesMap.get().safeGet(adPodId) == null) {
+	            AdPodHandle handle = new AdPodHandle(adPodId, TargetingScoreHelper.getInstance().getUrlNoneScore(), TargetingScoreHelper.getInstance().getUrlNoneWeight());
+	            adpodExternalVariableNoneMappingIndex.put(AdpodIndex.EXTERNAL_VARIABLE_NONE, handle);
+	            adPodExternalVariableNoneHandlesMap.get().safePut(adPodId, handle);
+	        }
+	    }
+
+	    public void deleteNonExternalTargetAdPod(int adPodId) {
+	        SortedSet<Handle> set = adpodExternalVariableNoneMappingIndex.get(AdpodIndex.EXTERNAL_VARIABLE_NONE);
+	        if (set!=null) {
+	            Handle h = adPodExternalVariableNoneHandlesMap.get().safeGet(adPodId);
+	            if (h!=null) {
+	                set.remove(h);
+	            }
+	        }
+	        adPodExternalVariableNoneHandlesMap.get().safeRemove(adPodId);
+	    }
+
+		@Override
+		public AtomicAdpodIndex<String, Handle> getExternalVariableAdPodMappingIndex() {
+			return adpodExternalVariableMappingIndex;
+		}
+
+		@Override
+		public AtomicAdpodIndex<String, Handle> getNonExternalVariableAdPodMappingIndex() {
+			return adpodExternalVariableNoneMappingIndex;
+		}
 }

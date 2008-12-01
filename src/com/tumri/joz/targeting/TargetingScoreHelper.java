@@ -32,7 +32,11 @@ public class TargetingScoreHelper {
     private int runOfNetworkWeight   = 1;
     private double geoNoneScore      = 0.2;
     private int geoNoneWeight        = 1;
-
+    
+    private double targetingVariableScore = 0.75;
+    private double targetingVariableNoneScore   = 0.2;
+    private int targetingVariableNoneWeight  = 1;
+    
     private static Logger log = Logger.getLogger (TargetingScoreHelper.class);
 
     private static TargetingScoreHelper scoreHelper = new TargetingScoreHelper();
@@ -196,6 +200,17 @@ public class TargetingScoreHelper {
                 score = Double.parseDouble(scoreStr);
                 urlNoneScore = score;
             }
+            scoreStr = AppProperties.getInstance().getProperty("com.tumri.targeting.targetingVariableScore");
+            if(scoreStr != null && !"".equals(scoreStr)) {
+                score = Double.parseDouble(scoreStr);
+                targetingVariableScore = score;
+            }
+            scoreStr = AppProperties.getInstance().getProperty("com.tumri.targeting.targetingVariableNoneScore");
+            if(scoreStr != null && !"".equals(scoreStr)) {
+                score = Double.parseDouble(scoreStr);
+                targetingVariableNoneScore = score;
+            }
+            
             int weight;
             String weightStr;
 
@@ -214,6 +229,11 @@ public class TargetingScoreHelper {
                 weight = Integer.parseInt(weightStr);
                 urlNoneWeight = weight;
             }
+            weightStr = AppProperties.getInstance().getProperty("com.tumri.targeting.targetingVariableNoneWeight");
+            if(weightStr != null && !"".equals(weightStr)) {
+                weight = Integer.parseInt(weightStr);
+                targetingVariableNoneWeight = weight;
+            }
         }
         catch(NullPointerException e) {
             log.error("Invalid entry for targeting elements score specified in properties file");
@@ -222,4 +242,16 @@ public class TargetingScoreHelper {
             log.error("Invalid entry for targeting elements score specified in properties file");
         }
     }
+
+	public double getTargetingVariableNoneScore() {
+		return targetingVariableNoneScore;
+	}
+
+	public int getTargetingVariableNoneWeight() {
+		return targetingVariableNoneWeight;
+	}
+
+	public double getTargetingVariableScore() {
+		return targetingVariableScore;
+	}
 }

@@ -82,7 +82,8 @@ public class CampaignDBDataLoader {
             Iterator<AdPod> urlNoneAdPodsIterator = deltaProvider.getNonUrlSpecificAdPods(region);
             Iterator<Pair<Integer, Integer>> adPodCampaignMappings            = deltaProvider.getAllAdPodCampaignMappings(region);
             Iterator<Pair<String, Integer>> locationNameIdMappings            = deltaProvider.getLocationNameIdMappings();
-
+            Iterator<AdPodExternalVariableMapping> externalVariableIterator = deltaProvider.getExternalVariableAdpodMappings(region);
+            Iterator<AdPod>	externalVariableNoneIterator = deltaProvider.getNonExternalVariableAdPods(region);
             //long lispDataReadEndTime = System.currentTimeMillis();
             //System.out.println("Data Retrieval from Lisp Provider API: " + (lispDataReadEndTime - lispDataReadStartTime) + " ms");
 
@@ -108,6 +109,8 @@ public class CampaignDBDataLoader {
             campaignDB.loadRecipes(recipesIterator);
             campaignDB.loadAdPodCampaignMapping(adPodCampaignMappings);
             campaignDB.loadLocationNameIdMapping(locationNameIdMappings);
+            campaignDB.loadExternalVariableAdPods(externalVariableIterator);
+            campaignDB.loadNonExternalVariableAdPods(externalVariableNoneIterator);
 
             TransientDataManager.getInstance().reloadInCampaignDB();
 

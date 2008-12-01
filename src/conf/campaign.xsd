@@ -206,6 +206,7 @@
     		<element name="Tests" type="tns:TestDef"/>
     		<element name="Recipes" type="tns:RecipeDef"/>
     		<element name="Locations" type="tns:LocationDef"/>
+    		<element name="AdPodExternalVariableTargets" type="tns:AdPodExternalVariableTargetDef"/>
         </choice>
   </complexType>
    <complexType name="LocationDef">
@@ -459,6 +460,37 @@
     		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>          
         </choice>
    	</complexType>
+   	<complexType name="AdPodExternalVariableTargetDef">
+    	<sequence maxOccurs="unbounded" minOccurs="0">
+    	   <element name="AdPodExternalVariableTarget" type="tns:AdPodExternalVariableTarget" />
+    	</sequence>
+    </complexType>
+    <complexType name="AdPodExternalVariableTarget">
+    	<choice maxOccurs="unbounded" minOccurs="0">   		
+    		<element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+    		<element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
+    		<element name="name" type="string" maxOccurs="1" minOccurs="0"/>
+    		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
+    		<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
+    		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
+    		<element name="AdPodExternalVariableInfoList" type="tns:AdPodExternalVariableInfoDef"/>          
+        </choice>
+   	</complexType>
+   	<complexType name="AdPodExternalVariableInfoDef">
+   	<sequence maxOccurs="unbounded" minOccurs="0">
+   	   <element name="AdPodExternalVariableInfo" type="tns:AdPodExternalVariableInfo" />
+   	</sequence>
+   </complexType>
+   <complexType name="AdPodExternalVariableInfo">
+   	<choice maxOccurs="unbounded" minOccurs="0">
+    	<element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+    	<element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
+		<element name="value" type="string" maxOccurs="1" minOccurs="0"/>
+		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
+    	<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
+    	<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>        
+    </choice>
+  </complexType>
    	<complexType name="TestDef">
     	<sequence maxOccurs="unbounded" minOccurs="0">
     	   <element name="Test" type="tns:Test" />

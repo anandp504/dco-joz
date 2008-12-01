@@ -17,6 +17,7 @@ public class AdpodIndex<Key, Value> extends AbstractIndex<AdPod, AdpodIndex.Attr
     public static final String DEFAULT_REALM  = "DEFAULT_REALM";
     public static final String GEO_NONE       = "GEO_NONE";
     public static final String URL_NONE       = "URL_NONE";
+    public static final String EXTERNAL_VARIABLE_NONE       = "EXTERNAL_VARIABLE_NONE";
 
     private Attribute type;
     public AdpodIndex(AdpodIndex.Attribute type) {
@@ -48,5 +49,8 @@ public class AdpodIndex<Key, Value> extends AbstractIndex<AdPod, AdpodIndex.Attr
         kAdType,
         kRecipe,
         kUrlNone,
+        kKeyword,
+        kExtTarget,
+        kExtTargetNone,
     }
 }

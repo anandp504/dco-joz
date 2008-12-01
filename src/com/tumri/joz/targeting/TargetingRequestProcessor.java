@@ -155,8 +155,13 @@ public class TargetingRequestProcessor {
         String themeName     = request.get_theme();
         String urlName       = request.get_url();
         String adType = request.getAdType();
-
-       SortedSet<Handle> results = null;
+        String extField1 =request.getExternalTargetField1();       
+        String extField2 =request.getExternalTargetField2();      
+        String extField3 =request.getExternalTargetField3();     
+        String extField4 =request.getExternalTargetField4();   
+        String extField5 =request.getExternalTargetField5();
+       
+        SortedSet<Handle> results = null;
 
         if(locationIdStr != null && !"".equals(locationIdStr)) {
             locationId = Integer.parseInt(locationIdStr);
@@ -168,16 +173,17 @@ public class TargetingRequestProcessor {
             GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
             TimeTargetingQuery timeQuery = new TimeTargetingQuery();
             AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);
-
+            ExternalVariableTargetingQuery externalVariableQuery = new ExternalVariableTargetingQuery(extField1,extField2,extField3,extField4,extField5);
+            
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
             ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
             cjQuery.setStrict(true);
-            cjQuery.addQuery(siteQuery);
+            cjQuery.addQuery(siteQuery);           
             cjQuery.addQuery(geoQuery);
-            cjQuery.addQuery(urlQuery);
+            cjQuery.addQuery(urlQuery);          
             cjQuery.addQuery(timeQuery);
             cjQuery.addQuery(adTypeQuery);
-
+            cjQuery.addQuery(externalVariableQuery);
             results = cjQuery.exec();
 
         }

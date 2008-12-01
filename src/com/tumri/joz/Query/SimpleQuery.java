@@ -19,7 +19,7 @@ public abstract class SimpleQuery implements Query, Comparable, Cloneable {
 
   public enum Type {
     kAttribute, kRange, kKeyword, kProductType,
-    kSite, kUrl, kGeo, kTime, kAdType,
+    kSite, kUrl, kGeo, kTime, kAdType,kExtTarget,
   }
 
   private boolean m_negation; // used to express !=, not in range queries
