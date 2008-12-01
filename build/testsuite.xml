@@ -6,10 +6,12 @@
 
     <path id="testsuite.libs">
 	<fileset dir="${ext.lib.dir}" includes="*.jar" />
-	<fileset dir="${utils.lib.dir}" includes="*.jar" />
-    <fileset dir="${cma.lib.dir}" includes="*.jar" />
-    <fileset dir="${caa.lib.dir}" includes="*.jar" />
-	<fileset dir="${zini.lib.dir}" includes="*.jar" />
+	<fileset dir="${utils.lib.dir}" includes="*${utils.lib.file}" />
+    <fileset dir="${cma.lib.dir}" includes="${cma.lib.file}" />
+    <fileset dir="${caa.lib.dir}" includes="${caa.lib.file}" />
+    <fileset dir="${llc.lib.dir}" includes="${llc.lib.file}" />
+    <fileset dir="${jcl.lib.dir}" includes="${jcl.lib.file}" />
+
     </path>
 
     <!-- ****************************************************************** -->
