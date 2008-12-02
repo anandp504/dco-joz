@@ -49,7 +49,6 @@ public class AdpodIndex<Key, Value> extends AbstractIndex<AdPod, AdpodIndex.Attr
         kAdType,
         kRecipe,
         kUrlNone,
-        kKeyword,
         kExtTarget,
         kExtTargetNone,
     }

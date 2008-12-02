@@ -155,11 +155,31 @@ public class TargetingRequestProcessor {
         String themeName     = request.get_theme();
         String urlName       = request.get_url();
         String adType = request.getAdType();
-        String extField1 =request.getExternalTargetField1();       
-        String extField2 =request.getExternalTargetField2();      
-        String extField3 =request.getExternalTargetField3();     
-        String extField4 =request.getExternalTargetField4();   
+        HashMap<Integer, String> extVarsMap = new HashMap<Integer,String>();
+        String extField1 =request.getExternalTargetField1();
+        if(extField1 == null)
+    		extField1="";
+        extVarsMap.put(0, extField1);
+        
+        String extField2 =request.getExternalTargetField2();
+        if(extField2 == null)
+    		extField2="";
+        extVarsMap.put(1, extField2);
+        
+        String extField3 =request.getExternalTargetField3(); 
+        if(extField3 == null)
+    		extField3="";
+        extVarsMap.put(2, extField3);
+        
+        String extField4 =request.getExternalTargetField4();
+        if(extField4 == null)
+    		extField4="";
+        extVarsMap.put(3, extField4);
+        
         String extField5 =request.getExternalTargetField5();
+        if(extField5 == null)
+    		extField5="";
+        extVarsMap.put(4, extField5);
        
         SortedSet<Handle> results = null;
 
@@ -173,7 +193,8 @@ public class TargetingRequestProcessor {
             GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
             TimeTargetingQuery timeQuery = new TimeTargetingQuery();
             AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);
-            ExternalVariableTargetingQuery externalVariableQuery = new ExternalVariableTargetingQuery(extField1,extField2,extField3,extField4,extField5);
+            ExternalVariableTargetingQuery externalVariableQuery = ExternalVariableTargetingQuery.getInstance();
+            externalVariableQuery.setExternalVars(extVarsMap);
             
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
             ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);

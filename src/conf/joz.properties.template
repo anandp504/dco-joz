@@ -153,3 +153,6 @@ com.tumri.joz.server.nio.mode=true
 
 #Image URL
 ProductImagesHostUrl=http://images.tumri.net/iCornerStore
+
+#externalTargetingVariables
+externalTargetingVariables=x2_t1,x2_t2,x2_t3,x2_t4,x2_t5

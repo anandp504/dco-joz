@@ -89,7 +89,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private AtomicAdpodIndex<String, Handle>  adpodGeoDmacodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kDMACode));
     private AtomicAdpodIndex<String, Handle>  adpodGeoAreacodeIndex     = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAreaCode));
     private AtomicAdpodIndex<String, Handle>  adpodGeoZipcodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kZipCode));
-    //private AtomicAdpodIndex<Integer, Handle> adpodLocationMappingIndex = new AtomicAdpodIndex<Integer, Handle>(new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation));
     private AtomicAdpodIndex<String, Handle>  adpodExternalVariableMappingIndex = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTarget));
     private AtomicAdpodIndex<String, Handle>  adpodExternalVariableNoneMappingIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTargetNone));
 
@@ -1225,24 +1224,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             adPodExternalVariableNoneHandlesMap.compareAndSet(adPodExternalVariableNoneHandlesMap.get(), new RWLockedTreeMap<Integer, Handle>());
         }
 	}
-	 public void addNonExternalTargetAdPod(int adPodId) {
-	        if(adPodExternalVariableNoneHandlesMap.get().safeGet(adPodId) == null) {
-	            AdPodHandle handle = new AdPodHandle(adPodId, TargetingScoreHelper.getInstance().getUrlNoneScore(), TargetingScoreHelper.getInstance().getUrlNoneWeight());
-	            adpodExternalVariableNoneMappingIndex.put(AdpodIndex.EXTERNAL_VARIABLE_NONE, handle);
-	            adPodExternalVariableNoneHandlesMap.get().safePut(adPodId, handle);
-	        }
-	    }
-
-	    public void deleteNonExternalTargetAdPod(int adPodId) {
-	        SortedSet<Handle> set = adpodExternalVariableNoneMappingIndex.get(AdpodIndex.EXTERNAL_VARIABLE_NONE);
-	        if (set!=null) {
-	            Handle h = adPodExternalVariableNoneHandlesMap.get().safeGet(adPodId);
-	            if (h!=null) {
-	                set.remove(h);
-	            }
-	        }
-	        adPodExternalVariableNoneHandlesMap.get().safeRemove(adPodId);
-	    }
 
 		@Override
 		public AtomicAdpodIndex<String, Handle> getExternalVariableAdPodMappingIndex() {
