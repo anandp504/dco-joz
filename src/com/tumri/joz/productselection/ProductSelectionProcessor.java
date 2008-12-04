@@ -219,12 +219,12 @@ public class ProductSelectionProcessor {
 
         String externalFilterField2 = request.getExternalFilterField2();
         if (externalFilterField2!= null) {
-            pr.setExternalFilterQuery1(externalFilterField2);
+            pr.setExternalFilterQuery2(externalFilterField2);
         }
 
         String externalFilterField3 = request.getExternalFilterField3();
         if (externalFilterField3!= null) {
-            pr.setExternalFilterQuery1(externalFilterField3);
+            pr.setExternalFilterQuery3(externalFilterField3);
         }
 
         String externalFilterField4 = request.getExternalFilterField4();
@@ -234,7 +234,7 @@ public class ProductSelectionProcessor {
 
         String externalFilterField5 = request.getExternalFilterField5();
         if (externalFilterField5!= null) {
-            pr.setExternalFilterQuery1(externalFilterField5);
+            pr.setExternalFilterQuery5(externalFilterField5);
         }
 
         return pr;
