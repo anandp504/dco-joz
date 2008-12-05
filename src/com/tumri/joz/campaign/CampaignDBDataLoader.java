@@ -5,13 +5,11 @@ import com.tumri.cma.CMAFactory;
 import com.tumri.cma.RepositoryException;
 import com.tumri.cma.domain.*;
 import com.tumri.cma.service.CampaignDeltaProvider;
-
-import com.tumri.utils.Pair;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.Pair;
+import org.apache.log4j.Logger;
 
 import java.util.Iterator;
-
-import org.apache.log4j.Logger;
 
 /**
  * CamapignDBDataLoader loads all the campaign related data from the repository using the CampaignDeltaProvider API.
@@ -65,12 +63,9 @@ public class CampaignDBDataLoader {
             // if occured should be appropriately handled by the CampaignDB.
 
             Iterator<UrlAdPodMapping>        urlsAdPodMappingIterator      = deltaProvider.getUrlAdpodMappings(region);
-            Iterator<ThemeAdPodMapping>      themesAdPodMappingIterator    = deltaProvider.getThemeAdpodMappings(region);
             Iterator<LocationAdPodMapping>   locationsAdPodMappingIterator = deltaProvider.getLocationAdpodMappings(region);
             Iterator<Pair<Integer, Integer>> adPodOSpecMappings            = deltaProvider.getAllAdPodOSpecMappings(region);
-
             Iterator<Url>      urlsIterator      = deltaProvider.getUrls(region);
-            Iterator<Theme>    themesIterator    = deltaProvider.getThemes(region);
             Iterator<Location> locationsIterator = deltaProvider.getLocations(region);
             Iterator<AdPod>    runOfNetworkAdPodsIterator = deltaProvider.getNonSiteSpecificAdPods(region);
             Iterator<AdPod>    geoNoneAdPodsIterator      = deltaProvider.getNonGeoSpecificAdPods(region);
@@ -93,7 +88,6 @@ public class CampaignDBDataLoader {
             //long campaignIndexStartTime = System.currentTimeMillis();
 
             campaignDB.loadUrls(urlsIterator);
-            campaignDB.loadThemes(themesIterator);
             campaignDB.loadLocations(locationsIterator);
             campaignDB.loadAdPods(adPodsIterator);
             campaignDB.loadGeocodes(geocodesIterator);
@@ -101,7 +95,6 @@ public class CampaignDBDataLoader {
             campaignDB.loadAdPodOSpecMapping(adPodOSpecMappings);
             campaignDB.loadCampaigns(campaignsIterator);
             campaignDB.loadUrlAdPodMappings(urlsAdPodMappingIterator);
-            campaignDB.loadThemeAdPodMappings(themesAdPodMappingIterator);
             campaignDB.loadLocationAdPodMappings(locationsAdPodMappingIterator);
             campaignDB.loadRunOfNetworkAdPods(runOfNetworkAdPodsIterator);
             campaignDB.loadGeoNoneAdPods(geoNoneAdPodsIterator);
