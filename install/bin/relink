@@ -18,6 +18,7 @@ fi
 
 export JAVA_HOME
 
+cd $CATALINA_HOME
 # Relink tomcat jar repositories
 for repository in $CATALINA_HOME/common/lib $CATALINA_HOME/common/endorsed \
                   $CATALINA_HOME/server/lib $CATALINA_HOME/shared/lib ; do
