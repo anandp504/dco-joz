@@ -95,6 +95,29 @@
 <br>
 <div>
 	<%
+		out.print("<strong>AdPod External Variable Targets: </strong> = " + "<br>");
+		List<AdPodExternalVariableTarget> targetList = myAdPod.getExternalTargetsList();
+		if(targetList!= null){
+			for(AdPodExternalVariableTarget t: targetList){
+				if(t!=null){
+					out.print("Name = " + t.getName()+"<br>");				
+					List<AdPodExternalVariableInfo> info = t.getExternalVariableInfoList();
+					if(info != null){
+						for(AdPodExternalVariableInfo i : info){
+							if(i!=null){
+								out.print("&nbsp &nbsp &nbsp &nbsp Value = " + i.getValue() + "<br>");
+							}
+						}
+					}
+				}
+			}
+		}
+
+	%>
+</div>
+<br>
+<div>
+	<%
 		out.print("<strong>Geo-Code(<i>Area-Code, City, Country, DMA-Code, State and Zip-Code</i>): </strong><br>");
 		Geocode geoCode = myAdPod.getGeocode();
 

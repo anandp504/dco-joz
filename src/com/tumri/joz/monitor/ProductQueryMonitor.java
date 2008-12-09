@@ -359,7 +359,11 @@ public class ProductQueryMonitor extends ComponentMonitor
 	private static TSpec generateTSpec(String req){
 		TSpec tSpec = new TSpec();
 		HashSet<String> keys = new HashSet<String>();
-		keys.add(":allowexternalquery");
+		keys.add(":uselistingfilter1");
+		keys.add(":uselistingfilter2");
+		keys.add(":uselistingfilter3");
+		keys.add(":uselistingfilter4");
+		keys.add(":uselistingfilter5");
 		keys.add(":useradiusquery");
 		keys.add(":radius");
 		keys.add(":minepuburl");
@@ -399,12 +403,44 @@ public class ProductQueryMonitor extends ComponentMonitor
 					}
 				}
 				if(keys.contains(cToken)){
-					if(":allowexternalquery".equalsIgnoreCase(key)){
+					if(":uselistingfilter1".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
 							if("false".equalsIgnoreCase(value.trim())){
-								tSpec.setAllowExternalQuery(false);
+								tSpec.setUseListingFilter1(false);
 							} else {
-								tSpec.setAllowExternalQuery(true);
+								tSpec.setUseListingFilter1(true);
+							}
+						}
+					} else if(":uselistingfilter2".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
+								tSpec.setUseListingFilter2(false);
+							} else {
+								tSpec.setUseListingFilter2(true);
+							}
+						}
+					} else if(":uselistingfilter3".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
+								tSpec.setUseListingFilter3(false);
+							} else {
+								tSpec.setUseListingFilter3(true);
+							}
+						}
+					} else if(":uselistingfilter4".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
+								tSpec.setUseListingFilter4(false);
+							} else {
+								tSpec.setUseListingFilter4(true);
+							}
+						}
+					} else if(":uselistingfilter5".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
+								tSpec.setUseListingFilter5(false);
+							} else {
+								tSpec.setUseListingFilter5(true);
 							}
 						}
 					} else if(":useradiusquery".equalsIgnoreCase(key)){

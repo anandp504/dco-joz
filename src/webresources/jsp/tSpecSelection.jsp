@@ -174,11 +174,13 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
 	</tr>
 	<tr>
 		<td>
-			<div>
-				<%
-					out.print("<strong>TSpec: Allow External Query</strong> = " + myTSpec.isAllowExternalQuery() + " ");
-				%>
-			</div>
+			<ul>
+			<li>Apply External Filter1: <%=myTSpec.isUseListingFilter1()%></li>
+			<li>Apply External Filter2: <%=myTSpec.isUseListingFilter2()%></li>
+			<li>Apply External Filter3: <%=myTSpec.isUseListingFilter3()%></li>
+			<li>Apply External Filter4: <%=myTSpec.isUseListingFilter4()%></li>
+			<li>Apply External Filter5: <%=myTSpec.isUseListingFilter5()%></li>
+			</ul>
 			<br>
 		</td>
 		<td>

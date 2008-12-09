@@ -292,7 +292,11 @@
 		    <element name="areaCodeFilter" type="string" maxOccurs="1" minOccurs="0"/>
 		    <element name="geoEnabledFlag" type="boolean" maxOccurs="1" minOccurs="0"/>
 		    <element name="useRadiusQuery" type="boolean" maxOccurs="1" minOccurs="0"/>
-		    <element name="allowExternalQuery" type="boolean" maxOccurs="1" minOccurs="0"/>
+		    <element name="useListingFilter1" type="boolean" maxOccurs="1" minOccurs="0"/>
+		    <element name="useListingFilter2" type="boolean" maxOccurs="1" minOccurs="0"/>
+		    <element name="useListingFilter3" type="boolean" maxOccurs="1" minOccurs="0"/>
+		    <element name="useListingFilter4" type="boolean" maxOccurs="1" minOccurs="0"/>
+		    <element name="useListingFilter5" type="boolean" maxOccurs="1" minOccurs="0"/>
 		    <element name="radius" type="int" maxOccurs="1" minOccurs="0"/>
 		    <element name="globalId" type="string" maxOccurs="1" minOccurs="0"/>
 		    <element name="publishUrlKeywordsWithinOSpec" type="boolean" maxOccurs="1" minOccurs="0"/>

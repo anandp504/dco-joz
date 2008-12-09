@@ -50,7 +50,8 @@
 			<br>
 			<br>
 			<h4>Enter TSpec Info:</h4>
-			<i>(Keys = :allowexternalquery :useradiusquery :radius :minepuburl :lowprice
+			<i>(Keys = :uselistingfilter1 :uselistingfilter2 :uselistingfilter3 :uselistingfilter4
+			:uselistingfilter5 :useradiusquery :radius :minepuburl :lowprice
 			:highprice :applygeofilter :applyurlfilter :applykeywordfilter :includedproviders
 			:excludedproviders :excludedcategories :includedcategories :includedbrands :excludedbrands
 			:excludedmerchants :includedmerchants :includedproducts :excludedproducts :LTKExpression)</i>
