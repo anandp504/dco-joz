@@ -95,20 +95,21 @@
 <br>
 <div>
 	<%
-		out.print("<strong>AdPod External Variable Targets: </strong> = " + "<br>");
-		List<AdPodExternalVariableTarget> targetList = myAdPod.getExternalTargetsList();
-		if(targetList!= null){
-			for(AdPodExternalVariableTarget t: targetList){
-				if(t!=null){
-					out.print("Name = " + t.getName()+"<br>");				
-					List<AdPodExternalVariableInfo> info = t.getExternalVariableInfoList();
-					if(info != null){
-						for(AdPodExternalVariableInfo i : info){
-							if(i!=null){
-								out.print("&nbsp &nbsp &nbsp &nbsp Value = " + i.getValue() + "<br>");
-							}
+		out.print("<strong>AdPod External Variable Mapping: </strong>" + "<br>");
+		List<AdPodExternalVariableMapping> mappingList = myAdPod.getExternalTargetsList();
+		if(mappingList != null){
+			for(AdPodExternalVariableMapping m: mappingList){
+				if(m!=null){
+					out.print("<dl><dt>Name = " + m.getName()+"</dt>");
+					String value = m.getValue();
+					if (value != null){
+						StringTokenizer st = new StringTokenizer(value, ",");
+						while(st != null && st.hasMoreTokens()){
+							out.print("<dd>" + st.nextToken() + "</dd>");
 						}
 					}
+
+					out.print("</dl>");
 				}
 			}
 		}
