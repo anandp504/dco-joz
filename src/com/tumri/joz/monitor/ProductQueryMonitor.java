@@ -161,7 +161,7 @@ public class ProductQueryMonitor extends ComponentMonitor
 
 		((ProductQueryMonitorStatus)status.getStatus()).setProductRawData(rawData.toString());
 
-		jsonStr = jsonStr.replaceAll("\\\\\\\\\"","\\\\\\\\\\\\\"");
+		//jsonStr = jsonStr.replaceAll("\\\\\\\\\"","\\\\\\\\\\\\\"");
 		try {
 			JSONArray jsonArray = new JSONArray(jsonStr);
 			for (int i=0; i<jsonArray.length(); i++) {
