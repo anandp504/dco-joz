@@ -221,19 +221,19 @@
     		<element name="name" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="description" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="adTypeId" type="int" maxOccurs="1" minOccurs="0"/>
-    		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/> 
+    		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
     		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
     		<element name="source" type="string" maxOccurs="1" minOccurs="0"/>
 	 		<element name="region" type="string" maxOccurs="1" minOccurs="0"/>
 	 		<element name="publish" type="boolean" maxOccurs="1" minOccurs="0"/>
     		<element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
-    		<element name="adType" type="string" maxOccurs="1" minOccurs="0"/>   		
+    		<element name="adType" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="clientId" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="clientName" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="clientType" type="int" maxOccurs="1" minOccurs="0"/>
 		    <element name="campaignId" type="int" maxOccurs="1" minOccurs="0"/>
-    		<element name="campaignName" type="string" maxOccurs="1" minOccurs="0"/>	
+    		<element name="campaignName" type="string" maxOccurs="1" minOccurs="0"/>
         </choice>
   </complexType>
   <complexType name="ListingSpecDef">
@@ -248,17 +248,17 @@
 	 		<element name="description" type="string" maxOccurs="1" minOccurs="0"/>
 	 		<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
 	 		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
-	 		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/> 		
+	 		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
 	 		<element name="source" type="string" maxOccurs="1" minOccurs="0"/>
 	 		<element name="region" type="string" maxOccurs="1" minOccurs="0"/>
 	 		<element name="publish" type="boolean" maxOccurs="1" minOccurs="0"/>
-	 		<element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/> 
+	 		<element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
 	 		<element name="publishUrlKeywordsWithinOSpec" type="boolean" maxOccurs="1" minOccurs="0"/>
     		<element name="scriptKeywordsWithinOSpec" type="boolean" maxOccurs="1" minOccurs="0"/>
 		    <element name="publicUrlKeywordsScavenger" type="string" maxOccurs="1" minOccurs="0"/>
 		    <element name="publicUrlKeywordsWrapper" type="string" maxOccurs="1" minOccurs="0"/>
 		    <element name="tooSmallLeafCategories" type="boolean" maxOccurs="1" minOccurs="0"/>
-		    <element name="minePubUrl" type="boolean" maxOccurs="1" minOccurs="0"/> 
+		    <element name="minePubUrl" type="boolean" maxOccurs="1" minOccurs="0"/>
 		    <element name="ListingQueries" type="tns:ListingQueryDef"/>
 		    <element name="removedListingQueries" type="tns:ListingQueryDef"/>
         </choice>
@@ -430,7 +430,7 @@
     		<element name="id" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="name" type="string" maxOccurs="1" minOccurs="0"/>
     	</choice>
-   </complexType> 
+   </complexType>
   <complexType name="AdPodGeoTargetDef">
     	<sequence maxOccurs="unbounded" minOccurs="0">
     	   <element name="AdPodGeoTarget" type="tns:AdPodGeoTarget" />
@@ -453,7 +453,7 @@
     	</sequence>
     </complexType>
     <complexType name="AdPodUrlTarget">
-    	<choice maxOccurs="unbounded" minOccurs="0">   		
+    	<choice maxOccurs="unbounded" minOccurs="0">
     		<element name="id" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="name" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="urlId" type="int" maxOccurs="1" minOccurs="0"/>
@@ -461,7 +461,7 @@
     		<element name="weight" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
-    		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>          
+    		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
         </choice>
    	</complexType>
    	<complexType name="AdPodExternalVariableTargetDef">
@@ -470,38 +470,20 @@
     	</sequence>
     </complexType>
     <complexType name="AdPodExternalVariableTarget">
-    	<choice maxOccurs="unbounded" minOccurs="0">   		
+    	<choice maxOccurs="unbounded" minOccurs="0">
     		<element name="id" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="name" type="string" maxOccurs="1" minOccurs="0"/>
-    		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
-    		<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
-    		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
-    		<element name="AdPodExternalVariableInfoList" type="tns:AdPodExternalVariableInfoDef"/>          
+    		<element name="value" type="string" maxOccurs="1" minOccurs="0"/>
         </choice>
    	</complexType>
-   	<complexType name="AdPodExternalVariableInfoDef">
-   	<sequence maxOccurs="unbounded" minOccurs="0">
-   	   <element name="AdPodExternalVariableInfo" type="tns:AdPodExternalVariableInfo" />
-   	</sequence>
-   </complexType>
-   <complexType name="AdPodExternalVariableInfo">
-   	<choice maxOccurs="unbounded" minOccurs="0">
-    	<element name="id" type="int" maxOccurs="1" minOccurs="1"/>
-    	<element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
-		<element name="value" type="string" maxOccurs="1" minOccurs="0"/>
-		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
-    	<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
-    	<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>        
-    </choice>
-  </complexType>
    	<complexType name="TestDef">
     	<sequence maxOccurs="unbounded" minOccurs="0">
     	   <element name="Test" type="tns:Test" />
     	</sequence>
     </complexType>
     <complexType name="Test">
-    	<choice maxOccurs="unbounded" minOccurs="0">   
+    	<choice maxOccurs="unbounded" minOccurs="0">
     		<element name="id" type="int" maxOccurs="1" minOccurs="1"/>
     		<element name="name" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="description" type="string" maxOccurs="1" minOccurs="0"/>
@@ -510,9 +492,9 @@
     		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
     		<element name="status" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="type" type="int" maxOccurs="1" minOccurs="0"/>
-    		<element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/> 
+    		<element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="startDate" type="long" maxOccurs="1" minOccurs="0"/>
-    		<element name="endDate" type="long" maxOccurs="1" minOccurs="0"/> 
+    		<element name="endDate" type="long" maxOccurs="1" minOccurs="0"/>
     		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="TestRecipeMappings" type="tns:TestRecipeMappingDef"/>
         </choice>
@@ -553,7 +535,7 @@
     		<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
     		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
     		<element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
-    		<element name="winningRecipe" type="boolean" maxOccurs="1" minOccurs="0"/> 
+    		<element name="winningRecipe" type="boolean" maxOccurs="1" minOccurs="0"/>
     		<element name="Properties" type="tns:PropertyDef"/>
        		<element name="RecipeInfoList" type="tns:RecipeInfoDef"/>
         </choice>
@@ -568,15 +550,15 @@
     		<element name="name" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="description" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="title" type="string" maxOccurs="1" minOccurs="0"/>
-    		<element name="value" type="string" maxOccurs="1" minOccurs="0"/>   		
+    		<element name="value" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="type" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="group" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
     		<element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
     		<element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
-    		<element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/> 
+    		<element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
     		<element name="id" type="int" maxOccurs="1" minOccurs="0"/>
-    		<element name="recipeId" type="int" maxOccurs="1" minOccurs="0"/>         
+    		<element name="recipeId" type="int" maxOccurs="1" minOccurs="0"/>
         </choice>
   	</complexType>
  	<complexType name="RecipeInfoDef">
@@ -595,7 +577,7 @@
 	    <element name="tspecid" type="int" maxOccurs="1" minOccurs="0"/>
 	    <element name="slotid" type="string" maxOccurs="1" minOccurs="0"/>
 	    <element name="numprods" type="int" maxOccurs="1" minOccurs="0"/>
-	    <element name="seqid" type="int" maxOccurs="1" minOccurs="0"/>         
+	    <element name="seqid" type="int" maxOccurs="1" minOccurs="0"/>
        </choice>
   </complexType>
 
