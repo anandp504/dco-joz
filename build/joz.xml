@@ -194,9 +194,6 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
                 <include name="luceneindex.properties"/>
                 <include name="QueryHandlers.properties"/>
             </fileset>
-            <fileset dir="${ext.data.dir}">
-                <include name="zipcodedb.xml"/>
-            </fileset>
             <manifest>
                 <attribute name="Main-Class" value="com.tumri.joz.keywordServer.ProductIndex"/>
             </manifest>

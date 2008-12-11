@@ -138,7 +138,7 @@ cma.factory.impl = com.tumri.cma.misc.CMAXMLSAXParserFactoryImpl
 com.tumri.productselection.global.stopwords=.com,.org,.gov,.net,.biz,.uk,.fr,.in,.php,.html,.htm,.css,.js,www,http://,cache://,rss://,feed://,http,
 
 #Zip code database
-com.tumri.joz.zipcode.file=zipcodedb.xml
+com.tumri.joz.ziplatlong.file=/opt/Tumri/joz/current/tomcat5/conf/ziplatlong.txt
 
 #Delimiter for multi value queries
 com.tumri.joz.multivalue.delimiter=,

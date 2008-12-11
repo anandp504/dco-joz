@@ -109,6 +109,7 @@
          <mkdir dir="${package.tmp.dir}/common/lib"/>
 
         <copy file="${src.dir}/conf/joz.properties.template" tofile="${package.tmp.dir}/conf/joz.properties"/>
+        <copy file="${ext.data.dir}/ziplatlong.txt" tofile="${package.tmp.dir}/conf/ziplatlong.txt"/>
         <copy todir="${package.tmp.dir}/conf">
             <fileset dir="${src.dir}/conf">
                 <include name="jozLog4j.xml"/>

@@ -6,10 +6,10 @@ import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.ZipCodeDB;
+import com.tumri.joz.utils.ZipCodeHandle;
 import com.tumri.utils.data.MultiSortedSet;
 import org.apache.log4j.Logger;
 
-import java.util.List;
 import java.util.SortedSet;
 
 /**
@@ -28,11 +28,7 @@ public class RadiusQuery extends AttributeQuery {
     }
 
     public void setRadius(int rad) {
-        if (rad == 10 || rad == 25 || rad == 40 || rad == 50 || rad == 100) {
-            this.radius = rad;
-        } else {
-            log.warn("Radius value not supported : " + rad);
-        }
+        this.radius = rad;
     }
 
     public RadiusQuery(IProduct.Attribute aAttribute, int aValue) {
@@ -40,13 +36,17 @@ public class RadiusQuery extends AttributeQuery {
         currZipId = aValue;
     }
 
+    public double getCost() {
+      return ((double) getCount());
+    }
+
     @SuppressWarnings("unchecked")
     public SortedSet<Handle> exec() {
       if (m_results == null) {
-         List<Integer> zipIdAL = getNeighbouringZips();
+         SortedSet<ZipCodeHandle> zipIdAL = getNeighbouringZips();
          MultiSortedSet<Handle> radiusResult = new MultiSortedSet<Handle>();
-         for (Integer nearbyZip: zipIdAL) {
-             SortedSet<Handle> zipResult = selectProductsForZip(nearbyZip);
+         for (ZipCodeHandle nearbyZip: zipIdAL) {
+             SortedSet<Handle> zipResult = selectProductsForZip((int)nearbyZip.getOid());
              if (zipResult!= null) {
                  radiusResult.add(zipResult);
              }
@@ -66,7 +66,7 @@ public class RadiusQuery extends AttributeQuery {
         return zipIndex.get(zipId);
     }
 
-    private List<Integer> getNeighbouringZips() {
+    private SortedSet<ZipCodeHandle> getNeighbouringZips() {
         return ZipCodeDB.getInstance().getNearbyZips(currZipId, radius);
     }
 
