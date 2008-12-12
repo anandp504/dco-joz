@@ -8,6 +8,7 @@ import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.ZipCodeDB;
 import com.tumri.joz.utils.ZipCodeHandle;
 import com.tumri.utils.data.MultiSortedSet;
+import com.tumri.content.data.dictionary.DictionaryManager;
 import org.apache.log4j.Logger;
 
 import java.util.SortedSet;
@@ -63,7 +64,8 @@ public class RadiusQuery extends AttributeQuery {
     @SuppressWarnings("unchecked")
     private SortedSet<Handle> selectProductsForZip(Integer zipId) {
         ProductAttributeIndex<Integer,Handle> zipIndex = ProductDB.getInstance().getIndex(IProduct.Attribute.kZip);
-        return zipIndex.get(zipId);
+	    Integer codeId = DictionaryManager.getId(IProduct.Attribute.kZip, Integer.toString(zipId));
+        return zipIndex.get(codeId);
     }
 
     private SortedSet<ZipCodeHandle> getNeighbouringZips() {

@@ -373,8 +373,8 @@ public class TSpecExecutor {
 			if (!m_tspec.isUseRadiusQuery() || m_tspec.getRadius() ==0) {
 				return null;
 			}
-			Integer codeId = DictionaryManager.getId(IProduct.Attribute.kZip, val);
-			aQuery = new RadiusQuery(kAttr, codeId);
+			//Integer codeId = DictionaryManager.getId(IProduct.Attribute.kZip, val);
+			aQuery = new RadiusQuery(kAttr, Integer.parseInt(val));
 			if (rad > 0) {
 				((RadiusQuery)aQuery).setRadius(rad);
 			}
@@ -531,7 +531,7 @@ public class TSpecExecutor {
 				SortedSet<Handle> newResults = m_tSpecQuery.exec();
 				if (m_tSpecQuery.getReference() != null && newResults.size() >0 ) {
 					CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-					cachedQuery.setCacheReference(newResults.last());
+					setCacheReference(newResults, cachedQuery);
 				}
 				//Sort by the score
 				SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
@@ -547,13 +547,27 @@ public class TSpecExecutor {
 				SortedSet<Handle> newResults = m_tSpecQuery.exec();
 				if (m_tSpecQuery.getReference() != null && newResults.size() >0 ) {
 					CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-					cachedQuery.setCacheReference(newResults.last());
+					setCacheReference(newResults, cachedQuery);
 				}
 				backFillProds.addAll(newResults);
 			}
 		}
 
 		return backFillProds;
+	}
+
+	private void setCacheReference(SortedSet<Handle> newResults, CNFQuery cachedQuery) {
+		if(newResults.size() == 1){
+			Handle ph = newResults.last();
+			if(ph == null) {
+				cachedQuery.setCacheReference(ph);
+			} else {
+				cachedQuery.setCacheReference(ProductDB.getInstance().getProdHandle(ph.getOid()+1));
+			}
+
+		} else {
+			cachedQuery.setCacheReference(newResults.last());
+		}
 	}
 
 	private void addGeoEnabledQuery(boolean bNegation) {
@@ -654,7 +668,7 @@ public class TSpecExecutor {
 		//Set the cached reference for randomization
 		if (m_tSpecQuery.getReference() != null && qResult.size() >0 ) {
 			CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-			cachedQuery.setCacheReference(qResult.last());
+			setCacheReference(qResult, cachedQuery);
 		}
 
 		ArrayList<Handle> backFillProds = null;
