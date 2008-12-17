@@ -41,7 +41,7 @@ public class CategoryIndex extends ProductAttributeIndex<Integer, Handle> {
       if (set.getList().size() > 10) {
         try {
           set.readerLock();
-          return MergeSortedSets.merge(set.getList());
+          return MergeSortedSets.merge(set);
         } finally {
           set.readerUnlock();
         }
