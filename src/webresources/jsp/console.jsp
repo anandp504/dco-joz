@@ -51,7 +51,7 @@
 <br>
 
 <div>
-	<a href="/joz/console?mode=sm">Service multiplexer</a> (<a href="sm-test-input.jsp">test</a>)
+	<a href="/joz/console?mode=sm">Service multiplexer</a>
 </div>
 <br>
 <div>

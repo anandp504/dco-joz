@@ -96,7 +96,7 @@
 <div>
 	<%
 		out.print("<strong>AdPod External Variable Mapping: </strong>" + "<br>");
-		List<AdPodExternalVariableMapping> mappingList = myAdPod.getExternalTargetsList();
+		List<AdPodExternalVariableMapping> mappingList = myAdPod.getExternalTargetingVariableList();
 		if(mappingList != null){
 			for(AdPodExternalVariableMapping m: mappingList){
 				if(m!=null){

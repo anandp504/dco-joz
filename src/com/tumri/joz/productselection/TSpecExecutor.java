@@ -154,18 +154,12 @@ public class TSpecExecutor {
 	/**
 	 * Perform the keyword search
 	 * @param keywords - input keywords
-	 * @param bCreateNew - flag to create new CNFQuery, or modify existing one
 	 */
-	private void doKeywordSearch(String keywords, boolean bCreateNew) {
+	private void doKeywordSearch(String keywords) {
 		KeywordQuery sKwQuery;
 		if ((keywords!=null)&&(!"".equals(keywords.trim()))) {
 			m_ExternalKeywords = true;
 			sKwQuery = new KeywordQuery(keywords,false);
-			if (bCreateNew) {
-				//Ensure that we dont clone again if the TSpec is a new one
-				m_tSpecQuery = new CNFQuery();
-				m_tSpecQuery.addQuery(new ConjunctQuery(new ProductQueryProcessor()));
-			}
 			m_tSpecQuery.addSimpleQuery(sKwQuery);
 		}
 		if (m_feature !=null) {
@@ -529,10 +523,6 @@ public class TSpecExecutor {
 				// doing the geo query again
 				addGeoFilterQuery(pageSize-currSize, m_currPage);
 				SortedSet<Handle> newResults = m_tSpecQuery.exec();
-				if (m_tSpecQuery.getReference() != null && newResults.size() >0 ) {
-					CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-					setCacheReference(newResults, cachedQuery);
-				}
 				//Sort by the score
 				SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
 				geoSortedResult.addAll(newResults);
@@ -545,10 +535,6 @@ public class TSpecExecutor {
 				m_tSpecQuery.setBounds(tmpSize,0);
 				m_tSpecQuery.setStrict(false);
 				SortedSet<Handle> newResults = m_tSpecQuery.exec();
-				if (m_tSpecQuery.getReference() != null && newResults.size() >0 ) {
-					CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-					setCacheReference(newResults, cachedQuery);
-				}
 				backFillProds.addAll(newResults);
 			}
 		}
@@ -556,9 +542,9 @@ public class TSpecExecutor {
 		return backFillProds;
 	}
 
-	private void setCacheReference(SortedSet<Handle> newResults, CNFQuery cachedQuery) {
+	private void setCacheReference(ArrayList<Handle> newResults, CNFQuery cachedQuery) {
 		if(newResults.size() == 1){
-			Handle ph = newResults.last();
+			Handle ph = newResults.get(0);
 			if(ph == null) {
 				cachedQuery.setCacheReference(ph);
 			} else {
@@ -566,7 +552,7 @@ public class TSpecExecutor {
 			}
 
 		} else {
-			cachedQuery.setCacheReference(newResults.last());
+			cachedQuery.setCacheReference(newResults.get(newResults.size()-1));
 		}
 	}
 
@@ -632,11 +618,16 @@ public class TSpecExecutor {
 
 		if (request.getRequestKeyWords()!=null || request.isBMineUrls() || m_tspec.isMinePubUrl()) {
 			String keywords = request.getRequestKeyWords();
-			if (request.isBMineUrls() || m_tspec.isMinePubUrl()) {
-				keywords = keywords + doURLKeywordSearch(request.getUrl());
+			if (keywords==null) {
+				keywords = "";
 			}
-			doKeywordSearch(keywords, !request.isBSearchWithinTSpec() || !m_tspec.isPublishUrlKeywordsWithinOSpec()
-					|| !m_tspec.isScriptKeywordsWithinOSpec());
+			if (request.isBMineUrls() || m_tspec.isMinePubUrl()) {
+				String urlSearch = doURLKeywordSearch(request.getUrl());
+				if(urlSearch != null){
+					keywords = keywords + " " + urlSearch;
+				}
+			}
+			doKeywordSearch(keywords);
 		}
 
 		String requestCategory = request.getRequestCategory();
@@ -665,11 +656,6 @@ public class TSpecExecutor {
 
 		resultAL.addAll(qResult);
 
-		//Set the cached reference for randomization
-		if (m_tSpecQuery.getReference() != null && qResult.size() >0 ) {
-			CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-			setCacheReference(qResult, cachedQuery);
-		}
 
 		ArrayList<Handle> backFillProds = null;
 		if ((m_ExternalKeywords) && qResult!=null){
@@ -681,10 +667,14 @@ public class TSpecExecutor {
 			for(Handle res: backFillProds) {
 				if (!resultAL.contains(res)) {
 					resultAL.add(res);
-				}
+				} 
 			}
 		}
-
+		//Set the cached reference for randomization
+		if (m_tSpecQuery.getReference() != null && resultAL.size() >0 ) {
+			CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
+			setCacheReference(resultAL, cachedQuery);
+		}
 		//Cull the result by num products
 		int numProds = request.getPageSize();
 		if ((numProds > 0) && (resultAL.size() > numProds)){

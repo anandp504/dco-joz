@@ -56,7 +56,7 @@ public class JozConsoleServlet extends HttpServlet {
 		} else if ("eval".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/eval.jsp";
 		} else if ("sm".equalsIgnoreCase(mode)) {
-			responseJSP = "/jsp/service-multiplexer.jsp";
+			responseJSP = "/jsp/serviceMultiplexer.jsp";
 		} else if ("llc".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/llc-status.jsp";
 		} else if ("indexdebug".equalsIgnoreCase(mode)) {
