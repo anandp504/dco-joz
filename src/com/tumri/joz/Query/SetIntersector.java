@@ -5,6 +5,7 @@ import com.tumri.joz.ranks.IWeight;
 import com.tumri.utils.data.RWLocked;
 import com.tumri.utils.data.SortedArraySet;
 import com.tumri.utils.data.SortedSplitSet;
+import com.tumri.utils.data.IRandom;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -33,6 +34,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   private ArrayList<IWeight<Value>> m_filtersWeight;
   private ArrayList<SortedSet<Value>> m_excludes;
   private ArrayList<IWeight<Value>> m_excludesWeight;
+  private static Random g_random = new Random(System.currentTimeMillis());
 
   private SortedSet<Value> m_rankedSet;
   private IWeight<Value> m_rankedSetWeight;
@@ -71,6 +73,11 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   public void setReference(Value aReference) {
     m_reference = aReference;
     if (m_reference != null && m_rankedSet == null) {
+      //Make sure that the starting reference is set randomly within the first set
+      SortedSet<Value> firstSet = m_includes.get(0);
+      if (firstSet!=null && !firstSet.contains(m_reference) && (firstSet instanceof IRandom)) {
+        m_reference = (Value)((IRandom)firstSet).random(g_random);  
+      }
       for (int i = 0; i < m_includes.size(); i++) {
         SortedSet<Value> lValues = m_includes.get(i);
         boolean doLock = (lValues instanceof RWLocked);
