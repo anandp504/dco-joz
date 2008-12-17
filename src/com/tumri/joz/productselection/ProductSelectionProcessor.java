@@ -114,6 +114,7 @@ public class ProductSelectionProcessor {
     private ProductSelectionRequest prepareRequest(AdDataRequest request) {
         ProductSelectionRequest pr = new ProductSelectionRequest();
 
+        pr.setUrl(request.get_url());
         Integer m_NumProducts = request.get_num_products();
         Integer rowSize = request.get_row_size();
         Integer whichRow = request.get_which_row();
