@@ -75,8 +75,11 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     if (m_reference != null && m_rankedSet == null) {
       //Make sure that the starting reference is set randomly within the first set
       SortedSet<Value> firstSet = m_includes.get(0);
-      if (firstSet!=null && !firstSet.contains(m_reference) && (firstSet instanceof IRandom)) {
-        m_reference = (Value)((IRandom)firstSet).random(g_random);  
+      if (firstSet.size()>0 && !firstSet.contains(m_reference) && (firstSet instanceof IRandom)) {
+        Value tmpReference = (Value)((IRandom)firstSet).random(g_random);
+          if (tmpReference != null) {
+              m_reference = tmpReference;
+          }
       }
       for (int i = 0; i < m_includes.size(); i++) {
         SortedSet<Value> lValues = m_includes.get(i);
