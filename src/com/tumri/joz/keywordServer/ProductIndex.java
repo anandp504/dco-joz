@@ -713,6 +713,8 @@ public class ProductIndex {
                         log.info("Going to use the previous lucene index for : " + providerName);
                         File newProvLuceneIndex = new File(provBaseIndexDir.getAbsolutePath() + "/" + providerName);
                         newProvLuceneIndex.mkdir();
+                        //Delete any existing indexes there
+                        FSUtils.removeFiles(newProvLuceneIndex, false);
                         FSUtils.copyDir(provLuceneIndex, newProvLuceneIndex);
                         provIndexes.add(new RAMDirectory(provBaseIndexDir.getAbsolutePath() + "/" + providerName));
                         continue;
@@ -736,7 +738,6 @@ public class ProductIndex {
     private File createProvLuceneIndex(File indexDir, File docDir, String providerName, boolean dumpTokens) throws IOException {
         File newProviderIndexDir = new File(indexDir.getAbsolutePath() + "/" + providerName);
         newProviderIndexDir.mkdirs();
-        Date start = new Date();
         Analyzer analyzer = getAnalyzer(dumpTokens);
         IndexWriter writer = new IndexWriter(newProviderIndexDir, analyzer, true);
         writer.setMergeFactor(mergeFactor);
