@@ -458,6 +458,9 @@ public class TSpecExecutor {
 			} catch(UnsupportedEncodingException e){
 				log.error("Could not decode the value : " + val);
 				continue;
+			} catch(IllegalArgumentException ilegalArgEx){
+				log.error("Skipping value that cannot be decoded : " + val);
+				continue;
 			}
 			Integer fieldId = DictionaryManager.getId (kAttr, val);
 			long key = IndexUtils.createLongIndexKey(kAttr, fieldId);
