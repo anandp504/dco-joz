@@ -60,6 +60,7 @@ public class TSpecExecutor {
 	private static final char MULTI_VALUE_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
 	private boolean m_geoFilterEnabled = false;
 	private boolean m_ExternalKeywords = false;
+	private boolean m_ExternalFilters = false;
 	private int m_currPage = 0;
 	private int m_pageSize = 0;
 	private Features m_feature = null;
@@ -466,7 +467,11 @@ public class TSpecExecutor {
 			long key = IndexUtils.createLongIndexKey(kAttr, fieldId);
 			multiValueIdAL.add(key);
 		}
-		LongTextQuery aQuery = new LongTextQuery (IProduct.Attribute.kMultiValueTextField, multiValueIdAL);
+        if (multiValueIdAL.isEmpty()) {
+            return;
+        }
+        m_ExternalFilters = true;
+        LongTextQuery aQuery = new LongTextQuery (IProduct.Attribute.kMultiValueTextField, multiValueIdAL);
 		CNFQuery copytSpecQuery = (CNFQuery)m_tSpecQuery.clone();
 		ArrayList<ConjunctQuery> cnjQueries = copytSpecQuery.getQueries();
 		for (ConjunctQuery conjunctQuery : cnjQueries) {
@@ -499,8 +504,8 @@ public class TSpecExecutor {
 	}
 
 	/**
-	 * Perform the backfill of products only in the case of external keywords
-	 * Backfill is merely executing the same tspec again without the additional keywords
+	 * Perform the backfill of products only in the case of external keywords or filters
+	 * Backfill is merely executing the same tspec again without the additional keywords or filters
 	 * @param pageSize - the request page Size
 	 * @param currSize - the current page size
 	 * @return ArrayList of products that were backfilled
@@ -516,7 +521,6 @@ public class TSpecExecutor {
 			//randomize
 			Handle ref = ProductDB.getInstance().genReference();
 			m_tSpecQuery.setReference(ref);
-			addExternalFilterRequestQueries(request);
 			String requestCategory = request.getRequestCategory();
 			if ((requestCategory!=null)&&(!"".equals(requestCategory.trim()))) {
 				addRequestCategoryQuery(requestCategory);
@@ -661,7 +665,7 @@ public class TSpecExecutor {
 
 
 		ArrayList<Handle> backFillProds = null;
-		if ((m_ExternalKeywords) && qResult!=null){
+		if ((m_ExternalKeywords || m_ExternalFilters) && qResult!=null){
 			backFillProds = doBackFill(request.getPageSize(),qResult.size());
 		}
 
