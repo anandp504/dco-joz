@@ -38,33 +38,35 @@ public class RadiusQuery extends AttributeQuery {
     }
 
     public double getCost() {
-      return ((double) getCount());
+        return ((double) getCount());
     }
 
     @SuppressWarnings("unchecked")
     public SortedSet<Handle> exec() {
-      if (m_results == null) {
-         SortedSet<ZipCodeHandle> zipIdAL = getNeighbouringZips();
-         MultiSortedSet<Handle> radiusResult = new MultiSortedSet<Handle>();
-         for (ZipCodeHandle nearbyZip: zipIdAL) {
-             SortedSet<Handle> zipResult = selectProductsForZip((int)nearbyZip.getOid());
-             if (zipResult!= null) {
-                 radiusResult.add(zipResult);
-             }
-         }
-         m_results = radiusResult;
-      }
-      return m_results;
+        if (m_results == null) {
+            SortedSet<ZipCodeHandle> zipIdAL = getNeighbouringZips();
+            MultiSortedSet<Handle> radiusResult = new MultiSortedSet<Handle>();
+            if (zipIdAL!=null) {
+                for (ZipCodeHandle nearbyZip: zipIdAL) {
+                    SortedSet<Handle> zipResult = selectProductsForZip((int)nearbyZip.getOid());
+                    if (zipResult!= null) {
+                        radiusResult.add(zipResult);
+                    }
+                }
+            }
+            m_results = radiusResult;
+        }
+        return m_results;
     }
 
     public Filter<Handle> getFilter() {
-        return ProductDB.getInstance().getFilter(IProduct.Attribute.kZip); 
+        return ProductDB.getInstance().getFilter(IProduct.Attribute.kZip);
     }
 
     @SuppressWarnings("unchecked")
     private SortedSet<Handle> selectProductsForZip(Integer zipId) {
         ProductAttributeIndex<Integer,Handle> zipIndex = ProductDB.getInstance().getIndex(IProduct.Attribute.kZip);
-	    Integer codeId = DictionaryManager.getId(IProduct.Attribute.kZip, Integer.toString(zipId));
+        Integer codeId = DictionaryManager.getId(IProduct.Attribute.kZip, Integer.toString(zipId));
         return zipIndex.get(codeId);
     }
 
