@@ -1,10 +1,10 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.utils.data.MultiSortedSet;
 import com.tumri.utils.data.SortedArraySet;
+import com.tumri.utils.data.SortedSplitSet;
 
 import java.util.ArrayList;
 import java.util.SortedSet;
@@ -75,10 +75,9 @@ public class CNFQuery implements Query, Cloneable {
     } else {
       MultiSortedSet<Handle> unionizer = new MultiSortedSet<Handle>();
       for (ConjunctQuery cjquery : m_queries) {
-        cjquery.setReference(m_reference);
         unionizer.add(cjquery.exec(),true);
       }
-      results = unionizer;
+      results = new SortedSplitSet<Handle>(unionizer, m_reference);
     }
     //Paginate
     ArrayList<Handle> pageResults = null;
