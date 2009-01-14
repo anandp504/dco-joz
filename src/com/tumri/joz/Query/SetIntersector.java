@@ -1,11 +1,12 @@
 package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.IFilter;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.ranks.IWeight;
+import com.tumri.utils.data.IRandom;
 import com.tumri.utils.data.RWLocked;
 import com.tumri.utils.data.SortedArraySet;
 import com.tumri.utils.data.SortedSplitSet;
-import com.tumri.utils.data.IRandom;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -122,6 +123,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     m_iZeroSize = other.m_iZeroSize;
     m_eZeroSize = other.m_eZeroSize;
     m_listSize = other.m_listSize;
+	m_rankedSet = other.m_rankedSet;
+	m_rankedSetWeight = other.m_rankedSetWeight;
   }
 
   public boolean isStrict() {
@@ -635,7 +638,11 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   }
 
   public Comparator<? super Value> comparator() {
-    return null;
+	  if(m_rankedSet!=null && !m_rankedSet.isEmpty()){
+	    return new ProductHandle(1.0, 1L);
+	  } else {
+		return m_includes.isEmpty() ? null : m_includes.get(0).comparator();
+	  }
   }
 
 

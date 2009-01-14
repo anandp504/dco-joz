@@ -23,7 +23,7 @@ public class ProductSetIntersector extends SetIntersector<Handle> {
     super();
   }
 
-  public ProductSetIntersector(ProductSetIntersector set) {
+  private ProductSetIntersector(ProductSetIntersector set) {
     super(set);
   }
 
