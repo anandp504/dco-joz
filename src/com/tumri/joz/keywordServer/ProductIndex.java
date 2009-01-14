@@ -221,7 +221,7 @@ public class ProductIndex {
      */
     private String cleanseQueryString(String queryStr){
         if (queryStr!=null) {
-            queryStr = queryStr.replaceAll("[\\^M\\s]", " ");
+            queryStr = queryStr.replaceAll("[\\cM\\s]", " ");
         }
         return queryStr;
     }
@@ -847,7 +847,7 @@ public class ProductIndex {
             ProductIndex pi = getInstance();
             try {
                 IndexSearcher searcher = pi.m_searcherCache.get().get();
-                Query q = createQuery("canon eos 400D");
+                Query q = createQuery("HPMICROBIZ1");
                 TopDocCollector tdc = new TopDocCollector(2000);
                 searcher.search(q, tdc);
                 TopDocs topdocs = tdc.topDocs();
