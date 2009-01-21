@@ -46,16 +46,29 @@ public class TimeTargetingQuery extends TargetingQuery {
         if (theCampaign==null){
             return false;
         }
-        Date start = theCampaign.getFlightEnd();
-        Date end = theCampaign.getFlightStart();
-
-        if (start!=null && start.before(new Date(System.currentTimeMillis()))) {
-            bAccept = false;
+        Date campaignStartDate = theCampaign.getFlightStart();
+        Date campaignEndDate = theCampaign.getFlightEnd();
+        
+        if (campaignStartDate!=null && campaignStartDate.after(new Date(System.currentTimeMillis()))) {
+            return false;
+        }
+        
+        if (campaignEndDate!=null && campaignEndDate.before(new Date(System.currentTimeMillis()))) {
+            return false;
         }
 
-        if (end!=null && end.after(new Date(System.currentTimeMillis()))) {
-            bAccept = false;
+        AdPod theAdPod = CampaignDB.getInstance().getAdPod((AdPodHandle)v);
+        Date adPodStartDate = theAdPod.getStartDate();
+        Date adPodEndDate = theAdPod.getEndDate();
+        
+        if (adPodStartDate!=null && adPodStartDate.after(new Date(System.currentTimeMillis()))) {
+            return false;
         }
+        
+        if (adPodEndDate!=null && adPodEndDate.before(new Date(System.currentTimeMillis()))) {
+            return false;
+        }
+        
         //Note: we can also add day parting logic here
         return bAccept;
     }
