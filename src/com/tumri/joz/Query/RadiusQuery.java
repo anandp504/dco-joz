@@ -1,77 +1,59 @@
 package com.tumri.joz.Query;
 
-import com.tumri.joz.filter.Filter;
-import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.utils.ZipCodeDB;
+import com.tumri.joz.ranks.AttributeWeights;
+import com.tumri.joz.ranks.IWeight;
 import com.tumri.joz.utils.ZipCodeHandle;
-import com.tumri.utils.data.MultiSortedSet;
+import com.tumri.joz.utils.ZipCodeDB;
+import com.tumri.content.data.Product;
 import com.tumri.content.data.dictionary.DictionaryManager;
-import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.SortedSet;
 
+import org.apache.log4j.Logger;
+
 /**
- * Radius query. Given a zip this class gets the neighboring zips and does 
- *
+ * Radius query. Given a zip this class gets the neighboring zips and does a Zip query
+ * for the adjoining zip codes. 
  * @author nnair
  */
 public class RadiusQuery extends AttributeQuery {
 
-    private Integer currZipId = null;
-    private int radius = 40;
-    private static Logger log = Logger.getLogger(RadiusQuery.class);
-
-    public int getRadius() {
-        return radius;
-    }
-
-    public void setRadius(int rad) {
-        this.radius = rad;
-    }
+    private static Logger log = Logger.getLogger (RadiusQuery.class);
 
     public RadiusQuery(IProduct.Attribute aAttribute, int aValue) {
         super(aAttribute, aValue);
-        currZipId = aValue;
     }
 
-    public double getCost() {
-        return ((double) getCount());
+    public RadiusQuery(String zipCode, int radius) {
+        super(IProduct.Attribute.kZip, getRadiusZips(zipCode, radius));
     }
 
-    @SuppressWarnings("unchecked")
-    public SortedSet<Handle> exec() {
-        if (m_results == null) {
-            SortedSet<ZipCodeHandle> zipIdAL = getNeighbouringZips();
-            MultiSortedSet<Handle> radiusResult = new MultiSortedSet<Handle>();
-            if (zipIdAL!=null) {
-                for (ZipCodeHandle nearbyZip: zipIdAL) {
-                    SortedSet<Handle> zipResult = selectProductsForZip((int)nearbyZip.getOid());
-                    if (zipResult!= null) {
-                        radiusResult.add(zipResult);
-                    }
+    public RadiusQuery(IProduct.Attribute aAttribute,  ArrayList<Integer> values) {
+        super(aAttribute, values);
+    }
+
+    public IWeight<Handle> getWeight() {
+        return AttributeWeights.getWeight(IProduct.Attribute.kRadius);
+    }
+
+    private static ArrayList<Integer> getRadiusZips(String zipCode, int radius) throws NumberFormatException {
+        ArrayList<Integer> radZipIds = new ArrayList<Integer>();
+        try {
+            SortedSet<ZipCodeHandle> nearByZips = ZipCodeDB.getInstance().getNearbyZips(Integer.parseInt(zipCode), radius);
+            if (nearByZips!=null) {
+                for (ZipCodeHandle zip : nearByZips) {
+                    Integer zipId = (int)zip.getOid();
+                    radZipIds.add(DictionaryManager.getId(IProduct.Attribute.kZip, Integer.toString(zipId)));
                 }
             }
-            m_results = radiusResult;
+        } catch (NumberFormatException e) {
+            log.error("Radius query failed : Zipcode is not a valid integer : " + zipCode);
+            throw (e);
         }
-        return m_results;
-    }
-
-    public Filter<Handle> getFilter() {
-        return ProductDB.getInstance().getFilter(IProduct.Attribute.kZip);
-    }
-
-    @SuppressWarnings("unchecked")
-    private SortedSet<Handle> selectProductsForZip(Integer zipId) {
-        ProductAttributeIndex<Integer,Handle> zipIndex = ProductDB.getInstance().getIndex(IProduct.Attribute.kZip);
-        Integer codeId = DictionaryManager.getId(IProduct.Attribute.kZip, Integer.toString(zipId));
-        return zipIndex.get(codeId);
-    }
-
-    private SortedSet<ZipCodeHandle> getNeighbouringZips() {
-        return ZipCodeDB.getInstance().getNearbyZips(currZipId, radius);
+        return radZipIds;
     }
 
 }

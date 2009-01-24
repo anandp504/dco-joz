@@ -352,8 +352,9 @@ public class ProductQueryMonitor extends ComponentMonitor
 		if(pr.getPageSize() <= 0){
 			pr.setPageSize(100);
 		}
+        pr.setCurrPage(0);
 
-		return pr;
+        return pr;
 	}
 
 	private static TSpec generateTSpec(String req){

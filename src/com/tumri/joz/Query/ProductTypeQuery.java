@@ -57,7 +57,7 @@ public class ProductTypeQuery extends MUPQuery {
       if (m_productType.equals(m_productTypeLeadgen)) {
           m_results = (index != null) ? index.get(m_productTypeLeadgen) : tableScan();
       } else if (m_productType.equals(m_productTypeProd)) {
-    	  m_results = (index != null) ? index.get(m_productTypeLeadgen) : tableScan();
+    	  m_results = (index != null) ? index.get(m_productTypeProd) : tableScan();
       } else if (m_productType.equals(m_productTypeBoth)) {
     	  //TODO: Verify if null or empty set needs to be passed for no results
           // This is not used yet, or else it is broken, sandeep 12/25/07
