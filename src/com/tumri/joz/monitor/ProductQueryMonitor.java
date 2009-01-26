@@ -255,27 +255,27 @@ public class ProductQueryMonitor extends ComponentMonitor
 						}
 					} else if(":city".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setCityCode(value.trim());
+							pr.setCityCode(value.trim().toLowerCase());
 						}
 					} else if(":state".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setStateCode(value.trim());
+							pr.setStateCode(value.trim().toLowerCase());
 						}
 					} else if(":country".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setCountryCode(value.trim());
+							pr.setCountryCode(value.trim().toLowerCase());
 						}
 					} else if(":zipcode".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setZipCode(value.trim());
+							pr.setZipCode(value.trim().toLowerCase());
 						}
 					} else if(":dmacode".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setDmaCode(value.trim());
+							pr.setDmaCode(value.trim().toLowerCase());
 						}
 					} else if(":areacode".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							pr.setAreaCode(value.trim());
+							pr.setAreaCode(value.trim().toLowerCase());
 						}
 					} else if(":brandomize".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){

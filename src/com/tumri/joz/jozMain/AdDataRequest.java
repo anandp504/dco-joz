@@ -126,11 +126,17 @@ public class AdDataRequest {
         }
 
         this._country = req.getValue(JozAdRequest.KEY_COUNTRY);
+        if (_country!=null) _country = _country.toLowerCase();
         this._region = req.getValue(JozAdRequest.KEY_REGION);
+        if (_region!=null) _region = _region.toLowerCase();
         this._city = req.getValue(JozAdRequest.KEY_CITY);
+        if (_city!=null) _city = _city.toLowerCase();
         this._dmacode = req.getValue(JozAdRequest.KEY_DMACODE);
+        if (_dmacode!=null) _dmacode = _dmacode.toLowerCase();
         this._areacode = req.getValue(JozAdRequest.KEY_AREACODE);
+        if (_areacode!=null) _areacode = _areacode.toLowerCase();
         this._zip_code = req.getValue(JozAdRequest.KEY_ZIP_CODE);
+        if (_zip_code!=null) _zip_code = _zip_code.toLowerCase();
         this._latitude = req.getValue(JozAdRequest.KEY_LATITUDE);
         this._longitude = req.getValue(JozAdRequest.KEY_LONGITUDE);
         this.adType = req.getValue(JozAdRequest.KEY_AD_TYPE);

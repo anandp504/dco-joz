@@ -339,7 +339,8 @@ public class JozIndexUpdater {
 				if (val == null) {
 					continue;
 				}
-				TreeMap<Integer, ArrayList<Handle>> mindex = new TreeMap<Integer, ArrayList<Handle>>();
+                val = val.toLowerCase();
+                TreeMap<Integer, ArrayList<Handle>> mindex = new TreeMap<Integer, ArrayList<Handle>>();
 				mindex.put(IndexUtils.getIndexIdFromDictionary(idxAttr, val), pids);
 				if (operation == PersistantIndexLine.IndexOperation.kAdd || operation == PersistantIndexLine.IndexOperation.kAddModified
 						|| operation == PersistantIndexLine.IndexOperation.kNoChange) {

@@ -683,7 +683,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 	private void addToMap(List<String> list, Map<String, List<Handle>> map, Handle handle) {
 		if(list != null && list.size() > 0) {
 			for (String str : list) {
-				List<Handle> handleList = map.get(str);
+                str = str.toLowerCase();
+                List<Handle> handleList = map.get(str);
 				if (handleList == null) {
 					handleList = new ArrayList<Handle>();
 				}
