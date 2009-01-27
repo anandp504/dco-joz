@@ -78,9 +78,6 @@ public class CNFQuery implements Query, Cloneable {
             for (ConjunctQuery cjquery : m_queries) {
                 unionizer.add(cjquery.exec());
             }
-            if(unionizer.isEmpty()){
-                return new SortedArraySet<Handle>();
-            }
             results = unionizer;
         }
         //Paginate
