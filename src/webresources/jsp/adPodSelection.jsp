@@ -95,6 +95,29 @@
 <br>
 <div>
 	<%
+		Date startDate = null;
+		if((startDate = myAdPod.getStartDate()) != null){
+			out.print("<strong> Adpod: Flight Start Date </strong> = " + startDate.toString() + "<br>");
+		} else {
+			out.print("<strong> Adpod: Flight Start Date </strong> = " + startDate + "<br>");
+		}
+	%>
+</div>
+<br>
+<br>
+<div>
+	<%
+		Date endDate = null;
+		if((endDate = myAdPod.getEndDate()) != null){
+			out.print("<strong> Adpod: Flight End Date </strong> = " + endDate.toString() + "<br>");
+		} else {
+			out.print("<strong> Adpod: Flight End Date </strong> = " + endDate + "<br>");
+		}
+	%>
+</div>
+<br>
+<div>
+	<%
 		out.print("<strong>AdPod External Variable Mapping: </strong>" + "<br>");
 		List<AdPodExternalVariableMapping> mappingList = myAdPod.getExternalTargetingVariableList();
 		if(mappingList != null){
