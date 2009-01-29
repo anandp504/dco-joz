@@ -22,6 +22,8 @@ import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.utils.ZipCodeDB;
+import com.tumri.joz.ranks.IWeight;
+import com.tumri.joz.ranks.AttributeWeights;
 import com.tumri.utils.Pair;
 
 import java.util.SortedSet;
@@ -97,4 +99,7 @@ public class LatLongQuery extends AttributeQuery {
         return keys;
     }
 
+    public IWeight<Handle> getWeight() {
+        return AttributeWeights.getWeight(IProduct.Attribute.kRadius);
+    }
 }
