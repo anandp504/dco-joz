@@ -362,29 +362,21 @@ public class JozIndexUpdater {
 
     /**
      * Updates the product db index for lat and long
-     *
      * @param zipCode
      * @param op
      * @param pids
      */
     private static void updateLatLongIndex(String zipCode, PersistantIndexLine.IndexOperation op,ArrayList<Handle> pids) {
-        Integer lat = null, along = null;
-        try {
-            Pair<Double, Double> latlong = ZipCodeDB.getInstance().getLatLong(Integer.parseInt(zipCode));
-            if (latlong==null){
-                log.warn("Could not get the lat long for the zip code : " + zipCode);
-                return;
-            }
-            //Normalize the values by rounding them off to the nearest integer
-            lat = new Long(Math.round(latlong.getFirst())).intValue();
-            along = new Long(Math.round(latlong.getSecond())).intValue();
-        } catch (NumberFormatException e) {
-            log.error("Invalid zip code specified : " + zipCode);
-            lat = null;
-            along = null;
+        Integer lat, along;
+        Pair<Integer, Integer> latlong = ZipCodeDB.getInstance().getNormalizedLatLong(zipCode);
+        if (latlong==null){
+            log.warn("Could not get the lat long for the zip code : " + zipCode);
+            return;
         }
+        lat = latlong.getFirst();
+        along = latlong.getSecond();
 
-        if (lat!=null & along !=null ) {
+        if (lat!=null && along !=null ) {
             updateIntegerIndex(Product.Attribute.kLatitude, lat, op, pids);
             updateIntegerIndex(Product.Attribute.kLongitude, along, op, pids);
         }

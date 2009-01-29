@@ -96,10 +96,7 @@ public class ProductDB {
     pdb.registerFilter(IProduct.Attribute.kCity, new CityFilter());
 
     pdb.addIndex(IProduct.Attribute.kZip, new ZipCodeIndex());
-    pdb.addIndex(IProduct.Attribute.kRadius, new ZipCodeIndex());
-      
     pdb.registerFilter(IProduct.Attribute.kZip, new ZipCodeFilter());
-    pdb.registerFilter(IProduct.Attribute.kRadius, new ZipCodeFilter());
 
     pdb.addIndex(IProduct.Attribute.kDMA, new DmaCodeIndex());
     pdb.registerFilter(IProduct.Attribute.kDMA, new DmaCodeFilter());

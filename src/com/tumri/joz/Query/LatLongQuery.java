@@ -41,62 +41,17 @@ import org.apache.log4j.Logger;
  */
 public class LatLongQuery extends AttributeQuery {
 
-    private static Logger log = Logger.getLogger (LatLongQuery.class);
-
     public LatLongQuery(IProduct.Attribute attr, String zipCode, int radius) {
-      super(attr, getKeys(attr, zipCode, radius));
+      super(attr, ZipCodeDB.getInstance().getKeys(zipCode, (attr==IProduct.Attribute.kLatitude),radius));
     }
 
     @SuppressWarnings("unchecked")
     public SortedSet<Handle> exec() {
       if (m_results == null) {
         ProductAttributeIndex<Integer,Handle> index = ProductDB.getInstance().getIndex(getAttribute());
-        List<Integer> values = m_values;
-        m_results = (index != null) ? index.get(values) : tableScan();
+        m_results = (index != null) ? index.get(m_values) : tableScan();
       }
       return m_results;
-    }
-
-
-    /**
-     * Gets the keys for the given lat or long query
-     * We will assume that all distances are stored from 0.0 Lat and 0.0 Long
-     * DistLat = 69.1 * (Lat1-0)
-     * DistLong = 69.1 * (Lg1-0) * cos(Lat1 / 57.3)
-     * @param zipCode
-     * @param rad
-     * @return - the query, or null if could not be constructed
-     */
-    private static ArrayList<Integer> getKeys(IProduct.Attribute attr, String zipCode, int rad) {
-        ArrayList<Integer> keys = new ArrayList<Integer>();
-        try {
-            HashSet<Integer> keySet = new HashSet<Integer>();
-            Pair<Double, Double> latLong = ZipCodeDB.getInstance().getLatLong(Integer.parseInt(zipCode));
-            if (latLong==null) {
-                log.warn("Invalid zip code passed in for lookup : " + zipCode);
-                return null;
-            }
-            Double latObj = latLong.getFirst();
-            Double longObj = latLong.getSecond();
-            //compute max and min
-            if (attr == IProduct.Attribute.kLatitude) {
-                double deltaLat = rad/ 69.1;
-                for (int i=(int)(latObj-deltaLat);i<=(int)(latObj+deltaLat);i++){
-                    keySet.add(i);
-                }
-            } else {
-                double deltaLong = rad / (69.1 * Math.cos(latObj/57.3));
-                for (int i=(int)(longObj-deltaLong);i<=(int)(longObj+deltaLong);i++){
-                    keySet.add(i);
-                }
-            }
-            if (!keySet.isEmpty()) {
-                keys.addAll(keySet);
-            }
-        } catch (Exception e) {
-            log.error("LatLongQuery creation failed", e);
-        }
-        return keys;
     }
 
     public IWeight<Handle> getWeight() {
