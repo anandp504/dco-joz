@@ -69,32 +69,12 @@ public class ProductSelectionProcessor {
                         } else {
                             continue;
                         }
-                        ArrayList<Handle> results = new ArrayList<Handle>();
-                        if (request.get_ad_offer_type()== AdDataRequest.AdOfferType.PRODUCT_LEADGEN) {
-                            //First execute the tspec for leadgen
-                            pr.setOfferType(AdDataRequest.AdOfferType.LEADGEN_ONLY);
-                            ArrayList<Handle> leadGenresults = doProductSelection(tspecId, pr, features);
-                            if (leadGenresults!=null) {
-                                results.addAll(leadGenresults);
-                            }
-
-                            if (leadGenresults==null || (numProds > leadGenresults.size())) {
-                                //Next execute the same tspec for products
-                                pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_ONLY);
-                                pr.setPageSize(numProds - leadGenresults.size());
-                                ArrayList<Handle> prodResults = doProductSelection(tspecId, pr, features);
-                                if (prodResults!=null) {
-                                    results.addAll(prodResults);
-                                }
-                            }
-                        } else {
-                            ArrayList<Handle> prodResults = doProductSelection(tspecId, pr, features);
-                            if (prodResults!=null) {
-                                results.addAll(prodResults);
-                            }
+                        ArrayList<Handle> prodResults = doProductSelection(tspecId, pr, features);
+                        if (prodResults==null) {
+                            prodResults = new ArrayList<Handle>();
                         }
 
-                        pResults.addResults(tspecId, slotId, results);
+                        pResults.addResults(tspecId, slotId, prodResults);
                     }
                 } else {
                     log.info("No TSpecs found in the targeting recipe. Skipping product selection");
@@ -162,21 +142,21 @@ public class ProductSelectionProcessor {
 				pr.setBRandomize(true);
 	    } 
 
-        AdDataRequest.AdOfferType offerType = request.get_ad_offer_type();
-        if (offerType != null) {
-            pr.setOfferType(offerType);
-        } else {
-            pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_ONLY);
-        }
-
-        if (offerType != AdDataRequest.AdOfferType.PRODUCT_ONLY) {
-            if (request.get_ad_height()!=null) {
-                pr.setAdHeight(request.get_ad_height());
-            }
-            if (request.get_ad_width()!=null) {
-                pr.setAdWidth(request.get_ad_width());
-            }
-        }
+//        AdDataRequest.AdOfferType offerType = request.get_ad_offer_type();
+//        if (offerType != null) {
+//            pr.setOfferType(offerType);
+//        } else {
+//            pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_ONLY);
+//        }
+//
+//        if (offerType != AdDataRequest.AdOfferType.PRODUCT_ONLY) {
+//            if (request.get_ad_height()!=null) {
+//                pr.setAdHeight(request.get_ad_height());
+//            }
+//            if (request.get_ad_width()!=null) {
+//                pr.setAdWidth(request.get_ad_width());
+//            }
+//        }
 
         String requestCategory = request.get_category();
         if (requestCategory!=null) {

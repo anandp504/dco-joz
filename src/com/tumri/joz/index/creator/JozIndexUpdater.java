@@ -7,7 +7,9 @@ import com.tumri.joz.products.JozIndexHelper;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexUtils;
+import com.tumri.joz.utils.ZipCodeDB;
 import com.tumri.utils.strings.StringTokenizer;
+import com.tumri.utils.Pair;
 import org.apache.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
@@ -204,7 +206,7 @@ public class JozIndexUpdater {
 	 */
 	private static void updateIndex(PersistantIndexLine.IndexOperation operation, Product.Attribute idxAttr,
 	                                String indexVal, ArrayList<Handle> pids) {
-		if (indexVal == null || "".equals(indexVal)) {
+        if (indexVal == null || "".equals(indexVal)) {
 			return;
 		}
 		//Handle the Provider Category using the same Category index - since Joz does not differentiate between these
@@ -226,14 +228,14 @@ public class JozIndexUpdater {
 				idxAttr == Product.Attribute.kBrand ||
 				idxAttr == Product.Attribute.kSupplier ||
 				idxAttr == Product.Attribute.kProvider ||
-				idxAttr == Product.Attribute.kImageWidth ||
-				idxAttr == Product.Attribute.kImageHeight ||
-				idxAttr == Product.Attribute.kProductType ||
+//				idxAttr == Product.Attribute.kImageWidth ||
+//				idxAttr == Product.Attribute.kImageHeight ||
+//				idxAttr == Product.Attribute.kProductType ||
 				idxAttr == Product.Attribute.kGeoEnabledFlag ||
 				idxAttr == Product.Attribute.kProviderCategory ||
 				idxAttr == Product.Attribute.kGlobalId) {
 			//Integer
-			TreeMap<Integer, ArrayList<Handle>> mindex = new TreeMap<Integer, ArrayList<Handle>>();
+            TreeMap<Integer, ArrayList<Handle>> mindex = new TreeMap<Integer, ArrayList<Handle>>();
 			mindex.put(IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal), pids);
 			if (operation == PersistantIndexLine.IndexOperation.kAdd || operation == PersistantIndexLine.IndexOperation.kAddModified
 					|| operation == PersistantIndexLine.IndexOperation.kNoChange) {
@@ -348,9 +350,62 @@ public class JozIndexUpdater {
 				} else if (operation == PersistantIndexLine.IndexOperation.kDelModified || operation == PersistantIndexLine.IndexOperation.kDelete){
 					ProductDB.getInstance().deleteIntegerIndex(idxAttr, mindex);
 				}
-			}
+                if (idxAttr == Product.Attribute.kZip) {
+                    //Add to lat and long index
+                    updateLatLongIndex(val, operation, pids);
+                }
+            }
 		}
 
 
 	}
+
+    /**
+     * Updates the product db index for lat and long
+     *
+     * @param zipCode
+     * @param op
+     * @param pids
+     */
+    private static void updateLatLongIndex(String zipCode, PersistantIndexLine.IndexOperation op,ArrayList<Handle> pids) {
+        Integer lat = null, along = null;
+        try {
+            Pair<Double, Double> latlong = ZipCodeDB.getInstance().getLatLong(Integer.parseInt(zipCode));
+            if (latlong==null){
+                log.warn("Could not get the lat long for the zip code : " + zipCode);
+                return;
+            }
+            //Normalize the values by rounding them off to the nearest integer
+            lat = new Long(Math.round(latlong.getFirst())).intValue();
+            along = new Long(Math.round(latlong.getSecond())).intValue();
+        } catch (NumberFormatException e) {
+            log.error("Invalid zip code specified : " + zipCode);
+            lat = null;
+            along = null;
+        }
+
+        if (lat!=null & along !=null ) {
+            updateIntegerIndex(Product.Attribute.kLatitude, lat, op, pids);
+            updateIntegerIndex(Product.Attribute.kLongitude, along, op, pids);
+        }
+
+    }
+
+    /**
+     * Updates the double index
+     * @param idxAttr
+     * @param indexVal
+     * @param operation
+     * @param pids
+     */
+    private static void updateIntegerIndex(Product.Attribute idxAttr, Integer indexVal, PersistantIndexLine.IndexOperation operation, ArrayList<Handle> pids) {
+        TreeMap<Integer, ArrayList<Handle>> mindex = new TreeMap<Integer, ArrayList<Handle>>();
+        mindex.put(indexVal, pids);
+        if (operation == PersistantIndexLine.IndexOperation.kAdd || operation == PersistantIndexLine.IndexOperation.kAddModified
+                || operation == PersistantIndexLine.IndexOperation.kNoChange) {
+            ProductDB.getInstance().updateIntegerIndex(idxAttr, mindex);
+        } else if (operation == PersistantIndexLine.IndexOperation.kDelModified || operation == PersistantIndexLine.IndexOperation.kDelete){
+            ProductDB.getInstance().deleteIntegerIndex(idxAttr, mindex);
+        }
+    }
 }

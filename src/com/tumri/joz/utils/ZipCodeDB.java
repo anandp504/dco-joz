@@ -130,6 +130,15 @@ public class ZipCodeDB implements IWeight<Integer> {
     }
 
     /**
+     * returns a lat long value given teh zipcode
+     * @param zipCode
+     * @return
+     */
+    public Pair<Double, Double> getLatLong(Integer zipCode) {
+       return zipLatLongMap.get(zipCode);
+    }
+
+    /**
      * Populate the indices using the following formula :
      * We will assume that all distances are stored from 0.0 Lat and 0.0 Long
      * DistLat = 69.1 * (Lat1-0)
@@ -168,20 +177,22 @@ public class ZipCodeDB implements IWeight<Integer> {
         double deltaLong = rad / (69.1 * Math.cos(latObj/57.3));
 
         //3. Get the nearby Zips for the lat and long
-        MultiSortedSet<Integer> latMultiZips = new MultiSortedSet<Integer>();
+        SetUnion<Integer> latMultiZips = new SetUnion<Integer>();
         for (int i=(int)(latObj-deltaLat);i<=(int)(latObj+deltaLat);i++){
-             latMultiZips.add(latitudeIndex.get(i));
+            latMultiZips.add(latitudeIndex.get(i));
         }
 
-        MultiSortedSet<Integer> longMultiZips = new MultiSortedSet<Integer>();
+        SetUnion<Integer> longMultiZips = new SetUnion<Integer>();
         for (int i=(int)(longObj-deltaLong);i<=(int)(longObj+deltaLong);i++){
-             longMultiZips.add(longitudeIndex.get(i));
+            longMultiZips.add(longitudeIndex.get(i));
         }
+        SortedSet<Integer> sortedlatZips = new SortedArraySet<Integer>(latMultiZips);
+        SortedSet<Integer> sortedlongZips = new SortedArraySet<Integer>(longMultiZips);
 
         //4. Intersect and present zipResults
         ZipSetIntersector intersector = new ZipSetIntersector();
-        intersector.include(latMultiZips, this);
-        intersector.include(longMultiZips, this);
+        intersector.include(sortedlatZips, this);
+        intersector.include(sortedlongZips, this);
         intersector.setStrict(true);
         intersector.setMax(0);
         SortedSet<Integer> zipResults = intersector.intersect();
@@ -230,13 +241,13 @@ public class ZipCodeDB implements IWeight<Integer> {
 
         public Integer getResult(Integer z, Double score) {
             return z;
-        }
+                }
 
         public ZipSetIntersector() {
             super();
             this.setStrict(true);
             this.setMax(0);
-        }
+            }
 
         public ZipSetIntersector(ZipSetIntersector z) {
             super(z);
@@ -244,10 +255,10 @@ public class ZipCodeDB implements IWeight<Integer> {
 
         public SetIntersector<Integer> clone() throws CloneNotSupportedException {
             return new ZipSetIntersector(this);
+            }
         }
-    }
 
-    /**
+        /**
      * Test method
      * @param args
      */
@@ -255,8 +266,8 @@ public class ZipCodeDB implements IWeight<Integer> {
         try {
             ZipCodeDB.getInstance().init();
             long start = System.currentTimeMillis();
-            for (int i=0;i<=100;i++) {
-                SortedSet<ZipCodeHandle> nearbyZips = ZipCodeDB.getInstance().getNearbyZips(95119, 10);
+            for (int i=0;i<=1;i++) {
+                SortedSet<ZipCodeHandle> nearbyZips = ZipCodeDB.getInstance().getNearbyZips(22040, 40);
                 System.out.println(nearbyZips.size());
             }
             System.out.println("test Finished. Time taken = " + (System.currentTimeMillis() - start) + " millis");

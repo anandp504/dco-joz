@@ -179,48 +179,6 @@ public class TSpecExecutor {
         m_tSpecQuery = copytSpecQuery;
     }
 
-    /**
-     * Add query for the Product Type
-     * @param offerType - the input ad data request
-     */
-    private void addProductTypeQuery(AdDataRequest.AdOfferType offerType) {
-        if (offerType == null) {
-            return;
-        }
-        //If there are no queries in the selected tspec - do not add ad offer type
-        boolean bSimpleQueries = false;
-        ArrayList<ConjunctQuery> _conjQueryAL = m_tSpecQuery.getQueries();
-        for (ConjunctQuery conjQuery:_conjQueryAL) {
-            ArrayList<SimpleQuery> simpleQueryAL = conjQuery.getQueries();
-            if (simpleQueryAL.size()!=0) {
-                bSimpleQueries = true;
-                break;
-            }
-        }
-        if (!bSimpleQueries) {
-            return;
-        }
-        Integer leadGenTypeId = DictionaryManager.getId (IProduct.Attribute.kProductType, "LEADGEN");
-        Integer prodTypeId = DictionaryManager.getId (IProduct.Attribute.kProductType, "Product");
-        ProductTypeQuery ptQuery = new ProductTypeQuery(leadGenTypeId);
-        if (offerType== AdDataRequest.AdOfferType.LEADGEN_ONLY) {
-            Integer adHeight = request.getAdHeight();
-            Integer adWidth = request.getAdWidth();
-            if (adHeight!=null && adHeight!= -1) {
-                AttributeQuery adHeightQuery = new AttributeQuery(Product.Attribute.kImageHeight, adHeight);
-                m_tSpecQuery.addSimpleQuery(adHeightQuery);
-            }
-            if (adWidth!=null && adWidth != -1) {
-                AttributeQuery adWidthQuery = new AttributeQuery(Product.Attribute.kImageWidth, adWidth);
-                m_tSpecQuery.addSimpleQuery(adWidthQuery);
-            }
-            m_tSpecQuery.addSimpleQuery(ptQuery);
-        } else if (offerType== AdDataRequest.AdOfferType.PRODUCT_ONLY || offerType== AdDataRequest.AdOfferType.PRODUCT_LEADGEN){
-            ptQuery = new ProductTypeQuery(prodTypeId);
-            m_tSpecQuery.addSimpleQuery(ptQuery);
-        }
-    }
-
     private SimpleQuery createGeoEnabledQuery(boolean bGeoEnabled) {
         Integer geoFlagId = DictionaryManager.getId(Product.Attribute.kGeoEnabledFlag, bGeoEnabled?"true":"false");
         return new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
@@ -360,25 +318,22 @@ public class TSpecExecutor {
     }
 
     private ConjunctQuery cloneAndAddQuery(ConjunctQuery conjQuery, Product.Attribute kAttr, String val){
-        AttributeQuery aQuery;
+        ConjunctQuery cloneConjQuery = (ConjunctQuery)conjQuery.clone();
 
         if (kAttr == IProduct.Attribute.kRadius) {
             int rad = m_tspec.getRadius();
             if (!m_tspec.isUseRadiusQuery() || m_tspec.getRadius() ==0) {
                 return null;
             }
-            try {
-                aQuery = new RadiusQuery(val, rad);
-            } catch (Exception e) {
-                log.error("Unexpected exception caught in setting up radius query.", e);
-                return null;
-            }
+            LatLongQuery latQuery = new LatLongQuery(IProduct.Attribute.kLatitude,val,rad);
+            LatLongQuery longQuery = new LatLongQuery(IProduct.Attribute.kLongitude,val,rad);
+            cloneConjQuery.addQuery(latQuery);
+            cloneConjQuery.addQuery(longQuery);
         } else {
             Integer codeId = DictionaryManager.getId(kAttr, val);
-            aQuery = new AttributeQuery(kAttr, codeId);
+            AttributeQuery aQuery = new AttributeQuery(kAttr, codeId);
+            cloneConjQuery.addQuery(aQuery);
         }
-        ConjunctQuery cloneConjQuery = (ConjunctQuery)conjQuery.clone();
-        cloneConjQuery.addQuery(aQuery);
         cloneConjQuery.setBounds(m_pageSize, m_currPage);
         cloneConjQuery.setStrict(true);
         return cloneConjQuery;
@@ -517,7 +472,7 @@ public class TSpecExecutor {
         if (pageSize>0 && currSize<pageSize) {
             //do backfill by dropping the keyword query
             m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(m_tspecId).clone();
-            addProductTypeQuery(request.getOfferType());
+            //addProductTypeQuery(request.getOfferType());
             //randomize
             Handle ref = ProductDB.getInstance().genReference();
             m_tSpecQuery.setReference(ref);
@@ -640,7 +595,7 @@ public class TSpecExecutor {
         ArrayList<Handle> resultAL = new ArrayList<Handle>();
 
         //5. Product Type
-        addProductTypeQuery(request.getOfferType());
+        //addProductTypeQuery(request.getOfferType());
 
         addExternalFilterRequestQueries(request);
 

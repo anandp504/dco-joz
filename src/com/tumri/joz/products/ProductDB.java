@@ -9,6 +9,7 @@ import com.tumri.joz.filter.*;
 import com.tumri.joz.index.*;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexUtils;
+import com.tumri.joz.utils.ZipCodeDB;
 import com.tumri.utils.data.RWLockedSortedArraySet;
 import com.tumri.utils.data.RWLockedTreeMap;
 import org.apache.log4j.Logger;
@@ -76,14 +77,14 @@ public class ProductDB {
     pdb.addIndex(IProduct.Attribute.kPrice, new PriceIndex());
     pdb.registerFilter(IProduct.Attribute.kPrice, new PriceRangeFilter());
 
-    pdb.addIndex(IProduct.Attribute.kProductType, new ProductTypeIndex());
-    pdb.registerFilter(IProduct.Attribute.kProductType, new ProductTypeFilter());
+//    pdb.addIndex(IProduct.Attribute.kProductType, new ProductTypeIndex());
+//    pdb.registerFilter(IProduct.Attribute.kProductType, new ProductTypeFilter());
 
-    pdb.addIndex(IProduct.Attribute.kImageWidth, new ImageWidthIndex());
-    pdb.registerFilter(IProduct.Attribute.kImageWidth, new ImageWidthFilter());
+//    pdb.addIndex(IProduct.Attribute.kImageWidth, new ImageWidthIndex());
+//    pdb.registerFilter(IProduct.Attribute.kImageWidth, new ImageWidthFilter());
 
-    pdb.addIndex(IProduct.Attribute.kImageHeight, new ImageHeightIndex());
-    pdb.registerFilter(IProduct.Attribute.kImageHeight, new ImageHeightFilter());
+//    pdb.addIndex(IProduct.Attribute.kImageHeight, new ImageHeightIndex());
+//    pdb.registerFilter(IProduct.Attribute.kImageHeight, new ImageHeightFilter());
 
     pdb.addIndex(IProduct.Attribute.kCountry, new CountryIndex());
     pdb.registerFilter(IProduct.Attribute.kCountry, new CountryFilter());
@@ -120,6 +121,12 @@ public class ProductDB {
 
     pdb.addIndex(IProduct.Attribute.kMultiValueTextField, new TextIndexImpl(IProduct.Attribute.kMultiValueTextField));
     pdb.registerLongFilter(IProduct.Attribute.kMultiValueTextField, new TextFilterImpl(IProduct.Attribute.kMultiValueTextField));
+
+    pdb.addIndex(IProduct.Attribute.kLatitude, new LatitudeIndex());
+    pdb.registerFilter(IProduct.Attribute.kLatitude, new LatitudeRangeFilter());
+
+    pdb.addIndex(IProduct.Attribute.kLongitude, new LongitudeIndex());
+    pdb.registerFilter(IProduct.Attribute.kLongitude, new LongitudeRangeFilter());
 
   }
 
@@ -352,6 +359,9 @@ public class ProductDB {
     TreeMap<Long, ArrayList<Handle>> mcategorytextattr = new TreeMap<Long, ArrayList<Handle>>();
     TreeMap<Long, ArrayList<Handle>> mcategorynumattr = new TreeMap<Long, ArrayList<Handle>>();
     TreeMap<Long, ArrayList<Handle>> mmultitextattr = new TreeMap<Long, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mlat = new TreeMap<Integer, ArrayList<Handle>>();
+    TreeMap<Integer, ArrayList<Handle>> mlong = new TreeMap<Integer, ArrayList<Handle>>();
+
 
     for (IProduct prod : products) {
       Handle h = prod.getHandle();
@@ -398,6 +408,36 @@ public class ProductDB {
         if (list == null) {
           list = new ArrayList<Handle>();
           mprice.put(k, list);
+        }
+        list.add(h);
+      }
+      {
+        String zip = p.getZipStr();
+        Integer lat;
+          try {
+              lat = ZipCodeDB.getInstance().getLatLong(Integer.parseInt(zip)).getFirst().intValue();
+          } catch (NumberFormatException e) {
+              lat = null;
+          }
+        ArrayList<Handle> list = mlat.get(lat);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mlat.put(lat, list);
+        }
+        list.add(h);
+      }
+      {
+        String zip = p.getZipStr();
+        Integer aLong;
+          try {
+              aLong = ZipCodeDB.getInstance().getLatLong(Integer.parseInt(zip)).getSecond().intValue();
+          } catch (NumberFormatException e) {
+              aLong = null;
+          }
+        ArrayList<Handle> list = mlong.get(aLong);
+        if (list == null) {
+          list = new ArrayList<Handle>();
+          mlong.put(aLong, list);
         }
         list.add(h);
       }
@@ -749,6 +789,8 @@ public class ProductDB {
       updateDoubleIndex(IProduct.Attribute.kPrice, mprice);
       updateDoubleIndex(IProduct.Attribute.kCPC, mcpc);
       updateDoubleIndex(IProduct.Attribute.kCPO, mcpo);
+      updateIntegerIndex(IProduct.Attribute.kLatitude, mlat);
+      updateIntegerIndex(IProduct.Attribute.kLongitude, mlong);
 
       updateIntegerIndex(IProduct.Attribute.kProductType, mprovider);
       updateIntegerIndex(IProduct.Attribute.kImageWidth, miwidth);

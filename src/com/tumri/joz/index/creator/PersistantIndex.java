@@ -114,9 +114,8 @@ public class PersistantIndex implements Serializable{
                 }
                 //Now add these to the index
                 JozIndexHelper.getInstance().getUpdater().handleLine(indexName, indexVal, currPids, op);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                throw new NotSerializableException("ClassNotFoundException caught during read");
+            } catch (Throwable t) {
+                throw new IOException(t);
             }
         }
     }

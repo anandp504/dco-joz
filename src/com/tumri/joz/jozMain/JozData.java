@@ -24,12 +24,12 @@ public class JozData {
     public static void init() {
         // Read the datapath from the joz.properties file
         AppProperties props = AppProperties.getInstance();
+        //Load Zip Data
+        loadZipData();
         //Init the jozindex
         loadContent(props.getProperties());
         //Init the CMA data
         loadCampaignData();
-        //Load Zip Data
-        loadZipData();
         //Init LLC
         ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
                         MerchantDB.getInstance().getMerchantData());
