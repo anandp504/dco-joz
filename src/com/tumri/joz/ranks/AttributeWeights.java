@@ -24,7 +24,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
   private static double kState = 1.10;
   private static double kCity = 1.15;
   private static double kZipCode = 1.40;
-  private static double kRadius = 1.25;
+  private static double kRadius = 1.10;
   private static double kDmaCode = 1.20;
   private static double kAreaCode = 1.05;
   private static double kGeoEnabled = 1.0;
