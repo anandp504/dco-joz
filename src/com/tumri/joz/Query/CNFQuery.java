@@ -84,19 +84,20 @@ public class CNFQuery implements Query, Cloneable {
         TreeSet<Handle> pageResults = new TreeSet<Handle>();
         if (bPaginate) {
             int start = (m_currentPage * m_pagesize) + 1;
-            int end = start + m_pagesize;
-            int i = 0;
+            int i = 0, count=0;
             boolean bAdded =true;
             for (Handle handle : results) {
                 if (bAdded){
                     i++;
                 }
                 if (i < start) {
+                    //Not taking care of dupes here
                     continue;
-                } else if ((i >= start) && (i < end)) {
+                } else if (i >= start) {
                     bAdded = pageResults.add(handle);
-                } else {
-                    break;
+                    if (bAdded && ++count>=m_pagesize) {
+                        break;
+                    }
                 }
             }
         } else {
