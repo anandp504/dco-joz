@@ -200,24 +200,20 @@ public class TSpecExecutor {
         }
 
         if (m_geoFilterEnabled) {
-            int resultCount = 0;
             String zipCode = request.getZipCode();
             if (zipCode!=null && !"".equals(zipCode)) {
-                resultCount = resultCount+2;  //Add an additional one for the radius set
                 if (m_feature != null) {
                     m_feature.addFeatureDetail("Zip", zipCode);
                 }
             }
             String cityCode = request.getCityCode();
             if (cityCode!=null && !"".equals(cityCode)) {
-                resultCount++;
                 if (m_feature != null) {
                     m_feature.addFeatureDetail("City", cityCode);
                 }
             }
             String dmaCode = request.getDmaCode();
             if (dmaCode!=null && !"".equals(dmaCode)) {
-                resultCount++;
                 if (m_feature != null) {
                     m_feature.addFeatureDetail("DMA", dmaCode);
                 }
@@ -225,29 +221,25 @@ public class TSpecExecutor {
             }
             String areaCode = request.getAreaCode();
             if (areaCode!=null && !"".equals(areaCode)) {
-                resultCount++;
                 if (m_feature != null) {
                     m_feature.addFeatureDetail("Area", areaCode);
                 }
             }
             String stateCode = request.getStateCode();
             if (stateCode!=null && !"".equals(stateCode)) {
-                resultCount++;
                 if (m_feature != null) {
                     m_feature.addFeatureDetail("State", stateCode);
                 }
             }
             String countryCode = request.getCountryCode();
             if (countryCode!=null && !"".equals(countryCode)) {
-                resultCount++;
                 if (m_feature != null) {
                     m_feature.addFeatureDetail("Country", countryCode);
                 }
 
             }
-            resultCount++; //For the backfill
             CNFQuery geoTSpecQuery = new CNFQuery();
-            geoTSpecQuery.setBounds(resultCount*pageSize, currPage);
+            geoTSpecQuery.setBounds(pageSize, currPage);
             _conjQueryAL = m_tSpecQuery.getQueries();
             for (ConjunctQuery conjQuery:_conjQueryAL) {
                 if (zipCode!=null && !"".equals(zipCode)) {
@@ -301,17 +293,15 @@ public class TSpecExecutor {
                     geoTSpecQuery.addQuery(cloneConjQuery);
                 }
             }
-            if (resultCount>0) {
-                if (m_feature !=null) {
-                    m_feature.setGeoUsed(true);
-                }
-                if (!m_ExternalKeywords) {
-                    //Set a reference so we return random selection of products.
-                    geoTSpecQuery.setCacheReference(m_tSpecQuery.getCacheReference());
-                    geoTSpecQuery.setReference(ProductDB.getInstance().genReference ());
-                }
-                m_tSpecQuery = geoTSpecQuery;
+            if (m_feature !=null) {
+                m_feature.setGeoUsed(true);
             }
+            if (!m_ExternalKeywords) {
+                //Set a reference so we return random selection of products.
+                geoTSpecQuery.setCacheReference(m_tSpecQuery.getCacheReference());
+                geoTSpecQuery.setReference(ProductDB.getInstance().genReference ());
+            }
+            m_tSpecQuery = geoTSpecQuery;
         } else {
             m_tSpecQuery.addSimpleQuery(createGeoEnabledQuery(false));
         }

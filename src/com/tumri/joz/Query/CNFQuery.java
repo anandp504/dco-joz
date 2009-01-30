@@ -86,22 +86,23 @@ public class CNFQuery implements Query, Cloneable {
             int start = (m_currentPage * m_pagesize) + 1;
             int end = start + m_pagesize;
             int i = 0;
+            boolean bAdded =true;
             for (Handle handle : results) {
-                i++;
+                if (bAdded){
+                    i++;
+                }
                 if (i < start) {
                     continue;
                 } else if ((i >= start) && (i < end)) {
-                    pageResults.add(handle);
+                    bAdded = pageResults.add(handle);
                 } else {
                     break;
                 }
             }
         } else {
-            int count = 0;
+            //Unbounded query
             for (Handle handle : results) {
-                if (pageResults.add(handle) && (count++ >=m_pagesize)) {
-                    break;
-                }
+                pageResults.add(handle);
             }
         }
         return new SortedArraySet<Handle>(pageResults);

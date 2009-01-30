@@ -195,7 +195,7 @@ public class ZipCodeDB implements IWeight<Integer> {
             Pair<Double, Double> latLong = getLatLong(zipInt);
             if (latLong==null) {
                 log.warn("Invalid zip code passed in for lookup : " + zipInt);
-                return null;
+                return keys;
             }
             Double latObj = latLong.getFirst();
             if (isLat) {
