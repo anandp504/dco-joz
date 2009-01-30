@@ -25,7 +25,6 @@ import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.TSpecQueryCache;
 import com.tumri.joz.campaign.TSpecQueryCacheHelper;
-import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
@@ -142,10 +141,12 @@ public class TSpecExecutor {
             m_pageSize = request.getPageSize();
         }
 
-        if (request.isBRandomize()) {
-            m_tSpecQuery.setStrict(false);
-        } else {
+        if (m_ExternalKeywords || request.isBPaginate()) {
+	        //Do not randomize
             m_tSpecQuery.setStrict(true);
+        } else {
+	        //Randomize
+            m_tSpecQuery.setStrict(false);
         }
 
         m_tSpecQuery.setBounds(m_pageSize,m_currPage);
@@ -288,7 +289,7 @@ public class TSpecExecutor {
                     ConjunctQuery cloneConjQuery = (ConjunctQuery)conjQuery.clone();
                     SimpleQuery geoEnabledQuery = createGeoEnabledQuery(false);
                     cloneConjQuery.setBounds(pageSize, currPage);
-                    cloneConjQuery.setStrict(false);
+                    cloneConjQuery.setStrict(m_ExternalKeywords);
                     cloneConjQuery.addQuery(geoEnabledQuery);
                     geoTSpecQuery.addQuery(cloneConjQuery);
                 }
@@ -473,6 +474,7 @@ public class TSpecExecutor {
             if (m_geoFilterEnabled) {
                 //For keyword queries with geo enabled or multivalue, do backfill by dropping the keyword query and
                 // doing the geo query again
+	            m_ExternalKeywords =false;
                 addGeoFilterQuery(pageSize-currSize, m_currPage);
                 SortedSet<Handle> newResults = m_tSpecQuery.exec();
                 //Sort by the score

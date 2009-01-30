@@ -137,11 +137,6 @@ public class ProductSelectionProcessor {
             pr.setRequestKeyWords(null);
         }
 
-        if (((mMineUrls == SexpUtils.MaybeBoolean.FALSE) && (keywords==null))
-					|| ((whichRow ==null) && (rowSize ==null))) {
-				pr.setBRandomize(true);
-	    } 
-
 //        AdDataRequest.AdOfferType offerType = request.get_ad_offer_type();
 //        if (offerType != null) {
 //            pr.setOfferType(offerType);
