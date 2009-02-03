@@ -455,7 +455,7 @@ public class AdDataRequest {
             b.append(" :multivaluefield1 ").append(externalFilterField1);
             b.append(" :multivaluefield2 ").append(externalFilterField2);
             b.append(" :multivaluefield3 ").append(externalFilterField3);
-            b.append(" :multivaluefield3 ").append(externalFilterField4);
+            b.append(" :multivaluefield4 ").append(externalFilterField4);
             b.append(" :multivaluefield5 ").append(externalFilterField5);
 
             
