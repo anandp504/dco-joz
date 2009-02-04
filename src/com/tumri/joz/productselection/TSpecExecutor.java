@@ -63,6 +63,7 @@ public class TSpecExecutor {
     private int m_currPage = 0;
     private int m_pageSize = 0;
     private Features m_feature = null;
+    private boolean m_randomize = false;
 
     private static Logger log = Logger.getLogger (TSpecExecutor.class);
 
@@ -141,12 +142,14 @@ public class TSpecExecutor {
             m_pageSize = request.getPageSize();
         }
 
-        if (m_ExternalKeywords || request.isBPaginate()) {
+        if (m_ExternalKeywords || request.isBPaginate() || request.isBMineUrls() || m_tspec.isMinePubUrl()) {
 	        //Do not randomize
             m_tSpecQuery.setStrict(true);
+            m_randomize = false;
         } else {
 	        //Randomize
             m_tSpecQuery.setStrict(false);
+            m_randomize = true;
         }
 
         m_tSpecQuery.setBounds(m_pageSize,m_currPage);
@@ -560,7 +563,7 @@ public class TSpecExecutor {
         m_tSpecQuery = (CNFQuery)m_tSpecQuery.clone();
         SortedSet<Handle> qResult;
 
-        if (request.isBRandomize()) {
+        if (m_randomize) {
             Handle ref = ProductDB.getInstance().genReference ();
             m_tSpecQuery.setReference(ref);
         }
