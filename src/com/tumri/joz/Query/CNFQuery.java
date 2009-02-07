@@ -2,13 +2,12 @@ package com.tumri.joz.Query;
 
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
-import com.tumri.utils.data.SortedArraySet;
 import com.tumri.utils.data.SetUnion;
+import com.tumri.utils.data.SortedArraySet;
 
 import java.util.ArrayList;
-import java.util.SortedSet;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.SortedSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -81,7 +80,7 @@ public class CNFQuery implements Query, Cloneable {
             results = unionizer;
         }
         //Paginate
-        TreeSet<Handle> pageResults = new TreeSet<Handle>();
+        ArrayList<Handle> pageResults = new ArrayList<Handle>();
         if (bPaginate) {
             int start = (m_currentPage * m_pagesize) + 1;
             int i = 0, count=0;
@@ -94,7 +93,11 @@ public class CNFQuery implements Query, Cloneable {
                     //Not taking care of dupes here
                     continue;
                 } else if (i >= start) {
-                    bAdded = pageResults.add(handle);
+	                if (!pageResults.contains(handle)){
+		                bAdded = pageResults.add(handle);
+	                } else {
+		                bAdded = false;
+	                }
                     if (bAdded && ++count>=m_pagesize) {
                         break;
                     }
@@ -106,7 +109,7 @@ public class CNFQuery implements Query, Cloneable {
                 pageResults.add(handle);
             }
         }
-        return new SortedArraySet<Handle>(pageResults);
+        return new SortedArraySet<Handle>(pageResults, true);
     }
 
     public void setBounds(int pagesize, int currentPage) {

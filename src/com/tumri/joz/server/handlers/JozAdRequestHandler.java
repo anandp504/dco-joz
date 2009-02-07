@@ -43,7 +43,6 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -122,9 +121,8 @@ public class JozAdRequestHandler implements RequestHandler {
             ArrayList<Handle> product_handles = new ArrayList<Handle>();
             ArrayList<String> slotIdAL = new ArrayList<String>();
             if (resultsMap!= null && !resultsMap.isEmpty()) {
-                Iterator<Integer> tspecIdList = resultsMap.keySet().iterator();
-                while (tspecIdList.hasNext()) {
-                    Integer id = tspecIdList.next();
+	            ArrayList<Integer> tspecIdOrder = prs.getIdOrder();
+	            for(int id: tspecIdOrder){
                     product_handles.addAll(resultsMap.get(id));
                     for (int i=0;i<product_handles.size();i++) {
                         slotIdAL.add(resultsSlotMap.get(id));

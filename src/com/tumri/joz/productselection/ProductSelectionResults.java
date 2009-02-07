@@ -1,12 +1,10 @@
 package com.tumri.joz.productselection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.SortedSet;
-
-import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.Recipe;
 import com.tumri.joz.products.Handle;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Container class to hold the results of the Product Selection
@@ -21,6 +19,7 @@ public class ProductSelectionResults {
 
     HashMap<Integer, ArrayList<Handle>> tspecResultsMap = null;
     HashMap<Integer, String> tspecSlotIdMap = null;
+	ArrayList<Integer> idOrder = null;
 
     public HashMap<String, String> getFeaturesMap() {
 		return featuresMap;
@@ -37,9 +36,18 @@ public class ProductSelectionResults {
         if (tspecSlotIdMap == null) {
             tspecSlotIdMap = new HashMap<Integer, String>();
         }
-        tspecResultsMap.put(tspecId, results);
+        if(idOrder == null){
+	        idOrder = new ArrayList<Integer>();
+        }
+	    tspecResultsMap.put(tspecId, results);
         tspecSlotIdMap.put(tspecId, slotId);
+	    idOrder.add(tspecId);
+
     }
+
+	public ArrayList<Integer> getIdOrder(){
+		return idOrder;
+	}
 
     public Recipe getTargetedRecipe() {
         return targetedRecipe;
