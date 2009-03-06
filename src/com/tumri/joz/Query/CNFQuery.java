@@ -75,6 +75,7 @@ public class CNFQuery implements Query, Cloneable {
         } else {
             SetUnion<Handle> unionizer = new SetUnion<Handle>();
             for (ConjunctQuery cjquery : m_queries) {
+	            cjquery.setReference(m_reference);
                 unionizer.add(cjquery.exec());
             }
             results = unionizer;
