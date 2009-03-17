@@ -92,7 +92,7 @@ public class CMAContentProviderStatus {
             sb.append("Last Refresh Time:" + TIME_FORMAT.format(lastRefreshTime) + "\n");
         }
         if (lastSuccessfulRefreshTime != -1) {
-            sb.append("Last Sucessful Refresh Time:" + TIME_FORMAT.format(lastSuccessfulRefreshTime) + "\n");
+            sb.append("Last Successful Refresh Time:" + TIME_FORMAT.format(lastSuccessfulRefreshTime) + "\n");
         }
         if (lastErrorRunTime != -1) {
             sb.append("Last Error Time: " + TIME_FORMAT.format(lastErrorRunTime) + "\n");

@@ -14,6 +14,9 @@ import com.tumri.joz.server.domain.JozQAResponseWrapper;
 import com.tumri.joz.server.handlers.JozQARequestHandler;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.utils.strings.StringTokenizer;
+import com.tumri.content.InvalidConfigException;
+import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.data.ContentProviderStatus;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -48,7 +51,7 @@ public class JozConsoleServlet extends HttpServlet {
 		if ("ad".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/get-ad-data.jsp";
 		} else if ("caa".equalsIgnoreCase(mode)) {
-			responseJSP = "/jsp/content-status.jsp";
+			responseJSP = "/jsp/caa-content-status.jsp";
 		} else if ("cma".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/cma-content-status.jsp";
 		} else if ("perf".equalsIgnoreCase(mode)) {
@@ -189,5 +192,6 @@ public class JozConsoleServlet extends HttpServlet {
 		//Forward to JSP page
 		getServletConfig().getServletContext().getRequestDispatcher(responseJSP).forward(request, response);
 	}
+
 
 }

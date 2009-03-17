@@ -222,11 +222,21 @@ public class TSpecQueryCacheHelper {
         }
 
         //Global ID - list of globals
-        String globalID = theTSpec.getGlobalId();
-        if (globalID != null && !"".equals(globalID.trim())) {
-            SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGlobalId, globalID, false);
-            _cjquery.addQuery(sq);
+        List<GlobalIdInfo> inGlobals = theTSpec.getIncludedGlobalIds();
+        if (inGlobals != null) {
+            SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGlobalId, inGlobals, false);
+            if(sq!=null){
+                _cjquery.addQuery(sq);
+	        }
         }
+
+        String productType = theTSpec.getProductType();
+        //Default to product
+        if (productType == null || "".equals(productType.trim())) {
+           productType = "Product";
+        }
+        SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductType, productType, false);
+        _cjquery.addQuery(sq);
 
         _query.addQuery (_cjquery);
         return _query;
@@ -267,6 +277,12 @@ public class TSpecQueryCacheHelper {
 	                String mName = mInfo.getName();
 	                if(mName != null && !"".equals(mName.trim())){
                         valueStrList.add(mInfo.getName());
+	                }
+                } else if (type.equals(IProduct.Attribute.kGlobalId)) {
+                    GlobalIdInfo gInfo = (GlobalIdInfo)values.get(i);
+	                String gName = gInfo.getName();
+	                if(gName != null && !"".equals(gName.trim())){
+                        valueStrList.add(gInfo.getName());
 	                }
                 }
             }

@@ -50,7 +50,7 @@ public class JozRefreshDataServlet extends HttpServlet {
             } catch (Exception e) {
                 result = "failed";
             }
-            responseJSP = "/jsp/content-status.jsp";
+            responseJSP = "/jsp/caa-content-status.jsp";
         } else if ("campaign".equalsIgnoreCase(dataType)) {
             try {
                 result = doRefreshCampaignData();
@@ -65,6 +65,13 @@ public class JozRefreshDataServlet extends HttpServlet {
                 result = "failed";
             }
             responseJSP = "/jsp/llc-status.jsp";
+        } else if ("caadetails".equalsIgnoreCase(dataType)) {
+            try {
+                result = getManifestInfo();
+                jspMode = null;
+            } catch (Exception e) {
+                result = "failed";
+            }
         } else {
             //Default send to console
             jspMode = "true";
@@ -93,7 +100,7 @@ public class JozRefreshDataServlet extends HttpServlet {
         cp.refresh();
         //Invoke the content refresh on Listings Data client
         ListingProviderFactory.refreshData(JOZTaxonomy.getInstance().getTaxonomy(),
-                        MerchantDB.getInstance().getMerchantData());
+                MerchantDB.getInstance().getMerchantData());
         ContentProviderStatus status = cp.getStatus();
         String success = (status.lastRunStatus == true ? "success" : "failed");
         return success;
@@ -114,7 +121,7 @@ public class JozRefreshDataServlet extends HttpServlet {
      */
     private String doResetSocketPool() {
         if (AppProperties.getInstance().isNioEnabled()) {
-            NioSocketChannelPool.getInstance().initConnections(true);            
+            NioSocketChannelPool.getInstance().initConnections(true);
         } else {
             TcpSocketConnectionPool.getInstance().reset();
         }
@@ -125,6 +132,15 @@ public class JozRefreshDataServlet extends HttpServlet {
             //
         }
         return "success";
+    }
+
+    /**
+     * Gets the current set of content details loaded into Joz
+     * @return
+     */
+    private String getManifestInfo() throws InvalidConfigException {
+        ContentProviderStatus status = ContentProviderFactory.getInstance().getContentProvider().getStatus();
+        return status.getManifestInfo();
     }
 
 }

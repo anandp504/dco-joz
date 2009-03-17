@@ -5,6 +5,7 @@ import com.tumri.content.ContentProviderFactory;
 import com.tumri.content.InvalidConfigException;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Content;
+import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.content.impl.file.FileContentConfigValues;
 import com.tumri.joz.index.creator.JozIndexCreator;
 import com.tumri.joz.products.*;
@@ -96,6 +97,20 @@ public class ProductIndex {
         }
         File f = findProductIndex(dir);
         if (f != null) {
+            File[] luceneFiles = f.listFiles();
+            ArrayList<String> luceneFileNames = new ArrayList<String>();
+            for (File lf : luceneFiles) {
+                luceneFileNames.add(lf.getName());
+
+            }
+            ContentProviderStatus status = null;
+            try {
+                status = ContentProviderFactory.getInstance().getContentProvider().getStatus();
+                status.luceneFileNames = luceneFileNames;
+            } catch (Exception ex) {
+                status = null;
+            }
+
             ProductIndex pi = new ProductIndex(f);
             ProductIndex oldIndex = g_Instance.get();
             g_Instance.set(pi);

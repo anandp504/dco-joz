@@ -4,6 +4,8 @@ import com.tumri.joz.index.creator.PersistantProviderIndex;
 import com.tumri.joz.index.creator.JozIndexUpdater;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
+import com.tumri.content.data.ContentProviderStatus;
+import com.tumri.content.ContentProviderFactory;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -27,14 +29,14 @@ public class JozIndexHelper {
     private boolean debugMode = false;
 
     public static JozIndexHelper getInstance() {
-      if (inst == null) {
-        synchronized (JozIndexHelper.class) {
-          if (inst == null) {
-            inst = new JozIndexHelper();
-          }
+        if (inst == null) {
+            synchronized (JozIndexHelper.class) {
+                if (inst == null) {
+                    inst = new JozIndexHelper();
+                }
+            }
         }
-      }
-      return inst;
+        return inst;
     }
 
     private JozIndexHelper() {
@@ -73,11 +75,19 @@ public class JozIndexHelper {
             Date start = new Date();
             //Look for any Joz index files
             List<File> indexFiles = getSortedJozIndexFileList(indexDirName);
-            
+            ArrayList<String> indexFileNames = new ArrayList<String>();
             for (File f: indexFiles) {
                 readFromSerializedFile(f);
+                indexFileNames.add(f.getName());
             }
 
+            ContentProviderStatus status = null;
+            try {
+                status = ContentProviderFactory.getInstance().getContentProvider().getStatus();
+                status.jozIndexFileNames = indexFileNames;
+            } catch (Exception ex) {
+                status = null;
+            }
             log.info("Finished loading the Joz indexes");
             log.info( ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes" );
         } catch (Exception e) {
@@ -91,11 +101,11 @@ public class JozIndexHelper {
      * @param myBinFiles
      */
     public synchronized void loadIndexForDebug(String idxDir, ArrayList<String> myBinFiles) {
-		if(myBinFiles!=null && myBinFiles.size() > 0){
+        if(myBinFiles!=null && myBinFiles.size() > 0){
             loadJozIndexFiles(idxDir, myBinFiles);
-		} else {
-			loadJozIndexFiles(idxDir, null);
-		}
+        } else {
+            loadJozIndexFiles(idxDir, null);
+        }
     }
 
     private void init() {
@@ -103,7 +113,7 @@ public class JozIndexHelper {
         indexDirName = AppProperties.getInstance().getProperty("com.tumri.content.file.sourceDir");
         indexDirName = indexDirName + "/" + AppProperties.getInstance().getProperty("com.tumri.content.jozindexDir");
     }
-    
+
     /**
      * Gets the current list of Joz index file in the Dir specified in indexDirName
      * @return
@@ -130,7 +140,7 @@ public class JozIndexHelper {
 
         //Sort the files by Name
         Collections.sort(indexFiles,
-                    new Comparator<File>(){
+                new Comparator<File>(){
                     public int compare( File f1, File f2 )
                     {
                         String s1 = f1.getName();
@@ -169,8 +179,8 @@ public class JozIndexHelper {
     }
 
     /**
-	 *  Load the specific set of Joz Index Files
-	 */
+     *  Load the specific set of Joz Index Files
+     */
     private void loadJozIndexFiles(String dirName, List<String> fileNames) {
         try {
             log.info("Starting to load the specified Joz indexes.");

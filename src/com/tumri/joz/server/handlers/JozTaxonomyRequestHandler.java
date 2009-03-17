@@ -22,11 +22,7 @@ import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.JoZException;
 import com.tumri.joz.products.JOZTaxonomy;
-import com.tumri.joz.server.domain.JozCategory;
-import com.tumri.joz.server.domain.JozResponse;
-import com.tumri.joz.server.domain.JozTaxonomy;
-import com.tumri.joz.server.domain.JozTaxonomyRequest;
-import com.tumri.joz.server.domain.JozTaxonomyResponse;
+import com.tumri.joz.server.domain.*;
 import com.tumri.utils.tcp.server.domain.QueryId;
 import com.tumri.utils.tcp.server.domain.QueryInputData;
 import com.tumri.utils.tcp.server.domain.QueryResponseData;
@@ -85,6 +81,7 @@ public class JozTaxonomyRequestHandler implements RequestHandler {
     private void processRequest(JozTaxonomyRequest query,JozTaxonomyResponse response) throws JoZException{
         try {
             String inputCatId = query.getValue(JozTaxonomyRequest.KEY_CATEGORY);
+            String inputProvId = query.getValue(JozTaxonomyRequest.KEY_PROVIDER);
             boolean fetchCounts = true;
             try {
                 "true".equals(query.getValue(JozTaxonomyRequest.KEY_FETCH_COUNT));
@@ -100,6 +97,9 @@ public class JozTaxonomyRequestHandler implements RequestHandler {
 
             try {
                 JOZTaxonomy tax = JOZTaxonomy.getInstance();
+                if (inputProvId!=null) {
+                    inputCatId = tax.getTaxonomy().getProviderRootCategories().get(inputProvId.toUpperCase());
+                }
                 Taxonomy t = tax.getTaxonomy();
                 HashMap<String, CountsHelper.Counter> categoryCounts = null;
                 if (fetchCounts) {
@@ -129,7 +129,6 @@ public class JozTaxonomyRequestHandler implements RequestHandler {
         		JozResponse jozResponse = new JozResponse();
         		JozTaxonomy jozTax = new JozTaxonomy();
         		JozCategory rootCategory =getTaxonomyTree(baseCategory, fetchCounts, categoryCounts, 0, maxDepth);
-                
                 jozTax.setRootCategory(rootCategory);
                 jozResponse.setTaxonomy(jozTax);
                 String xml = xstream.toXML(jozResponse);
@@ -169,10 +168,10 @@ public class JozTaxonomyRequestHandler implements RequestHandler {
 		}
 
 		JozCategory currCategory = new JozCategory();		
-		currCategory.setGlassIdStr(category.getGlassIdStr());
+		currCategory.setGlassIdStr(glassIdStr);
 		currCategory.setId(category.getIdStr());
 		currCategory.setName(category.getName());
-		
+		currCategory.setProviderId(category.getProviderId());
 		if (countsReq) {
 			currCategory.setCount(""+count);
 		}

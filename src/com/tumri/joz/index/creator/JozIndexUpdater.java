@@ -230,7 +230,7 @@ public class JozIndexUpdater {
 				idxAttr == Product.Attribute.kProvider ||
 //				idxAttr == Product.Attribute.kImageWidth ||
 //				idxAttr == Product.Attribute.kImageHeight ||
-//				idxAttr == Product.Attribute.kProductType ||
+				idxAttr == Product.Attribute.kProductType ||
 				idxAttr == Product.Attribute.kGeoEnabledFlag ||
 				idxAttr == Product.Attribute.kProviderCategory ||
 				idxAttr == Product.Attribute.kGlobalId) {
@@ -370,7 +370,7 @@ public class JozIndexUpdater {
         Integer lat, along;
         Pair<Integer, Integer> latlong = ZipCodeDB.getInstance().getNormalizedLatLong(zipCode);
         if (latlong==null){
-            log.warn("Could not get the lat long for the zip code : " + zipCode);
+            log.debug("Could not get the lat long for the zip code : " + zipCode);
             return;
         }
         lat = latlong.getFirst();
