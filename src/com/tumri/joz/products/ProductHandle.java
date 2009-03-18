@@ -8,6 +8,7 @@ package com.tumri.joz.products;
 public class ProductHandle implements Handle {
   private double m_score;
   private long m_oid;
+  private byte m_type;
 
 
   public ProductHandle(double aScore, long aOid) {
@@ -26,6 +27,14 @@ public class ProductHandle implements Handle {
 
   public double getScore() {
     return m_score;
+  }
+
+  public void setProductType(Integer type) {
+      m_type = type.byteValue();
+  }
+
+  public Integer getProductType(){
+      return new Integer(m_type);
   }
 
 

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TSpecQueryCacheHelper {
+    private static final String PRODUCT = "Product";
 
     /**
      * Walk thru the TSpec details and create the Query
@@ -230,10 +231,19 @@ public class TSpecQueryCacheHelper {
 	        }
         }
 
+        //Excluded GlobalsIds
+        List<GlobalIdInfo> exGlobalIds = theTSpec.getExcludedGlobalIds();
+        if (exProviders != null) {
+            SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGlobalId, exGlobalIds, true);
+            if(sq!=null){
+                _cjquery.addQuery(sq);
+	        }
+        }
+
         String productType = theTSpec.getProductType();
         //Default to product
         if (productType == null || "".equals(productType.trim())) {
-           productType = "Product";
+           productType = PRODUCT;
         }
         SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductType, productType, false);
         _cjquery.addQuery(sq);

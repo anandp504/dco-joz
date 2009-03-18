@@ -55,8 +55,9 @@ public class ProductQueryMonitor extends ComponentMonitor
 			results = getProductData(handles);
 		}
 		catch(Exception ex) {
-			log.error("Error reading sexpression:  "+ex.getMessage());
-			results = null;
+			log.error("Error reading sexpression:  ",ex);
+            ex.printStackTrace();
+            results = null;
 		}
 
 		((ProductQueryMonitorStatus)status.getStatus()).setProducts(results);
@@ -193,7 +194,6 @@ public class ProductQueryMonitor extends ComponentMonitor
 		ProductSelectionRequest pr = new ProductSelectionRequest();
 		HashSet<String> keys = new HashSet<String>();
 		keys.add(":num_products");
-		keys.add(":offertype");
 		keys.add(":city");
 		keys.add(":state");
 		keys.add(":country");
@@ -239,17 +239,7 @@ public class ProductQueryMonitor extends ComponentMonitor
 					}
 				}
 				if(keys.contains(cToken)){
-					if(":offertype".equalsIgnoreCase(key)){
-						if(!"".equals(value)){
-							if("leadgen".equalsIgnoreCase(value)){
-								pr.setOfferType(AdDataRequest.AdOfferType.LEADGEN_ONLY);
-							} else if("product".equalsIgnoreCase(value)){
-								pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_ONLY);
-							} else {
-								pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
-							}
-						}
-					} else if(":num_products".equalsIgnoreCase(key)){
+					if(":num_products".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
 							pr.setPageSize(Integer.parseInt(value.trim()));
 						}
@@ -384,6 +374,9 @@ public class ProductQueryMonitor extends ComponentMonitor
 		keys.add(":includedproducts");
 		keys.add(":excludedproducts");
 		keys.add(":LTKExpression");
+		keys.add(":producttype");
+		keys.add(":includedglobalids");
+		keys.add(":excludedglobalids");
 
 		if(req != null && !"".equals(req.trim())){
 			com.tumri.utils.strings.StringTokenizer reqTokenizer = new com.tumri.utils.strings.StringTokenizer(req, ' ');
@@ -586,9 +579,31 @@ public class ProductQueryMonitor extends ComponentMonitor
 								tSpec.addExcludedProducts(prodInfo);
 							}
 						}
+					} else if(":includedglobalids".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
+							ArrayList<String> inclGids = st.getTokens();
+							for(String gid: inclGids){
+								GlobalIdInfo ginfo = new GlobalIdInfo(gid.trim());
+                                tSpec.addIncludedGlobalIds(ginfo);
+							}
+						}
+					} else if(":excludedglobalids".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							com.tumri.utils.strings.StringTokenizer st = new com.tumri.utils.strings.StringTokenizer(value.trim(),',');
+							ArrayList<String> inclGids = st.getTokens();
+							for(String gid: inclGids){
+								GlobalIdInfo ginfo = new GlobalIdInfo(gid.trim());
+                                tSpec.addExcludedGlobalIds(ginfo);
+							}
+						}
 					} else if(":LTKExpression".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
 							tSpec.setLoadTimeKeywordExpression(value.trim());
+						}
+					} else if(":producttype".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							tSpec.setProductType(value.trim());
 						}
 					}
 				} else {

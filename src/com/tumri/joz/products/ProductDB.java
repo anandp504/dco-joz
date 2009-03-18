@@ -77,7 +77,7 @@ public class ProductDB {
     pdb.addIndex(IProduct.Attribute.kPrice, new PriceIndex());
     pdb.registerFilter(IProduct.Attribute.kPrice, new PriceRangeFilter());
 
-    pdb.addIndex(IProduct.Attribute.kProductType, new ProductTypeIndex());
+//    pdb.addIndex(IProduct.Attribute.kProductType, new ProductTypeIndex());
     pdb.registerFilter(IProduct.Attribute.kProductType, new ProductTypeFilter());
 
 //    pdb.addIndex(IProduct.Attribute.kImageWidth, new ImageWidthIndex());
@@ -789,7 +789,7 @@ public class ProductDB {
       updateIntegerIndex(IProduct.Attribute.kLatitude, mlat);
       updateIntegerIndex(IProduct.Attribute.kLongitude, mlong);
 
-      updateIntegerIndex(IProduct.Attribute.kProductType, mprovider);
+//      updateIntegerIndex(IProduct.Attribute.kProductType, mprovider);
       updateIntegerIndex(IProduct.Attribute.kImageWidth, miwidth);
       updateIntegerIndex(IProduct.Attribute.kImageHeight, miheight);
 

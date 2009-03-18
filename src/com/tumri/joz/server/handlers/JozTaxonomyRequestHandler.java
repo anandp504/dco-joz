@@ -99,6 +99,11 @@ public class JozTaxonomyRequestHandler implements RequestHandler {
                 JOZTaxonomy tax = JOZTaxonomy.getInstance();
                 if (inputProvId!=null) {
                     inputCatId = tax.getTaxonomy().getProviderRootCategories().get(inputProvId.toUpperCase());
+                    if (inputCatId==null) {
+                        //Invalid provider
+                        response.addDetails(JozTaxonomyResponse.KEY_ERROR, "Could not get the taxonomy for provider : " + inputProvId);
+                        return;
+                    }
                 }
                 Taxonomy t = tax.getTaxonomy();
                 HashMap<String, CountsHelper.Counter> categoryCounts = null;

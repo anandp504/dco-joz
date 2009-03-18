@@ -212,11 +212,21 @@ public class OSpecQueryCacheHelper {
                 }
 
                 //Global ID - list of globals
-                String globalID = theTSpec.getGlobalId();
-                if (globalID != null && !"".equals(globalID)) {
-                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGlobalId, globalID, false);
-                     _cjquery.addQuery(sq);
+                List<GlobalIdInfo> inGlobals = theTSpec.getIncludedGlobalIds();
+                if (inGlobals != null) {
+                    SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGlobalId, inGlobals, false);
+                    if(sq!=null){
+                        _cjquery.addQuery(sq);
+                    }
                 }
+
+                String productType = theTSpec.getProductType();
+                //Default to product
+                if (productType == null || "".equals(productType.trim())) {
+                   productType = "Product";
+                }
+                SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductType, productType, false);
+                _cjquery.addQuery(sq);
 
             }
         }

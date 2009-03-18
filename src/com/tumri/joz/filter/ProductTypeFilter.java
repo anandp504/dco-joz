@@ -3,6 +3,7 @@ package com.tumri.joz.filter;
 import com.tumri.content.data.Product;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.ProductHandle;
 
 /**
  * ProductType Filter Implementation
@@ -19,12 +20,8 @@ public class ProductTypeFilter extends Filter<Handle> {
   }
 
   public boolean accept(Handle h) {
-    if (!ProductDB.hasProductInfo()) {
-      return super.accept(h);
-    } else {
-      Product p = ProductDB.getInstance().get(h);
-      return ((p != null) && (isMatch(p.getProductType()) ^ isNegation()));
-    }
+      ProductHandle ph = (ProductHandle)h;
+      return (isMatch(ph.getProductType()) ^ isNegation());
   }
 
   public Filter<Handle> clone() {
