@@ -18,7 +18,8 @@ public class ProductHandle implements Handle {
 
   private ProductHandle(ProductHandle handle, double aScore) {
     m_score = aScore;
-    m_oid = handle.getOid();
+    m_oid = handle.m_oid;
+    m_type = handle.m_type;
   }
 
   public long getOid() {

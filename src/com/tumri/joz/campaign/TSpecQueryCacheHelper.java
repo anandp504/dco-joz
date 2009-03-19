@@ -294,12 +294,12 @@ public class TSpecQueryCacheHelper {
 	                if(gName != null && !"".equals(gName.trim())){
                         valueStrList.add(gInfo.getName());
 	                }
+                } else if (type.equals(IProduct.Attribute.kProductType)) {
+                    valueStrList.add((String)values.get(i));
                 }
             }
-            for (int i=0;i<valueStrList.size();i++){
-                String valueStr = valueStrList.get(i);
-                DictionaryManager dm = DictionaryManager.getInstance ();
-                Integer brandId = dm.getId (type, valueStr);
+            for (String valueStr :valueStrList){
+                Integer brandId = DictionaryManager.getId (type, valueStr);
                 valueIdList.add(brandId);
             }
         }
