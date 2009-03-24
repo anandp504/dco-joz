@@ -603,7 +603,7 @@ public class ProductQueryMonitor extends ComponentMonitor
 						}
 					} else if(":producttype".equalsIgnoreCase(key)){
 						if(!"".equals(value.trim())){
-							tSpec.setProductType(value.trim());
+							tSpec.setSpecType(value.trim());
 						}
 					}
 				} else {

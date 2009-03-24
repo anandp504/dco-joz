@@ -24,6 +24,7 @@ import com.tumri.joz.JoZException;
 import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.server.domain.JozIndexRequest;
 import com.tumri.joz.server.domain.JozIndexResponse;
 import com.tumri.joz.server.domain.JozResponse;
@@ -158,15 +159,28 @@ public class JozIndexRequestHandler implements RequestHandler {
         Integer provid = DictionaryManager.getId(Product.Attribute.kProvider, providerId);
         SortedSet<Handle> provHandles = providerIndex.get(provid);
 
-        ProductAttributeIndex<Integer,Handle> pai = ProductDB.getInstance().getIndex(kAttr);
-        if (pai != null) {
-            Set<Integer> keys = pai.getKeys();
+        if (kAttr == Product.Attribute.kProductType) {
+            //For product type - get the values from the product handle
+            Set<Integer> keys = providerIndex.getKeys();
             for (Integer id: keys) {
-                SortedSet<Handle> attrHandles = pai.get(id);
+                SortedSet<Handle> attrHandles = providerIndex.get(id);
                 for (Handle h: attrHandles) {
-                    if (provHandles.contains(h)) {
-                        String valStr = DictionaryManager.getValue(kAttr, id);
-                        indexVals.add(valStr);
+                    ProductHandle ph = (ProductHandle)h;
+                    indexVals.add(DictionaryManager.getValue(Product.Attribute.kProductType, ph.getProductType()));
+                }
+            }
+
+        } else {
+            ProductAttributeIndex<Integer,Handle> pai = ProductDB.getInstance().getIndex(kAttr);
+            if (pai != null) {
+                Set<Integer> keys = pai.getKeys();
+                for (Integer id: keys) {
+                    SortedSet<Handle> attrHandles = pai.get(id);
+                    for (Handle h: attrHandles) {
+                        if (provHandles.contains(h)) {
+                            String valStr = DictionaryManager.getValue(kAttr, id);
+                            indexVals.add(valStr);
+                        }
                     }
                 }
             }

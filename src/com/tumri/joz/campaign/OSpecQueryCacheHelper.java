@@ -220,7 +220,7 @@ public class OSpecQueryCacheHelper {
                     }
                 }
 
-                String productType = theTSpec.getProductType();
+                String productType = theTSpec.getSpecType();
                 //Default to product
                 if (productType == null || "".equals(productType.trim())) {
                    productType = "Product";

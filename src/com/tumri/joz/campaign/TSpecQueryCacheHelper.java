@@ -240,12 +240,12 @@ public class TSpecQueryCacheHelper {
 	        }
         }
 
-        String productType = theTSpec.getProductType();
+        String productType = theTSpec.getSpecType();
         //Default to product
         if (productType == null || "".equals(productType.trim())) {
            productType = PRODUCT;
         }
-        SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductType, productType, false);
+        SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductType, productType.toUpperCase(), false);
         _cjquery.addQuery(sq);
 
         _query.addQuery (_cjquery);

@@ -230,7 +230,7 @@ public class JozIndexUpdater {
             if (indexVal == null || indexVal.equals("")) {
                 indexVal = PRODUCT;
             }
-            Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal);
+            Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal.toUpperCase());
             //No need to update the index for this - just update the handle
             for (Handle h : pids) {
                 ((ProductHandle)h).setProductType(val);
