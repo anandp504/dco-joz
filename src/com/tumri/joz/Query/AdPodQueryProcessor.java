@@ -12,12 +12,13 @@ import java.util.SortedSet;
  * @author nipun
  */
 public class AdPodQueryProcessor extends QueryProcessor {
-    public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference) {
+
+    public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference,boolean isStrict) {
         throw new UnsupportedOperationException("This method is not yet implemented");
     }
 
-    public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> queries, Handle reference) {
-        AdPodSetIntersector intersector = new AdPodSetIntersector();
+    public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> queries, Handle reference,boolean isStrict) {
+        AdPodSetIntersector intersector = new AdPodSetIntersector(isStrict);
         for(SimpleQuery query: queries) {
             if (query.hasIndex()) {
                 SortedSet<Handle> results = query.exec();

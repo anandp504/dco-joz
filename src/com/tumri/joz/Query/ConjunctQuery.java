@@ -102,8 +102,7 @@ public class ConjunctQuery implements Query, Cloneable {
     // ??? This gets an "unchecked method invocation" warning.
     Collections.sort(m_queries);
     SetIntersector<Handle> intersector =
-    (isScan() ?  m_queryProcessor.buildTableScanner(m_queries, m_reference) : m_queryProcessor.buildIntersector(m_queries, m_reference));
-    intersector.setStrict(isStrict());
+    (isScan() ?  m_queryProcessor.buildTableScanner(m_queries, m_reference, isStrict()) : m_queryProcessor.buildIntersector(m_queries, m_reference, isStrict()));
     intersector.setMax(getMax());
     return intersector;
   }

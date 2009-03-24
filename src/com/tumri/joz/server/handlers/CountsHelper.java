@@ -249,10 +249,9 @@ public class CountsHelper {
                 String keyStrVal = DictionaryManager.getValue(kAttr, theKey);
                 //Intersect between the 2 sets
                 ProductSetIntersector aIntersector;
-                aIntersector = new ProductSetIntersector();
+                aIntersector = new ProductSetIntersector(true);
                 aIntersector.include(ai.get(theKey), AttributeWeights.getWeight(kAttr));
                 aIntersector.include(sortedInclProds, AttributeWeights.getWeight(kAttr));
-                aIntersector.setStrict(true);
                 aIntersector.setMax(0);
                 SortedSet<Handle> results = aIntersector.intersect();
                 //Walk thru the loop - to avoid the warning of size() on SetIntersector

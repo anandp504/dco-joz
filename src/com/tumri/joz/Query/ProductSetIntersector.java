@@ -19,8 +19,8 @@ public class ProductSetIntersector extends SetIntersector<Handle> {
     return h.createHandle(score);
   }
 
-  public ProductSetIntersector() {
-    super();
+  public ProductSetIntersector(boolean strict) {
+    super(strict);
   }
 
   private ProductSetIntersector(ProductSetIntersector set) {

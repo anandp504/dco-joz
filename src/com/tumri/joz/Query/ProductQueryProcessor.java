@@ -23,8 +23,8 @@ public class ProductQueryProcessor extends QueryProcessor {
     super();
   }
 
-  public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference) {
-    ProductSetIntersector aIntersector = new ProductSetIntersector();
+  public SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict) {
+    ProductSetIntersector aIntersector = new ProductSetIntersector(isStrict);
     if (aQueries.size() != 0) {
       for (SimpleQuery aQuery : aQueries) {
         MUPQuery mq = (MUPQuery) aQuery;
@@ -56,8 +56,8 @@ public class ProductQueryProcessor extends QueryProcessor {
    * 7.          World                                    (include: for closed world negation if no includes yet)
    *
    */
-  public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference) {
-    ProductSetIntersector aIntersector = new ProductSetIntersector();
+  public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict) {
+    ProductSetIntersector aIntersector = new ProductSetIntersector(isStrict);
     if (aQueries.size() == 0){
       //aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
     } else {

@@ -59,6 +59,11 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
   public abstract Value getResult(Value v, Double score);
   public abstract SetIntersector<Value> clone() throws CloneNotSupportedException;
 
+  public SetIntersector(boolean strict) {
+      this();
+      m_strict = strict;
+  }
+
   /**
    * Gets the reference point of staring the intersection, default is first()
    * @return reference value
@@ -98,7 +103,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     }
   }
 
-  public SetIntersector() {
+  private SetIntersector() {
     m_includes = new ArrayList<SortedSet<Value>>();
     m_includesWeight = new ArrayList<IWeight<Value>>();
     m_filters = new ArrayList<IFilter<Value>>();
@@ -131,7 +136,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     return m_strict;
   }
 
-  public void setStrict(boolean aStrict) {
+  private void setStrict(boolean aStrict) {
     m_strict = aStrict;
   }
 
@@ -150,7 +155,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
       for (int i = 0; i < m_includes.size(); i++) {
         SortedSet<Value> lValues = m_includes.get(i);
         IWeight<Value> lWeight   = m_includesWeight.get(i);
-        if ((set.size() < lValues.size() && (lWeight.mustMatch() == weight.mustMatch())) ||
+        if ((set.size() < lValues.size() && (lWeight.mustMatch() == weight.mustMatch() || isStrict())) ||
             (!lWeight.mustMatch() && weight.mustMatch())) { // insert in a sorted order with smallest set first
           m_includes.add(i,set);
           m_includesWeight.add(i,weight);
