@@ -161,10 +161,8 @@ public class JozIndexRequestHandler implements RequestHandler {
 
         if (kAttr == Product.Attribute.kProductType) {
             //For product type - get the values from the product handle
-            Set<Integer> keys = providerIndex.getKeys();
-            for (Integer id: keys) {
-                SortedSet<Handle> attrHandles = providerIndex.get(id);
-                for (Handle h: attrHandles) {
+            if (provHandles!=null) {
+                for (Handle h: provHandles) {
                     ProductHandle ph = (ProductHandle)h;
                     indexVals.add(DictionaryManager.getValue(Product.Attribute.kProductType, ph.getProductType()));
                 }

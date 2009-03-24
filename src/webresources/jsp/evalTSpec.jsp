@@ -54,7 +54,8 @@
 			:uselistingfilter5 :useradiusquery :radius :minepuburl :lowprice
 			:highprice :applygeofilter :applyurlfilter :applykeywordfilter :includedproviders
 			:excludedproviders :excludedcategories :includedcategories :includedbrands :excludedbrands
-			:excludedmerchants :includedmerchants :includedproducts :excludedproducts :LTKExpression :producttype)</i>
+			:excludedmerchants :excludedglobalids :includedmerchants :includedproducts :excludedproducts
+            :LTKExpression :producttype :includedglobalids)</i>
 			<br>
 			<i>Note: Keys that can take more than one value(includedproviders, excludedproviders, etc...) can be
 			followed by a comma serated list of values.</i>
