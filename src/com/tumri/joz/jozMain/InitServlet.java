@@ -70,7 +70,7 @@ public class InitServlet extends HttpServlet {
             jozServerThread.start();
             log.info("Started joz server .....");
         } catch (Exception e) {
-            log.error(e.toString());
+            log.fatal("Fatal exception caught on startup of server", e);
             throw new ServletException(e.toString());
         }
     }
