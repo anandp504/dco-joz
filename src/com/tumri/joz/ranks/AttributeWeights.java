@@ -58,6 +58,8 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kCity: return CityWeight.getInstance();
       case kZip: return ZipCodeWeight.getInstance();
       case kRadius: return RadiusWeight.getInstance();
+      case kLatitude: return RadiusWeight.getInstance();
+      case kLongitude: return RadiusWeight.getInstance();
       case kArea: return AreaCodeWeight.getInstance();
       case kDMA: return DmaCodeWeight.getInstance();
       case kGeoEnabledFlag: return GeoEnabledWeight.getInstance();

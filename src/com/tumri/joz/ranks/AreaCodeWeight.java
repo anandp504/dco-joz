@@ -28,4 +28,15 @@ public class AreaCodeWeight extends AttributeWeights {
     return AttributeWeights.getAttributeWeight(IProduct.Attribute.kArea);
   }
 
+
+  /**
+     * This returns false by default. Therefore allowing second best match in all derived cases
+     * Overridden in other classes such as ProviderWight to return true. Therefore if provider match is
+     * no found then the result is rejected.
+     *
+     * @return false
+     */
+    public boolean mustMatch() {
+        return true;
+    }
 }
