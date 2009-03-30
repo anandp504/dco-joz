@@ -895,14 +895,24 @@ public class ProductDB {
 
     /**
      * Clears the indices and the maps
-      */
-  public void clearProductDB() {
-      for (ProductAttributeIndex<?, Handle> lIndex : m_indices.values()) {
-        lIndex.clear();
-      }
-       m_allProducts.clear();
-       m_map.clear();
-  }
+     */
+    public void clearProductDB() {
+        for (ProductAttributeIndex<?, Handle> lIndex : m_indices.values()) {
+            lIndex.clear();
+        }
+        try {
+            m_allProducts.writerLock();
+            m_allProducts.clear();
+        } finally {
+            m_allProducts.writerUnlock();
+        }
+        try {
+            m_map.writerLock();
+            m_map.clear();
+        } finally {
+            m_map.writerUnlock();
+        }
+    }
 
   public Enumeration<IProduct.Attribute> getIndices() {
       return m_indices.keys();
