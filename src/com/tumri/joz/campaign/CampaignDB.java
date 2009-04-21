@@ -207,12 +207,12 @@ public abstract class CampaignDB {
 
     public abstract ArrayList<Recipe> getRecipes();
     
-    public abstract void loadExternalVariableAdPods(Iterator<AdPodExternalVariableMapping> iterator);
+    public abstract void loadExternalVariableAdPods(HashMap<String, ArrayList<AdPodExternalVariableMapping>> iterator);
     
-    public abstract void loadNonExternalVariableAdPods(Iterator<AdPod> iterator);
+    public abstract void loadNonExternalVariableAdPods(HashMap<String, ArrayList<AdPod>> iterator);
     
-    public abstract AtomicAdpodIndex<String, Handle> getExternalVariableAdPodMappingIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getExternalVariableAdPodMappingIndex(String variableName);
     
-    public abstract AtomicAdpodIndex<String, Handle> getNonExternalVariableAdPodMappingIndex();
+    public abstract AtomicAdpodIndex<String, Handle> getNonExternalVariableAdPodMappingIndex(String variableName);
 
 }

@@ -65,16 +65,16 @@ public class TargetingRequestProcessorTest {
     }
 
     private static void loadThemeData() throws Exception {
-        Theme theme = DomainTestDataProvider.getNewShallowTheme();
-        campaignProvider.createTheme(theme);
-        Theme retrievedTheme = campaignProvider.getTheme(theme.getId());
-        assertNotNull(retrievedTheme);
-        int sampleThemeId = theme.getId();
-        sampleThemeName = theme.getName();
-        List<ThemeAdPodMapping> adPodIdMappings = new ArrayList<ThemeAdPodMapping>();
-        adPodIdMappings.add(new ThemeAdPodMapping(sampleThemeId, sampleAdPodId4, 50));
-        adPodIdMappings.add(new ThemeAdPodMapping(sampleThemeId, sampleAdPodId5, 50));
-        campaignProvider.createThemeAdPodMappings(adPodIdMappings);
+//        Theme theme = DomainTestDataProvider.getNewShallowTheme();
+//        campaignProvider.createTheme(theme);
+//        Theme retrievedTheme = campaignProvider.getTheme(theme.getId());
+//        assertNotNull(retrievedTheme);
+//        int sampleThemeId = theme.getId();
+//        sampleThemeName = theme.getName();
+//        List<ThemeAdPodMapping> adPodIdMappings = new ArrayList<ThemeAdPodMapping>();
+//        adPodIdMappings.add(new ThemeAdPodMapping(sampleThemeId, sampleAdPodId4, 50));
+//        adPodIdMappings.add(new ThemeAdPodMapping(sampleThemeId, sampleAdPodId5, 50));
+//        campaignProvider.createThemeAdPodMappings(adPodIdMappings);
 
     }
 

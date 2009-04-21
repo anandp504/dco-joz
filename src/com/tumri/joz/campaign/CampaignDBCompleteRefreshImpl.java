@@ -88,10 +88,13 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 	private AtomicAdpodIndex<String, Handle>  adpodGeoDmacodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kDMACode));
 	private AtomicAdpodIndex<String, Handle>  adpodGeoAreacodeIndex     = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAreaCode));
 	private AtomicAdpodIndex<String, Handle>  adpodGeoZipcodeIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kZipCode));
-	private AtomicAdpodIndex<String, Handle>  adpodExternalVariableMappingIndex = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTarget));
-	private AtomicAdpodIndex<String, Handle>  adpodExternalVariableNoneMappingIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTargetNone));
 
-	private CampaignDBCompleteRefreshImpl() {
+    private AtomicReference<RWLockedTreeMap<String,AtomicAdpodIndex<String, Handle>>> adPodExtVarMappingIndexMap =
+            new AtomicReference<RWLockedTreeMap<String,AtomicAdpodIndex<String, Handle>>>(new RWLockedTreeMap<String, AtomicAdpodIndex<String, Handle>>());
+    private AtomicReference<RWLockedTreeMap<String,AtomicAdpodIndex<String, Handle>>> adPodNonExtVarMappingIndexMap =
+            new AtomicReference<RWLockedTreeMap<String,AtomicAdpodIndex<String, Handle>>>(new RWLockedTreeMap<String, AtomicAdpodIndex<String, Handle>>());
+
+    private CampaignDBCompleteRefreshImpl() {
 		initialize();
 	}
 
@@ -1162,75 +1165,86 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 	}
 
 	@Override
-	public void loadExternalVariableAdPods(Iterator<AdPodExternalVariableMapping> iterator) {
-		if(iterator == null) {
+    public void loadExternalVariableAdPods(HashMap<String, ArrayList<AdPodExternalVariableMapping>> inputMappings) {
+		if(inputMappings == null) {
 			return;
 		}
 
-		Map<String,List<Handle>> extVariableAdPodMap = new HashMap<String, List<Handle>>();
-		AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTarget);
-		if(iterator.hasNext()) {
-			AdPod adPod;
-			List<Handle> list;
-			while(iterator.hasNext()) {
-				AdPodExternalVariableMapping extVariableAdPodMapping = iterator.next();
-				String externalTarget = extVariableAdPodMapping.getName();
-				adPod = adPodMap.get().safeGet(extVariableAdPodMapping.getAdPodId());
-				if(externalTarget != null && adPod != null) {
-					list = extVariableAdPodMap.get(externalTarget);
-					if(list == null) {
-						list = new ArrayList<Handle>();
-					}
-					int oid = adPod.getId();
-					list.add(new AdPodHandle(oid, TargetingScoreHelper.getInstance().getTargetingVariableScore()));
-					extVariableAdPodMap.put(externalTarget, list);
-				}
-				else {
-					//Adpod not found, some inconsistency caused this. The externaltarget-adpod mapping for that particular
-					// adpod will not be added to index.
-					log.error("The Adpod was not found in the externaltarget/adPodMap when looking it up while creating externaltarget-adpod-mapping Indexes");
-				}
-			}
+        Set<String> extVariableNames = inputMappings.keySet();
+        for (String extVarName : extVariableNames) {
+            List<AdPodExternalVariableMapping> mappings = inputMappings.get(extVarName);
+            Map<String,List<Handle>> extVariableAdPodMap = new HashMap<String, List<Handle>>();
+            AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTarget);
+            for (AdPodExternalVariableMapping m : mappings) {
+                AdPod adPod;
+                List<Handle> list;
+                String externalTarget = m.getName();
+                adPod = adPodMap.get().safeGet(m.getAdPodId());
+                if(externalTarget != null && adPod != null) {
+                    list = extVariableAdPodMap.get(externalTarget);
+                    if(list == null) {
+                        list = new ArrayList<Handle>();
+                    }
+                    int oid = adPod.getId();
+                    list.add(new AdPodHandle(oid, TargetingScoreHelper.getInstance().getTargetingVariableScore()));
+                    extVariableAdPodMap.put(externalTarget, list);
+                }
+                else {
+                    //Adpod not found, some inconsistency caused this. The externaltarget-adpod mapping for that particular
+                    // adpod will not be added to index.
+                    log.error("The Adpod was not found in the externaltarget/adPodMap when looking it up while creating externaltarget-adpod-mapping Indexes");
+                }
+            }
+            index.put(extVariableAdPodMap);
+            RWLockedTreeMap<String, AtomicAdpodIndex<String, Handle>> idxMap = adPodExtVarMappingIndexMap.get();
 
-		}
-		index.put(extVariableAdPodMap);
-		adpodExternalVariableMappingIndex.set(index);
+            AtomicAdpodIndex<String, Handle> idx = idxMap.get(extVarName);
+            if (idx == null) {
+                idx = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTarget));
+            }
+            idx.set(index);
+            idxMap.put(extVarName, idx);
+
+        }
 	}
 
 	@Override
-	public void loadNonExternalVariableAdPods(Iterator<AdPod> iterator) {
-		if(iterator == null) {
+	public void loadNonExternalVariableAdPods(HashMap<String, ArrayList<AdPod>> inputMappings) {
+		if(inputMappings == null) {
 			return;
 		}
-		int nonExtVariableAdPodCount = 0;
-		Map<String,List<Handle>> extVariableNoneAdPodMap;
-		AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTargetNone);
-		extVariableNoneAdPodMap = new HashMap<String, List<Handle>>();
-		if(iterator.hasNext()) {
-			List<Handle> list = new ArrayList<Handle>();
-			while(iterator.hasNext()) {
-				AdPod adPod = iterator.next();
-				list.add(new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getTargetingVariableNoneScore(), TargetingScoreHelper.getInstance().getTargetingVariableNoneWeight()));
-				nonExtVariableAdPodCount++;
-			}
-			log.info("Non-external Target Adpod Size: " + nonExtVariableAdPodCount);
 
-			extVariableNoneAdPodMap.put(AdpodIndex.EXTERNAL_VARIABLE_NONE, list);
-		}
-		index.put(extVariableNoneAdPodMap);
-		adpodExternalVariableNoneMappingIndex.set(index);
-		//Reset the map that holds on to adpod handles for dynamic request - incorpmappingdelta
-		adPodExternalVariableNoneHandlesMap.compareAndSet(adPodExternalVariableNoneHandlesMap.get(), new RWLockedTreeMap<Integer, Handle>());
+        Set<String> extVariableNames = inputMappings.keySet();
+        for (String extVarName : extVariableNames) {
+            List<AdPod> mappings = inputMappings.get(extVarName);
+            Map<String,List<Handle>> extVariableAdPodMap = new HashMap<String, List<Handle>>();
+            AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTargetNone);
+            List<Handle> list = new ArrayList<Handle>();
+
+            for (AdPod m : mappings) {
+                list.add(new AdPodHandle(m.getId(), TargetingScoreHelper.getInstance().getTargetingVariableNoneScore(), TargetingScoreHelper.getInstance().getTargetingVariableNoneWeight()));
+            }
+            extVariableAdPodMap.put(AdpodIndex.EXTERNAL_VARIABLE_NONE, list);
+            index.put(extVariableAdPodMap);
+            RWLockedTreeMap<String, AtomicAdpodIndex<String, Handle>> idxMap = adPodNonExtVarMappingIndexMap.get();
+
+            AtomicAdpodIndex<String, Handle> idx = idxMap.get(extVarName);
+            if (idx == null) {
+                idx = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kExtTargetNone));
+            }
+            idx.set(index);
+            idxMap.put(extVarName, idx);
+        }
 
 	}
 
 	@Override
-	public AtomicAdpodIndex<String, Handle> getExternalVariableAdPodMappingIndex() {
-		return adpodExternalVariableMappingIndex;
+	public AtomicAdpodIndex<String, Handle> getExternalVariableAdPodMappingIndex(String variableName) {
+		return adPodExtVarMappingIndexMap.get().get(variableName);
 	}
 
 	@Override
-	public AtomicAdpodIndex<String, Handle> getNonExternalVariableAdPodMappingIndex() {
-		return adpodExternalVariableNoneMappingIndex;
+	public AtomicAdpodIndex<String, Handle> getNonExternalVariableAdPodMappingIndex(String variableName) {
+		return adPodNonExtVarMappingIndexMap.get().get(variableName);
 	}
 }

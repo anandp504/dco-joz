@@ -10,6 +10,9 @@ import com.tumri.utils.Pair;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * CamapignDBDataLoader loads all the campaign related data from the repository using the CampaignDeltaProvider API.
@@ -30,12 +33,17 @@ public class CampaignDBDataLoader {
     public void loadData() throws CampaignDataLoadingException {
         CampaignDB campaignDB = CampaignDB.getInstance();
         CampaignDeltaProvider deltaProvider;
-        String region;
+        String region, extVars;
         try {
             region = AppProperties.getInstance().getProperty("com.tumri.campaign.data.region.name");
             if(region != null) {
                 region = region.trim();
             }
+            extVars = AppProperties.getInstance().getProperty("externalTargetingVariables");
+            if(extVars != null) {
+                extVars = extVars.trim();
+            }
+
         }
         catch(NullPointerException e) {
             throw new CampaignDataLoadingException("Error loading joz.properties", e);            
@@ -77,8 +85,9 @@ public class CampaignDBDataLoader {
             Iterator<AdPod> urlNoneAdPodsIterator = deltaProvider.getNonUrlSpecificAdPods(region);
             Iterator<Pair<Integer, Integer>> adPodCampaignMappings            = deltaProvider.getAllAdPodCampaignMappings(region);
             Iterator<Pair<String, Integer>> locationNameIdMappings            = deltaProvider.getLocationNameIdMappings();
-            Iterator<AdPodExternalVariableMapping> externalVariableIterator = deltaProvider.getExternalVariableAdpodMappings(region);
-            Iterator<AdPod>	externalVariableNoneIterator = deltaProvider.getNonExternalVariableAdPods(region);
+            HashMap<String, ArrayList<AdPodExternalVariableMapping>> extVariablesAdPodMap = deltaProvider.getExternalVariableAdpodMappings(region);
+            HashMap<String, ArrayList<AdPod>> nonExtVariablesAdPodMap = deltaProvider.getNonExternalVariableAdPods(region);
+
             //long lispDataReadEndTime = System.currentTimeMillis();
             //System.out.println("Data Retrieval from Lisp Provider API: " + (lispDataReadEndTime - lispDataReadStartTime) + " ms");
 
@@ -102,8 +111,8 @@ public class CampaignDBDataLoader {
             campaignDB.loadRecipes(recipesIterator);
             campaignDB.loadAdPodCampaignMapping(adPodCampaignMappings);
             campaignDB.loadLocationNameIdMapping(locationNameIdMappings);
-            campaignDB.loadExternalVariableAdPods(externalVariableIterator);
-            campaignDB.loadNonExternalVariableAdPods(externalVariableNoneIterator);
+            campaignDB.loadExternalVariableAdPods(extVariablesAdPodMap);
+            campaignDB.loadNonExternalVariableAdPods(nonExtVariablesAdPodMap);
 
             TransientDataManager.getInstance().reloadInCampaignDB();
 

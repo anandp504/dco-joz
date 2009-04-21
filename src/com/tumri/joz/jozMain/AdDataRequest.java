@@ -377,6 +377,35 @@ public class AdDataRequest {
         return externalTargetField5;
     }
 
+    public HashMap<String, String> getExtTargetFields() {
+        HashMap<String, String> extVarsMap = new HashMap<String,String>();
+        String extField1 =getExternalTargetField1();
+        if(extField1 == null)
+    		extField1="";
+        extVarsMap.put("x2_t1", extField1);
+
+        String extField2 =getExternalTargetField2();
+        if(extField2 == null)
+    		extField2="";
+        extVarsMap.put("x2_t2", extField2);
+
+        String extField3 =getExternalTargetField3();
+        if(extField3 == null)
+    		extField3="";
+        extVarsMap.put("x2_t3", extField3);
+
+        String extField4 =getExternalTargetField4();
+        if(extField4 == null)
+    		extField4="";
+        extVarsMap.put("x2_t4", extField4);
+
+        String extField5 =getExternalTargetField5();
+        if(extField5 == null)
+    		extField5="";
+        extVarsMap.put("x2_t5", extField5);
+        return extVarsMap;
+    }
+
     public String getTargetedRealm() {
         return targetedRealm;
     }
