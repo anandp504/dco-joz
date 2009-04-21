@@ -1178,7 +1178,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             for (AdPodExternalVariableMapping m : mappings) {
                 AdPod adPod;
                 List<Handle> list;
-                String externalTarget = m.getName();
+                String externalTarget = m.getValue();
                 adPod = adPodMap.get().safeGet(m.getAdPodId());
                 if(externalTarget != null && adPod != null) {
                     list = extVariableAdPodMap.get(externalTarget);
