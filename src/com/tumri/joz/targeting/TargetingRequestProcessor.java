@@ -21,16 +21,23 @@ import java.util.*;
  */
 public class TargetingRequestProcessor {
 
-    private static TargetingRequestProcessor processor = new TargetingRequestProcessor();
+    private static TargetingRequestProcessor processor = null;
 	public static final String PROCESS_STATS_ID = "TG";
 
     private TargetingRequestProcessor() {
-
     }
 
     public static TargetingRequestProcessor getInstance() {
+        if (processor == null) {
+          synchronized (TargetingRequestProcessor.class) {
+            if (processor == null) {
+              processor = new TargetingRequestProcessor();
+            }
+          }
+        }
         return processor;
     }
+
     private static Logger log = Logger.getLogger (TargetingRequestProcessor.class);
 
     public Recipe processRequest(AdDataRequest request, Features features) {

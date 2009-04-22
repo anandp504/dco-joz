@@ -33,8 +33,8 @@ public class TargetingScoreHelper {
     private double geoNoneScore      = 0.2;
     private int geoNoneWeight        = 1;
     
-    private double targetingVariableScore = 0.75;
-    private double targetingVariableNoneScore   = 0.2;
+    private double targetingVariableScore = 1.0;
+    private double targetingVariableNoneScore   = 0.5;
     private int targetingVariableNoneWeight  = 1;
     
     private static Logger log = Logger.getLogger (TargetingScoreHelper.class);
