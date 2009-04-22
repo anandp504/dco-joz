@@ -60,8 +60,8 @@ com.tumri.targeting.runOfNetworkWeight = 1
 com.tumri.targeting.geoNoneScore       = 0.2
 com.tumri.targeting.geoNoneWeight      = 1
 
-com.tumri.targeting.targetingVariableScore = 0.75
-com.tumri.targeting.targetingVariableNoneScore  = 0.2
+com.tumri.targeting.targetingVariableScore = 1.0
+com.tumri.targeting.targetingVariableNoneScore  = 0.5
 com.tumri.targeting.targetingVariableNoneWeight = 1
 
 #Joz settings for LLS/LLC
