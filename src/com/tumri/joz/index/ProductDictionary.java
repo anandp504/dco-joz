@@ -46,4 +46,9 @@ public class ProductDictionary implements IDictionary<String> {
   public int minId() {
     return m_lowId;
   }
+
+
+  public Integer suggestId(String t) {
+      return getId(t);
+  }
 }
