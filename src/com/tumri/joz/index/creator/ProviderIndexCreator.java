@@ -1,13 +1,11 @@
 package com.tumri.joz.index.creator;
 
-import com.tumri.utils.strings.StringTokenizer;
 import com.tumri.joz.utils.FSUtils;
+import com.tumri.utils.strings.StringTokenizer;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
-import java.net.URLDecoder;
-
-import org.apache.log4j.Logger;
 
 /**
  * Given a set of old and new provider mup files, create a Joz incremental index file(s)
@@ -138,14 +136,20 @@ public class ProviderIndexCreator {
             boolean bReadSecondFile = true;
             Long pid2Dbl = null;
             Long prevpid1Dbl = null;
+            boolean isDeleted = false;
 
             while(!eof1) {
                 line1 = readLine(br1);
                 lineCount++;
                 if (line1 == null) {
                     eof1 = true;
+                    if (isDeleted) {
+                        //Delete product id 2
+                         deleteIndices(prodDetailsMap2, pid2Dbl);
+                    }
                     continue;
                 } else {
+                    isDeleted = false;
                     pid1 = getProductID(line1);
                     prodDetailsMap1 = convertLine(line1);
                 }
@@ -193,6 +197,8 @@ public class ProviderIndexCreator {
                             //pid1 is a new product in MUP
                             bReadSecondFile = false;
                             addIndices(prodDetailsMap1, pid1Dbl);
+                            //pid2 can be a delete if we have reached the eof1
+                            isDeleted = true;
                         }
                     }
                     prevpid1Dbl = pid1Dbl;
