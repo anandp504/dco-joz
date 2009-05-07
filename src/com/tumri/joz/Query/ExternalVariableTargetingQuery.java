@@ -56,7 +56,13 @@ public class ExternalVariableTargetingQuery extends TargetingQuery {
         StringTokenizer tokenizer = new StringTokenizer(values,fieldSeparator);
         while(tokenizer.hasMoreTokens()){
             String field = tokenizer.nextToken();
-            results = index.get(field);
+            SortedSet<Handle> res = index.get(field);
+            if (res!=null) {
+                if (results == null) {
+                    results = new SortedArraySet<Handle>();
+                }
+                results.addAll(res);
+            }
         }
         return results;
     }
