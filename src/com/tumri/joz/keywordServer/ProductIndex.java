@@ -198,7 +198,9 @@ public class ProductIndex {
                                 long oid = Long.parseLong(id);
                                 Handle ph = db.getProdHandle(oid); // avoids too many calls to lock/unlock
                                 if (ph != null) {
-                                    alist.add(new ProductHandle(score,ph.getOid()));
+	                                ProductHandle newHandle = new ProductHandle(score,ph.getOid());
+	                                newHandle.setProductType(((ProductHandle) ph).getProductType());
+                                    alist.add(newHandle);
                                 }
                                 if (score < min_score) break;
                             }
