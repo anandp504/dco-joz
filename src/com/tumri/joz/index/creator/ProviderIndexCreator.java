@@ -136,17 +136,20 @@ public class ProviderIndexCreator {
             boolean bReadSecondFile = true;
             Long pid2Dbl = null;
             Long prevpid1Dbl = null;
+            Long prevDeletedPid2Dbl = null;
             boolean isDeleted = false;
 
             while(!eof1) {
                 line1 = readLine(br1);
                 lineCount++;
+                if (isDeleted) {
+                    //Delete product id 2
+                     deleteIndices(prodDetailsMap2, pid2Dbl);
+                    prevDeletedPid2Dbl = pid2Dbl;
+                }
+
                 if (line1 == null) {
                     eof1 = true;
-                    if (isDeleted) {
-                        //Delete product id 2
-                         deleteIndices(prodDetailsMap2, pid2Dbl);
-                    }
                     continue;
                 } else {
                     isDeleted = false;
@@ -163,8 +166,10 @@ public class ProviderIndexCreator {
                             compareAndUpdateIndices(pid1Dbl, prodDetailsMap1, prodDetailsMap2);
                         } else if (pid1Dbl>pid2Dbl){
                             //pid2 may have been deleted from the current mup
-                            if (prodDetailsMap2!=null && pid2Dbl != null && !pid2Dbl.equals(prevpid1Dbl)) {
+                            if (prodDetailsMap2!=null && pid2Dbl != null && !pid2Dbl.equals(prevpid1Dbl)
+                                    && !pid2Dbl.equals(prevDeletedPid2Dbl)) {
                                 deleteIndices(prodDetailsMap2, pid2Dbl);
+                                prevDeletedPid2Dbl = pid2Dbl;
                             }
                             bReadSecondFile = true;
                         } else {
@@ -193,6 +198,7 @@ public class ProviderIndexCreator {
                         } else if (pid1Dbl>pid2Dbl){
                             //pid2 has been deleted from MUP
                             deleteIndices(prodDetailsMap2, pid2Dbl);
+                            prevDeletedPid2Dbl = pid2Dbl;
                         } else {
                             //pid1 is a new product in MUP
                             bReadSecondFile = false;
@@ -226,9 +232,14 @@ public class ProviderIndexCreator {
                     }
                     pid2 = getProductID(line2);
                     pid2Dbl = new Long(pid2);
+                    if (pid2Dbl.equals(prevDeletedPid2Dbl)) {
+                        //already processed
+                        continue;
+                    } 
                     prodDetailsMap2 = convertLine(line2);
                     //pid2 has been deleted from MUP
                     deleteIndices(prodDetailsMap2, pid2Dbl);
+                    prevDeletedPid2Dbl = pid2Dbl;
                     if (lineCount>= maxPidEntriesPerChunk) {
                         lineCount = 0;
                         writeChunkToFile();
