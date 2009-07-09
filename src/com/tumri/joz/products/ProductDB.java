@@ -922,4 +922,24 @@ public class ProductDB {
       return m_allProducts.size();
   }
 
+    /**
+     * Get the next handle given a pid
+     * @param pid
+     * @return
+     */
+    public Handle getNextHandle(Long pid) {
+        ProductHandle p = new ProductHandle(1.0, pid + 1);
+        Handle ph;
+        ph = m_allProducts.find(p);
+
+        if (ph !=null) {
+             p = (ProductHandle) ph;
+        } else {
+            SortedSet<Handle> set = m_allProducts.tailSet(ph);
+            p = set.isEmpty()?new ProductHandle(1.0, 1L):(ProductHandle)set.first();
+        }
+        return p;
+
+    }
+
 }
