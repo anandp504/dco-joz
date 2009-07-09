@@ -2,6 +2,7 @@ package com.tumri.joz.Query;
 
 import com.tumri.joz.filter.IFilter;
 import com.tumri.joz.products.ProductHandle;
+import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.IWeight;
 import com.tumri.utils.data.IRandom;
 import com.tumri.utils.data.RWLocked;
@@ -81,6 +82,24 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
     if (m_reference != null && m_rankedSet == null) {
       //Make sure that the starting reference is set randomly within the first set
       SortedSet<Value> firstSet = m_includes.get(0);
+      if (firstSet.size() > 0) {
+          Handle last = (Handle)firstSet.last();
+          Handle ref = (Handle)m_reference;
+          //1. Check if the reference is immediate next oid to the last item of first set
+          if (last.getOid() == ref.getOid()+1) {
+              m_reference = firstSet.first();
+          }  else {
+              //2. If the reference is after the last element or before the first element ,
+              // then randomize the reference.
+              SortedSet<Value> tSet = firstSet.tailSet(m_reference);
+              if (tSet.isEmpty() || tSet.first().equals(m_reference)) {
+                  Value tmpReference = (Value)((IRandom)firstSet).random(g_random);
+                    if (tmpReference != null) {
+                        m_reference = tmpReference;
+                    }
+              }
+          }
+      }
       for (int i = 0; i < m_includes.size(); i++) {
         SortedSet<Value> lValues = m_includes.get(i);
         boolean doLock = (lValues instanceof RWLocked);

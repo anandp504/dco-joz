@@ -506,7 +506,7 @@ public class TSpecExecutor {
             if(ph == null) {
                 cachedQuery.setCacheReference(ph);
             } else {
-                cachedQuery.setCacheReference(ProductDB.getInstance().getNextHandle(ph.getOid()));
+                cachedQuery.setCacheReference(new ProductHandle(1.0,(ph.getOid()+1)));
             }
 
         } else {
