@@ -30,4 +30,14 @@ public class ProductSetIntersector extends SetIntersector<Handle> {
   public SetIntersector<Handle> clone() throws CloneNotSupportedException {
     return new ProductSetIntersector(this);
   }
+
+	/**
+	 * Needed to override method in SetIntersector because it does not have access to "Handles" only "Values"
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	protected long distance(Handle v1, Handle v2) {
+		return Math.abs(v1.getOid() - v2.getOid());
+	}
 }
