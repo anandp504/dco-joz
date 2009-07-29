@@ -44,13 +44,19 @@ public class JozRefreshDataServlet extends HttpServlet {
         String responseJSP = "";
         String dataType = request.getParameter("type");
         if ("listing".equalsIgnoreCase(dataType)) {
-            String revertMode = request.getParameter("full-load");
-            try {
-                result = doRefreshListingData(revertMode);
-            } catch (Exception e) {
-                result = "failed";
+            String clearListing = request.getParameter("clear-cache");
+            if (clearListing!=null) {
+                result = doClearListingCache();
+                jspMode = null;
+            } else {
+                String revertMode = request.getParameter("full-load");
+                try {
+                    result = doRefreshListingData(revertMode);
+                } catch (Exception e) {
+                    result = "failed";
+                }
+                responseJSP = "/jsp/caa-content-status.jsp";
             }
-            responseJSP = "/jsp/caa-content-status.jsp";
         } else if ("campaign".equalsIgnoreCase(dataType)) {
             try {
                 result = doRefreshCampaignData();
@@ -104,6 +110,18 @@ public class JozRefreshDataServlet extends HttpServlet {
         ContentProviderStatus status = cp.getStatus();
         String success = (status.lastRunStatus == true ? "success" : "failed");
         return success;
+    }
+
+    /**
+     * Clear the listing cache
+     */
+    private String doClearListingCache() {
+        try {
+            ListingProviderFactory.clearListingCache();
+            return "success";
+        } catch(Throwable t) {
+            return "failed";
+        }
     }
 
     /**
