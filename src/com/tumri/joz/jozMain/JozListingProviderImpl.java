@@ -100,4 +100,8 @@ public class JozListingProviderImpl implements ListingProvider {
     public boolean doHealthCheck() throws LLCClientException {
         return true;
     }
+
+    public void clearCache() throws LLCClientException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

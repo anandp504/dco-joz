@@ -82,6 +82,18 @@ public class ListingProviderFactory {
         }
     }
 
+    /**
+     * Clear the cache on the listing provider
+     */
+    public static void clearListingCache() {
+        try {
+            listingProvider.clearCache();
+        } catch(LLCClientException e) {
+            log.error("Clear cache on listing provider failed.", e);
+        }
+
+    }
+
     private static void instantiateFactory() throws RuntimeException {
         String factoryClassName = AppProperties.getInstance().getProperty(PROVIDER_CLASS_NAME);
 
