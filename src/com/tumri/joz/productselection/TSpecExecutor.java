@@ -307,7 +307,8 @@ public class TSpecExecutor {
 			}
 			m_tSpecQuery = geoTSpecQuery;
 		} else {
-			m_tSpecQuery.addSimpleQuery(createGeoEnabledQuery(false));
+            //BUG2556: Do not exclude Geo Enabled products for non geo enabled queries.
+            //m_tSpecQuery.addSimpleQuery(createGeoEnabledQuery(false));
 		}
 	}
 
@@ -486,8 +487,9 @@ public class TSpecExecutor {
 				backFillProds.addAll(geoSortedResult);
 			} else {
 				//Never select any products that have Geo enabled while backfilling for keyword queries
-				SimpleQuery geoEnabledQuery = createGeoEnabledQuery(false);
-				m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
+//BUG 2556: Do not exclude geo enabled products
+//				SimpleQuery geoEnabledQuery = createGeoEnabledQuery(false);
+//				m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
 				//We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
 				int tmpSize = pageSize-currSize+5;
 				m_tSpecQuery.setBounds(tmpSize,0);
