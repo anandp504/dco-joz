@@ -54,12 +54,16 @@ public class JozConsoleServlet extends HttpServlet {
 			responseJSP = "/jsp/caa-content-status.jsp";
 		} else if ("cma".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/cma-content-status.jsp";
+		} else if ("wmstatus".equalsIgnoreCase(mode)) {
+			responseJSP = "/jsp/wm-content-status.jsp";
 		} else if ("perf".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/performance-stat.jsp";
 		} else if ("eval".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/eval.jsp";
 		} else if ("sm".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/serviceMultiplexer.jsp";
+		} else if ("wm".equalsIgnoreCase(mode)) {
+			responseJSP = "/jsp/wm.jsp";
 		} else if ("llc".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/llc-status.jsp";
 		} else if ("indexdebug".equalsIgnoreCase(mode)) {

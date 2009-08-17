@@ -4,6 +4,8 @@ import com.tumri.cma.domain.*;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.AdPodHandle;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.wm.RecipeSelector;
+import com.tumri.joz.campaign.wm.WMIndex;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
@@ -87,7 +89,7 @@ public class TargetingRequestProcessor {
             }
             else {
                 //Default to Targeting
-                SiteTargetingResults str = doSiteTargeting(request);
+                SiteTargetingResults str = doSiteTargeting(request, features);
                 theRecipe = str.getCurrRecipe();
                 if(theRecipe != null && features!= null) {
                     features.setAdPodId(str.getAdPodId());
@@ -154,7 +156,7 @@ public class TargetingRequestProcessor {
      * @param request  - the request
      * @return  results
      */
-    private SiteTargetingResults doSiteTargeting(AdDataRequest request) {
+    private SiteTargetingResults doSiteTargeting(AdDataRequest request, Features feature) {
         Recipe theRecipe = null;
         int locationId       = 0;
         
@@ -215,16 +217,10 @@ public class TargetingRequestProcessor {
                 str.setAdPodId(theAdPod.getId());
                 str.setAdPodName(theAdPod.getName());
                 log.debug("Targeted adpod : " + theAdPod.getName() + " . id= " + theAdPod.getId());
-                List<Recipe> recipes = theAdPod.getRecipes();
-                if (recipes == null) {
+                theRecipe = selectRecipe(request, theAdPod,feature );
+                if (theRecipe == null) {
                     log.error("Could not find the recipe for the selected adpod. Not able to select recipe");
-                } else {
-                    if (recipes.size() == 1) {
-                        theRecipe = recipes.get(0);
-                    } else {
-                        theRecipe = selectRecipe(recipes);
-                    }
-                }
+                } 
             }
         }
         if (theRecipe!=null) {
@@ -232,6 +228,20 @@ public class TargetingRequestProcessor {
             str.setCurrRecipe(theRecipe);
         }
         return str;
+    }
+
+    private Recipe selectRecipe(AdDataRequest request, AdPod theAdPod, Features feature) {
+        Recipe theRecipe;
+        RecipeSelector proc = RecipeSelector.getInstance();
+        Map<WMIndex.Attribute, String> contextMap = new HashMap<WMIndex.Attribute, String>();
+        if (request.getLineId()!=null) {
+            contextMap.put(WMIndex.Attribute.kLineId, request.getLineId());
+        }
+        if (request.getRegion()!=null) {
+            contextMap.put(WMIndex.Attribute.kState, request.getRegion());
+        }
+        theRecipe = proc.getRecipe(theAdPod.getId(), theAdPod.getRecipes(), contextMap, feature);
+        return theRecipe;
     }
 
     private AdPodHandle pickOneAdPod(SortedSet<Handle> results) {
@@ -286,41 +296,6 @@ public class TargetingRequestProcessor {
             additionFactor = weight;
         }
         return handle;
-    }
-
-    private Recipe selectRecipe(List<Recipe> list) {
-        Recipe recipe = null;
-        int totalWeight = 0;
-        int weightRatio;
-        int[] weightArray = new int[list.size()];
-        for(int i=0; i<list.size(); i++) {
-            weightArray[i] = Math.abs(list.get(i).getWeight());
-            totalWeight += list.get(i).getWeight();
-        }
-        if(totalWeight <= 0) {
-            log.warn("Total weight assigned to recipes is 0. Skipping Recipe selection");
-            return null;
-        }
-        try {
-            weightRatio = new Random().nextInt(totalWeight);
-        }
-        catch(IllegalArgumentException e) {
-            weightRatio = 0;
-            log.warn("Calculated totalWeight was not positive. totalWeight:" + totalWeight);
-        }
-        Arrays.sort(weightArray);
-        int additionFactor = 0;
-
-        for(Recipe aRecipe : list) {
-            int weight = aRecipe.getWeight();
-            weight = weight + additionFactor;
-            if(weight > weightRatio) {
-                recipe = aRecipe;
-                break;
-            }
-            additionFactor = weight;
-        }
-        return recipe;
     }
 
     @SuppressWarnings("unchecked")

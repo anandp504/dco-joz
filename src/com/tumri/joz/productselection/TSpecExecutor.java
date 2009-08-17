@@ -597,11 +597,12 @@ public class TSpecExecutor {
 		qResult = m_tSpecQuery.exec();
 
 		//If Geo Filtered, sort by score
-		if (m_geoFilterEnabled && !m_ExternalKeywords) {
-			SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
-			geoSortedResult.addAll(qResult);
-			qResult = geoSortedResult;
-		}
+//BUG 2897 - Do not sort by score for geo enabled queries.
+//		if (m_geoFilterEnabled && !m_ExternalKeywords) {
+//			SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
+//			geoSortedResult.addAll(qResult);
+//			qResult = geoSortedResult;
+//		}
 
 		resultAL.addAll(qResult);
 

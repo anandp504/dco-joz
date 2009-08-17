@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.campaign.CMAContentRefreshMonitor;
+import com.tumri.joz.campaign.wm.loader.WMContentPoller;
 import com.tumri.joz.products.ContentHelper;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.utils.AppProperties;
@@ -50,6 +51,7 @@ public class JozData {
         try {
         	CMAContentRefreshMonitor.getInstance().init();
             CMAContentPoller.getInstance().init();
+            WMContentPoller.getInstance().init();
         } catch (Exception e) {
             LogUtils.getFatalLog().fatal("Exception caught during campaign data load", e);
         } catch (Throwable t) {

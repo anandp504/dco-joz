@@ -40,6 +40,24 @@ public class TestExternalTargeting {
     }
 
     @Test
+    public void testCase0() {
+        TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
+        JozAdRequest jozRequest = new JozAdRequest();
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "105004");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "skyscraper");
+        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "Y");
+
+        AdDataRequest request = new AdDataRequest(jozRequest);
+        Features f = new Features();
+        Recipe r = trp.processRequest(request, f);
+        Assert.assertTrue(r!=null);
+        System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
+        System.out.println(f.getAdpodName());
+        //Assert.assertTrue(f.getAdpodName().equals("admin_custom"));
+
+    }
+    
+    @Test
     public void testCase1() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
@@ -56,7 +74,7 @@ public class TestExternalTargeting {
         Assert.assertTrue(f.getAdpodName().equals("admin_custom"));
 
     }
-    
+
     @Test
     public void testCase2() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();

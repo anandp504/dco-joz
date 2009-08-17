@@ -187,6 +187,10 @@ public class AdDataRequest {
 	    if(externalTargetField5 != null){
 		    externalTargetField5 = externalTargetField5.trim();
 	    }
+        this.lineId = req.getValue(JozAdRequest.KEY_EXTERNAL_BUY_ID);
+        if(lineId != null){
+            lineId = lineId.trim();
+        }
     }
     
     public enum AdOfferType {
@@ -375,6 +379,10 @@ public class AdDataRequest {
 
     public String getExternalTargetField5() {
         return externalTargetField5;
+    }
+
+    public String getLineId() {
+        return lineId;
     }
 
     public HashMap<String, String> getExtTargetFields() {
@@ -796,6 +804,8 @@ public class AdDataRequest {
 
     
     Integer recipeId = null;
+
+    String lineId = null;
     
     private void parse_request(Sexp expr) throws BadCommandException {
         if (!expr.isSexpList())

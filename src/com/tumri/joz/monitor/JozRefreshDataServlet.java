@@ -6,11 +6,17 @@ import com.tumri.content.InvalidConfigException;
 import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.joz.campaign.CMAContentProviderStatus;
 import com.tumri.joz.campaign.CMAContentRefreshMonitor;
+import com.tumri.joz.campaign.CampaignDBDataLoader;
+import com.tumri.joz.campaign.CampaignDataLoadingException;
+import com.tumri.joz.campaign.wm.loader.WMDBLoader;
+import com.tumri.joz.campaign.wm.loader.WMLoaderException;
+import com.tumri.joz.campaign.wm.loader.WMContentProviderStatus;
 import com.tumri.joz.jozMain.ListingProviderFactory;
 import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.LogUtils;
 import com.tumri.utils.nio.NioSocketChannelPool;
 import com.tumri.utils.tcp.client.TcpSocketConnectionPool;
 import org.apache.log4j.Logger;
@@ -21,6 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
+import java.io.StringWriter;
 
 /**
  * Servlet class to control the refresh of data
@@ -64,6 +72,13 @@ public class JozRefreshDataServlet extends HttpServlet {
                 result = "failed";
             }
             responseJSP = "/jsp/cma-content-status.jsp";
+        } else if ("wm".equalsIgnoreCase(dataType)) {
+            try {
+                result = doRefreshWMData();
+            } catch (Exception e) {
+                result = "failed";
+            }
+            responseJSP = "/jsp/wm-content-status.jsp";
         } else if ("socket".equalsIgnoreCase(dataType)) {
             try {
                 result = doResetSocketPool();
@@ -130,6 +145,16 @@ public class JozRefreshDataServlet extends HttpServlet {
     private synchronized String doRefreshCampaignData() {
         CMAContentRefreshMonitor.getInstance().loadCampaignData();
         CMAContentProviderStatus status = CMAContentProviderStatus.getInstance();
+        String success = (status.lastRunStatus == true? "success" : "failed");
+        return success;
+    }
+
+    /**
+     * Helper method to refresh weight matrix data
+     */
+    private synchronized String doRefreshWMData() {
+        WMDBLoader.forceLoadData();
+        WMContentProviderStatus status = WMContentProviderStatus.getInstance();
         String success = (status.lastRunStatus == true? "success" : "failed");
         return success;
     }

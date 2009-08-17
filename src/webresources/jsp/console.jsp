@@ -29,6 +29,11 @@
 </div>
 <br>
 
+<div>
+	<a href="/joz/console?mode=wmstatus">WM Content status</a>
+</div>
+<br>
+
 
 <div>
 	<a href="/joz/console?mode=perf">Performance statistics</a>
@@ -82,6 +87,10 @@
 <br>
 <div>
 	<a href="/joz/console?mode=execute">TSpec Executor</a>
+</div>
+<br>
+<div>
+	<a href="/joz/console?mode=wm">Recipe Weight Matrix</a>
 </div>
 <br>
 </body>
