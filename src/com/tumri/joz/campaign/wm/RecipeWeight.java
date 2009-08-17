@@ -25,9 +25,9 @@ package com.tumri.joz.campaign.wm;
  */
 public class RecipeWeight {
     private int recipeId;
-    private float weight;
+    private double weight;
 
-    public RecipeWeight(Integer recipeId, float weight) {
+    public RecipeWeight(Integer recipeId, double weight) {
         this.recipeId = recipeId;
         this.weight = weight;
     }
@@ -40,11 +40,11 @@ public class RecipeWeight {
         this.recipeId = recipeId;
     }
 
-    public float getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(float weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 }

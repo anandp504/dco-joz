@@ -110,9 +110,9 @@ public class RecipeSelector {
 
     private Recipe pickOneRecipe(List<RecipeWeight> list) {
         RecipeWeight r = null;
-        float totalWeight = 0;
-        float weightRatio;
-        float[] weightArray = new float[list.size()];
+        double totalWeight = 0;
+        double weightRatio;
+        double[] weightArray = new double[list.size()];
         for(int i=0; i<list.size(); i++) {
             weightArray[i] = Math.abs(list.get(i).getWeight());
             totalWeight += list.get(i).getWeight();
@@ -129,10 +129,10 @@ public class RecipeSelector {
             log.warn("Calculated totalWeight was not positive. totalWeight:" + totalWeight);
         }
         Arrays.sort(weightArray);
-        float additionFactor = 0;
+        double additionFactor = 0;
 
         for(RecipeWeight aRecipe : list) {
-            float weight = aRecipe.getWeight();
+            double weight = aRecipe.getWeight();
             weight = weight + additionFactor;
             if(weight > weightRatio) {
                 r = aRecipe;
