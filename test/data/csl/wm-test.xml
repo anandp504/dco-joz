@@ -1,0 +1,61 @@
+<wm xmlns='http://www.tumri.com/wm' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:schemaLocation='http://www.tumri.com/wm wm.xsd'>
+
+    <al>
+		<a id="4445">
+			<vl>
+				<v id="100">
+					<cl>
+						<c type="lineid" val="12345"/>
+						<c type="state" val="CA"/>
+					</cl>
+					<rwl>
+						<rw id="1974" wt="100.0"/>
+						<rw id="4219" wt="0"/>
+						<rw id="4220" wt="0"/>
+					</rwl>
+				</v>
+				<v id="101">
+					<cl>
+						<c type="lineid" val="12345"/>
+						<c type="state" val="CA"/>
+						<c type="zip" val="94065"/>
+					</cl>
+					<rwl>
+						<rw id="4220" wt="100.0"/>
+                        <rw id="4219" wt="0"/>
+                        <rw id="1974" wt="0"/>
+					</rwl>
+                </v>
+			</vl>
+		</a>
+        <a id="2299">
+            <vl>
+                <v id="100">
+                    <cl>
+                        <c type="lineid" val="12345"/>
+                        <c type="state" val="CA"/>
+                    </cl>
+                    <rwl>
+                        <rw id="1974" wt="100.0"/>
+                        <rw id="4219" wt="0"/>
+                        <rw id="4220" wt="0"/>
+                    </rwl>
+                </v>
+                <v id="101">
+                    <cl>
+                        <c type="lineid" val="12345"/>
+                        <c type="state" val="CA"/>
+                        <c type="zip" val="94065"/>
+                    </cl>
+                    <rwl>
+                        <rw id="4220" wt="100.0"/>
+                        <rw id="4219" wt="0"/>
+                        <rw id="1974" wt="0"/>
+                    </rwl>
+                </v>
+            </vl>
+        </a>
+
+	</al>
+</wm>
