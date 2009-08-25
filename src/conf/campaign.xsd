@@ -552,13 +552,15 @@
             <element name="name" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="description" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="adpodId" type="int" maxOccurs="1" minOccurs="0"/>
-            <element name="weight" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="weight" type="double" maxOccurs="1" minOccurs="0"/>
             <element name="design" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
             <element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
             <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="winningRecipe" type="boolean" maxOccurs="1" minOccurs="0"/>
+	    <element name="lineIdOptimized" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="testDirty" type="boolean" maxOccurs="1" minOccurs="0"/>
             <element name="Properties" type="tns:PropertyDef"/>
             <element name="RecipeInfoList" type="tns:RecipeInfoDef"/>
         </choice>
