@@ -133,6 +133,7 @@ result.page.size = 15000
 #cma.factory.impl = com.tumri.cma.misc.CMALispFactoryImpl
 #cma.factory.impl = com.tumri.cma.misc.CMAXMLFactoryImpl
 cma.factory.impl = com.tumri.cma.misc.CMAXMLSAXParserFactoryImpl
+cma.default.parser.impl = com.tumri.cma.persistence.xml.versions.CampaignXMLDataProviderSAXParserImpl_1_0
 
 #URL Scavenging global stop words
 com.tumri.productselection.global.stopwords=.com,.org,.gov,.net,.biz,.uk,.fr,.in,.php,.html,.htm,.css,.js,www,http://,cache://,rss://,feed://,http,

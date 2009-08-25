@@ -90,7 +90,7 @@
 	    <fileset dir="${src.dir}/conf">
 		<include name="joz.properties"/>
 		<include name="jozLog4j.xml"/>
-		<include name="campaign.xsd"/>
+		<include name="*.xsd"/>
 	    </fileset>
 	</copy>
     </target>

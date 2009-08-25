@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.tumri.com/campaign" 
+xmlns:tns="http://www.tumri.com/campaign" elementFormDefault="qualified">
+    <element name="list" type="tns:CampaignDef">
+    </element>
+    <complexType name="CampaignDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Cmp" type="tns:Campaign" />
+        </sequence>
+    </complexType>
+    <complexType name="Campaign">
+        <choice maxOccurs="unbounded" minOccurs="0">
+         <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="des" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="insId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="src" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="region" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="publish" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="budgetAllocated" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="budgetConsumed" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="flSt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="flEn" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="stat" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="cId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="clNm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="AdPs" type="tns:adpodsDef"/>
+            <element name="AdGps" type="tns:adGroupsDef" maxOccurs="1" minOccurs="0"/>
+            <element name="roiTargetsList" type="tns:roiTargetsListDef" maxOccurs="1" minOccurs="0"/>
+            <element name="paymentModelsList" type="tns:paymentModelsListDef" maxOccurs="1" minOccurs="0"/>
+            <element name="inTs" type="tns:targetsListDef" maxOccurs="1" minOccurs="0"/>
+            <element name="exTs" type="tns:targetsListDef" maxOccurs="1" minOccurs="0"/>
+            <element name="cUTs" type="tns:UrlCampaignMappingDef" maxOccurs="1" minOccurs="0"/>
+            <element name="cGTs" type="tns:GeoCampaignMappingDef" maxOccurs="1" minOccurs="0"/>
+         </choice>
+    </complexType>
+
+    <complexType name="GeoCampaignMappingDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="GeoCmpM" type="tns:GeoCampaignMapping" />
+        </sequence>
+    </complexType>
+
+    <complexType name="GeoCampaignMapping">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="cmpId" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="GeoValue" type="tns:GeoValueDef" maxOccurs="1" minOccurs="0"/>
+           <element name="tp" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="owpId" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="crpDt" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="UrlCampaignMappingDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="UrlCmpM" type="tns:UrlCampaignMapping" />
+        </sequence>
+    </complexType>
+
+    <complexType name="UrlCampaignMapping">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="urlId" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="cmpId" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="wt" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="targetsListDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="tgt" type="tns:TargetInfo" />
+        </sequence>
+    </complexType>
+
+    <complexType name="TargetInfo">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="dNm" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="tgtId" type="string" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="paymentModelsListDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="paymentModel" type="tns:PaymentModel" />
+        </sequence>
+    </complexType>
+
+    <complexType name="PaymentModel">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="campaignId" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="paymentType" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="budget" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="startDate" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="endDate" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="budgetType" type="boolean" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="roiTargetsListDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="roiTarget" type="tns:ROITarget" />
+        </sequence>
+    </complexType>
+
+    <complexType name="ROITarget">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="campaignId" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="basis" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="roiSensitivity" type="int" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="adGroupsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="AdGp" type="tns:AdGroup" />
+        </sequence>
+    </complexType>
+
+    <complexType name="AdGroup">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="cmpId" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="desc" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="dnm" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="owId" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="src" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="region" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="publish" type="boolean" maxOccurs="1" minOccurs="0"/>
+           <element name="adPs" type="tns:adpodsDef" maxOccurs="1" minOccurs="0"/>
+           <element name="status" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="removedAdPods" type="tns:AdPod" maxOccurs="unbounded" minOccurs="0"/>
+           <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="urlsList" type="tns:urlsDef" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="urlsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="URL" type="tns:URL" />
+        </sequence>
+    </complexType>
+
+    <complexType name="URL">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="src" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="region" type="string" maxOccurs="1" minOccurs="0"/>
+           <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="owId" type="int" maxOccurs="1" minOccurs="0"/>
+           <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+           <element name="publish" type="boolean" maxOccurs="1" minOccurs="0"/>
+           <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="adpodsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="AdP" type="tns:AdPod" />
+        </sequence>
+    </complexType>
+
+    <complexType name="AdPod">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+            <element name="adgId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="desc" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="dnm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="isFeatured" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="publish" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="clId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="clNm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="stDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="enDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="src" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="region" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="rank" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="partingId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="fId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="stat" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="LS" type="tns:ListingSpec"/>
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="tp" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="oTs" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="GTs" type="tns:AdPodGeoTargetDef"/>
+            <element name="UTs" type="tns:AdPodUrlTargetDef"/>
+            <element name="Tests" type="tns:TestDef"/>
+            <element name="Rcps" type="tns:RecipeDef"/>
+            <element name="Ls" type="tns:LocationDef"/>
+            <element name="EVTs" type="tns:AdPodExternalVariableTargetDef"/>
+        </choice>
+  </complexType>
+   <complexType name="LocationDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="L" type="tns:Location" />
+        </sequence>
+    </complexType>
+    <complexType name="Location">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+            <element name="exId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="desc" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="adtId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="src" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="region" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="publish" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="tp" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="clId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="clNm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="clTp" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="cmpId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="cmpNm" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+  </complexType>
+  <complexType name="ListingSpecDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="LS" type="tns:ListingSpec" />
+        </sequence>
+    </complexType>
+    <complexType name="ListingSpec">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="desc" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="src" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="region" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="publish" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="pubUKOSpec" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="scrKOSpec" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="publicUrlKeywordsScavenger" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="publicUrlKeywordsWrapper" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="tooSmallCat" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="minePubUrl" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="LQs" type="tns:ListingQueryDef"/>
+            <element name="rLQs" type="tns:ListingQueryDef"/>
+        </choice>
+  </complexType>
+  <complexType name="ListingQueryDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="LQ" type="tns:ListingQuery" />
+        </sequence>
+    </complexType>
+    <complexType name="ListingQuery">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+            <element name="osId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="specType" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="pURL" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="pURLKey" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="publicURLQueryNames" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="publicUrlStopWords" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="loadTimeKeywordExpression" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="weightMapComboScheme" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="lCPC" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="hCPC" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="lCPO" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="hCPO" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="countryFilter" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="stateFilter" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="cityFilter" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="zipCodeFilter" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="dmaCodeFilter" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="areaCodeFilter" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="geoF" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="useRQ" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="EQ" type="boolean" maxOccurs="1" minOccurs="0"/> 
+            <element name="LF1" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="LF2" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="LF3" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="LF4" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="LF5" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="rad" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="globalId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="pubUKOSpec" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="scrKOSpec" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="publicUrlKeywordsScavenger" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="publicUrlKeywordsWrapper" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="smallCat" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="minePubUrl" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="description" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="lowIncome" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="highIncome" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="lPr" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="hPr" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="Geo" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="UserCookie" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="Url" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="Keyw" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="InProv" type="tns:IncludedProviderDef"/>
+            <element name="ExProv" type="tns:ExcludedProviderDef"/>
+            <element name="InKeyw" type="tns:IncludedKeywordsDef"/>
+            <element name="InCat" type="tns:IncludedCategoriesDef"/>
+            <element name="ExCat" type="tns:ExcludedCategoriesDef"/>
+            <element name="InMer" type="tns:IncludedMerchantsDef"/>
+            <element name="ExMer" type="tns:ExcludedMerchantsDef"/>
+            <element name="InBr" type="tns:IncludedBrandsDef"/>
+            <element name="ExBr" type="tns:ExcludedBrandsDef"/>
+            <element name="InProd" type="tns:IncludedProductsDef"/>
+            <element name="ExProd" type="tns:ExcludedProductsDef"/>
+            <element name="InGIds" type="tns:IncludedGlobalIdsDef"/>
+            <element name="ExGIds" type="tns:ExcludedGlobalIdsDef"/>
+          </choice>
+  </complexType>
+    <complexType name="ExcludedGlobalIdsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="GId" type="tns:GlobalIdInfo" />
+        </sequence>
+    </complexType>
+    <complexType name="IncludedGlobalIdsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="GId" type="tns:GlobalIdInfo" />
+        </sequence>
+    </complexType>
+    <complexType name="GlobalIdInfo">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+   </complexType>
+    
+    <complexType name="IncludedProductsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Prod" type="tns:ProductInfo" />
+        </sequence>
+    </complexType>
+     <complexType name="ExcludedProductsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Prod" type="tns:ProductInfo" />
+        </sequence>
+    </complexType>
+
+    <complexType name="ProductInfo">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+   </complexType>
+
+    <complexType name="IncludedMerchantsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Mer" type="tns:MerchantInfo" />
+        </sequence>
+    </complexType>
+     <complexType name="ExcludedMerchantsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Mer" type="tns:MerchantInfo" />
+        </sequence>
+    </complexType>
+
+    <complexType name="MerchantInfo">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+   </complexType>
+
+    <complexType name="IncludedBrandsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Br" type="tns:BrandInfo" />
+        </sequence>
+    </complexType>
+     <complexType name="ExcludedBrandsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Br" type="tns:BrandInfo" />
+        </sequence>
+    </complexType>
+
+    <complexType name="BrandInfo">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="dnm" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+   </complexType>
+
+     <complexType name="IncludedCategoriesDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Cat" type="tns:CategoryInfo" />
+        </sequence>
+    </complexType>
+     <complexType name="ExcludedCategoriesDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Cat" type="tns:CategoryInfo" />
+        </sequence>
+    </complexType>
+
+    <complexType name="CategoryInfo">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="dnm" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+   </complexType>
+
+     <complexType name="IncludedKeywordsDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Keyw" type="tns:KeywordInfo" />
+        </sequence>
+    </complexType>
+
+    <complexType name="KeywordInfo">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+   </complexType>
+
+  <complexType name="IncludedProviderDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Prov" type="tns:ProviderInfo" />
+        </sequence>
+    </complexType>
+     <complexType name="ExcludedProviderDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Prov" type="tns:ProviderInfo" />
+        </sequence>
+    </complexType>
+    <complexType name="ProviderInfo">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+   </complexType>
+  <complexType name="AdPodGeoTargetDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="GT" type="tns:AdPodGeoTarget" />
+        </sequence>
+    </complexType>
+    <complexType name="AdPodGeoTarget">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="tp" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="owpId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="geoValue" type="tns:GeoValueDef"/>
+        </choice>
+   </complexType>
+   <complexType name="AdPodUrlTargetDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="UT" type="tns:AdPodUrlTarget" />
+        </sequence>
+    </complexType>
+    <complexType name="AdPodUrlTarget">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="urlId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="adpId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="wpt" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="owpId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+        </choice>
+    </complexType>
+    <complexType name="AdPodExternalVariableTargetDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="EVT" type="tns:AdPodExternalVariableTarget" />
+        </sequence>
+    </complexType>
+    <complexType name="AdPodExternalVariableTarget">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="name" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="value" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+    </complexType>
+    <complexType name="TestDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Test" type="tns:Test" />
+        </sequence>
+    </complexType>
+    <complexType name="Test">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="desc" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="adpId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="status" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="type" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="stDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="enDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="TRMs" type="tns:TestRecipeMappingDef"/>
+        </choice>
+    </complexType>
+    <complexType name="TestRecipeMappingDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="TRM" type="tns:TestRecipeMapping" />
+        </sequence>
+    </complexType>
+    <complexType name="TestRecipeMapping">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+            <element name="recipeId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="wt" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="testId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="Test" type="tns:Test" />
+            <element name="Rcp" type="tns:Recipe" />
+       </choice>
+   </complexType>
+    <complexType name="RecipeDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Rcp" type="tns:Recipe" />
+        </sequence>
+    </complexType>
+    <complexType name="Recipe">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="desc" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="adpId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="wt" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="des" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="wRcp" type="boolean" maxOccurs="1" minOccurs="0"/>
+	    <element name="lIdOpt" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="tstDrt" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="Props" type="tns:PropertyDef"/>
+            <element name="RcpInfs" type="tns:RecipeInfoDef"/>
+        </choice>
+   </complexType>
+   <complexType name="PropertyDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+           <element name="Property" type="tns:Property" />
+        </sequence>
+    </complexType>
+    <complexType name="Property">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="name" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="description" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="title" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="value" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="type" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="group" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="recipeId" type="int" maxOccurs="1" minOccurs="0"/>
+        </choice>
+    </complexType>
+    <complexType name="RecipeInfoDef">
+    <sequence maxOccurs="unbounded" minOccurs="0">
+       <element name="RcpInf" type="tns:RecipeInfo" />
+    </sequence>
+   </complexType>
+   <complexType name="RecipeInfo">
+    <choice maxOccurs="unbounded" minOccurs="0">
+        <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
+        <element name="rId" type="int" maxOccurs="1" minOccurs="0"/>
+        <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+        <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+        <element name="lqNm" type="string" maxOccurs="1" minOccurs="0"/>
+        <element name="sNm" type="string" maxOccurs="1" minOccurs="0"/>
+        <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+        <element name="slId" type="string" maxOccurs="1" minOccurs="0"/>
+        <element name="prods" type="int" maxOccurs="1" minOccurs="0"/>
+        <element name="sId" type="int" maxOccurs="1" minOccurs="0"/>
+       </choice>
+  </complexType>
+
+  <complexType name="GeoValueDef">
+    <sequence maxOccurs="1" minOccurs="0">
+       <element name="string" type="string" />
+    </sequence>
+   </complexType>
+</schema>
