@@ -29,7 +29,7 @@ com.tumri.campaign.file.refresh.interval.minutes=15
 com.tumri.campaign.file.triggerLoadFileName=cmaload.txt
 com.tumri.campaign.file.polling.mode=calendar
 com.tumri.campaign.file.xmlFileNamePattern=campaigns.xml
-com.tumri.campaign.file.xmlSchemaFileNamePattern=campaign.xsd
+
 
 #com.tumri.content.file.mup.dataDir=
 #com.tumri.content.file.taxonomy.dataDir=
