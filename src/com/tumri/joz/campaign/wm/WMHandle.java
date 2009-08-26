@@ -107,7 +107,13 @@ public class WMHandle implements Handle, Cloneable {
         }
         Set<WMIndex.Attribute> keys = contextMap.keySet();
         for (WMIndex.Attribute currKey: keys){
-            if (contextMap.get(currKey).equals(rv.contextMap.get(currKey))) {
+            Integer inputVal = rv.contextMap.get(currKey);
+            Integer wmVal = contextMap.get(currKey);
+            if (inputVal==null || wmVal == null || !wmVal.equals(inputVal)) {
+                //Note: Only select this if the WM vector is a proper subset to the input Vector
+                score = 0.0;
+                break;
+            } else {
                 score += this.getScore() * rv.getScore();
             }
         }

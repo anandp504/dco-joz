@@ -71,7 +71,10 @@ public class RecipeSelector {
         for(Recipe r : recipeList) {
             RecipeWeight rw = new RecipeWeight(r.getId(), r.getWeight());
             allRecipeWeights.add(rw);
-            defWeights.put(r.getId(), rw);
+            if (!r.isTestDirty() && r.isLineIdOptimized()) {
+                //If the test is dirty then we dont do line id optimization
+                defWeights.put(r.getId(), rw);
+            }
         }
 
         WMDB.WMIndexCache currWtDB = WMDB.getInstance().getWeightDB(adPodId);
