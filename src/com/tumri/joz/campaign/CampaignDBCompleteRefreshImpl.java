@@ -1080,9 +1080,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 				Pair<String, Integer> pair = iterator.next();
 				String locationName = pair.getFirst();
 				Integer locId = pair.getSecond();
-				if (map.get(locationName)!=null) {
-					log.warn("Duplicate location Name to Location ID mapping found for : " + locationName + " : " + locId);
-				}
 				map.put(locationName, locId);
 			}
 			locationNameIdMap.compareAndSet(locationNameIdMap.get(), map);
