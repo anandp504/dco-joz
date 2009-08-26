@@ -67,7 +67,7 @@ public class WMDBLoader {
                 }
             }
         } else {
-            log.warn("No WM files found to load");
+            throw new WMLoaderException("No WM files found to load");
         }
     }
 
