@@ -234,8 +234,8 @@ public class TargetingRequestProcessor {
         Recipe theRecipe;
         RecipeSelector proc = RecipeSelector.getInstance();
         Map<WMIndex.Attribute, String> contextMap = new HashMap<WMIndex.Attribute, String>();
-        if (request.getLineId()!=null) {
-            contextMap.put(WMIndex.Attribute.kLineId, request.getLineId());
+        if (request.getBuyId()!=null) {
+            contextMap.put(WMIndex.Attribute.kLineId, request.getPageId());
         }
         if (request.getRegion()!=null) {
             contextMap.put(WMIndex.Attribute.kState, request.getRegion());

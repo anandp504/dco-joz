@@ -187,9 +187,29 @@ public class AdDataRequest {
 	    if(externalTargetField5 != null){
 		    externalTargetField5 = externalTargetField5.trim();
 	    }
-        this.lineId = req.getValue(JozAdRequest.KEY_EXTERNAL_BUY_ID);
-        if(lineId != null){
-            lineId = lineId.trim();
+        this.buyId = req.getValue(JozAdRequest.KEY_EXTERNAL_BUY_ID);
+        if(buyId != null){
+            buyId = buyId.trim();
+        }
+        this.siteId = req.getValue(JozAdRequest.KEY_EXTERNAL_SITE_ID);
+        if(siteId != null){
+            siteId = siteId.trim();
+        }
+        this.creativeId = req.getValue(JozAdRequest.KEY_EXTERNAL_CREATIVE_ID);
+        if(creativeId != null){
+            creativeId = creativeId.trim();
+        }
+        this.adId = req.getValue(JozAdRequest.KEY_EXTERNAL_AD_ID);
+        if(adId != null){
+            adId = adId.trim();
+        }
+        this.pageId = req.getValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID);
+        if(pageId != null){
+            pageId = pageId.trim();
+        }
+        this.userAgent = req.getValue(JozAdRequest.KEY_USER_AGENT);
+        if(userAgent != null){
+            userAgent = userAgent.trim();
         }
     }
     
@@ -381,8 +401,28 @@ public class AdDataRequest {
         return externalTargetField5;
     }
 
-    public String getLineId() {
-        return lineId;
+    public String getBuyId() {
+        return buyId;
+    }
+
+    public String getSiteId() {
+        return siteId;
+    }
+
+    public String getPageId() {
+        return pageId;
+    }
+
+    public String getAdId() {
+        return adId;
+    }
+
+    public String getCreativeId() {
+        return creativeId;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
     }
 
     public HashMap<String, String> getExtTargetFields() {
@@ -801,12 +841,16 @@ public class AdDataRequest {
     String externalTargetField4 = null;
     String externalTargetField5 = null;
     String adType = "";
-
     
     Integer recipeId = null;
 
-    String lineId = null;
-    
+    String buyId = null;
+    String siteId = null;
+    String pageId = null;
+    String adId = null;
+    String creativeId = null;
+    String userAgent = null;
+
     private void parse_request(Sexp expr) throws BadCommandException {
         if (!expr.isSexpList())
             throw new BadCommandException("get-ad-data request not a list");
