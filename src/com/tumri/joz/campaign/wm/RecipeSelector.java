@@ -38,6 +38,7 @@ public class RecipeSelector {
     private static final Logger log = Logger.getLogger(RecipeSelector.class);
     private static RecipeSelector processor = null;
     public static final String PROCESS_STATS_ID = "RS";
+    private static final String RWM_ID = "RWM-ID:";
 
     private RecipeSelector() {
     }
@@ -89,10 +90,9 @@ public class RecipeSelector {
             }
         }
         List<WMHandle> listVectors = getMatchingVectors(currWtDB,contextMap);
-
+        String rwmId = "DEFAULT";
         if (listVectors != null) {
             WMHandle rv = WMHandleFactory.getInstance().getHandle(0, contextMap, null);
-
             List<RecipeWeight> recipeInfos = pickOneRecipeList(listVectors, rv, features);
 
             for (RecipeWeight rw: recipeInfos) {
@@ -101,12 +101,13 @@ public class RecipeSelector {
                     r.setWeight(rw.getWeight());
                 }
             }
+            rwmId = features.getFeaturesDetail(RWM_ID);
         } else {
             log.warn("No matching vector found for incoming request, using default weights");
-            features.addFeatureDetail("RWM_ID","DEFAULT");
+            features.addFeatureDetail("RWM_ID",rwmId);
         }
         Recipe r = pickOneRecipe(allRecipeWeights);
-        PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID);
+        PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID, rwmId);
 
         return r;
     }
@@ -191,7 +192,7 @@ public class RecipeSelector {
             int i = new Random().nextInt(bestMatchAL.size());
             bestMatch = bestMatchAL.get(i);
         }
-        features.addFeatureDetail("RWM-ID:",new Long(bestMatch.getOid()).toString());
+        features.addFeatureDetail(RWM_ID,new Long(bestMatch.getOid()).toString());
         return bestMatch.getRecipeList();
     }
     

@@ -113,6 +113,10 @@ public class Features {
         jozFeaturesMap.put(key, val);
     }
 
+    public String getFeaturesDetail(String key) {
+        return jozFeaturesMap.get(key);
+    }
+
     public String getAdpodName() {
         return adpodName;
     }
