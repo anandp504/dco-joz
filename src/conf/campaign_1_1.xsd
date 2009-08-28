@@ -568,23 +568,23 @@ xmlns:tns="http://www.tumri.com/campaign" elementFormDefault="qualified">
    </complexType>
    <complexType name="PropertyDef">
         <sequence maxOccurs="unbounded" minOccurs="0">
-           <element name="Property" type="tns:Property" />
+           <element name="Prop" type="tns:Property" />
         </sequence>
     </complexType>
     <complexType name="Property">
         <choice maxOccurs="unbounded" minOccurs="0">
-            <element name="name" type="string" maxOccurs="1" minOccurs="0"/>
-            <element name="description" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="desc" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="title" type="string" maxOccurs="1" minOccurs="0"/>
-            <element name="value" type="string" maxOccurs="1" minOccurs="0"/>
-            <element name="type" type="string" maxOccurs="1" minOccurs="0"/>
-            <element name="group" type="string" maxOccurs="1" minOccurs="0"/>
-            <element name="ownerId" type="string" maxOccurs="1" minOccurs="0"/>
-            <element name="creationDate" type="long" maxOccurs="1" minOccurs="0"/>
-            <element name="updateDate" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="val" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="typ" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="grp" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
+            <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
             <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
-            <element name="recipeId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="rcpId" type="int" maxOccurs="1" minOccurs="0"/>
         </choice>
     </complexType>
     <complexType name="RecipeInfoDef">
