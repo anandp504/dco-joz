@@ -20,7 +20,6 @@ package com.tumri.joz.campaign.wm.loader;
 // JDK Classes
 
 import com.tumri.joz.campaign.wm.WMDB;
-import com.tumri.joz.campaign.wm.WMHandleFactory;
 import com.tumri.joz.utils.AppProperties;
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.log4j.Logger;
@@ -144,7 +143,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
     {
         try {
             WMXMLParser parser = new WMXMLParserV1();
-            parser.process("/Users/nipun/ws/depot/Tumri/tas/joz/test/data/csl/wm-test.xml");
+            parser.process("/Users/nipun/ws/depot/Tumri/tas/joz/test/data/cof/wm-test.xml");
             //Query the DB and make sure stuff is there
             Assert.assertTrue(WMDB.getInstance().hasWeightDB(4445));
             WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(4445);
