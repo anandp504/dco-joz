@@ -59,6 +59,7 @@ public class EvalMonitor extends ComponentMonitor
 		keys.put(":"+JozAdRequest.KEY_URL, JozAdRequest.KEY_URL);
 		keys.put(":"+JozAdRequest.KEY_WHICH_ROW, JozAdRequest.KEY_WHICH_ROW);
 		keys.put(":"+JozAdRequest.KEY_ZIP_CODE, JozAdRequest.KEY_ZIP_CODE);
+		keys.put(":"+JozAdRequest.KEY_EXTERNAL_PAGE_ID, JozAdRequest.KEY_EXTERNAL_PAGE_ID);
 	}
 
 	public JozAdRequest makeRequest(String requestString){
