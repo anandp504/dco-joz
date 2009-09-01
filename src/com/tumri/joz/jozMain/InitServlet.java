@@ -3,6 +3,7 @@
 package com.tumri.joz.jozMain;
 
 import com.tumri.joz.campaign.CMAContentPoller;
+import com.tumri.joz.campaign.wm.loader.WMContentPoller;
 import com.tumri.joz.server.JozBaseServer;
 import com.tumri.joz.server.JozNioServer;
 import com.tumri.joz.server.JozServer;
@@ -84,6 +85,7 @@ public class InitServlet extends HttpServlet {
     public void destroy() {
         Polling.getInstance().shutdown();  
         CMAContentPoller.getInstance().shutdown();
+        WMContentPoller.getInstance().shutdown();
         ListingProviderFactory.shutdown();
         if  (jozServerThread!=null) {
         	jozServerThread.interrupt();
