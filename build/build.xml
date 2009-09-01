@@ -113,9 +113,8 @@
         <copy todir="${package.tmp.dir}/conf">
             <fileset dir="${src.dir}/conf">
                 <include name="jozLog4j.xml"/>
-                <include name="campaign.xsd"/>
-                <include name="campaign_1_1.xsd"/>
-                <include name="wm.xsd"/>
+                <include name="campaign*.xsd"/>
+                <include name="wm*.xsd"/>
             </fileset>
             <fileset dir="${root.dir}/tomcat/conf">
                 <include name="server.xml"/>

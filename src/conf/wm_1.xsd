@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.tumri.com/wm" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="wm" type="wm:wmType" xmlns:wm="http://www.tumri.com/wm"/>
+  <xs:element name="wm" type="wm:wmType" xmlns:wm="wm_1.xsd"/>
   <xs:complexType name="clType">
     <xs:sequence>
-      <xs:element type="wm:cType" name="c" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
+      <xs:element type="wm:cType" name="c" maxOccurs="unbounded" minOccurs="0" xmlns:wm="wm_1.xsd"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="vlType">
     <xs:sequence>
-      <xs:element type="wm:vType" name="v" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
+      <xs:element type="wm:vType" name="v" maxOccurs="unbounded" minOccurs="0" xmlns:wm="wm_1.xsd"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="vType">
     <xs:sequence>
-      <xs:element type="wm:clType" name="cl" xmlns:wm="http://www.tumri.com/wm"/>
-      <xs:element type="wm:rwlType" name="rwl" xmlns:wm="http://www.tumri.com/wm"/>
+      <xs:element type="wm:clType" name="cl" xmlns:wm="wm_1.xsd"/>
+      <xs:element type="wm:rwlType" name="rwl" xmlns:wm="wm_1.xsd"/>
     </xs:sequence>
     <xs:attribute type="xs:string" name="id" use="required"/>
   </xs:complexType>
@@ -36,23 +36,23 @@
   </xs:complexType>
   <xs:complexType name="wmType">
     <xs:sequence>
-      <xs:element type="wm:alType" name="al" xmlns:wm="http://www.tumri.com/wm"/>
+      <xs:element type="wm:alType" name="al" xmlns:wm="wm_1.xsd"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="alType">
     <xs:sequence>
-      <xs:element type="wm:aType" name="a" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
+      <xs:element type="wm:aType" name="a" maxOccurs="unbounded" minOccurs="0" xmlns:wm="wm_1.xsd"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="aType">
     <xs:sequence>
-      <xs:element type="wm:vlType" name="vl" xmlns:wm="http://www.tumri.com/wm"/>
+      <xs:element type="wm:vlType" name="vl" xmlns:wm="wm_1.xsd"/>
     </xs:sequence>
     <xs:attribute type="xs:string" name="id" use="required"/>
   </xs:complexType>
   <xs:complexType name="rwlType">
     <xs:sequence>
-      <xs:element type="wm:rwType" name="rw" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
+      <xs:element type="wm:rwType" name="rw" maxOccurs="unbounded" minOccurs="0" xmlns:wm="wm_1.xsd"/>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
