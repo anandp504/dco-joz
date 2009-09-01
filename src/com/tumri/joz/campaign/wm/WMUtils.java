@@ -29,6 +29,8 @@ public class WMUtils {
         WMIndex.Attribute attr = null;
         if ("lineid".equals(type)) {
             attr = WMIndex.Attribute.kLineId;
+        } else if ("EXTERNALPAGEID".equals(type)) {
+            attr = WMIndex.Attribute.kLineId;
         } else if ("state".equals(type)) {
             attr = WMIndex.Attribute.kState;
         } else if ("city".equals(type)) {
