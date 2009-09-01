@@ -465,7 +465,7 @@ xmlns:tns="http://www.tumri.com/campaign" elementFormDefault="qualified">
             <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="tp" type="string" maxOccurs="1" minOccurs="0"/>
-            <element name="owpId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
             <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
             <element name="geoValue" type="tns:GeoValueDef"/>
@@ -482,8 +482,8 @@ xmlns:tns="http://www.tumri.com/campaign" elementFormDefault="qualified">
             <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="urlId" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="adpId" type="int" maxOccurs="1" minOccurs="0"/>
-            <element name="wpt" type="int" maxOccurs="1" minOccurs="0"/>
-            <element name="owpId" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="wt" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="owId" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="crDt" type="long" maxOccurs="1" minOccurs="0"/>
             <element name="upDt" type="long" maxOccurs="1" minOccurs="0"/>
         </choice>
