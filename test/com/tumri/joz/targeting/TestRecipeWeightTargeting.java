@@ -41,7 +41,7 @@ public class TestRecipeWeightTargeting {
         loader.loadData();
 
         WMXMLParser parser = new WMXMLParserV1();
-        parser.process("/Users/nipun/ws/depot/Tumri/tas/joz/test/data/cof/wm-test.xml");
+        parser.process("/Users/nipun/ws/work-nbp/depot/Tumri/tas/joz/test/data/csl/test.xml");
         
 //        //Load the weights
 //        Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();
@@ -80,7 +80,7 @@ public class TestRecipeWeightTargeting {
             TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
             JozAdRequest jozRequest = new JozAdRequest();
             jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "105004");
-            jozRequest.setValue(JozAdRequest.KEY_REGION, "CA");
+            jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "13477514");
             jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "skyscraper");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "Y");
 
