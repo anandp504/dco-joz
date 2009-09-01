@@ -69,28 +69,34 @@ public class RecipeSelector {
         Map<Integer, RecipeWeight> defWeights = new HashMap<Integer, RecipeWeight>();
         List<RecipeWeight> allRecipeWeights = new ArrayList<RecipeWeight>();
 
+        boolean isDirty = false;
         for(Recipe r : recipeList) {
             RecipeWeight rw = new RecipeWeight(r.getId(), r.getWeight());
             allRecipeWeights.add(rw);
-            if (!r.isTestDirty() && r.isLineIdOptimized()) {
-                //If the test is dirty then we dont do line id optimization
-                defWeights.put(r.getId(), rw);
+            //If any recipe is dirty then we do not do line id based selection
+            if (r.isTestDirty() && !isDirty) {
+                isDirty = true;
             }
+            defWeights.put(r.getId(), rw);
         }
 
-        WMDB.WMIndexCache currWtDB = WMDB.getInstance().getWeightDB(adPodId);
+        List<WMHandle> listVectors = null;
+        String rwmId = "DEFAULT";
         Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();
-        if (requestMap!=null) {
-            for (WMIndex.Attribute attr: requestMap.keySet()) {
-                String val = requestMap.get(attr);
-                Integer id = WMUtils.getDictId(attr, val);
-                if (id != null) {
-                    contextMap.put(attr, WMUtils.getDictId(attr, val));
+
+        if (!isDirty) {
+            WMDB.WMIndexCache currWtDB = WMDB.getInstance().getWeightDB(adPodId);
+            if (requestMap!=null) {
+                for (WMIndex.Attribute attr: requestMap.keySet()) {
+                    String val = requestMap.get(attr);
+                    Integer id = WMUtils.getDictId(attr, val);
+                    if (id != null) {
+                        contextMap.put(attr, WMUtils.getDictId(attr, val));
+                    }
                 }
             }
+            listVectors = getMatchingVectors(currWtDB,contextMap);
         }
-        List<WMHandle> listVectors = getMatchingVectors(currWtDB,contextMap);
-        String rwmId = "DEFAULT";
         if (listVectors != null) {
             WMHandle rv = WMHandleFactory.getInstance().getHandle(0, contextMap, null);
             List<RecipeWeight> recipeInfos = pickOneRecipeList(listVectors, rv, features);
@@ -195,7 +201,7 @@ public class RecipeSelector {
         features.addFeatureDetail(RWM_ID,new Long(bestMatch.getOid()).toString());
         return bestMatch.getRecipeList();
     }
-    
+
     private List<WMHandle> getMatchingVectors(WMDB.WMIndexCache wtDB, Map<WMIndex.Attribute, Integer> contextMap) {
         List<WMHandle> res = null;
 
