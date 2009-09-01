@@ -17,9 +17,8 @@
  */
 package com.tumri.joz.campaign.wm;
 
-import com.tumri.utils.data.RWLockedTreeMap;
 import com.tumri.utils.data.RWLockedSortedArraySet;
-import com.tumri.joz.products.Handle;
+import com.tumri.utils.data.RWLockedTreeMap;
 
 import java.util.*;
 
@@ -140,6 +139,7 @@ public class WMDB {
 
         @SuppressWarnings("unchecked")
         public void updateIntegerIndex(WMIndex.Attribute type, TreeMap<Integer, ArrayList<WMHandle>> mindex) {
+	        deleteIntegerIndex(type, mindex);
             ((WMIndex<Integer, WMHandle>) m_indices.get(type)).add(mindex);
         }
 
@@ -154,6 +154,7 @@ public class WMDB {
         public void addNewHandles(SortedSet<WMHandle> newHandles) {
             try {
                 m_allHandles.writerLock();
+	            m_allHandles.removeAll(newHandles);
                 m_allHandles.addAll(newHandles);
             } finally {
                 m_allHandles.writerUnlock();

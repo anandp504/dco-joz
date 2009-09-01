@@ -17,15 +17,14 @@
  */
 package com.tumri.joz.campaign.wm;
 
-import com.tumri.utils.data.SortedArraySet;
-import com.tumri.utils.stats.PerformanceStats;
+import com.tumri.cma.domain.Recipe;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.jozMain.Features;
-import com.tumri.cma.domain.Recipe;
+import com.tumri.utils.data.SortedArraySet;
+import com.tumri.utils.stats.PerformanceStats;
+import org.apache.log4j.Logger;
 
 import java.util.*;
-
-import org.apache.log4j.Logger;
 
 /**
  * Queries the WeightDB for the weight info matching the request
@@ -98,7 +97,7 @@ public class RecipeSelector {
             listVectors = getMatchingVectors(currWtDB,contextMap);
         }
         if (listVectors != null) {
-            WMHandle rv = WMHandleFactory.getInstance().getHandle(0, contextMap, null);
+            WMHandle rv = new WMHandle(0, contextMap, null);
             List<RecipeWeight> recipeInfos = pickOneRecipeList(listVectors, rv, features);
 
             for (RecipeWeight rw: recipeInfos) {
