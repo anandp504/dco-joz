@@ -69,12 +69,16 @@ public class RecipeSelector {
         List<RecipeWeight> allRecipeWeights = new ArrayList<RecipeWeight>();
 
         boolean isDirty = false;
+        boolean isLiO = false;
         for(Recipe r : recipeList) {
             RecipeWeight rw = new RecipeWeight(r.getId(), r.getWeight());
             allRecipeWeights.add(rw);
             //If any recipe is dirty then we do not do line id based selection
             if (r.isTestDirty() && !isDirty) {
                 isDirty = true;
+            }
+            if (r.isLineIdOptimized() && !isLiO) {
+                isLiO = true;
             }
             defWeights.put(r.getId(), rw);
         }
@@ -83,7 +87,8 @@ public class RecipeSelector {
         String rwmId = "DEFAULT";
         Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();
 
-        if (!isDirty) {
+        //Only optimize by line id if dirty flag is not set and isLiO flag is set
+        if (!isDirty && isLiO) {
             WMDB.WMIndexCache currWtDB = WMDB.getInstance().getWeightDB(adPodId);
             if (requestMap!=null) {
                 for (WMIndex.Attribute attr: requestMap.keySet()) {
