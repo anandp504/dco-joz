@@ -20,7 +20,8 @@ package com.tumri.joz.campaign.wm;
 import com.tumri.cma.domain.Recipe;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.jozMain.Features;
-import com.tumri.utils.data.SortedArraySet;
+import com.tumri.joz.products.Handle;
+import com.tumri.joz.ranks.IWeight;
 import com.tumri.utils.stats.PerformanceStats;
 import org.apache.log4j.Logger;
 
@@ -56,23 +57,20 @@ public class RecipeSelector {
     /**
      * Do the selection of recipe given the request
      * @param adPodId - Current AdPod Id
-     * @param requestMap - request Context Map
+     * @param contextMap - request Context Map
      * @return
      */
-    public Recipe getRecipe(int adPodId, List<Recipe> recipeList, Map<WMIndex.Attribute, String> requestMap, Features features) {
+    public Recipe getRecipe(int adPodId, List<Recipe> recipeList, Map<WMIndex.Attribute, Integer> contextMap, Features features) {
         PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
 
         if (recipeList == null || recipeList.isEmpty()) {
             return null;
         }
-        Map<Integer, RecipeWeight> defWeights = new HashMap<Integer, RecipeWeight>();
-        List<RecipeWeight> allRecipeWeights = new ArrayList<RecipeWeight>();
+        Map<Integer, Double> defWeights = new HashMap<Integer, Double>();
 
         boolean isDirty = false;
         boolean isLiO = false;
         for(Recipe r : recipeList) {
-            RecipeWeight rw = new RecipeWeight(r.getId(), r.getWeight());
-            allRecipeWeights.add(rw);
             //If any recipe is dirty then we do not do line id based selection
             if (r.isTestDirty() && !isDirty) {
                 isDirty = true;
@@ -80,56 +78,50 @@ public class RecipeSelector {
             if (r.isLineIdOptimized() && !isLiO) {
                 isLiO = true;
             }
-            defWeights.put(r.getId(), rw);
+            defWeights.put(r.getId(), r.getWeight());
         }
 
         List<WMHandle> listVectors = null;
         String rwmId = "DEFAULT";
-        Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();
 
         //Only optimize by line id if dirty flag is not set and isLiO flag is set
-        if (!isDirty && isLiO) {
+        if (!isDirty) {
             WMDB.WMIndexCache currWtDB = WMDB.getInstance().getWeightDB(adPodId);
-            if (requestMap!=null) {
-                for (WMIndex.Attribute attr: requestMap.keySet()) {
-                    String val = requestMap.get(attr);
-                    Integer id = WMUtils.getDictId(attr, val);
-                    if (id != null) {
-                        contextMap.put(attr, WMUtils.getDictId(attr, val));
-                    }
-                }
-            }
-            listVectors = getMatchingVectors(currWtDB,contextMap);
-        }
-        if (listVectors != null) {
             WMHandle rv = new WMHandle(0, contextMap, null);
-            List<RecipeWeight> recipeInfos = pickOneRecipeList(listVectors, rv, features);
+            listVectors = getMatchingVectors(currWtDB,contextMap,rv);
+        }
+        if (listVectors != null && listVectors.size() >0) {
+            List<RecipeWeight> recipeInfos = pickOneRecipeList(listVectors, features);
 
             for (RecipeWeight rw: recipeInfos) {
-                RecipeWeight r = defWeights.get(rw.getRecipeId());
-                if (r!=null) {
-                    r.setWeight(rw.getWeight());
+                if (defWeights.containsKey(rw.getRecipeId())) {
+                    defWeights.put(rw.getRecipeId(), rw.getWeight());
                 }
             }
             rwmId = features.getFeaturesDetail(RWM_ID);
-        } else {
-            log.warn("No matching vector found for incoming request, using default weights");
-            features.addFeatureDetail("RWM_ID",rwmId);
         }
-        Recipe r = pickOneRecipe(allRecipeWeights);
+
+        features.addFeatureDetail("RWM_ID",rwmId);
+        log.debug("Current context = " + rwmId);
+        
+        Recipe r = pickOneRecipe(recipeList, defWeights);
         PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID, rwmId);
 
         return r;
     }
 
-    private Recipe pickOneRecipe(List<RecipeWeight> list) {
-        RecipeWeight r = null;
+    private Recipe pickOneRecipe(List<Recipe> list, Map<Integer, Double> wtMap) {
+        Recipe r = null;
         double totalWeight = 0;
         double weightRatio;
         double[] weightArray = new double[list.size()];
         for(int i=0; i<list.size(); i++) {
-            weightArray[i] = Math.abs(list.get(i).getWeight());
-            totalWeight += list.get(i).getWeight();
+            Double wt = wtMap.get(list.get(i).getId());
+            if (wt==null) {
+                wt = 0.0;
+            }
+            weightArray[i] = Math.abs(wt);
+            totalWeight += wt;
         }
         if(totalWeight <= 0) {
             log.warn("Total weight assigned to recipes is 0. Skipping Recipe selection");
@@ -145,8 +137,8 @@ public class RecipeSelector {
         Arrays.sort(weightArray);
         double additionFactor = 0;
 
-        for(RecipeWeight aRecipe : list) {
-            double weight = aRecipe.getWeight();
+        for(Recipe aRecipe : list) {
+            double weight = wtMap.get(aRecipe.getId());
             weight = weight + additionFactor;
             if(weight > weightRatio) {
                 r = aRecipe;
@@ -154,34 +146,56 @@ public class RecipeSelector {
             }
             additionFactor = weight;
         }
-        return CampaignDB.getInstance().getRecipe(r.getRecipeId());
+        return r;
     }
 
     /**
      * Use the given set of indexes to select the recipe
-     * @param listVectors
-     * @return
+     * @param bestMatchAL - best matches
+     * @param features - features
+     * @return - List of recipe weigt
      */
-    private List<RecipeWeight> pickOneRecipeList(List<WMHandle> listVectors, WMHandle rv,Features features) {
-        //Do dot product and select max
+    private List<RecipeWeight> pickOneRecipeList(List<WMHandle> bestMatchAL,Features features) {
         WMHandle bestMatch = null;
-        ArrayList<WMHandle> bestMatchAL = new ArrayList<WMHandle>();
-        SortedSet<WMHandle> sortedRv = new SortedArraySet<WMHandle>();
-        for (WMHandle curr: listVectors) {
-            double tmpScore = curr.dot(rv);
-            WMHandle cloneRv = (WMHandle)curr.clone();
-            cloneRv.setScore(tmpScore);
-            sortedRv.add(cloneRv);
+        if (bestMatchAL.isEmpty()) {
+            return null;
+        }  else if (bestMatchAL.size()==1) {
+            bestMatch = bestMatchAL.get(0) ;
+        }  else {
+            int i = new Random().nextInt(bestMatchAL.size());
+            bestMatch = bestMatchAL.get(i);
         }
+        features.addFeatureDetail(RWM_ID,Long.toString(bestMatch.getOid()));
+        return bestMatch.getRecipeList();
+    }
 
-        Iterator<WMHandle> iterator = sortedRv.iterator();
-        double score = 0.0;
-        if(iterator != null) {
+    private List<WMHandle> getMatchingVectors(WMDB.WMIndexCache wtDB, Map<WMIndex.Attribute, Integer> contextMap, WMHandle rv) {
+        List<WMHandle> res = null;
+
+        //Add context matches
+        WMSetIntersector intersector = new WMSetIntersector(true);
+        if (contextMap!=null) {
+            Set<WMIndex.Attribute> keys = contextMap.keySet();
+            for (WMIndex.Attribute attr: keys) {
+                WMIndex idx = wtDB.getIndex(attr);
+                if (idx != null) {
+                    SortedSet<Handle> vectors = idx.get(contextMap.get(attr));
+                    if (vectors!=null && vectors.size()>0) {
+                        //Build intersector
+                        IWeight<Handle> wt = new WMAttributeWeights(rv, attr);
+                        intersector.include(vectors,wt);
+                    }
+                }
+            }
+        }
+        SortedSet<Handle> results = intersector.intersect();
+        if (results!=null) {
+            res = new ArrayList<WMHandle>();
+            double score = 0.0;
             int i = 0;
-            double currentScore;
-            while(iterator.hasNext()) {
-                WMHandle vector = iterator.next();
-                currentScore = vector.getScore();
+            for (Handle h : results) {
+                WMHandle vector = (WMHandle)h;
+                double currentScore = vector.getScore();
                 if(i == 0) {
                     score = currentScore;
                 }
@@ -191,44 +205,9 @@ public class RecipeSelector {
                     }
                 }
                 i++;
-                bestMatchAL.add(vector);
+                res.add(vector);
             }
         }
-        if (bestMatchAL.isEmpty()) {
-            return null;
-        }  else if (bestMatchAL.size()==1) {
-            bestMatch = bestMatchAL.get(0) ;
-        }  else {
-            int i = new Random().nextInt(bestMatchAL.size());
-            bestMatch = bestMatchAL.get(i);
-        }
-        features.addFeatureDetail(RWM_ID,new Long(bestMatch.getOid()).toString());
-        return bestMatch.getRecipeList();
-    }
-
-    private List<WMHandle> getMatchingVectors(WMDB.WMIndexCache wtDB, Map<WMIndex.Attribute, Integer> contextMap) {
-        List<WMHandle> res = null;
-
-        //Add context matches
-        if (contextMap!=null) {
-            Set<WMIndex.Attribute> keys = contextMap.keySet();
-            for (WMIndex.Attribute attr: keys) {
-                WMIndex idx = wtDB.getIndex(attr);
-                if (idx != null) {
-                    SortedSet<WMHandle> vectors = idx.get(contextMap.get(attr));
-                    if (vectors!=null && vectors.size()>0) {
-                        res = new ArrayList<WMHandle>();
-                        for (WMHandle rv: vectors) {
-                            if (!res.contains(rv)){
-                                res.add(rv);
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-
         return res;
     }
 

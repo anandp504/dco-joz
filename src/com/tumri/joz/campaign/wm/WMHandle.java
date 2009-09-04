@@ -32,19 +32,23 @@ public class WMHandle implements Handle, Cloneable {
     private List<RecipeWeight> recipeList;
     private Map<WMIndex.Attribute, Integer> contextMap;
     private double score = 0.0;
+    private double normFactor = 1.0;
     private long oid = 0;
 
     public WMHandle(long aOid, Map<WMIndex.Attribute, Integer> contextMap, List<RecipeWeight> recipeWeights) {
         this.oid = aOid;
         this.recipeList = recipeWeights;
         this.contextMap = contextMap;
-        Set<WMIndex.Attribute> keys = contextMap.keySet();
-        int reqCount = keys.size();
-        double score = 0.1;
-        if (reqCount>0){
-            score = 1/Math.sqrt(reqCount);
+        if (contextMap!=null) {
+            Set<WMIndex.Attribute> keys = contextMap.keySet();
+            double n = 1.0;
+            for (WMIndex.Attribute kAttr : keys) {
+                double defWt = WMAttributeWeights.getDefaultAttributeWeight(kAttr);
+                n += defWt*defWt;
+            }
+            this.normFactor = 1/n;
         }
-        this.score = score;
+
     }
 
     public long getOid() {
@@ -57,6 +61,14 @@ public class WMHandle implements Handle, Cloneable {
 
     public void setScore(double d) {
         score = d;
+    }
+
+    public double getNormFactor() {
+        return normFactor;
+    }
+
+    public void setNormFactor(double normFactor) {
+        this.normFactor = normFactor;
     }
 
     public boolean equals(Object o) {
@@ -93,33 +105,6 @@ public class WMHandle implements Handle, Cloneable {
 
     }
 
-
-    /**
-     * Vector dot product of two normalized vectors
-     *
-     * @param rv a normalized vector for dot product
-     * @return score returns score between 0 and 1
-     */
-    public double dot(WMHandle rv) {
-        double score =0.0;
-        if (contextMap.size()==0 || rv.contextMap.size()==0){
-            return score;
-        }
-        Set<WMIndex.Attribute> keys = contextMap.keySet();
-        for (WMIndex.Attribute currKey: keys){
-            Integer inputVal = rv.contextMap.get(currKey);
-            Integer wmVal = contextMap.get(currKey);
-            if (inputVal==null || wmVal == null || !wmVal.equals(inputVal)) {
-                //Note: Only select this if the WM vector is a proper subset to the input Vector
-                score = 0.0;
-                break;
-            } else {
-                score += this.getScore() * rv.getScore();
-            }
-        }
-        return score;
-    }
-
     public List<RecipeWeight> getRecipeList() {
         return recipeList;
     }
@@ -144,7 +129,12 @@ public class WMHandle implements Handle, Cloneable {
     }
 
     public Handle createHandle(double score) {
-        throw new UnsupportedOperationException("This is not supported");
+        if (score == this.score) {
+            return this;
+        }
+        WMHandle c = (WMHandle)this.clone();
+        c.score = score;
+        return c;
     }
 
     public Map<WMIndex.Attribute, Integer> getContextMap() {

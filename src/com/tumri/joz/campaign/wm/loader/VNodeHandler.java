@@ -110,7 +110,13 @@ public class VNodeHandler extends DefaultHandler
         if (qName.equals("v"))
         {
             if (!requestMap.isEmpty() && !rwList.isEmpty()) {
-                WMHandle h = WMHandleFactory.getInstance().getHandle(vectorId, requestMap, rwList);
+                WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
+                WMHandle h = cache.getWMHandle((long)vectorId);
+                if (h==null) {
+                    h = WMHandleFactory.getInstance().getHandle(vectorId, requestMap, rwList);
+                } else {
+                    h.setRecipeList(rwList);
+                }
                 WMDBLoader.updateDb(adPodId, requestMap, h);
             } else {
                 log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);

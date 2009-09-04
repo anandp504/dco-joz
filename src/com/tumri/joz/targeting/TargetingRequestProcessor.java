@@ -6,6 +6,7 @@ import com.tumri.joz.campaign.AdPodHandle;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.wm.RecipeSelector;
 import com.tumri.joz.campaign.wm.WMIndex;
+import com.tumri.joz.campaign.wm.WMUtils;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
@@ -233,12 +234,18 @@ public class TargetingRequestProcessor {
     private Recipe selectRecipe(AdDataRequest request, AdPod theAdPod, Features feature) {
         Recipe theRecipe;
         RecipeSelector proc = RecipeSelector.getInstance();
-        Map<WMIndex.Attribute, String> contextMap = new HashMap<WMIndex.Attribute, String>();
+        Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();
         if (request.getPageId()!=null) {
-            contextMap.put(WMIndex.Attribute.kLineId, request.getPageId());
+            Integer id = WMUtils.getDictId(WMIndex.Attribute.kLineId, request.getPageId());
+            if (id != null) {
+                contextMap.put(WMIndex.Attribute.kLineId, id);
+            }
         }
         if (request.getRegion()!=null) {
-            contextMap.put(WMIndex.Attribute.kState, request.getRegion());
+            Integer id = WMUtils.getDictId(WMIndex.Attribute.kState, request.getRegion());
+            if (id != null) {
+                contextMap.put(WMIndex.Attribute.kState, id);
+            }
         }
         theRecipe = proc.getRecipe(theAdPod.getId(), theAdPod.getRecipes(), contextMap, feature);
         return theRecipe;

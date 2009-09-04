@@ -17,6 +17,7 @@
  */
 package com.tumri.joz.campaign.wm;
 
+import com.tumri.joz.products.Handle;
 import com.tumri.utils.data.RWLockedSortedArraySet;
 import com.tumri.utils.data.RWLockedTreeMap;
 
@@ -160,6 +161,32 @@ public class WMDB {
                 m_allHandles.writerUnlock();
             }
         }
+
+
+        /**
+         * Get Handle without checking a lock, reader should call readerLock()
+         * Check if the prod exists - else return null
+         * @param pid
+         * @return Handle
+         */
+        public WMHandle getWMHandle(Long pid) {
+            WMHandle p = new WMHandle(pid, null,null);
+            Handle ph;
+            try {
+                m_allHandles.readerLock();
+                ph = m_allHandles.find(p);
+            } finally {
+                m_allHandles.readerUnlock();
+            }
+
+            if (ph !=null) {
+                 p = (WMHandle) ph;
+            } else {
+                p = null;
+            }
+            return p;
+        }
+
 
         public Iterator<WMHandle> getAllHandles() {
             return m_allHandles.iterator();
