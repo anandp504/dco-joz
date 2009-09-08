@@ -18,7 +18,6 @@
 package com.tumri.joz.campaign.wm;
 
 import com.tumri.cma.domain.Recipe;
-import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.IWeight;
@@ -38,7 +37,7 @@ public class RecipeSelector {
     private static final Logger log = Logger.getLogger(RecipeSelector.class);
     private static RecipeSelector processor = null;
     public static final String PROCESS_STATS_ID = "RS";
-    private static final String RWM_ID = "RWM-ID:";
+    private static final String RWM_ID = "RWM-ID";
 
     private RecipeSelector() {
     }
@@ -101,7 +100,6 @@ public class RecipeSelector {
             rwmId = features.getFeaturesDetail(RWM_ID);
         }
 
-        features.addFeatureDetail("RWM_ID",rwmId);
         log.debug("Current context = " + rwmId);
         
         Recipe r = pickOneRecipe(recipeList, defWeights);
@@ -172,7 +170,7 @@ public class RecipeSelector {
     private List<WMHandle> getMatchingVectors(WMDB.WMIndexCache wtDB, Map<WMIndex.Attribute, Integer> contextMap, WMHandle rv) {
         List<WMHandle> res = null;
 
-        //Add context matches
+        //Add context matches                       
         WMSetIntersector intersector = new WMSetIntersector(true);
         if (contextMap!=null) {
             Set<WMIndex.Attribute> keys = contextMap.keySet();
