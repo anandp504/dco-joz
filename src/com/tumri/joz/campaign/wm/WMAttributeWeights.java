@@ -3,6 +3,9 @@ package com.tumri.joz.campaign.wm;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.IWeight;
 
+import java.util.Map;
+import java.util.Set;
+
 /**
  * AttributeWeights implementation
  */
@@ -28,6 +31,23 @@ public class WMAttributeWeights  implements IWeight<Handle> {
      */
     public double getWeight(Handle v){
         WMHandle h = (WMHandle)v;
+        //Return 0 if the this handle is not a proper subset of the request context
+        Map<WMIndex.Attribute, Integer> reqMap = requestHandle.getContextMap();
+        if (reqMap != null && !reqMap.isEmpty()) {
+            Set<WMIndex.Attribute> attrs = reqMap.keySet();
+            Map<WMIndex.Attribute, Integer> conMap = h.getContextMap();
+            if (conMap==null || conMap.size()==0 || conMap.size()<reqMap.size()) {
+                return 0.0;
+            } else {
+                Set<WMIndex.Attribute> cattrs = conMap.keySet();
+                if (!attrs.containsAll(cattrs)) {
+                    //Not a proper subset
+                    return 0.0;
+                }
+            }
+        } else {
+            return 0.0;
+        }
         double wt = getDefaultAttributeWeight(attr);
         return (wt*wt)*h.getNormFactor()*requestHandle.getNormFactor();
     }

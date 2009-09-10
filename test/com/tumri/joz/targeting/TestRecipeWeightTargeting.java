@@ -81,6 +81,9 @@ public class TestRecipeWeightTargeting {
             JozAdRequest jozRequest = new JozAdRequest();
             jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "105004");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "13477514");
+            jozRequest.setValue(JozAdRequest.KEY_REGION, "TX");
+            jozRequest.setValue(JozAdRequest.KEY_DMACODE, "123567");
+            jozRequest.setValue(JozAdRequest.KEY_AREACODE, "xyz");
             jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "skyscraper");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "Y");
 
@@ -90,6 +93,7 @@ public class TestRecipeWeightTargeting {
             Assert.assertTrue(r!=null);
             System.out.println("Try " + i + " ===>" + r.getName() + " " + r.getId() + " " + r.getAdpodId());
             System.out.println("Try " + i + " ===>" + f.getAdpodName());
+            System.out.println("Selected Context ID ===>" + f.getFeaturesDetail("RWM-ID:"));
             System.out.println("---------------------");
             //Assert.assertTrue(f.getAdpodName().equals("admin_custom"));
         }

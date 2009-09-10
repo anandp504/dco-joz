@@ -41,6 +41,8 @@ public class WMUtils {
             attr = WMIndex.Attribute.kCountry;
         } else if ("dma".equals(type)) {
             attr = WMIndex.Attribute.kDMA;
+        } else if ("area".equals(type)) {
+            attr = WMIndex.Attribute.kArea;
         }
         return attr;
     }
@@ -65,6 +67,9 @@ public class WMUtils {
                 break;
             case kCountry:
                 name = "country";
+                break;
+            case kArea:
+                name = "area";
                 break;
             default:
                 break;

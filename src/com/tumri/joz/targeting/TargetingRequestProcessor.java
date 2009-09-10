@@ -247,6 +247,18 @@ public class TargetingRequestProcessor {
                 contextMap.put(WMIndex.Attribute.kState, id);
             }
         }
+        if (request.getDmacode()!=null) {
+            Integer id = WMUtils.getDictId(WMIndex.Attribute.kDMA, request.getDmacode());
+            if (id != null) {
+                contextMap.put(WMIndex.Attribute.kDMA, id);
+            }
+        }
+        if (request.getAreacode()!=null) {
+            Integer id = WMUtils.getDictId(WMIndex.Attribute.kArea, request.getAreacode());
+            if (id != null) {
+                contextMap.put(WMIndex.Attribute.kArea, id);
+            }
+        }
         theRecipe = proc.getRecipe(theAdPod.getId(), theAdPod.getRecipes(), contextMap, feature);
         return theRecipe;
     }

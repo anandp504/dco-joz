@@ -171,7 +171,7 @@ public class RecipeSelector {
         List<WMHandle> res = null;
 
         //Add context matches                       
-        WMSetIntersector intersector = new WMSetIntersector(true);
+        WMSetIntersector intersector = new WMSetIntersector(false);
         if (contextMap!=null) {
             Set<WMIndex.Attribute> keys = contextMap.keySet();
             for (WMIndex.Attribute attr: keys) {

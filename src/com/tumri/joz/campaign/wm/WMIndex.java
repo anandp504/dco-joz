@@ -52,5 +52,12 @@ public class WMIndex<Key, Value> extends AbstractIndex<WMHandle, WMIndex.Attribu
         kCity,
         kState,
         kCountry,
+        kLineIdNone,
+        kZipNone,
+        kDMANone,
+        kAreaNone,
+        kCityNone,
+        kStateNone,
+        kCountryNone,
     }
 }
