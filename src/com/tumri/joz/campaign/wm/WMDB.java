@@ -225,5 +225,9 @@ public class WMDB {
                 }
             }
         }
+
+	    public int getNumHandles(){
+		    return m_allHandles.size();
+	    }
     }
 }
