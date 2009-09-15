@@ -36,7 +36,7 @@ public class WMAttributeWeights  implements IWeight<Handle> {
         if (reqMap != null && !reqMap.isEmpty()) {
             Set<WMIndex.Attribute> attrs = reqMap.keySet();
             Map<WMIndex.Attribute, Integer> conMap = h.getContextMap();
-            if (conMap==null || conMap.size()==0 || conMap.size()<reqMap.size()) {
+            if (conMap==null || conMap.size()==0 || reqMap.size()<conMap.size()) {
                 return 0.0;
             } else {
                 Set<WMIndex.Attribute> cattrs = conMap.keySet();
