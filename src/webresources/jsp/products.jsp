@@ -115,20 +115,11 @@
 	}
 		
 	StringTokenizer tokenizer = new StringTokenizer(prodInfo);
-	int oSpecId = Integer.parseInt(tokenizer.nextToken());
 	int tSpecId = Integer.parseInt(tokenizer.nextToken());
 
-	OSpec ospec = campaignDB.getOspec(oSpecId);
-	String ospecName = ospec.getName();
-	if (null == ospec) {
-		out.print("O-spec <strong>"+ospecName+"</strong> not found.");
-		return;
-	}
 
 	TSpec tspec = campaignDB.getTspec(tSpecId);
 	out.print("<strong>Product Search Information:</strong><br><br>");
-	out.print("<strong>OSpec Name:</strong> " + ospecName + "<br>");
-	out.print("<strong>OSpec ID:</strong> " + ospec.getId() + "<br>");
 	out.print("<strong>TSpec Name:</strong> " + tspec.getName() + "<br>");
 	out.print("<strong>TSpec ID:</strong> " + tspec.getId() + "<br>");
 
@@ -206,7 +197,7 @@
 	
 <form id="productPageForm" name="productPageForm" method="post" action="products.jsp">
 <input id="pageAction" type="hidden" name="pageAction" value=""/>
-<input id="selTspec" type="hidden" name="selTspec" value="<%=ospecName%>"/>
+<input id="selTspec" type="hidden" name="selTspec"/>
 <%
 	String pageAction=request.getQueryString();
 	boolean prevPage=false;

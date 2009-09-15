@@ -70,9 +70,7 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
 			<div>
 				<form id="ProductsSelForm" action="/joz/jsp/products.jsp" method="post">
 					<%
-						OSpec myOspec = campaignDB.getOspec(myTSpec.getOspecId());
-						int oSpecid = myOspec.getId();
-						String prodInfo = oSpecid + " " + TSpecName;
+						String prodInfo = TSpecName;
 					%>
 					<input type="hidden"  name="selProducts"  id="selProducts" value=""/>
 					<input type="button" value="View Products" onClick="submitProductForm('<%=prodInfo%>')"/>
