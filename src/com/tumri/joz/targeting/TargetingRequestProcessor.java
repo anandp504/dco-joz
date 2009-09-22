@@ -321,7 +321,11 @@ public class TargetingRequestProcessor {
     private List<AdPodHandle> getHighestScoreAdPodHandles(SortedSet<Handle> results) {
         List<AdPodHandle> handles = new ArrayList<AdPodHandle>();
         if(results != null) {
-            SortedArraySet<Handle> set = new SortedArraySet<Handle>(results, new AdPodHandle(0, 0));
+            //Avoid warning on toArray operator on set intersector
+            SortedArraySet<Handle> set = new SortedArraySet<Handle>(new AdPodHandle(0, 0));
+            for (Handle h:results) {
+                set.add(h);
+            }
             Iterator<Handle> iterator = set.iterator();
             double score = 0.0;
             if(iterator != null) {
