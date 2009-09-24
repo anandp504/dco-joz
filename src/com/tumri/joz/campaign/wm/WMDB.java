@@ -91,9 +91,15 @@ public class WMDB {
 
     public void purgeOldEntries(List<Integer> inclusionList) {
         Set<Integer> currAdPods = weightDBIndex.keySet();
+        List<Integer> deletedAdPods = new ArrayList<Integer>();
         for (Integer id : currAdPods) {
             if (!inclusionList.contains(id)) {
-                 weightDBIndex.safeRemove(id);
+                 deletedAdPods.add(id);
+            }
+        }
+        if (deletedAdPods.size()>0) {
+            for (Integer adPodId : deletedAdPods) {
+                weightDBIndex.safeRemove(adPodId);
             }
         }
     }
