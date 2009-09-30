@@ -28,11 +28,12 @@
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-codec-1.3.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"/>
 		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-logging.jar"/>
-		
+		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/hadoop-0.18.3-core.jar"/>
+
 		<touch file="${stage.dir}/IndexCreator/createIndex.sh"/>
 
 		<echo file="${stage.dir}/IndexCreator/createIndex.sh">#!/bin/sh</echo>
-		<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx2g -classpath .:joz.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:${caa.lib.file}:${cma.lib.file}:${utils.lib.file}:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
+		<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx2g -classpath .:joz.jar:hadoop-0.18.3-core.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:${caa.lib.file}:${cma.lib.file}:${utils.lib.file}:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
 		<chmod file="${stage.dir}/IndexCreator/createIndex.sh" perm="a+x"></chmod>
 
         <touch file="${stage.dir}/IndexCreator/log4j.properties"/>
