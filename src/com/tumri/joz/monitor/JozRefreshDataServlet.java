@@ -90,6 +90,7 @@ public class JozRefreshDataServlet extends HttpServlet {
                 result = "failed";
             }
         }  else if ("validateIndex".equalsIgnoreCase(dataType)) {
+	        responseJSP = "/jsp/MupIndexComparison.jsp";
             try {
 	            IndexLoadingComparator validator = new IndexLoadingComparator();
 	            List<String> infos = validator.validate(null);
