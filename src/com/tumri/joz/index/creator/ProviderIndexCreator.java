@@ -97,9 +97,8 @@ public class ProviderIndexCreator {
 	public void createIndicesForProvider() throws IOException {
 		File f = new File(tmpDirPath + NEW_SET_FILE);
 		File f2 = new File(tmpDirPath + OLD_SET_FILE);
-		SetFile<MupRecord> newSetFile = new SetFile<MupRecord>(FileManager.getInstance().createFile(f.getAbsolutePath()).toURI());
-		SetFile<MupRecord> oldSetFile = new SetFile<MupRecord>(FileManager.getInstance().createFile(f2.getAbsolutePath()).toURI());
-
+		SetFile<MupRecord> newSetFile = null;
+		SetFile<MupRecord> oldSetFile = null;
 		try{
 			if (!newFile.exists()) {
 				log.error("Cannot create the Joz index, the new mup file is missing :" + newFile.getAbsolutePath());
@@ -113,6 +112,8 @@ public class ProviderIndexCreator {
 				writeSetFile(f2, oldFile);
 			}
 
+			newSetFile = new SetFile<MupRecord>(FileManager.getInstance().createFile(f.getAbsolutePath()).toURI());
+			oldSetFile = new SetFile<MupRecord>(FileManager.getInstance().createFile(f2.getAbsolutePath()).toURI());
 
 			SortedSet<MupRecord> newSortedSet = newSetFile.open();
 			SortedSet<MupRecord> oldSortedSet = oldSetFile.open();
@@ -156,8 +157,8 @@ public class ProviderIndexCreator {
 			writeChunkToFile();
 		} finally {
 			try {
-				newSetFile.close();
-				oldSetFile.close();
+				FDUtils.close(newSetFile);
+				FDUtils.close(oldSetFile);
 			} catch(Exception e) {
 				//Ignore
 			}
