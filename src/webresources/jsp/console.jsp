@@ -93,5 +93,9 @@
 	<a href="/joz/console?mode=wm">Recipe Weight Matrix</a>
 </div>
 <br>
+<div>
+	<a href="/joz/refresh?type=validateIndex&jspMode=true">Validate Listings Index</a>
+</div>
+<br>
 </body>
 </html>

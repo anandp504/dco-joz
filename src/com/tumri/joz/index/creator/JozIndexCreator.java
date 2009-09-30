@@ -1,10 +1,14 @@
 package com.tumri.joz.index.creator;
 
+import com.tumri.utils.data.persistent.ConcurrentIO;
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Main class that will create the Joz Indices.
@@ -85,6 +89,7 @@ public class JozIndexCreator {
         {
             Date start = new Date();
             indexDocs();
+	        ConcurrentIO.shutdown();
             log.info( "Joz indexing completed : " + ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes" );
         }
         catch (Exception e)
