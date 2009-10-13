@@ -18,23 +18,13 @@
 package com.tumri.joz.server.handlers;
 
 import com.thoughtworks.xstream.XStream;
-import com.tumri.cma.domain.AdPod;
 import com.tumri.cma.domain.Campaign;
-import com.tumri.cma.domain.Location;
-import com.tumri.cma.domain.Recipe;
+import com.tumri.cma.export.ExportUtils;
 import com.tumri.joz.JoZException;
 import com.tumri.joz.campaign.TransientDataManager;
-import com.tumri.joz.server.domain.JozAdPod;
-import com.tumri.joz.server.domain.JozAdvertiser;
-import com.tumri.joz.server.domain.JozCampaign;
 import com.tumri.joz.server.domain.JozCampaignRequest;
 import com.tumri.joz.server.domain.JozCampaignResponse;
-import com.tumri.joz.server.domain.JozLocation;
-import com.tumri.joz.server.domain.JozMerchant;
-import com.tumri.joz.server.domain.JozMerchantRequest;
 import com.tumri.joz.server.domain.JozMerchantResponse;
-import com.tumri.joz.server.domain.JozProvider;
-import com.tumri.joz.server.domain.JozRecipe;
 import com.tumri.joz.server.domain.JozResponse;
 import com.tumri.utils.tcp.server.domain.QueryId;
 import com.tumri.utils.tcp.server.domain.QueryInputData;
@@ -42,9 +32,6 @@ import com.tumri.utils.tcp.server.domain.QueryResponseData;
 import com.tumri.utils.tcp.server.handlers.InvalidRequestException;
 import com.tumri.utils.tcp.server.handlers.RequestHandler;
 import org.apache.log4j.Logger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 
 public class JozCampaignRequestHandler implements RequestHandler {
@@ -92,7 +79,7 @@ public class JozCampaignRequestHandler implements RequestHandler {
     	try {
             log.debug("Received JozCampaign data request");
             try {
-            	XStream xstream = new XStream();
+	            XStream xstream = ExportUtils.getXStreamForExport();
                 // get the Campaign data object from the XML using XStream apis
             	commandType = query.getValue(JozCampaignRequest.KEY_COMMAND);
             	            	
