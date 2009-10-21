@@ -142,13 +142,18 @@ public class TSpecExecutor {
 			m_pageSize = request.getPageSize();
 		}
 
-		if (m_ExternalKeywords || request.isBPaginate() || request.isBMineUrls() || m_tspec.isMinePubUrl()) {
+		if (m_ExternalKeywords || request.isBPaginate() || request.isBMineUrls()
+                || m_tspec.isMinePubUrl()) {
 			//Do not randomize
 			m_tSpecQuery.setStrict(true);
 			m_randomize = false;
 		} else {
 			//Randomize
-			m_tSpecQuery.setStrict(false);
+            if (m_tspec.isEnableBackFill()) {
+                m_tSpecQuery.setStrict(false);
+            } else {
+                m_tSpecQuery.setStrict(true);
+            }
 			m_randomize = true;
 		}
 

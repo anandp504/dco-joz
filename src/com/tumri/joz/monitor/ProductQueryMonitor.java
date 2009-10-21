@@ -377,8 +377,9 @@ public class ProductQueryMonitor extends ComponentMonitor
 		keys.add(":producttype");
 		keys.add(":includedglobalids");
 		keys.add(":excludedglobalids");
+        keys.add(":enablebackfill");
 
-		if(req != null && !"".equals(req.trim())){
+        if(req != null && !"".equals(req.trim())){
 			com.tumri.utils.strings.StringTokenizer reqTokenizer = new com.tumri.utils.strings.StringTokenizer(req, ' ');
 			String key = "";
 			String value = "";
@@ -435,6 +436,14 @@ public class ProductQueryMonitor extends ComponentMonitor
 								tSpec.setUseListingFilter5(false);
 							} else {
 								tSpec.setUseListingFilter5(true);
+							}
+						}
+					} else if(":enablebackfill".equalsIgnoreCase(key)){
+						if(!"".equals(value.trim())){
+							if("false".equalsIgnoreCase(value.trim())){
+								tSpec.setEnableBackFill(false);
+							} else {
+								tSpec.setEnableBackFill(true);
 							}
 						}
 					} else if(":useradiusquery".equalsIgnoreCase(key)){
