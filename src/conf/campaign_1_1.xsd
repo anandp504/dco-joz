@@ -333,6 +333,7 @@ xmlns:tns="http://www.tumri.com/campaign" elementFormDefault="qualified">
             <element name="ExProd" type="tns:ExcludedProductsDef"/>
             <element name="InGIds" type="tns:IncludedGlobalIdsDef"/>
             <element name="ExGIds" type="tns:ExcludedGlobalIdsDef"/>
+            <element name="bkFl" type="boolean" maxOccurs="1" minOccurs="0"/>
           </choice>
   </complexType>
     <complexType name="ExcludedGlobalIdsDef">
