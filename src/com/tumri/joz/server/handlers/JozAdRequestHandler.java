@@ -54,7 +54,10 @@ import java.util.List;
 public class JozAdRequestHandler implements RequestHandler {
 
     private static Logger log = Logger.getLogger (JozAdRequestHandler.class);
-	public static final String STATS_ID = "AD";
+    public static final String STATS_ID = "AD";
+    private static final String RECIPE_PROPERTY = "Recipe Property";
+    private static final String RECIPE = "RECIPE-";
+
     public JozAdResponse query(QueryInputData input) throws InvalidRequestException {
         return doQuery((JozAdRequest)input);
     }
@@ -111,7 +114,7 @@ public class JozAdRequestHandler implements RequestHandler {
         // This does the real work of selecting a set of products.
         long start_time = System.nanoTime();
         long elapsed_time = 0L;
-	    PerformanceStats.getInstance().registerStartEvent(STATS_ID);
+        PerformanceStats.getInstance().registerStartEvent(STATS_ID);
         ProductSelectionProcessor prp = new ProductSelectionProcessor();
         ProductSelectionResults prs = prp.processRequest(rqst, features);
 
@@ -121,8 +124,8 @@ public class JozAdRequestHandler implements RequestHandler {
             ArrayList<Handle> product_handles = new ArrayList<Handle>();
             ArrayList<String> slotIdAL = new ArrayList<String>();
             if (resultsMap!= null && !resultsMap.isEmpty()) {
-	            ArrayList<Integer> tspecIdOrder = prs.getIdOrder();
-	            for(int id: tspecIdOrder){
+                ArrayList<Integer> tspecIdOrder = prs.getIdOrder();
+                for(int id: tspecIdOrder){
                     product_handles.addAll(resultsMap.get(id));
                     for (int i=0;i<product_handles.size();i++) {
                         slotIdAL.add(resultsSlotMap.get(id));
@@ -159,10 +162,10 @@ public class JozAdRequestHandler implements RequestHandler {
             response.addDetails(JozAdResponse.KEY_RECIPE_NAME,features.getRecipeName());
             response.addDetails(JozAdResponse.KEY_GEO_USED,(features.isGeoUsed()?"Y":"N"));
         } else {
-	        PerformanceStats.getInstance().registerFailedEvent(STATS_ID,reqParams);
+            PerformanceStats.getInstance().registerFailedEvent(STATS_ID,reqParams);
             response.addDetails(JozAdResponse.KEY_ERROR,"Could not target Recipe for the request");
         }
-	    AdRequestMonitor.getInstance().setReqResp(query, response);
+        AdRequestMonitor.getInstance().setReqResp(query, response);
         return response;
     }
 
@@ -179,7 +182,11 @@ public class JozAdRequestHandler implements RequestHandler {
             for (UIProperty prop: props) {
                 String name = prop.getName();
                 String value = prop.getValue();
+
                 if (name != null && !name.equals("") && value != null && !value.equals("")) {
+                    if (RECIPE_PROPERTY.equals(prop.getPropGroup())) {
+                        name = RECIPE + name;
+                    }
                     sbuild.append(name + "===" + value);
                     if (i+1 != count) {
                         sbuild.append("&&&");
@@ -220,32 +227,32 @@ public class JozAdRequestHandler implements RequestHandler {
         if (product_handles==null) {
             throw new JoZException("No products returned by the product selection");
         }
-	    int pHSize = product_handles.size();
-	    if((pHSize == 0)){
-	        return;
-	    }
-		long[] pids = new long[pHSize];
+        int pHSize = product_handles.size();
+        if((pHSize == 0)){
+            return;
+        }
+        long[] pids = new long[pHSize];
 
-		for (int i=0;i<pHSize;i++){
-			pids[i] = product_handles.get(i).getOid();
-		}
+        for (int i=0;i<pHSize;i++){
+            pids[i] = product_handles.get(i).getOid();
+        }
 
-		String[] slotIdArr = null;
+        String[] slotIdArr = null;
 
-		if (slotIdAL != null) {
-			slotIdArr = slotIdAL.toArray(new String[0]);
-		}
+        if (slotIdAL != null) {
+            slotIdArr = slotIdAL.toArray(new String[0]);
+        }
 
-		ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-				MerchantDB.getInstance().getMerchantData());
-		ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, slotIdArr);
-		if (response==null) {
-			throw new JoZException("Invalid response from Listing Provider");
-		}
-		resp.addDetails(JozAdResponse.KEY_PRODUCTS ,response.getListingDetails());
-		resp.addDetails(JozAdResponse.KEY_PRODIDS ,response.getProductIdList());
-		resp.addDetails(JozAdResponse.KEY_CATEGORIES ,response.getCatDetails());
-		resp.addDetails(JozAdResponse.KEY_CATNAMES,response.getCatIdList());
+        ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
+                MerchantDB.getInstance().getMerchantData());
+        ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, slotIdArr);
+        if (response==null) {
+            throw new JoZException("Invalid response from Listing Provider");
+        }
+        resp.addDetails(JozAdResponse.KEY_PRODUCTS ,response.getListingDetails());
+        resp.addDetails(JozAdResponse.KEY_PRODIDS ,response.getProductIdList());
+        resp.addDetails(JozAdResponse.KEY_CATEGORIES ,response.getCatDetails());
+        resp.addDetails(JozAdResponse.KEY_CATNAMES,response.getCatIdList());
 
         resp.addDetails(JozAdResponse.KEY_REALM,rqst.getTargetedRealm());
         resp.addDetails(JozAdResponse.KEY_STRATEGY ,ospec);
