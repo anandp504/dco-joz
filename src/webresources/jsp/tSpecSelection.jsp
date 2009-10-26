@@ -226,6 +226,13 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
 				%>
 			</div>
 		</td>
+		<td>
+			<div>
+				<%
+					out.print("<strong>TSpec: Backfill Enabled = </strong>" + myTSpec.isEnableBackFill() + "<br>");
+				%>
+			</div>
+		</td>
 	</tr>
 </table>
 
