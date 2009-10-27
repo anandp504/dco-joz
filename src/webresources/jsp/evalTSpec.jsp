@@ -55,7 +55,7 @@
 			:highprice :applygeofilter :applyurlfilter :applykeywordfilter :includedproviders
 			:excludedproviders :excludedcategories :includedcategories :includedbrands :excludedbrands
 			:excludedmerchants :excludedglobalids :includedmerchants :includedproducts :excludedproducts
-            :LTKExpression :producttype :includedglobalids)</i>
+            :LTKExpression :producttype :includedglobalids :enablebackfill)</i>
 			<br>
 			<i>Note: Keys that can take more than one value(includedproviders, excludedproviders, etc...) can be
 			followed by a comma serated list of values.</i>
