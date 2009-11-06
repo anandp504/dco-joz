@@ -54,6 +54,7 @@ public class TSpecExecutor {
 
 	private ProductSelectionRequest request = null;
 	private CNFQuery m_tSpecQuery = null;
+	private CNFQuery debugTSpecQuery = null;
 	private TSpec m_tspec = null;
 	private int m_tspecId = 0;
 	private static final char MULTI_VALUE_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
@@ -114,6 +115,8 @@ public class TSpecExecutor {
 		}
 		//Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
 		m_tSpecQuery = TSpecQueryCacheHelper.getQuery(tSpec);
+        //Fix to allow TSpec evaluator from Joz console to backfill correctly
+        debugTSpecQuery = (CNFQuery)m_tSpecQuery.clone();
 		setupRequestParms();
 		return executeTSpec();
 	}
@@ -471,7 +474,12 @@ public class TSpecExecutor {
 
 		if (pageSize>0 && currSize<pageSize) {
 			//do backfill by dropping the keyword query
-			m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(m_tspecId).clone();
+            if (m_tspecId !=0 ) {
+                m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(m_tspecId).clone();
+            } else {
+                //This is from the joz console.
+                m_tSpecQuery = debugTSpecQuery;
+            }
 			//addProductTypeQuery(request.getOfferType());
 			//randomize
 			Handle ref = ProductDB.getInstance().genReference();
@@ -613,7 +621,8 @@ public class TSpecExecutor {
 
 
 		ArrayList<Handle> backFillProds = null;
-		if ((m_ExternalKeywords || m_ExternalFilters) && qResult!=null){
+        //Backfill only if needed
+        if ((m_ExternalKeywords || m_ExternalFilters) && m_tspec.isEnableBackFill() && qResult!=null){
 			backFillProds = doBackFill(request.getPageSize(),qResult.size());
 		}
 
