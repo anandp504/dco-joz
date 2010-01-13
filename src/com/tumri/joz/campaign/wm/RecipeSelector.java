@@ -18,6 +18,7 @@
 package com.tumri.joz.campaign.wm;
 
 import com.tumri.cma.domain.Recipe;
+import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.IWeight;
@@ -56,12 +57,14 @@ public class RecipeSelector {
     /**
      * Do the selection of recipe given the request
      * @param adPodId - Current AdPod Id
-     * @param contextMap - request Context Map
+     * @param request - request
      * @return
      */
-    public Recipe getRecipe(int adPodId, List<Recipe> recipeList, Map<WMIndex.Attribute, Integer> contextMap, Features features) {
+    public Recipe getRecipe(int adPodId, List<Recipe> recipeList, AdDataRequest request, Features features) {
         PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
 
+        Map<WMIndex.Attribute, Integer> contextMap = WMUtils.getContextMap(request);
+        
         if (recipeList == null || recipeList.isEmpty()) {
             return null;
         }

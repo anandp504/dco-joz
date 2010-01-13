@@ -12,7 +12,26 @@ import java.util.Set;
 public class WMAttributeWeights  implements IWeight<Handle> {
 
     private static double kLineId = 1.0;
+    private static double kSiteId = 1.0;
+    private static double kCreativeId = 1.0;
+    private static double kAdId = 1.0;
+    private static double kBuyId = 1.0;
     private static double kState = 1.0;
+    private static double kCountry = 1.0;
+    private static double kCity = 1.0;
+    private static double kArea = 1.0;
+    private static double kZip = 1.0;
+    private static double kDMA = 1.0;
+    private static double kT1 = 1.0;
+    private static double kT2 = 1.0;
+    private static double kT3 = 1.0;
+    private static double kT4 = 1.0;
+    private static double kT5 = 1.0;
+    private static double kF1 = 1.0;
+    private static double kF2 = 1.0;
+    private static double kF3 = 1.0;
+    private static double kF4 = 1.0;
+    private static double kF5 = 1.0;
 
     private WMHandle requestHandle = null;
     private WMIndex.Attribute attr = null;
@@ -63,7 +82,26 @@ public class WMAttributeWeights  implements IWeight<Handle> {
     public static double getDefaultAttributeWeight(WMIndex.Attribute attr) {
         switch(attr) {
             case kLineId: return kLineId;
+            case kSiteId: return kSiteId;
+            case kCreativeId: return kCreativeId;
+            case kAdId: return kAdId;
+            case kBuyId: return kBuyId;
             case kState: return kState;
+            case kCountry: return kCountry;
+            case kCity: return kCity;
+            case kArea: return kArea;
+            case kZip: return kZip;
+            case kDMA: return kDMA;
+            case kT1: return kT1;
+            case kT2: return kT2;
+            case kT3: return kT3;
+            case kT4: return kT4;
+            case kT5: return kT5;
+            case kF1: return kF1;
+            case kF2: return kF2;
+            case kF3: return kF3;
+            case kF4: return kF4;
+            case kF5: return kF5;
             default:
         }
         return 1.0;

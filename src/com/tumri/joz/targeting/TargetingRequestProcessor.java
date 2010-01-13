@@ -234,32 +234,8 @@ public class TargetingRequestProcessor {
     private Recipe selectRecipe(AdDataRequest request, AdPod theAdPod, Features feature) {
         Recipe theRecipe;
         RecipeSelector proc = RecipeSelector.getInstance();
-        Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();
-        if (request.getPageId()!=null) {
-            Integer id = WMUtils.getDictId(WMIndex.Attribute.kLineId, request.getPageId());
-            if (id != null) {
-                contextMap.put(WMIndex.Attribute.kLineId, id);
-            }
-        }
-        if (request.getRegion()!=null) {
-            Integer id = WMUtils.getDictId(WMIndex.Attribute.kState, request.getRegion());
-            if (id != null) {
-                contextMap.put(WMIndex.Attribute.kState, id);
-            }
-        }
-        if (request.getDmacode()!=null) {
-            Integer id = WMUtils.getDictId(WMIndex.Attribute.kDMA, request.getDmacode());
-            if (id != null) {
-                contextMap.put(WMIndex.Attribute.kDMA, id);
-            }
-        }
-        if (request.getAreacode()!=null) {
-            Integer id = WMUtils.getDictId(WMIndex.Attribute.kArea, request.getAreacode());
-            if (id != null) {
-                contextMap.put(WMIndex.Attribute.kArea, id);
-            }
-        }
-        theRecipe = proc.getRecipe(theAdPod.getId(), theAdPod.getRecipes(), contextMap, feature);
+
+        theRecipe = proc.getRecipe(theAdPod.getId(), theAdPod.getRecipes(), request, feature);
         return theRecipe;
     }
 

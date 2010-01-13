@@ -116,12 +116,26 @@ public class WMDB {
         public WMIndexCache() {
             //addIndex(WMIndex.Attribute.kDefault, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kDefault));
             addIndex(WMIndex.Attribute.kLineId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kLineId));
+            addIndex(WMIndex.Attribute.kSiteId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kSiteId));
+            addIndex(WMIndex.Attribute.kCreativeId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kCreativeId));
+            addIndex(WMIndex.Attribute.kBuyId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kBuyId));
+            addIndex(WMIndex.Attribute.kAdId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kAdId));
             addIndex(WMIndex.Attribute.kState, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kState));
             addIndex(WMIndex.Attribute.kZip, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kZip));
             addIndex(WMIndex.Attribute.kDMA, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kDMA));
             addIndex(WMIndex.Attribute.kArea, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kArea));
             addIndex(WMIndex.Attribute.kCity, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kCity));
             addIndex(WMIndex.Attribute.kCountry, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kCountry));
+            addIndex(WMIndex.Attribute.kT1, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT1));
+            addIndex(WMIndex.Attribute.kT2, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT2));
+            addIndex(WMIndex.Attribute.kT3, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT3));
+            addIndex(WMIndex.Attribute.kT4, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT4));
+            addIndex(WMIndex.Attribute.kT5, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT5));
+            addIndex(WMIndex.Attribute.kF1, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF1));
+            addIndex(WMIndex.Attribute.kF2, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF2));
+            addIndex(WMIndex.Attribute.kF3, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF3));
+            addIndex(WMIndex.Attribute.kF4, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF4));
+            addIndex(WMIndex.Attribute.kF5, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF5));
         }
 
         public void addIndex(WMIndex.Attribute aAttribute, WMIndex<?, WMHandle> index) {
