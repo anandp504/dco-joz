@@ -44,115 +44,112 @@ import java.util.*;
 
 /**
  * Parser that will read the wm.xml file and populate the DB.
+ *
  * @author: nipun
  * Date: Aug 11, 2009
  * Time: 1:58:27 PM
  */
 public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
-    SAXParser parser = new SAXParser();
-    Stack path = new Stack();
-    Map params = new HashMap();
-    File xmlFile = null;
-    File schemaFile = null;
-    private static final Logger log = Logger.getLogger(WMXMLParserV1.class);
-    private List<Integer> adpodInclList = new ArrayList<Integer>();
-    private static final String XSD_FILE_NAME = "wm_1.xsd";
+	SAXParser parser = new SAXParser();
+	Stack path = new Stack();
+	Map params = new HashMap();
+	File xmlFile = null;
+	File schemaFile = null;
+	private static final Logger log = Logger.getLogger(WMXMLParserV1.class);
+	private List<Integer> adpodInclList = new ArrayList<Integer>();
+	private static final String XSD_FILE_NAME = "wm_1.xsd";
 
-    public WMXMLParserV1() {
-        String schemaFilePath =  AppProperties.getInstance().getProperty("com.tumri.campaign.wm.xmlSchemaPath");
-        if (schemaFilePath==null) {
-            schemaFilePath = "/opt/Tumri/joz/current/tomcat5/conf";
-        }
-        schemaFile = new File(schemaFilePath + File.separator + XSD_FILE_NAME);
+	public WMXMLParserV1() {
+		String schemaFilePath = AppProperties.getInstance().getProperty("com.tumri.campaign.wm.xmlSchemaPath");
+		if (schemaFilePath == null) {
+			schemaFilePath = "/opt/Tumri/joz/current/tomcat5/conf";
+		}
+		schemaFile = new File(schemaFilePath + File.separator + XSD_FILE_NAME);
 
-    }
+	}
 
-    private void validate() throws SAXException, IOException {
-        // validate the wm file against the schema
-        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = sf.newSchema(schemaFile);
-        Validator validator = schema.newValidator();
-        validator.validate(new StreamSource(xmlFile));
-    }
+	private void validate() throws SAXException, IOException {
+		// validate the wm file against the schema
+		SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		Schema schema = sf.newSchema(schemaFile);
+		Validator validator = schema.newValidator();
+		validator.validate(new StreamSource(xmlFile));
+	}
 
-    public void process(String xmlFileStr) throws WMLoaderException {
-        xmlFile = new File(xmlFileStr);
-        process();
-    }
+	public void process(String xmlFileStr) throws WMLoaderException {
+		xmlFile = new File(xmlFileStr);
+		process();
+	}
 
-    public void process() throws WMLoaderException {
-        try {
-            validate();
-            FileInputStream fis = new FileInputStream (xmlFile);
-            parse(fis);
+	public void finalize() {
+		WMDB.getInstance().purgeOldEntries(adpodInclList);
+	}
 
-        } catch (Throwable t) {
-            throw new WMLoaderException(t);
-        }
-    }
+	public void process() throws WMLoaderException {
+		try {
+			validate();
+			FileInputStream fis = new FileInputStream(xmlFile);
+			parse(fis);
 
-    public void startDocument() throws SAXException
-    {
-        log.info("Starting processing the document");
-    }
+		} catch (Throwable t) {
+			throw new WMLoaderException(t);
+		}
+	}
 
-    public void endDocument() throws SAXException
-    {
-        WMDB.getInstance().purgeOldEntries(adpodInclList);
-        log.info("Finished processing the document");
-    }
+	public void startDocument() throws SAXException {
+		log.info("Starting processing the document");
+	}
 
-    public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
-                             Attributes attributes) throws SAXException
-    {
-        if (qName.equals("a"))
-        {
-            Integer adPodId = null;
-            try {
-                adPodId = Integer.parseInt(attributes.getValue("id"));
-            } catch (NumberFormatException e) {
-                throw new SAXException("Invalid Id for the adpod - skipping adpod node");
-            }
+	public void endDocument() throws SAXException {
+		log.info("Finished processing the document");
+	}
 
-            adPodId = Integer.parseInt(attributes.getValue("id"));
-            adpodInclList.add(adPodId);
-            log.info("Now processing adpod id : " + adPodId);
-            DefaultHandler handler = new ANodeHandler(adPodId, path,params,attributes,parser,this);
-            path.push ("a");
-            parser.setContentHandler (handler);
-        }
+	public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
+	                         Attributes attributes) throws SAXException {
+		if (qName.equals("a")) {
+			Integer adPodId = null;
+			try {
+				adPodId = Integer.parseInt(attributes.getValue("id"));
+			} catch (NumberFormatException e) {
+				throw new SAXException("Invalid Id for the adpod - skipping adpod node");
+			}
 
-    }
+			adPodId = Integer.parseInt(attributes.getValue("id"));
+			adpodInclList.add(adPodId);
+			log.info("Now processing adpod id : " + adPodId);
+			DefaultHandler handler = new ANodeHandler(adPodId, path, params, attributes, parser, this);
+			path.push("a");
+			parser.setContentHandler(handler);
+		}
+
+	}
 
 
-    public void endElement(java.lang.String uri, java.lang.String localName, java.lang.String qName)
-            throws SAXException
-    {
-    }
+	public void endElement(java.lang.String uri, java.lang.String localName, java.lang.String qName)
+			throws SAXException {
+	}
 
-    public Map parse (InputStream is) throws SAXException, IOException
-    {
-        parser.setContentHandler (this);
-        parser.parse( new InputSource (is));
+	public Map parse(InputStream is) throws SAXException, IOException {
+		parser.setContentHandler(this);
+		parser.parse(new InputSource(is));
 
-        return params;
-    }
+		return params;
+	}
 
-    @Test
-    public void testParsing () 
-    {
-        try {
-            WMXMLParser parser = new WMXMLParserV1();
-            parser.process("/Users/nipun/ws/depot/Tumri/tas/joz/test/data/cof/wm-test.xml");
-            //Query the DB and make sure stuff is there
-            Assert.assertTrue(WMDB.getInstance().hasWeightDB(4445));
-            WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(4445);
-            Assert.assertTrue(db != null);
-        } catch (WMLoaderException e) {
-            e.printStackTrace();
-            Assert.fail("Something screwed up");
-        }
-    }
+	@Test
+	public void testParsing() {
+		try {
+			WMXMLParser parser = new WMXMLParserV1();
+			parser.process("/Users/nipun/ws/depot/Tumri/tas/joz/test/data/cof/wm-test.xml");
+			//Query the DB and make sure stuff is there
+			Assert.assertTrue(WMDB.getInstance().hasWeightDB(4445));
+			WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(4445);
+			Assert.assertTrue(db != null);
+		} catch (WMLoaderException e) {
+			e.printStackTrace();
+			Assert.fail("Something screwed up");
+		}
+	}
 
 }
 

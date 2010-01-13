@@ -23,5 +23,7 @@ package com.tumri.joz.campaign.wm.loader;
  * Time: 9:03:31 PM
  */
 public interface WMXMLParser {
-    void process(String xmlFileStr) throws WMLoaderException;
+	void process(String xmlFileStr) throws WMLoaderException;
+
+	void finalize();
 }
