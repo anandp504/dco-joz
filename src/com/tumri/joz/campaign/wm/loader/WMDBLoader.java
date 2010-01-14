@@ -60,15 +60,27 @@ public class WMDBLoader {
 
 		if (!wmFiles.isEmpty()) {
 			WMXMLParser parserImpl = getParserImpl();
+			List<String> failedFilesErrors = new ArrayList<String>();
+			boolean error = false;
 			for (File xmlFile : wmFiles) {
 				log.info("Now loading  :" + xmlFile.getAbsolutePath());
 				try {
 					parserImpl.process(xmlFile.getAbsolutePath());
 				} catch (WMLoaderException e) {
-					throw new WMLoaderException("weights matrix load failed", e);
+					failedFilesErrors.add(xmlFile.getAbsolutePath() + ": " + e.getMessage());
+					error = true;
 				}
 			}
 			parserImpl.finalize();
+			if (error) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("weights matrix loading encountered the following errors: ");
+				for (String fileMessage : failedFilesErrors) {
+					sb.append(fileMessage);
+					sb.append('\n');
+				}
+				throw new WMLoaderException(sb.toString());
+			}
 		} else {
 			throw new WMLoaderException("No WM files found to load");
 		}

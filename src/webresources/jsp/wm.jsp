@@ -128,11 +128,18 @@
             <ul><%
                 for (RecipeWeight rw : rwList) {
                     Recipe r = campaignDB.getRecipe(rw.getRecipeId());
+                    if (r != null) {
             %>
                 <li><%=r.getId()%>,<a href="/joz/jsp/recipeSelection.jsp?selRecipe=<%=r.getId()%>"><%=r.getName()%>
                 </a>,<%=rw.getWeight()%>
                 </li>
                 <%
+                } else {
+                %>
+                <li>Recipe not found in campaignDB: id: <%=rw.getRecipeId()%> weight: <%=rw.getWeight()%>
+                </li>
+                <%
+                        }
                     }
                 %></ul>
         </td>
