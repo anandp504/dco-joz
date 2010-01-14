@@ -29,7 +29,7 @@
     <xs:complexType name="cType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute type="dimType" name="type" use="required"/>
+                <xs:attribute name="type" type="wm:dimType" xmlns:wm="http://www.tumri.com/wm"  use="required"/>
                 <xs:attribute type="xs:string" name="val" use="required"/>
             </xs:extension>
         </xs:simpleContent>
@@ -55,7 +55,7 @@
             <xs:element type="wm:rwType" name="rw" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
         </xs:sequence>
     </xs:complexType>
-    <xs:simpleType name="dimType">
+    <xs:simpleType name="dimType" xmlns:wm="http://www.tumri.com/wm">
         <xs:restriction base = "xs:string">
             <xs:enumeration value = "lineid"/>
             <xs:enumeration value = "siteid"/>
