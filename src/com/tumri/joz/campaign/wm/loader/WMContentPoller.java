@@ -1,6 +1,7 @@
 package com.tumri.joz.campaign.wm.loader;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.io.File;
@@ -77,27 +78,36 @@ public class WMContentPoller {
     private void loadWMData() throws WMLoaderException {
         log.info("Going to refresh wm data.");
         long startTime = System.currentTimeMillis();
-        try {
-            WMDBLoader.loadData();
-            WMContentProviderStatus.getInstance().lastSuccessfulRefreshTime = startTime;
-            WMContentProviderStatus.getInstance().lastRunStatus = true;
-            WMContentProviderStatus.getInstance().addRunHistory(startTime, true, "Refresh successful." +
-                    " Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
-            WMContentProviderStatus.getInstance().lastRefreshTime = startTime;
-            log.info("Campaign data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
-        } catch (WMLoaderException e) {
-            Writer errorDetails = new StringWriter();
-            PrintWriter pw = new PrintWriter(errorDetails);
-            e.printStackTrace(pw);
-            WMContentProviderStatus.getInstance().addRunHistory(startTime, false, "Refresh Failed. " +
-                    " Details : " + errorDetails.toString());
-            WMContentProviderStatus.getInstance().lastError = e;
-            WMContentProviderStatus.getInstance().lastErrorRunTime = startTime;
-            WMContentProviderStatus.getInstance().lastRunStatus = false;
-            WMContentProviderStatus.getInstance().lastRefreshTime = startTime;
-            LogUtils.getFatalLog().fatal("Exception caught during wm data load", e);
-        }
-
+		try {
+			List<String> loadedFiles = WMDBLoader.loadData();
+            StringBuffer sb = new StringBuffer();
+            if (loadedFiles.size() > 0) {
+                sb.append("Files loaded : " );
+                for (String f: loadedFiles) {
+                    sb.append(f);
+                    sb.append(",");
+                }
+            }
+			WMContentProviderStatus.getInstance().lastSuccessfulRefreshTime = startTime;
+			WMContentProviderStatus.getInstance().lastRunStatus = true;
+			WMContentProviderStatus.getInstance().addRunHistory(startTime, true, "Refresh successful." + sb.toString() +
+					" Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
+			WMContentProviderStatus.getInstance().lastRefreshTime = startTime;
+			log.info("WM data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
+		} catch (WMLoaderException e) {
+			log.info("WM data refresh failed", e);
+			long errTime = System.currentTimeMillis();
+			Writer errorDetails = new StringWriter();
+			PrintWriter pw = new PrintWriter(errorDetails);
+			e.printStackTrace(pw);
+			WMContentProviderStatus.getInstance().addRunHistory(errTime, false, "Refresh Failed. " +
+					" Details : " + errorDetails.toString());
+			WMContentProviderStatus.getInstance().lastError = e;
+			WMContentProviderStatus.getInstance().lastErrorRunTime = errTime;
+			WMContentProviderStatus.getInstance().lastRunStatus = false;
+			WMContentProviderStatus.getInstance().lastRefreshTime = errTime;
+			LogUtils.getFatalLog().fatal("WM data refresh failed", e);
+		}
     }
 
 	/**

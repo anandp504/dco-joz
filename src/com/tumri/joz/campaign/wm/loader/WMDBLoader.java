@@ -45,12 +45,13 @@ public class WMDBLoader {
 	 *
 	 * @throws WMLoaderException
 	 */
-	public static void loadData() throws WMLoaderException {
+	public static List<String> loadData() throws WMLoaderException {
 		String dir = AppProperties.getInstance().getProperty("com.tumri.campaign.wm.xmlFileDir");
 		String pttern = AppProperties.getInstance().getProperty("com.tumri.campaign.wm.xmlFileNamePattern");
 
 		File srcDir = new File(dir);
 		ArrayList<File> wmFiles = new ArrayList<File>();
+		ArrayList<String> loadedFiles = new ArrayList<String>();
 		//Check for campaign files
 		if (srcDir.exists() && srcDir.isDirectory()) {
 			findFiles(wmFiles, pttern, srcDir);
@@ -66,8 +67,9 @@ public class WMDBLoader {
 				log.info("Now loading  :" + xmlFile.getAbsolutePath());
 				try {
 					parserImpl.process(xmlFile.getAbsolutePath());
+                    loadedFiles.add(xmlFile.getAbsolutePath());
 				} catch (WMLoaderException e) {
-					failedFilesErrors.add(xmlFile.getAbsolutePath() + ": " + e.getMessage());
+					failedFilesErrors.add("Failed to load : " + xmlFile.getAbsolutePath() + ". Reason : " + e.getMessage());
 					error = true;
 				}
 			}
@@ -84,16 +86,25 @@ public class WMDBLoader {
 		} else {
 			throw new WMLoaderException("No WM files found to load");
 		}
+        return loadedFiles;
 	}
 
 	public static void forceLoadData() {
 		try {
 			log.info("Going to force refresh wm data.");
 			long startTime = System.currentTimeMillis();
-			loadData();
+			List<String> loadedFiles = loadData();
+            StringBuffer sb = new StringBuffer();
+            if (loadedFiles.size() > 0) {
+                sb.append("Files loaded : " );
+                for (String f: loadedFiles) {
+                    sb.append(f);
+                    sb.append(",");
+                }
+            }
 			WMContentProviderStatus.getInstance().lastSuccessfulRefreshTime = startTime;
 			WMContentProviderStatus.getInstance().lastRunStatus = true;
-			WMContentProviderStatus.getInstance().addRunHistory(startTime, true, "Force Refresh successful." +
+			WMContentProviderStatus.getInstance().addRunHistory(startTime, true, "Force Refresh successful." + sb.toString() +
 					" Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
 			WMContentProviderStatus.getInstance().lastRefreshTime = startTime;
 			log.info("WM data force refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
