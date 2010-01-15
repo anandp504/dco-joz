@@ -81,15 +81,17 @@
 
             if (null == adPodId) continue;
             AdPod adPod = campaignDB.getAdPod(adPodId);
-            if (adPod == null) continue;
-
             //Now print the data into html.
             int size = db.getWeightDB(adPodId).getNumHandles();
     %>
     <tr valign="middle">
         <td align="left" rowspan="<%=size +1%>">
+            <%if (adPod != null) {%>
             <%=adPod.getId()%>, <a href="/joz/jsp/adPodSelection.jsp?selAdPod=<%=adPod.getId()%>"><%=adPod.getName()%>
         </a>
+            <% } else { %>
+            Adpod not found in campaignDB: <%=adPodId%>
+            <%}%>
         </td>
         <td align="center">
             Id, Type, Value
