@@ -18,6 +18,7 @@
 package com.tumri.joz.campaign.wm.loader;
 
 // JDK Classes
+
 import java.util.*;
 import java.io.*;
 
@@ -33,105 +34,119 @@ import com.tumri.joz.campaign.wm.*;
  * Date: Aug 13, 2009
  * Time: 12:11:20 PM
  */
-public class VNodeHandler extends DefaultHandler
-{
-    private CharArrayWriter text = new CharArrayWriter ();
-    private Stack path;
-    private Map params;
-    private DefaultHandler parent;
-    private SAXParser parser;
-    int adPodId = 0;
-    int vectorId = 0;
-    Map<WMIndex.Attribute, Integer> requestMap = new HashMap<WMIndex.Attribute, Integer>();
-    List<RecipeWeight> rwList = new ArrayList<RecipeWeight>();
-    private static final Logger log = Logger.getLogger(VNodeHandler.class);
+public class VNodeHandler extends DefaultHandler {
+	private CharArrayWriter text = new CharArrayWriter();
+	private Stack path;
+	private Map params;
+	private DefaultHandler parent;
+	private SAXParser parser;
+	int adPodId = 0;
+	int vectorId = 0;
+	Map<WMAttribute, Integer> requestMap = new HashMap<WMAttribute, Integer>();
+	List<RecipeWeight> rwList = new ArrayList<RecipeWeight>();
+	private static final Logger log = Logger.getLogger(VNodeHandler.class);
 
-    public VNodeHandler(int adPodId, int vectorId, Stack path, Map params,
-                           Attributes attributes, SAXParser parser, DefaultHandler parent)  throws SAXException
-    {
-        this.adPodId = adPodId;
-        this.vectorId = vectorId;
-        this.path = path;
-        this.params = params;
-        this.parent = parent;
-        this.parser = parser;
-        start(attributes);
-    }
+	public VNodeHandler(int adPodId, int vectorId, Stack path, Map params,
+	                    Attributes attributes, SAXParser parser, DefaultHandler parent) throws SAXException {
+		this.adPodId = adPodId;
+		this.vectorId = vectorId;
+		this.path = path;
+		this.params = params;
+		this.parent = parent;
+		this.parser = parser;
+		start(attributes);
+	}
 
 
-    public void start (Attributes attributes)  throws SAXException
-    {
-    }
+	public void start(Attributes attributes) throws SAXException {
+	}
 
-    public void end () throws SAXException
-    {
-    }
+	public void end() throws SAXException {
+	}
 
 
-    public String getText()
-    {
-        return text.toString().trim();
-    }
+	public String getText() {
+		return text.toString().trim();
+	}
 
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
-    {
-        if (qName.equals("c")) {
-            String type = attributes.getValue("type");
-            String val = attributes.getValue("val");
-            WMIndex.Attribute kAttr = WMUtils.getAttribute(type);
-            if (kAttr!=null && val!=null) {
-               Integer id = WMUtils.getDictId(kAttr, val);
-               if (id!=null) {
-                   requestMap.put(kAttr, id);
-               }
-            } else {
-                log.error("Skipping the request context - invalid/unsupported values " +
-                        "for type/value. Type = " + type + ". Value = " + val);
-            }
-        }
-        if (qName.equals("rw")) {
-            try {
-                Integer recipeId = Integer.parseInt(attributes.getValue("id"));
-                Float wt = Float.parseFloat(attributes.getValue("wt"));
-                if (recipeId!=null && wt!=null){
-                    rwList.add(new RecipeWeight(recipeId, wt));
-                }
-            } catch (NumberFormatException e) {
-                log.error("Skipping recipe weight - RecipeID/Weight are badly formatted");
-            }
+	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+		if (qName.equals("c")) {
+			String type = attributes.getValue("type");
+			WMAttribute kAttr = WMUtils.getAttribute(type);
+			if (kAttr != null) {
+				if (WMRangeIndex.getAllowdAttributes().contains(kAttr)) { //this is a range query
+					String min = attributes.getValue("min");
+					String max = attributes.getValue("max");
+					if (min != null && max != null) {
+						Integer id = WMUtils.getDictId(kAttr, WMUtils.getUniqueIntRangeString(min, max));
+						if (id != null) {
+							updateMap(kAttr, id);
+						}
+					} else {
+						log.error("Skipping the request context - invalid/unsupported values " +
+								"for type/value. Type = " + type + ". min = " + min + "max = " + max);
+					}
+				} else {
+					String val = attributes.getValue("val");
+					if (val != null) {
+						Integer id = WMUtils.getDictId(kAttr, val);
+						if (id != null) {
+							updateMap(kAttr, id);
+						}
+					} else {
+						log.error("Skipping the request context - invalid/unsupported values " +
+								"for type/value. Type = " + type + ". Value = " + val);
+					}
+				}
+			}
+		}
+		if (qName.equals("rw")) {
+			try {
+				Integer recipeId = Integer.parseInt(attributes.getValue("id"));
+				Float wt = Float.parseFloat(attributes.getValue("wt"));
+				if (recipeId != null && wt != null) {
+					rwList.add(new RecipeWeight(recipeId, wt));
+				}
+			} catch (NumberFormatException e) {
+				log.error("Skipping recipe weight - RecipeID/Weight are badly formatted");
+			}
 
-        }
-        text.reset();
+		}
+		text.reset();
 
-    }
+	}
 
-    public void endElement(String uri, String localName, String qName) throws SAXException
-    {
-        if (qName.equals("v"))
-        {
-            if (!requestMap.isEmpty() && !rwList.isEmpty()) {
-                WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
-                WMHandle h = cache.getWMHandle((long)vectorId);
-                if (h==null) {
-                    h = WMHandleFactory.getInstance().getHandle(vectorId, requestMap, rwList);
-                } else {
-                    h.setRecipeList(rwList);
-                }
-                WMDBLoader.updateDb(adPodId, requestMap, h);
-            } else {
-                log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);
-            }
-            end();
-            path.pop();
-            parser.setContentHandler (parent);
-        }
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if (qName.equals("v")) {
+			if (!requestMap.isEmpty() && !rwList.isEmpty()) {
+				WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
+				WMHandle h = cache.getWMHandle((long) vectorId);
+				if (h == null) {
+					h = WMHandleFactory.getInstance().getHandle(vectorId, requestMap, rwList);
+				} else {
+					h.setRecipeList(rwList);
+				}
+				WMDBLoader.updateDb(adPodId, requestMap, h);
+			} else {
+				log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);
+			}
+			end();
+			path.pop();
+			parser.setContentHandler(parent);
+		}
 
 
-    }
+	}
 
-    public void characters(char[] ch, int start, int length)
-    {
-        text.write (ch,start,length);
-    }
+	public void characters(char[] ch, int start, int length) {
+		text.write(ch, start, length);
+	}
+
+
+	private void updateMap(WMAttribute attr, Integer id) {
+		if (id != null) {
+			requestMap.put(attr, id);
+		}
+	}
 
 }

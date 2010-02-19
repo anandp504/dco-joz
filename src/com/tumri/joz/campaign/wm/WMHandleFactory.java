@@ -29,55 +29,69 @@ import java.util.*;
  */
 public class WMHandleFactory {
 
-    private SortedArraySet<WMHandle> wmHandles = new SortedArraySet<WMHandle>();
+	private SortedArraySet<WMHandle> wmHandles = new SortedArraySet<WMHandle>();
 
-    private static WMHandleFactory _factory;
+	private static WMHandleFactory _factory;
 
-    /**
-     * Gets the singleton instance of this impl
-     * @return
-     */
-    public static WMHandleFactory getInstance() {
-      if (_factory == null) {
-        synchronized (WMHandleFactory.class) {
-          if (_factory == null) {
-            _factory = new WMHandleFactory();
-          }
-        }
-      }
-      return _factory;
-    }
+	/**
+	 * Gets the singleton instance of this impl
+	 *
+	 * @return
+	 */
+	public static WMHandleFactory getInstance() {
+		if (_factory == null) {
+			synchronized (WMHandleFactory.class) {
+				if (_factory == null) {
+					_factory = new WMHandleFactory();
+				}
+			}
+		}
+		return _factory;
+	}
 
-    /**
-     * Get the handle if already there, else create one
-     * @param id
-     * @return
-     */
-    public WMHandle getHandle(long id,Map<WMIndex.Attribute, Integer> contextMap, List<RecipeWeight> recipeWeights) {
-        WMHandle p = new WMHandle(id, contextMap, recipeWeights);
-        Handle ph = wmHandles.find(p);
-        if (ph !=null) {
-             p = (WMHandle) ph;
-        } else {
-            //add it to the list
-            wmHandles.add(p);
-        }
-        return p;
+	/**
+	 * Get the handle if already there, else create one
+	 *
+	 * @param id
+	 * @return
+	 */
+	public WMHandle getHandle(long id, Map<WMAttribute, Integer> contextMap, List<RecipeWeight> recipeWeights) {
+		WMHandle p = new WMHandle(id, contextMap, recipeWeights);
+		Handle ph = wmHandles.find(p);
+		if (ph != null) {
+			p = (WMHandle) ph;
+		} else {
+			//add it to the list
+			wmHandles.add(p);
+		}
+		return p;
 
-    }
+	}
 
-    /**
-     * Clears out the handles already created.
-     */
-    public void clear() {
-        wmHandles.clear();
-    }
+	/**
+	 * Get the handle if already there, else create one
+	 *
+	 * @param id
+	 * @return
+	 */
+	public List<WMHandle> getHandles(long id, Map<WMAttribute, List<Integer>> contextMap, List<RecipeWeight> recipeWeights) {
+		List<WMHandle> retList = new ArrayList<WMHandle>();
+		return retList;
+	}
 
-    /**
-     * Returns the current set of products that have been added.
-     * @return
-     */
-    public SortedSet<WMHandle> getHandles() {
-        return wmHandles;
-    }
+	/**
+	 * Clears out the handles already created.
+	 */
+	public void clear() {
+		wmHandles.clear();
+	}
+
+	/**
+	 * Returns the current set of products that have been added.
+	 *
+	 * @return
+	 */
+	public SortedSet<WMHandle> getHandles() {
+		return wmHandles;
+	}
 }

@@ -19,59 +19,64 @@ package com.tumri.joz.campaign.wm;
 
 import com.tumri.utils.index.AbstractIndex;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Holds the relationship between the request attribute val to the Request Vectors
+ *
  * @author: nipun
  * Date: Aug 3, 2009
  * Time: 1:26:38 PM
  */
-public class WMIndex<Key, Value> extends AbstractIndex<WMHandle, WMIndex.Attribute, Key, Value> {
+public class WMIndex<Key, Value> extends AbstractIndex<WMHandle, WMAttribute, Key, Value> {
 
-    private WMIndex.Attribute type;
+	private WMAttribute type;
 
-    public WMIndex(WMIndex.Attribute type) {
-        this.type = type;
-    }
-    public WMIndex.Attribute getType() {
-        return type;
-    }
+	public WMIndex(WMAttribute type) {
+		this.type = type;
+	}
 
-    public List<Map.Entry<Key, Value>> getEntries(WMHandle p) {
-        throw new UnsupportedOperationException("This method is not supported by this index.");
-    }
+	public WMAttribute getType() {
+		return type;
+	}
 
-    public enum Attribute {
-        kRequestVector,
-        kLineId,
-        kSiteId,
-        kBuyId,
-        kCreativeId,
-        kAdId,
-        kZip,
-        kDMA,
-        kArea,
-        kCity,
-        kState,
-        kCountry,
-        kT1,
-        kT2,
-        kT3,
-        kT4,
-        kT5,
-        kF1,
-        kF2,
-        kF3,
-        kF4,
-        kF5,
-        kLineIdNone,
-        kZipNone,
-        kDMANone,
-        kAreaNone,
-        kCityNone,
-        kStateNone,
-        kCountryNone,
-    }
+	public List<Map.Entry<Key, Value>> getEntries(WMHandle p) {
+		throw new UnsupportedOperationException("This method is not supported by this index.");
+	}
+
+	public List<WMAttribute> getAllowdAttributes() {
+		List<WMAttribute> retList = new ArrayList<WMAttribute>();
+		retList.add(WMAttribute.kRequestVector);
+		retList.add(WMAttribute.kLineId);
+		retList.add(WMAttribute.kSiteId);
+		retList.add(WMAttribute.kBuyId);
+		retList.add(WMAttribute.kCreativeId);
+		retList.add(WMAttribute.kAdId);
+		retList.add(WMAttribute.kZip);
+		retList.add(WMAttribute.kDMA);
+		retList.add(WMAttribute.kArea);
+		retList.add(WMAttribute.kCity);
+		retList.add(WMAttribute.kState);
+		retList.add(WMAttribute.kCountry);
+		retList.add(WMAttribute.kT1);
+		retList.add(WMAttribute.kT2);
+		retList.add(WMAttribute.kT3);
+		retList.add(WMAttribute.kT4);
+		retList.add(WMAttribute.kT5);
+		retList.add(WMAttribute.kF1);
+		retList.add(WMAttribute.kF2);
+		retList.add(WMAttribute.kF3);
+		retList.add(WMAttribute.kF4);
+		retList.add(WMAttribute.kF5);
+		retList.add(WMAttribute.kLineIdNone);
+		retList.add(WMAttribute.kZipNone);
+		retList.add(WMAttribute.kDMANone);
+		retList.add(WMAttribute.kAreaNone);
+		retList.add(WMAttribute.kCityNone);
+		retList.add(WMAttribute.kStateNone);
+		retList.add(WMAttribute.kCountryNone);
+		return retList;
+	}
 }

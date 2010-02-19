@@ -18,6 +18,8 @@
 package com.tumri.joz.campaign.wm.loader;
 
 import com.tumri.joz.campaign.wm.*;
+import com.tumri.joz.index.IntegerRangeValue;
+import com.tumri.joz.index.Range;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
 
@@ -67,7 +69,7 @@ public class WMDBLoader {
 				log.info("Now loading  :" + xmlFile.getAbsolutePath());
 				try {
 					parserImpl.process(xmlFile.getAbsolutePath());
-                    loadedFiles.add(xmlFile.getAbsolutePath());
+					loadedFiles.add(xmlFile.getAbsolutePath());
 				} catch (WMLoaderException e) {
 					failedFilesErrors.add("Failed to load : " + xmlFile.getAbsolutePath() + ". Reason : " + e.getMessage());
 					error = true;
@@ -86,7 +88,7 @@ public class WMDBLoader {
 		} else {
 			throw new WMLoaderException("No WM files found to load");
 		}
-        return loadedFiles;
+		return loadedFiles;
 	}
 
 	public static void forceLoadData() {
@@ -94,14 +96,14 @@ public class WMDBLoader {
 			log.info("Going to force refresh wm data.");
 			long startTime = System.currentTimeMillis();
 			List<String> loadedFiles = loadData();
-            StringBuffer sb = new StringBuffer();
-            if (loadedFiles.size() > 0) {
-                sb.append("Files loaded : " );
-                for (String f: loadedFiles) {
-                    sb.append(f);
-                    sb.append(",");
-                }
-            }
+			StringBuffer sb = new StringBuffer();
+			if (loadedFiles.size() > 0) {
+				sb.append("Files loaded : ");
+				for (String f : loadedFiles) {
+					sb.append(f);
+					sb.append(",");
+				}
+			}
 			WMContentProviderStatus.getInstance().lastSuccessfulRefreshTime = startTime;
 			WMContentProviderStatus.getInstance().lastRunStatus = true;
 			WMContentProviderStatus.getInstance().addRunHistory(startTime, true, "Force Refresh successful." + sb.toString() +
@@ -125,17 +127,40 @@ public class WMDBLoader {
 
 	}
 
-	public static void updateDb(Integer adPodId, Map<WMIndex.Attribute, Integer> requestMap, WMHandle handle) {
+	public static void updateDb(Integer adPodId, Map<WMAttribute, Integer> requestMap, WMHandle handle) {
 		if (requestMap != null && !requestMap.isEmpty()) {
-			for (WMIndex.Attribute attr : requestMap.keySet()) {
+			for (WMAttribute attr : requestMap.keySet()) {
 				Integer id = requestMap.get(attr);
 				if (id != null) {
-					TreeMap<Integer, ArrayList<WMHandle>> map = new TreeMap<Integer, ArrayList<WMHandle>>();
-					ArrayList<WMHandle> handles = new ArrayList<WMHandle>();
-					handles.add(handle);
-					map.put(id, handles);
-					WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(adPodId);
-					db.updateIntegerIndex(attr, map);
+					if (WMRangeIndex.getAllowdAttributes().contains(attr)) {
+						TreeMap<Range<Integer>, ArrayList<WMHandle>> map = new TreeMap<Range<Integer>, ArrayList<WMHandle>>();
+						ArrayList<WMHandle> handles = new ArrayList<WMHandle>();
+						handles.add(handle);
+
+						String s = WMUtils.getDictValue(attr, id);
+						List<String> list = WMUtils.getParsedUniqueIntRangeString(s);
+						if (list != null && list.size() == 2) {
+							int min = Integer.parseInt(list.get(0));
+							int max = Integer.parseInt(list.get(1));
+							IntegerRangeValue minVal = new IntegerRangeValue(min);
+							IntegerRangeValue maxVal = new IntegerRangeValue(max);
+							Range<Integer> r = new Range<Integer>(minVal, maxVal);
+							map.put(r, handles);
+							WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(adPodId);
+							db.updateRangeIndex(attr, map);
+						} else {
+							//todo
+							log.warn("skipping context");
+						}
+
+					} else {
+						TreeMap<Integer, ArrayList<WMHandle>> map = new TreeMap<Integer, ArrayList<WMHandle>>();
+						ArrayList<WMHandle> handles = new ArrayList<WMHandle>();
+						handles.add(handle);
+						map.put(id, handles);
+						WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(adPodId);
+						db.updateIntegerIndex(attr, map);
+					}
 				}
 			}
 		}

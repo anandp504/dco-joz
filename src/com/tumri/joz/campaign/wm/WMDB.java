@@ -17,237 +17,286 @@
  */
 package com.tumri.joz.campaign.wm;
 
+import com.tumri.joz.index.AbstractRangeIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.utils.data.RWLockedSortedArraySet;
 import com.tumri.utils.data.RWLockedTreeMap;
+import com.tumri.utils.index.AbstractIndex;
+import com.tumri.joz.index.Range;
+import com.tumri.joz.campaign.wm.WMRangeIndex;
 
 import java.util.*;
 
 /**
  * Index of all the weight information. Provides the methods to add/delete weight at Adpod level and recipe level (??)
+ *
  * @author: nipun
  * Date: Aug 3, 2009
  * Time: 12:55:22 PM
  */
 public class WMDB {
 
-    private static WMDB g_DB;
+	private static WMDB g_DB;
 
-    private  RWLockedTreeMap<Integer, WMIndexCache> weightDBIndex = new RWLockedTreeMap<Integer, WMIndexCache>();
+	private RWLockedTreeMap<Integer, WMIndexCache> weightDBIndex = new RWLockedTreeMap<Integer, WMIndexCache>();
 
-    public static WMDB getInstance() {
-        if (g_DB == null) {
-            synchronized (WMDB.class) {
-                if (g_DB == null) {
-                    g_DB = new WMDB();
-                }
-            }
-        }
-        return g_DB;
-    }
+	public static WMDB getInstance() {
+		if (g_DB == null) {
+			synchronized (WMDB.class) {
+				if (g_DB == null) {
+					g_DB = new WMDB();
+				}
+			}
+		}
+		return g_DB;
+	}
 
-    /**
-     * Do safe add of the index
-     * @param adPodId - the adpod Id
-     * @param db - The weightDB
-     */
-    public void addWeightDB(Integer adPodId, WMIndexCache db){
-        weightDBIndex.safePut(adPodId, db);
-    }
+	/**
+	 * Do safe add of the index
+	 *
+	 * @param adPodId - the adpod Id
+	 * @param db      - The weightDB
+	 */
+	public void addWeightDB(Integer adPodId, WMIndexCache db) {
+		weightDBIndex.safePut(adPodId, db);
+	}
 
-    /**
-     * Do safe delete of index
-     * @param adPodId - the adpod id
-     */
-    public void deleteWeightDB(Integer adPodId) {
-        weightDBIndex.safeRemove(adPodId);
-    }
+	/**
+	 * Do safe delete of index
+	 *
+	 * @param adPodId - the adpod id
+	 */
+	public void deleteWeightDB(Integer adPodId) {
+		weightDBIndex.safeRemove(adPodId);
+	}
 
-    /**
-     * Check if index exists
-     * @param adPodId - the adpod id
-     */
-    public boolean hasWeightDB(Integer adPodId) {
-        return weightDBIndex.containsKey(adPodId);
-    }
+	/**
+	 * Check if index exists
+	 *
+	 * @param adPodId - the adpod id
+	 */
+	public boolean hasWeightDB(Integer adPodId) {
+		return weightDBIndex.containsKey(adPodId);
+	}
 
-    /**
-     * Safe gets the index
-     * @param adPodId - The adpod id
-     * @return - WeightDB object
-     */
-    public WMIndexCache getWeightDB(Integer adPodId) {
-        WMIndexCache db = weightDBIndex.safeGet(adPodId);
-        if (db==null) {
-            db = new WMIndexCache();
-            addWeightDB(adPodId, db);
-        }
-        return db;
-    }
+	/**
+	 * Safe gets the index
+	 *
+	 * @param adPodId - The adpod id
+	 * @return - WeightDB object
+	 */
+	public WMIndexCache getWeightDB(Integer adPodId) {
+		WMIndexCache db = weightDBIndex.safeGet(adPodId);
+		if (db == null) {
+			db = new WMIndexCache();
+			addWeightDB(adPodId, db);
+		}
+		return db;
+	}
 
-    public void clearDB() {
-        weightDBIndex.clear();
-    }
+	public void clearDB() {
+		weightDBIndex.clear();
+	}
 
-    public void purgeOldEntries(List<Integer> inclusionList) {
-        Set<Integer> currAdPods = weightDBIndex.keySet();
-        List<Integer> deletedAdPods = new ArrayList<Integer>();
-        for (Integer id : currAdPods) {
-            if (!inclusionList.contains(id)) {
-                 deletedAdPods.add(id);
-            }
-        }
-        if (deletedAdPods.size()>0) {
-            for (Integer adPodId : deletedAdPods) {
-                weightDBIndex.safeRemove(adPodId);
-            }
-        }
-    }
+	public void purgeOldEntries(List<Integer> inclusionList) {
+		Set<Integer> currAdPods = weightDBIndex.keySet();
+		List<Integer> deletedAdPods = new ArrayList<Integer>();
+		for (Integer id : currAdPods) {
+			if (!inclusionList.contains(id)) {
+				deletedAdPods.add(id);
+			}
+		}
+		if (deletedAdPods.size() > 0) {
+			for (Integer adPodId : deletedAdPods) {
+				weightDBIndex.safeRemove(adPodId);
+			}
+		}
+	}
 
-    public Set<Integer> getAdpodIds() {
-        return weightDBIndex.keySet();
-    }
+	public Set<Integer> getAdpodIds() {
+		return weightDBIndex.keySet();
+	}
 
-    public class WMIndexCache {
-        // All indices are maintained in the class in a hashtable
-        private Hashtable<WMIndex.Attribute, WMIndex<?, WMHandle>> m_indices = new Hashtable<WMIndex.Attribute, WMIndex<?, WMHandle>>();
-        private RWLockedSortedArraySet<WMHandle> m_allHandles = new RWLockedSortedArraySet<WMHandle>();
+	public class WMIndexCache {
+		// All indices are maintained in the class in a hashtable
+		private Hashtable<WMAttribute, AbstractIndex<WMHandle, WMAttribute, ?, WMHandle>> m_indices = new Hashtable<WMAttribute, AbstractIndex<WMHandle, WMAttribute, ?, WMHandle>>();
+		private RWLockedSortedArraySet<WMHandle> m_allHandles = new RWLockedSortedArraySet<WMHandle>();
 
-        public WMIndexCache() {
-            //addIndex(WMIndex.Attribute.kDefault, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kDefault));
-            addIndex(WMIndex.Attribute.kLineId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kLineId));
-            addIndex(WMIndex.Attribute.kSiteId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kSiteId));
-            addIndex(WMIndex.Attribute.kCreativeId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kCreativeId));
-            addIndex(WMIndex.Attribute.kBuyId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kBuyId));
-            addIndex(WMIndex.Attribute.kAdId, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kAdId));
-            addIndex(WMIndex.Attribute.kState, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kState));
-            addIndex(WMIndex.Attribute.kZip, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kZip));
-            addIndex(WMIndex.Attribute.kDMA, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kDMA));
-            addIndex(WMIndex.Attribute.kArea, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kArea));
-            addIndex(WMIndex.Attribute.kCity, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kCity));
-            addIndex(WMIndex.Attribute.kCountry, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kCountry));
-            addIndex(WMIndex.Attribute.kT1, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT1));
-            addIndex(WMIndex.Attribute.kT2, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT2));
-            addIndex(WMIndex.Attribute.kT3, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT3));
-            addIndex(WMIndex.Attribute.kT4, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT4));
-            addIndex(WMIndex.Attribute.kT5, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kT5));
-            addIndex(WMIndex.Attribute.kF1, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF1));
-            addIndex(WMIndex.Attribute.kF2, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF2));
-            addIndex(WMIndex.Attribute.kF3, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF3));
-            addIndex(WMIndex.Attribute.kF4, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF4));
-            addIndex(WMIndex.Attribute.kF5, new WMIndex<Integer, WMHandle>(WMIndex.Attribute.kF5));
-        }
+		public WMIndexCache() {
+			//addIndex(WMAttribute.kDefault, new WMIndex<Integer, WMHandle>(WMAttribute.kDefault));
+			addIndex(WMAttribute.kLineId, new WMIndex<Integer, WMHandle>(WMAttribute.kLineId));
+			addIndex(WMAttribute.kSiteId, new WMIndex<Integer, WMHandle>(WMAttribute.kSiteId));
+			addIndex(WMAttribute.kCreativeId, new WMIndex<Integer, WMHandle>(WMAttribute.kCreativeId));
+			addIndex(WMAttribute.kBuyId, new WMIndex<Integer, WMHandle>(WMAttribute.kBuyId));
+			addIndex(WMAttribute.kAdId, new WMIndex<Integer, WMHandle>(WMAttribute.kAdId));
+			addIndex(WMAttribute.kState, new WMIndex<Integer, WMHandle>(WMAttribute.kState));
+			addIndex(WMAttribute.kZip, new WMIndex<Integer, WMHandle>(WMAttribute.kZip));
+			addIndex(WMAttribute.kDMA, new WMIndex<Integer, WMHandle>(WMAttribute.kDMA));
+			addIndex(WMAttribute.kArea, new WMIndex<Integer, WMHandle>(WMAttribute.kArea));
+			addIndex(WMAttribute.kCity, new WMIndex<Integer, WMHandle>(WMAttribute.kCity));
+			addIndex(WMAttribute.kCountry, new WMIndex<Integer, WMHandle>(WMAttribute.kCountry));
+			addIndex(WMAttribute.kT1, new WMIndex<Integer, WMHandle>(WMAttribute.kT1));
+			addIndex(WMAttribute.kT2, new WMIndex<Integer, WMHandle>(WMAttribute.kT2));
+			addIndex(WMAttribute.kT3, new WMIndex<Integer, WMHandle>(WMAttribute.kT3));
+			addIndex(WMAttribute.kT4, new WMIndex<Integer, WMHandle>(WMAttribute.kT4));
+			addIndex(WMAttribute.kT5, new WMIndex<Integer, WMHandle>(WMAttribute.kT5));
+			addIndex(WMAttribute.kF1, new WMIndex<Integer, WMHandle>(WMAttribute.kF1));
+			addIndex(WMAttribute.kF2, new WMIndex<Integer, WMHandle>(WMAttribute.kF2));
+			addIndex(WMAttribute.kF3, new WMIndex<Integer, WMHandle>(WMAttribute.kF3));
+			addIndex(WMAttribute.kF4, new WMIndex<Integer, WMHandle>(WMAttribute.kF4));
+			addIndex(WMAttribute.kF5, new WMIndex<Integer, WMHandle>(WMAttribute.kF5));
+			addIndex(WMAttribute.ub, new WMRangeIndex<Integer, WMHandle>(WMAttribute.ub));
+		}
 
-        public void addIndex(WMIndex.Attribute aAttribute, WMIndex<?, WMHandle> index) {
-            m_indices.put(aAttribute, index);
-        }
+		public void addIndex(WMAttribute aAttribute, AbstractIndex<WMHandle, WMAttribute, ?, WMHandle> index) {
+			m_indices.put(aAttribute, index);
+		}
 
-        public void deleteIndex(WMIndex.Attribute aAttribute) {
-            m_indices.remove(aAttribute);
-        }
+		public void deleteIndex(WMAttribute aAttribute) {
+			m_indices.remove(aAttribute);
+		}
 
-        public WMIndex getIndex(WMIndex.Attribute aAttribute) {
-            return m_indices.get(aAttribute);
-        }
+		public AbstractIndex getIndex(WMAttribute aAttribute) {
+			return m_indices.get(aAttribute);
+		}
 
-        public boolean hasIndex(WMIndex.Attribute aAttribute) {
-            return m_indices.containsKey(aAttribute);
-        }
+		public boolean hasIndex(WMAttribute aAttribute) {
+			return m_indices.containsKey(aAttribute);
+		}
 
-        public Enumeration<WMIndex.Attribute> getIndices() {
-            return m_indices.keys();
-        }
+		public Enumeration<WMAttribute> getIndices() {
+			return m_indices.keys();
+		}
 
-        @SuppressWarnings("unchecked")
-        public void updateIntegerIndex(WMIndex.Attribute type, TreeMap<Integer, ArrayList<WMHandle>> mindex) {
-	        deleteIntegerIndex(type, mindex);
-            ((WMIndex<Integer, WMHandle>) m_indices.get(type)).add(mindex);
-        }
+		@SuppressWarnings("unchecked")
+		public void updateRangeIndex(WMAttribute type, TreeMap<Range<Integer>, ArrayList<WMHandle>> mindex) {
+			deleteRangeIndex(type, mindex);
+			((AbstractRangeIndex<WMAttribute, Integer, WMHandle>) m_indices.get(type)).add(mindex);
+		}
 
-        @SuppressWarnings("unchecked")
-        public void deleteIntegerIndex(WMIndex.Attribute type, TreeMap<Integer, ArrayList<WMHandle>> mindex) {
-            ((WMIndex<Integer, WMHandle>) m_indices.get(type)).delete(mindex);
-        }
+		@SuppressWarnings("unchecked")
+		public void deleteRangeIndex(WMAttribute type, TreeMap<Range<Integer>, ArrayList<WMHandle>> mindex) {
+			((AbstractRangeIndex<WMAttribute, Integer, WMHandle>) m_indices.get(type)).delete(mindex);
+		}
 
-        /**
-         * Add the new products into the database.
-         */
-        public void addNewHandles(SortedSet<WMHandle> newHandles) {
-            try {
-                m_allHandles.writerLock();
-	            m_allHandles.removeAll(newHandles);
-                m_allHandles.addAll(newHandles);
-            } finally {
-                m_allHandles.writerUnlock();
-            }
-        }
+		@SuppressWarnings("unchecked")
+		public void updateIntegerIndex(WMAttribute type, TreeMap<Integer, ArrayList<WMHandle>> mindex) {
+			deleteIntegerIndex(type, mindex);
+			((AbstractIndex<WMHandle, WMAttribute, Integer, WMHandle>) m_indices.get(type)).add(mindex);
+		}
 
+		@SuppressWarnings("unchecked")
+		public void deleteIntegerIndex(WMAttribute type, TreeMap<Integer, ArrayList<WMHandle>> mindex) {
+			((AbstractIndex<WMHandle, WMAttribute, Integer, WMHandle>) m_indices.get(type)).delete(mindex);
+		}
 
-        /**
-         * Get Handle without checking a lock, reader should call readerLock()
-         * Check if the prod exists - else return null
-         * @param pid
-         * @return Handle
-         */
-        public WMHandle getWMHandle(Long pid) {
-            WMHandle p = new WMHandle(pid, null,null);
-            Handle ph;
-            try {
-                m_allHandles.readerLock();
-                ph = m_allHandles.find(p);
-            } finally {
-                m_allHandles.readerUnlock();
-            }
-
-            if (ph !=null) {
-                 p = (WMHandle) ph;
-            } else {
-                p = null;
-            }
-            return p;
-        }
+		/**
+		 * Add the new products into the database.
+		 */
+		public void addNewHandles(SortedSet<WMHandle> newHandles) {
+			try {
+				m_allHandles.writerLock();
+				m_allHandles.removeAll(newHandles);
+				m_allHandles.addAll(newHandles);
+			} finally {
+				m_allHandles.writerUnlock();
+			}
+		}
 
 
-        public Iterator<WMHandle> getAllHandles() {
-            return m_allHandles.iterator();
-        }
+		/**
+		 * Get Handle without checking a lock, reader should call readerLock()
+		 * Check if the prod exists - else return null
+		 *
+		 * @param pid
+		 * @return Handle
+		 */
+		public WMHandle getWMHandle(Long pid) {
+			WMHandle p = new WMHandle(pid, null, null);
+			Handle ph;
+			try {
+				m_allHandles.readerLock();
+				ph = m_allHandles.find(p);
+			} finally {
+				m_allHandles.readerUnlock();
+			}
 
-        /**
-         * Delete any WM Handles that are not current.
-         * @param includedWMHandlesIdSet
-         */
-        public void purgeOldKeys(Set<Integer> includedWMHandlesIdSet) {
-            Enumeration<WMIndex.Attribute> keys = getIndices();
-            while (keys.hasMoreElements()) {
-                WMIndex.Attribute type = keys.nextElement();
-                Set<Integer> res = null;
-                WMIndex<Integer, WMHandle> idx = (WMIndex<Integer, WMHandle>) m_indices.get(type);
-                if (idx!=null) {
-                    res = idx.getKeys();
-                    TreeMap<Integer, ArrayList<WMHandle>> map = new TreeMap<Integer, ArrayList<WMHandle>>();
-                    for (Integer key: res) {
-                        SortedSet<WMHandle> values = idx.get(key);
-                        ArrayList<WMHandle> deletedList = new ArrayList<WMHandle>();
-                        for(WMHandle h: values) {
-                            int id = (int)h.getOid();
-                            if (!includedWMHandlesIdSet.contains(id)){
-                                deletedList.add(h);
-                            }
-                        }
-                        if (!deletedList.isEmpty()) {
-                            m_allHandles.removeAll(deletedList);
-                            map.put(key, deletedList);
-                        }
-                    }
-                    if (!map.isEmpty()) {
-                        deleteIntegerIndex(type, map);
-                    }
-                }
-            }
-        }
+			if (ph != null) {
+				p = (WMHandle) ph;
+			} else {
+				p = null;
+			}
+			return p;
+		}
 
-	    public int getNumHandles(){
-		    return m_allHandles.size();
-	    }
-    }
+
+		public Iterator<WMHandle> getAllHandles() {
+			return m_allHandles.iterator();
+		}
+
+		/**
+		 * Delete any WM Handles that are not current.
+		 *
+		 * @param includedWMHandlesIdSet
+		 */
+		public void purgeOldKeys(Set<Integer> includedWMHandlesIdSet) {
+			Enumeration<WMAttribute> keys = getIndices();
+			while (keys.hasMoreElements()) {
+				WMAttribute type = keys.nextElement();
+				if (WMRangeIndex.getAllowdAttributes().contains(type)) {
+					WMRangeIndex<Integer, WMHandle> idx = (WMRangeIndex<Integer, WMHandle>) m_indices.get(type);
+					Set<Range<Integer>> res = null;
+					if (idx != null) {
+						res = idx.getKeys();
+						TreeMap<Range<Integer>, ArrayList<WMHandle>> map = new TreeMap<Range<Integer>, ArrayList<WMHandle>>();
+						for (Range<Integer> key : res) {
+							SortedSet<WMHandle> values = idx.get(key);
+							ArrayList<WMHandle> deletedList = new ArrayList<WMHandle>();
+							for (WMHandle h : values) {
+								int id = (int) h.getOid();
+								if (!includedWMHandlesIdSet.contains(id)) {
+									deletedList.add(h);
+								}
+							}
+							if (!deletedList.isEmpty()) {
+								m_allHandles.removeAll(deletedList);
+								map.put(key, deletedList);
+							}
+						}
+						if (!map.isEmpty()) {
+							deleteRangeIndex(type, map);
+						}
+					}
+				} else {
+					WMIndex<Integer, WMHandle> idx = (WMIndex<Integer, WMHandle>) m_indices.get(type);
+					Set<Integer> res = null;
+					if (idx != null) {
+						res = idx.getKeys();
+						TreeMap<Integer, ArrayList<WMHandle>> map = new TreeMap<Integer, ArrayList<WMHandle>>();
+						for (Integer key : res) {
+							SortedSet<WMHandle> values = idx.get(key);
+							ArrayList<WMHandle> deletedList = new ArrayList<WMHandle>();
+							for (WMHandle h : values) {
+								int id = (int) h.getOid();
+								if (!includedWMHandlesIdSet.contains(id)) {
+									deletedList.add(h);
+								}
+							}
+							if (!deletedList.isEmpty()) {
+								m_allHandles.removeAll(deletedList);
+								map.put(key, deletedList);
+							}
+						}
+						if (!map.isEmpty()) {
+							deleteIntegerIndex(type, map);
+						}
+					}
+				}
+			}
+		}
+
+		public int getNumHandles() {
+			return m_allHandles.size();
+		}
+	}
 }

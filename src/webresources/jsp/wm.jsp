@@ -108,13 +108,13 @@
             while (iter.hasNext()) {
                 WMHandle h = iter.next();
                 long contextId = h.getOid();
-                Map<WMIndex.Attribute, Integer> contextMap = h.getContextMap();
-                Set<WMIndex.Attribute> keys = contextMap.keySet();
+                Map<WMAttribute, Integer> contextMap = h.getContextMap();
+                Set<WMAttribute> keys = contextMap.keySet();
     %>
     <tr>
         <td>
             <ul><%
-                for (WMIndex.Attribute k : keys) {
+                for (WMAttribute k : keys) {
                     String val = WMUtils.getDictValue(k, contextMap.get(k));
             %>
                 <li><%=contextId %>,<%=k.name()%>,<%=val%>
