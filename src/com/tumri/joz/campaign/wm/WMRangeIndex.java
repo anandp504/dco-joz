@@ -2,8 +2,6 @@ package com.tumri.joz.campaign.wm;
 
 import com.tumri.joz.campaign.wm.WMAttribute;
 import com.tumri.joz.index.AbstractRangeIndex;
-import com.tumri.joz.index.IRangeValue;
-import com.tumri.joz.index.IntegerRangeValue;
 import com.tumri.joz.index.Range;
 import org.junit.Test;
 
@@ -66,34 +64,22 @@ public class WMRangeIndex<V, Value> extends AbstractRangeIndex<WMAttribute, V, V
 //		System.out.println("headLast: " + headLast);
 
 
-		IRangeValue a1 = new IntegerRangeValue(1);
-		IRangeValue a2 = new IntegerRangeValue(4);
-		Range r1 = new Range(a1, a2);
+		Range r1 = new Range(1, 4);
+		Range r2 = new Range(3, 4);
 
-		IRangeValue b1 = new IntegerRangeValue(3);
-		IRangeValue b2 = new IntegerRangeValue(4);
-		Range r2 = new Range(b1, b2);
-
-//		IRangeValue c1 = new IntegerRangeValue(2);
-//		IRangeValue c2 = new IntegerRangeValue(2);
-//		Range r3 = new Range(c1, c2);
+//		Range r3 = new Range(2, 2);
 //
-//		IRangeValue d1 = new IntegerRangeValue(3);
-//		IRangeValue d2 = new IntegerRangeValue(7);
-//		Range r4 = new Range(d1, d2);
+//		Range r4 = new Range(3, 7);
 //
-//		IRangeValue e1 = new IntegerRangeValue(2);
-//		IRangeValue e2 = new IntegerRangeValue(2);
-//		Range r5 = new Range(e1, e2);
+//		Range r5 = new Range(2, 2);
 
-		IRangeValue f1 = new IntegerRangeValue(1);
-		IRangeValue f2 = new IntegerRangeValue(1);
-		Range r6 = new Range(f1, f2);
+		Range r6 = new Range(1, 1);
 
 		WMRangeIndex<Integer, String> rangeIndex = new WMRangeIndex<Integer, String>(WMAttribute.ub);
 
 		rangeIndex.put(r1, "Range1");
 		rangeIndex.put(r2, "Range2");
+		rangeIndex.materialize();
 //		rangeIndex.put(r3, "Range3");
 //		rangeIndex.put(r4, "Range4");
 

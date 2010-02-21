@@ -1,6 +1,6 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.index.IntegerRangeValue;
+import com.tumri.utils.Pair;
 import com.tumri.utils.strings.StringTokenizer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,27 +13,46 @@ import java.util.TreeMap;
  * Indexable object that is used to hold a range. This can be used to support any data type that can be represented in
  * a series.
  * <p/>
- * Note that the index creation logic should make sure that we dont have overlap of ranges. Else this will break the
- * comparison logic. We got to make sure that a range will be repeated twice in the index
+ * Ranges are equal only if min=min and max=max (first=first and last=last)
+ * range r1 > r2 if r1.min > r2.min || (r1.min=r2.min && r1.max>r2.max)
  */
-public class Range<Value> implements Comparable, Comparator {
+public class Range<Value> extends Pair<Value, Value> implements Comparator<Range<Value>> {
 
-	private IRangeValue<Value> min;
+	Value min = null;
+	Value max = null;
 
-	private IRangeValue<Value> max;
-
-	public Range(IRangeValue<Value> min, IRangeValue<Value> max) {
+	public Range(Value min, Value max) {
+		super(min, max);
 		this.min = min;
 		this.max = max;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Range range = (Range) o;
-		return min.equals(range.min) && max.equals(range.max);
+	public boolean contains(Value valToCompare) {
+		if (max == null || max == null || valToCompare == null) {
+			return false;
+		}
+		if (((Comparable) min).compareTo(valToCompare) > 0 || ((Comparable) max).compareTo(valToCompare) < 0) {
+			return false;
+		}
+		return true;
 	}
+
+	public int compare(Range<Value> r, Range<Value> r1) {
+		if (r.equals(r1)) {
+			return 0;
+		} else if (r.min.equals(r1.min)) {
+			if (((Comparable) r.max).compareTo(r1.max) < 0) {
+				return -1;
+			} else {
+				return 1;
+			}
+		} else if (((Comparable) r.min).compareTo(r1.min) < 0) {
+			return -1;
+		} else {
+			return 1;
+		}
+	}
+
 
 	@Override
 	public int hashCode() {
@@ -42,85 +61,41 @@ public class Range<Value> implements Comparable, Comparator {
 		return result;
 	}
 
-	public int compare(Object o, Object o1) {
-		Range<Value> r = (Range<Value>) o;
-		Range<Value> r1 = (Range<Value>) o1;
-		if (r.equals(r1)) {
-			return 0;
-		} else if (r.min.equals(r1.min)) {
-			if (r.max.greaterThanEqualTo(r1.max)) {
-				return 1;
-			} else {
-				return -1;
-			}
-		} else if (r.min.greaterThanEqualTo(r1.min)) {
-			return 1;
-		} else {
-			return -1;
-		}
-	}
-
-	public boolean contains(IRangeValue<Value> valToCompare) {
-		if (min == null || max == null || valToCompare == null) {
-			return false;
-		}
-		if (min.lessThanEqualTo(valToCompare) && max.greaterThanEqualTo(valToCompare)) {
-			return true;
-		}
-		return false;
-	}
-
-
-	public int compareTo(Object o) {
+	public int compareTo(Range<Value> o) {
 		Range<Value> r1 = (Range<Value>) o;
 		if (this.equals(r1)) {
 			return 0;
 		} else if (this.min.equals(r1.min)) {
-			if (this.max.greaterThanEqualTo(r1.max)) {
-				return 1;
-			} else {
+			if (((Comparable) this.max).compareTo(r1.max) < 0) {
 				return -1;
+			} else {
+				return 1;
 			}
-		} else if (this.min.greaterThanEqualTo(r1.min)) {
-			return 1;
-		} else {
+		} else if (((Comparable) this.min).compareTo(r1.min) < 0) {
 			return -1;
+		} else {
+			return 1;
 		}
 	}
 
-	public IRangeValue<Value> getMin() {
+	public Value getMin() {
 		return min;
 	}
 
-	public IRangeValue<Value> getMax() {
+	public Value getMax() {
 		return max;
 	}
 
 	public Range() {
-
 	}
 
 	@Test
 	public void test() {
-		IRangeValue a1 = new IntegerRangeValue(3);
-		IRangeValue a2 = new IntegerRangeValue(6);
-		Range r1 = new Range(a1, a2);
-
-		IRangeValue b1 = new IntegerRangeValue(1);
-		IRangeValue b2 = new IntegerRangeValue(2);
-		Range r2 = new Range(b1, b2);
-
-		IRangeValue c1 = new IntegerRangeValue(7);
-		IRangeValue c2 = new IntegerRangeValue(7);
-		Range r3 = new Range(c1, c2);
-
-		IRangeValue d1 = new IntegerRangeValue(8);
-		IRangeValue d2 = new IntegerRangeValue(10);
-		Range r4 = new Range(d1, d2);
-
-		IRangeValue e1 = new IntegerRangeValue(4);
-		IRangeValue e2 = new IntegerRangeValue(5);
-		Range r5 = new Range(e1, e2);
+		Range r1 = new Range(3, 6);
+		Range r2 = new Range(1, 2);
+		Range r3 = new Range(7, 7);
+		Range r4 = new Range(8, 10);
+		Range r5 = new Range(4, 5);
 
 		TreeMap<Range, Integer> map = new TreeMap<Range, Integer>();
 		map.put(r3, 3);

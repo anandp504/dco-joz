@@ -190,6 +190,12 @@ public class WMDB {
 			((AbstractIndex<WMHandle, WMAttribute, Integer, WMHandle>) m_indices.get(type)).delete(mindex);
 		}
 
+		public void materializeRangeIndices() {
+			for (WMAttribute attr : WMRangeIndex.getAllowdAttributes()) {
+				((WMRangeIndex<Integer, WMHandle>) m_indices.get(attr)).materialize();
+			}
+		}
+
 		/**
 		 * Add the new products into the database.
 		 */

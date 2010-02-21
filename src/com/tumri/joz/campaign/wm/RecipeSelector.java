@@ -18,7 +18,6 @@
 package com.tumri.joz.campaign.wm;
 
 import com.tumri.cma.domain.Recipe;
-import com.tumri.joz.index.IntegerRangeValue;
 import com.tumri.joz.index.Range;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
@@ -230,14 +229,13 @@ public class RecipeSelector {
 			List<Integer> contextVals = contextMap.get(attr);
 			for (Integer contextVal : contextVals) {
 				if (vectors == null) {
-					vectors = new SortedArraySet();
+					vectors = new SortedArraySet<Handle>();
 				}
 				if (WMRangeIndex.getAllowdAttributes().contains(attr)) {
 					//this lookup of dict value is necessary for range queries.
 					String ubValS = WMUtils.getDictValue(attr, contextVal);
 					Integer ubVal = Integer.parseInt(ubValS);
-					IntegerRangeValue val = new IntegerRangeValue(ubVal);
-					Range<Integer> r = new Range<Integer>(val, val);
+					Range<Integer> r = new Range<Integer>(ubVal, ubVal);
 					vectors.addAll(idx.get(r));
 				} else {
 					vectors.addAll(idx.get(contextVal));

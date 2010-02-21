@@ -1,9 +1,6 @@
 package com.tumri.joz.index;
 
-import com.tumri.utils.data.RWLockedSortedArraySet;
-import com.tumri.utils.data.RWLockedSortedSet;
-import com.tumri.utils.data.RWLockedTreeMap;
-import com.tumri.utils.data.SortedArraySet;
+import com.tumri.utils.data.*;
 import com.tumri.utils.index.*;
 
 import java.util.*;
@@ -11,7 +8,7 @@ import java.util.*;
 /**
  * The purpose of this class is to index Range<V>-->Value mappings.  Where a query to the index for any given Range<V>
  * will return a SortedSet<Values> which contains all Value(s) which fall within the parameter Range<V>. The specific
- * implementation of IRangeValue on which the Ranges are created will determine how this index functions.
+ * implementation of V on which the Ranges are created will determine how this index functions.
  * <p/>
  * User: scbraun
  * Date: Feb 9, 2010
@@ -21,21 +18,28 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	/**
 	 * m_set houses all the min/max values for each of the ranges added, each of which are mapped to a set of Ranges under which they fall
 	 */
-	protected RWLockedSortedSet<RangeDomainMapping<IRangeValue<V>, Range<V>>> m_set; //to allow for fast Range selection
-
+	protected RWLockedSortedSet<RangeIndexDomainMapping<V>> m_set; //to allow for fast Range selection
 	protected RWLockedTreeMap<Range<V>, RWLockedSortedSet<Value>> m_map;  //to keep Range-->Handle mapping
+
+	protected RWLockedSortedSet<RangeIndexDomainMapping<V>> m_set_builder; //to allow for fast Range selection
+	protected RWLockedTreeMap<Range<V>, RWLockedSortedSet<Value>> m_map_builder;  //to keep Range-->Handle mapping
 
 	/**
 	 * Constructs an empty index
 	 */
 	public AbstractRangeIndex() {
-		m_set = new RWLockedSortedArraySet<RangeDomainMapping<IRangeValue<V>, Range<V>>>();
+		m_set = new RWLockedSortedArraySet<RangeIndexDomainMapping<V>>();
+		m_set_builder = new RWLockedSortedArraySet<RangeIndexDomainMapping<V>>();
 		m_map = new RWLockedTreeMap<Range<V>, RWLockedSortedSet<Value>>();
+		m_map_builder = new RWLockedTreeMap<Range<V>, RWLockedSortedSet<Value>>();
 	}
 
 	/**
 	 * Add a Value to the index for the given Range<V> key.
-	 * Natural order of the keys is used internally. Value and V both should implement Comparable
+	 * Natural order of the keys is used internally. Value and V both should implement Comparable.
+	 * <p/>
+	 * put() makes use of two secondary variables: m_map_builder and m_set_builder for efficency sake.  In order to make
+	 * the changes done by put actually take effect materialize() must be called.
 	 *
 	 * @param key the key object
 	 * @param val the Range object
@@ -44,15 +48,15 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	public void put(final Range<V> key, final Value val) {
 		//add mapping from key-->value to m_map
 		RWLockedSortedSet<Value> set = null;
-		m_map.writerLock();
+		m_map_builder.writerLock();
 		try {
-			set = m_map.get(key);
+			set = m_map_builder.get(key);
 			if (set == null) {
 				set = createSet();
-				m_map.put(key, set);
+				m_map_builder.put(key, set);
 			}
 		} finally {
-			m_map.writerUnlock();
+			m_map_builder.writerUnlock();
 		}
 		set.writerLock();
 		try {
@@ -61,75 +65,45 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 			set.writerUnlock();
 		}
 
-		//add up to two new elements to m_set and mutate up to m_set.size() elements if necessary.
-		m_set.readerLock();
-		try {
-			//iterate over entire set to see if we need to add this range.
-			Iterator<RangeDomainMapping<IRangeValue<V>, Range<V>>> i = m_set.iterator();
-			while (i.hasNext()) {
-				RangeDomainMapping<IRangeValue<V>, Range<V>> tmp = i.next();
-				if (key.contains(tmp.getKey())) {
-					RWLockedSortedSet<Range<V>> tmpSet = tmp.getRanges();
-					tmpSet.writerLock();
-					try {
-						if (!tmpSet.contains(key)) {
-							tmpSet.add(key);
-						}
-					} finally {
-						tmpSet.writerUnlock();
-					}
-				}
-			}
-		} finally {
-			m_set.readerUnlock();
-		}
-
 		//either add or modify min/max in m_set.
-		IRangeValue<V> v1 = key.getMin();
-		IRangeValue<V> v2 = key.getMax();
-		ArrayList<IRangeValue<V>> al = new ArrayList<IRangeValue<V>>(2);
+		V v1 = key.getMin();
+		V v2 = key.getMax();
+		ArrayList<V> al = new ArrayList<V>(2);
 		al.add(v1);
 		al.add(v2);
-		for (IRangeValue<V> v : al) {
-			RangeDomainMapping<IRangeValue<V>, Range<V>> m = new RangeDomainMapping<IRangeValue<V>, Range<V>>(v);
-			m_set.writerLock();
+		for (V v : al) {
+			RangeIndexDomainMapping<V> m = new RangeIndexDomainMapping<V>(v);
+			m_set_builder.writerLock();
 			try {
-				if (m_set.contains(m)) {
-					m_set.tailSet(m).first().addRange(key);
+				if (m_set_builder.contains(m)) {
+					m_set_builder.tailSet(m).first().addRange(key);
 				} else {
-					SortedSet<Range<V>> tmpSet = getMatchingRanges(v);
-					if (tmpSet == null) { //handles boundary condition where nothing is found from getRanges()
-						tmpSet = new SortedArraySet<Range<V>>();
-					}
+					SortedSet<Range<V>> tmpSet = new SortedArraySet<Range<V>>();
 					tmpSet.add(key);
-					RangeDomainMapping<IRangeValue<V>, Range<V>> m2 = new RangeDomainMapping<IRangeValue<V>, Range<V>>(v, tmpSet);
-					m_set.add(m2);
+					RangeIndexDomainMapping<V> m2 = new RangeIndexDomainMapping<V>(v, tmpSet);
+					m_set_builder.add(m2);
 				}
 			} finally {
-				m_set.writerUnlock();
+				m_set_builder.writerUnlock();
 			}
 		}
 	}
 
 	/**
-	 * This method will expand the incoming Range<V> to 1 or more IRangeValue<V>.  Then for each of these values
+	 * This method will expand the incoming Range<V> to 1 or more V.  Then for each of these values
 	 * it gets the ranges within which it falls and adds them to a set.  Finally, for each element in the set it looks
 	 * up the Values from m_map and adds them to a final returnable SortedSet<Value>
+	 * <p/>
+	 * Note: only the min of the Range<V> key is used for query
 	 *
 	 * @param key the key object
 	 * @return
 	 */
 	@Override
 	public SortedSet<Value> get(Range<V> key) {
-		List<IRangeValue<V>> values = getPossibleIRangeValues(key);
-		SortedSet<Range<V>> ss = null;
-		for (IRangeValue<V> v : values) {
-			if (ss == null) {
-				ss = getMatchingRanges(v);
-			} else {
-				ss.addAll(getMatchingRanges(v));
-			}
-		}
+		V v = key.getMin();
+		SortedSet<Range<V>> ss = getMatchingRanges(v);
+
 		Iterator<Range<V>> i = ss.iterator();
 		SortedSet<Value> retSet = new SortedArraySet<Value>();
 		m_map.readerLock();
@@ -148,13 +122,13 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	}
 
 	/**
-	 * For a given IRangeValue this method will attempt to find a matching RangeDomainMapping in m_set. Four possible
+	 * For a given V this method will attempt to find a matching RangeIndexDomainMapping in m_set. Four possible
 	 * outcomes can result from this search:
-	 * 1) IRangeValue is not part of m_set
-	 * 1a) IRangeValue is smaller than the min of m_set
-	 * 1b) IRangeValue is larger than the max of m_set
-	 * 1c) IRangeValue is between two elements of m_set
-	 * 2) IRangeValue directly matches an element of m_set
+	 * 1) V is not part of m_set
+	 * 1a) V is smaller than the min of m_set
+	 * 1b) V is larger than the max of m_set
+	 * 1c) V is between two elements of m_set
+	 * 2) V directly matches an element of m_set
 	 * With all of case 1a, 1b nothing is returned.
 	 * With case 1c the intersection between the previous and next elements are returned
 	 * With case 2 the Ranges belonging to the matching set are returned.
@@ -162,14 +136,14 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	 * @param key
 	 * @return
 	 */
-	private SortedSet<Range<V>> getMatchingRanges(IRangeValue<V> key) {
+	private SortedSet<Range<V>> getMatchingRanges(V key) {
 		SortedSet<Range<V>> set = new SortedArraySet<Range<V>>();
 		m_set.readerLock();
 		try {
-			RangeDomainMapping<IRangeValue<V>, Range<V>> lookupMapping = new RangeDomainMapping<IRangeValue<V>, Range<V>>(key);
-			SortedSet<RangeDomainMapping<IRangeValue<V>, Range<V>>> tailSet = m_set.tailSet(lookupMapping);
+			RangeIndexDomainMapping<V> lookupMapping = new RangeIndexDomainMapping<V>(key);
+			SortedSet<RangeIndexDomainMapping<V>> tailSet = m_set.tailSet(lookupMapping);
 			if (!tailSet.isEmpty()) {
-				RangeDomainMapping<IRangeValue<V>, Range<V>> prev = tailSet.first();
+				RangeIndexDomainMapping<V> prev = tailSet.first();
 				//if we found an exact match
 				if (prev.equals(lookupMapping)) {
 					RWLockedSortedSet<Range<V>> tmpRanges = prev.getRanges();
@@ -180,9 +154,9 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 						tmpRanges.readerUnlock();
 					}
 				} else { //if we did not find an exact match must merge head.last and tail.first
-					SortedSet<RangeDomainMapping<IRangeValue<V>, Range<V>>> headSet = m_set.headSet(lookupMapping);
+					SortedSet<RangeIndexDomainMapping<V>> headSet = m_set.headSet(lookupMapping);
 					if (headSet != null && !headSet.isEmpty()) {
-						RangeDomainMapping<IRangeValue<V>, Range<V>> next = headSet.last();
+						RangeIndexDomainMapping<V> next = headSet.last();
 
 						RWLockedSortedSet<Range<V>> tailSetRanges = prev.getRanges();
 						RWLockedSortedSet<Range<V>> headSetRanges = next.getRanges();
@@ -312,11 +286,11 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 		}
 
 		m_set.readerLock();
-		List<RangeDomainMapping<IRangeValue<V>, Range<V>>> deleteList = new ArrayList<RangeDomainMapping<IRangeValue<V>, Range<V>>>();
+		List<RangeIndexDomainMapping<V>> deleteList = new ArrayList<RangeIndexDomainMapping<V>>();
 		try {
-			Iterator<RangeDomainMapping<IRangeValue<V>, Range<V>>> i = m_set.iterator();
+			Iterator<RangeIndexDomainMapping<V>> i = m_set.iterator();
 			while (i.hasNext()) {
-				RangeDomainMapping<IRangeValue<V>, Range<V>> tmpElement = i.next();
+				RangeIndexDomainMapping<V> tmpElement = i.next();
 				if (tmpElement != null) {
 					RWLockedSortedSet<Range<V>> ranges = tmpElement.getRanges();
 					ranges.writerLock();
@@ -348,7 +322,6 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 				m_set.writerUnlock();
 			}
 		}
-
 	}
 
 	/**
@@ -380,21 +353,65 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	}
 
 	/**
-	 * This expands a Range<V> into all possible IRangeValue<V> inclusive of min,max.
-	 *
-	 * @param r
-	 * @return
+	 * This method must be called in order for put() to take effect.
 	 */
-	private List<IRangeValue<V>> getPossibleIRangeValues(Range<V> r) {
-		List<IRangeValue<V>> retList = new ArrayList<IRangeValue<V>>();
-		IRangeValue<V> min = r.getMin();
-		IRangeValue<V> max = r.getMax();
-
-		while (min.lessThanEqualTo(max)) {
-			retList.add(min);
-			min = min.getNext();
+	public void materialize() {
+		m_map_builder.writerLock();
+		m_map.writerLock();
+		try {
+			m_map.putAll(m_map_builder);
+		} finally {
+			try {
+				m_map_builder.clear();
+			} finally {
+				m_map_builder.writerUnlock();
+			}
+			m_map.writerUnlock();
 		}
-		return retList;
+
+		SortedSet<Range<V>> tmpSet = new SortedArraySet<Range<V>>();
+		m_set_builder.writerLock();
+		try {
+			Iterator<RangeIndexDomainMapping<V>> iter = m_set_builder.iterator();
+			while (iter.hasNext()) {
+				RangeIndexDomainMapping<V> mapping = iter.next();
+
+				SetDifference<Range<V>> tmpAdds = new SetDifference<Range<V>>(mapping.getRanges(), tmpSet);
+				SetDifference<Range<V>> tmpSeenAlready = new SetDifference<Range<V>>(tmpSet, mapping.getRanges());
+				tmpSet.removeAll(tmpSeenAlready);
+				tmpSet.addAll(tmpAdds);
+
+				mapping.getRanges().writerLock();
+				try {
+					mapping.getRanges().addAll(tmpSet);
+				} finally {
+					mapping.getRanges().writerUnlock();
+				}
+
+				m_set.writerLock();
+				try {
+					if (m_set.contains(mapping)) {
+						m_set.tailSet(mapping).first().getRanges().writerLock();
+						try {
+							m_set.tailSet(mapping).first().getRanges().addAll(mapping.getRanges());
+						} finally {
+							m_set.tailSet(mapping).first().getRanges().writerUnlock();
+						}
+					} else {
+						m_set.add(mapping);
+					}
+				} finally {
+					m_set.writerUnlock();
+				}
+			}
+		} finally {
+			try {
+				m_set_builder.clear();
+			} finally {
+				m_set_builder.writerUnlock();
+			}
+		}
+
 	}
 
 	/**

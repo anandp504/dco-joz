@@ -18,7 +18,6 @@
 package com.tumri.joz.campaign.wm.loader;
 
 import com.tumri.joz.campaign.wm.*;
-import com.tumri.joz.index.IntegerRangeValue;
 import com.tumri.joz.index.Range;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
@@ -142,9 +141,7 @@ public class WMDBLoader {
 						if (list != null && list.size() == 2) {
 							int min = Integer.parseInt(list.get(0));
 							int max = Integer.parseInt(list.get(1));
-							IntegerRangeValue minVal = new IntegerRangeValue(min);
-							IntegerRangeValue maxVal = new IntegerRangeValue(max);
-							Range<Integer> r = new Range<Integer>(minVal, maxVal);
+							Range<Integer> r = new Range<Integer>(min, max);
 							map.put(r, handles);
 							WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(adPodId);
 							db.updateRangeIndex(attr, map);
