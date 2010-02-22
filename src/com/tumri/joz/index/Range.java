@@ -91,13 +91,13 @@ public class Range<Value> extends Pair<Value, Value> implements Comparator<Range
 
 	@Test
 	public void test() {
-		Range r1 = new Range(3, 6);
-		Range r2 = new Range(1, 2);
-		Range r3 = new Range(7, 7);
-		Range r4 = new Range(8, 10);
-		Range r5 = new Range(4, 5);
+		Range<Integer> r1 = new Range<Integer>(3, 6);
+		Range<Integer> r2 = new Range<Integer>(1, 2);
+		Range<Integer> r3 = new Range<Integer>(7, 7);
+		Range<Integer> r4 = new Range<Integer>(8, 10);
+		Range<Integer> r5 = new Range<Integer>(4, 5);
 
-		TreeMap<Range, Integer> map = new TreeMap<Range, Integer>();
+		TreeMap<Range<Integer>, Integer> map = new TreeMap<Range<Integer>, Integer>();
 		map.put(r3, 3);
 		map.put(r2, 2);
 		map.put(r1, 1);

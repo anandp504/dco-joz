@@ -18,7 +18,7 @@ public class RangeIndexDomainMapping<Key> implements Comparable, Comparator {
 
 	public RangeIndexDomainMapping(Key k, SortedSet<Range<Key>> vals) {
 		key = k;
-		ranges = new RWLockedSortedArraySet();
+		ranges = new RWLockedSortedArraySet<Range<Key>>();
 		if (vals != null) {
 			ranges.writerLock();
 			try {
@@ -38,34 +38,34 @@ public class RangeIndexDomainMapping<Key> implements Comparable, Comparator {
 		key = k;
 	}
 
-	public RangeIndexDomainMapping(Key k, Range Range) {
+	public RangeIndexDomainMapping(Key k, Range<Key> range) {
 		key = k;
-		ranges = new RWLockedSortedArraySet();
+		ranges = new RWLockedSortedArraySet<Range<Key>>();
 		ranges.writerLock();
 		try {
-			ranges.add(Range);
+			ranges.add(range);
 		} finally {
 			ranges.writerUnlock();
 		}
 	}
 
-	public void addRange(Range Range) {
+	public void addRange(Range<Key> range) {
 		if (ranges == null) {
-			ranges = new RWLockedSortedArraySet();
+			ranges = new RWLockedSortedArraySet<Range<Key>>();
 		}
 		ranges.writerLock();
 		try {
-			ranges.add(Range);
+			ranges.add(range);
 		} finally {
 			ranges.writerUnlock();
 		}
 	}
 
-	public void removeRange(Range Range) {
+	public void removeRange(Range<Key> range) {
 		if (ranges != null) {
 			ranges.writerLock();
 			try {
-				ranges.remove(Range);
+				ranges.remove(range);
 			} finally {
 				ranges.writerUnlock();
 			}

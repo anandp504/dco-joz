@@ -18,6 +18,7 @@
 package com.tumri.joz.campaign.wm;
 
 import com.tumri.cma.domain.Recipe;
+import com.tumri.joz.index.AbstractRangeIndex;
 import com.tumri.joz.index.Range;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
@@ -236,9 +237,9 @@ public class RecipeSelector {
 					String ubValS = WMUtils.getDictValue(attr, contextVal);
 					Integer ubVal = Integer.parseInt(ubValS);
 					Range<Integer> r = new Range<Integer>(ubVal, ubVal);
-					vectors.addAll(idx.get(r));
+					vectors.addAll(((WMRangeIndex<Integer, WMHandle>) idx).get(r));
 				} else {
-					vectors.addAll(idx.get(contextVal));
+					vectors.addAll(((WMIndex<Integer, WMHandle>) idx).get(contextVal));
 				}
 			}
 		}

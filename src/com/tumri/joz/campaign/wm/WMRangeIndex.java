@@ -64,8 +64,8 @@ public class WMRangeIndex<V, Value> extends AbstractRangeIndex<WMAttribute, V, V
 //		System.out.println("headLast: " + headLast);
 
 
-		Range r1 = new Range(1, 4);
-		Range r2 = new Range(3, 4);
+		Range<Integer> r1 = new Range<Integer>(1, 4);
+		Range<Integer> r2 = new Range<Integer>(3, 4);
 
 //		Range r3 = new Range(2, 2);
 //
@@ -73,7 +73,7 @@ public class WMRangeIndex<V, Value> extends AbstractRangeIndex<WMAttribute, V, V
 //
 //		Range r5 = new Range(2, 2);
 
-		Range r6 = new Range(1, 1);
+		Range<Integer> r6 = new Range<Integer>(1, 1);
 
 		WMRangeIndex<Integer, String> rangeIndex = new WMRangeIndex<Integer, String>(WMAttribute.ub);
 

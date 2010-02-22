@@ -164,7 +164,7 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 						tailSetRanges.readerLock();
 						headSetRanges.readerLock();
 						try {
-							RangeDomainMappingSetIntersector intersector = new RangeDomainMappingSetIntersector(false);
+							RangeDomainMappingSetIntersector<V> intersector = new RangeDomainMappingSetIntersector<V>(false);
 							intersector.include(tailSetRanges, new RangeWeights());
 							intersector.include(headSetRanges, new RangeWeights());
 							set = intersector.intersect();
