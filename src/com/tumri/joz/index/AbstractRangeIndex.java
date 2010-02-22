@@ -377,9 +377,16 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 				RangeIndexDomainMapping<V> mapping = iter.next();
 
 				SetDifference<Range<V>> tmpAdds = new SetDifference<Range<V>>(mapping.getRanges(), tmpSet);
-				SetDifference<Range<V>> tmpSeenAlready = new SetDifference<Range<V>>(tmpSet, mapping.getRanges());
-				tmpSet.removeAll(tmpSeenAlready);
-				tmpSet.addAll(tmpAdds);
+				SortedSet<Range<V>> tmpAddsSet = new SortedArraySet<Range<V>>();
+
+				if (tmpAdds != null) {
+					Iterator<Range<V>> iter2 = tmpAdds.iterator();
+					while (iter2.hasNext()) {
+						tmpAddsSet.add(iter2.next());
+					}
+				}
+				tmpSet.removeAll(mapping.getRanges());
+				tmpSet.addAll(tmpAddsSet);
 
 				mapping.getRanges().writerLock();
 				try {
