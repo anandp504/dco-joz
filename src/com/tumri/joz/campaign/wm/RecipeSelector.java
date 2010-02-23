@@ -236,9 +236,14 @@ public class RecipeSelector {
 				if (WMRangeIndex.getAllowdAttributes().contains(attr)) {
 					//this lookup of dict value is necessary for range queries.
 					String ubValS = WMUtils.getDictValue(attr, contextVal);
-					Integer ubVal = Integer.parseInt(ubValS);
-					Range<Integer> r = new Range<Integer>(ubVal, ubVal);
-					fromIdx = ((WMRangeIndex<Integer, WMHandle>) idx).get(r);
+					try {
+						Integer ubVal = Integer.parseInt(ubValS);
+						Range<Integer> r = new Range<Integer>(ubVal, ubVal);
+						fromIdx = ((WMRangeIndex<Integer, WMHandle>) idx).get(r);
+					} catch (NumberFormatException e) {
+						log.error("Error: Non-Number received as user-bucket.", e);
+					}
+
 				} else {
 					fromIdx = ((WMIndex<Integer, WMHandle>) idx).get(contextVal);
 				}
