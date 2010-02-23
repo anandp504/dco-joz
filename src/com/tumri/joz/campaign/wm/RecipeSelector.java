@@ -241,7 +241,7 @@ public class RecipeSelector {
 						Range<Integer> r = new Range<Integer>(ubVal, ubVal);
 						fromIdx = ((WMRangeIndex<Integer, WMHandle>) idx).get(r);
 					} catch (NumberFormatException e) {
-						log.error("Error: Non-Number received as user-bucket.", e);
+						log.error("Error: Non-Number received as user-bucket: " + ubValS);
 					}
 
 				} else {
