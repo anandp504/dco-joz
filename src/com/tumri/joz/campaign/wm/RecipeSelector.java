@@ -232,14 +232,18 @@ public class RecipeSelector {
 				if (vectors == null) {
 					vectors = new SortedArraySet<Handle>();
 				}
+				SortedSet<WMHandle> fromIdx = null;
 				if (WMRangeIndex.getAllowdAttributes().contains(attr)) {
 					//this lookup of dict value is necessary for range queries.
 					String ubValS = WMUtils.getDictValue(attr, contextVal);
 					Integer ubVal = Integer.parseInt(ubValS);
 					Range<Integer> r = new Range<Integer>(ubVal, ubVal);
-					vectors.addAll(((WMRangeIndex<Integer, WMHandle>) idx).get(r));
+					fromIdx = ((WMRangeIndex<Integer, WMHandle>) idx).get(r);
 				} else {
-					vectors.addAll(((WMIndex<Integer, WMHandle>) idx).get(contextVal));
+					fromIdx = ((WMIndex<Integer, WMHandle>) idx).get(contextVal);
+				}
+				if (fromIdx != null) {
+					vectors.addAll(fromIdx);
 				}
 			}
 		}
