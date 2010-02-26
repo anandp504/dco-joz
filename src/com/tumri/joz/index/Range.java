@@ -61,7 +61,8 @@ public class Range<Value> extends Pair<Value, Value> implements Comparator<Range
 		return result;
 	}
 
-	public int compareTo(Range<Value> o) {
+	@Override
+	public int compareTo(Pair<Value, Value> o) {
 		Range<Value> r1 = (Range<Value>) o;
 		if (this.equals(r1)) {
 			return 0;
