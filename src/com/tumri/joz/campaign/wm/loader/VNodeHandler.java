@@ -19,10 +19,12 @@ package com.tumri.joz.campaign.wm.loader;
 
 // JDK Classes
 
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 // Xerces Classes
+import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.strings.StringTokenizer;
 import org.xml.sax.*;
 import org.apache.xerces.parsers.*;
 import org.apache.log4j.Logger;
@@ -44,6 +46,7 @@ public class VNodeHandler extends DefaultHandler {
 	int vectorId = 0;
 	Map<WMAttribute, Integer> requestMap = new HashMap<WMAttribute, Integer>();
 	List<RecipeWeight> rwList = new ArrayList<RecipeWeight>();
+	private static final char MULTI_VALUE_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
 	private static final Logger log = Logger.getLogger(VNodeHandler.class);
 
 	public VNodeHandler(int adPodId, int vectorId, Stack path, Map params,
@@ -78,10 +81,23 @@ public class VNodeHandler extends DefaultHandler {
 					String min = attributes.getValue("min");
 					String max = attributes.getValue("max");
 					if (min != null && max != null) {
-						Integer id = WMUtils.getDictId(kAttr, WMUtils.getUniqueIntRangeString(min, max));
-						if (id != null) {
-							updateMap(kAttr, id);
+						try {
+							int minI = Integer.parseInt(min);
+							int maxI = Integer.parseInt(max);
+							if (minI <= maxI) {
+								Integer id = WMUtils.getDictId(kAttr, WMUtils.getUniqueIntRangeString(min, max));
+								if (id != null) {
+									updateMap(kAttr, id);
+								}
+							} else {
+								log.error("Skipping the request context - invalid min/max " +
+										"for type/value. Type = " + type + ". min = " + min + "max = " + max);
+							}
+						} catch (NumberFormatException e) {
+							log.error("Skipping the request context - invalid/unsupported values " +
+									"for type/value. Type = " + type + ". min = " + min + "max = " + max);
 						}
+
 					} else {
 						log.error("Skipping the request context - invalid/unsupported values " +
 								"for type/value. Type = " + type + ". min = " + min + "max = " + max);
@@ -118,6 +134,7 @@ public class VNodeHandler extends DefaultHandler {
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if (qName.equals("v")) {
+			//todo: explode code necessary for bug 3650
 			if (!requestMap.isEmpty() && !rwList.isEmpty()) {
 				WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
 				WMHandle h = cache.getWMHandle((long) vectorId);
