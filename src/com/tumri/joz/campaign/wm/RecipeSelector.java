@@ -12,7 +12,7 @@
  * WRITTEN PERMISSION OF TUMRI INC.
  *
  * @author Nipun Nair (@tumri.com)
- * @version 1.0     
+ * @version 1.0
  *
  */
 package com.tumri.joz.campaign.wm;
@@ -89,13 +89,12 @@ public class RecipeSelector {
 			defWeights.put(r.getId(), r.getWeight());
 		}
 
-		List<WMHandle> listVectors = null;
+		List<WMHandle> listVectors = new ArrayList<WMHandle>();
 		String rwmId = "DEFAULT";
-
 		//Only optimize by line id if dirty flag is not set and isLiO flag is set
 		if (!isDirty) {
 			WMDB.WMIndexCache currWtDB = WMDB.getInstance().getWeightDB(adPodId);
-			listVectors = getMatchingVectors(currWtDB, contextMap);
+			listVectors.addAll(getMatchingVectors(currWtDB, contextMap));
 		}
 		if (listVectors != null && listVectors.size() > 0) {
 			List<RecipeWeight> recipeInfos = pickOneRecipeList(listVectors, features);
@@ -248,11 +247,55 @@ public class RecipeSelector {
 					fromIdx = ((WMIndex<Integer, WMHandle>) idx).get(contextVal);
 				}
 				if (fromIdx != null) {
-					vectors.addAll(fromIdx);
+					SortedSet<Handle> validVectors = getValidVectors(contextMap, fromIdx);
+					vectors.addAll(validVectors);
 				}
 			}
 		}
 		return vectors;
+	}
+
+	private SortedSet<Handle> getValidVectors(Map<WMAttribute, List<Integer>> reqMap, SortedSet<WMHandle> vectors) {
+		SortedSet<Handle> retSet = new SortedArraySet<Handle>();
+		for (WMHandle h : vectors) {
+			Map<WMAttribute, Integer> conMap = h.getContextMap();
+			boolean validHandle = true;
+			for (WMAttribute attr : conMap.keySet()) {
+				List<Integer> reqVals = reqMap.get(attr);
+				boolean validHandle2 = false;
+				if (reqVals != null) {
+					for (Integer reqVal : reqVals) {
+						if (WMRangeIndex.getAllowdAttributes().contains(attr)) {
+							Integer cVal = conMap.get(attr);
+							String cDictVal = WMUtils.getDictValue(attr, cVal);
+							String reqDictVal = WMUtils.getDictValue(attr, reqVal);
+							List<String> minMax = WMUtils.getParsedUniqueIntRangeString(cDictVal);
+							if (minMax != null && minMax.size() == 2) {
+								int min = Integer.parseInt(minMax.get(0));
+								int max = Integer.parseInt(minMax.get(1));
+								Range<Integer> r = new Range<Integer>(min, max);
+								if (r.contains(Integer.parseInt(reqDictVal))) {
+									validHandle2 = true;
+									break;
+								}
+							}
+						} else {
+							if (reqVal.equals(conMap.get(attr))) {
+								validHandle2 = true;
+								break;
+							}
+						}
+					}
+				}
+				if (validHandle) {
+					validHandle = validHandle2;
+				}
+			}
+			if (validHandle) {
+				retSet.add(h);
+			}
+		}
+		return retSet;
 	}
 
 	/**
