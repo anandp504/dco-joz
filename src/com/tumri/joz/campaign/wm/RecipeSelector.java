@@ -176,7 +176,7 @@ public class RecipeSelector {
 	}
 
 	private List<WMHandle> getMatchingVectors(WMDB.WMIndexCache wtDB, Map<WMAttribute, List<Integer>> contextMap) {
-		List<WMHandle> res = null;
+		List<WMHandle> res = new ArrayList<WMHandle>();
 
 		//Add context matches
 		WMSetIntersector intersector = new WMSetIntersector(false);
