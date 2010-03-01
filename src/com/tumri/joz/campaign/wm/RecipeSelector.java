@@ -287,8 +287,9 @@ public class RecipeSelector {
 						}
 					}
 				}
-				if (validHandle) {
+				if (!validHandle2) {
 					validHandle = validHandle2;
+					break;
 				}
 			}
 			if (validHandle) {
