@@ -96,8 +96,8 @@ public class ANodeHandler extends DefaultHandler {
 		if (qName.equals("a")) {
 			WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
 			if (cache != null) {
-				cache.materializeRangeIndices();
 				cache.purgeOldKeys(vectorInclList);
+				cache.materializeRangeIndices();
 				SortedSet<WMHandle> allHandles = WMHandleFactory.getInstance().getHandles();
 				cache.addNewHandles(allHandles);
 			}
