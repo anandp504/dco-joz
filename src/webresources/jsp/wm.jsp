@@ -108,6 +108,7 @@
             while (iter.hasNext()) {
                 WMHandle h = iter.next();
                 long contextId = h.getOid();
+                long secId = h.getSid();
                 Map<WMAttribute, Integer> contextMap = h.getContextMap();
                 Set<WMAttribute> keys = contextMap.keySet();
     %>
@@ -116,8 +117,9 @@
             <ul><%
                 for (WMAttribute k : keys) {
                     String val = WMUtils.getDictValue(k, contextMap.get(k));
+                    String vectorId = contextId + "-" + secId;
             %>
-                <li><%=contextId %>,<%=k.name()%>,<%=val%>
+                <li><%=vectorId %>,<%=k.name()%>,<%=val%>
                 </li>
                 <%
                     }
