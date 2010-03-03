@@ -1,58 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.tumri.com/wm" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="wm" type="wm:wmType" xmlns:wm="http://www.tumri.com/wm"/>
-  <xs:complexType name="clType">
-    <xs:sequence>
-      <xs:element type="wm:cType" name="c" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="vlType">
-    <xs:sequence>
-      <xs:element type="wm:vType" name="v" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="vType">
-    <xs:sequence>
-      <xs:element type="wm:clType" name="cl" xmlns:wm="http://www.tumri.com/wm"/>
-      <xs:element type="wm:rwlType" name="rwl" xmlns:wm="http://www.tumri.com/wm"/>
-    </xs:sequence>
-    <xs:attribute type="xs:string" name="id" use="required"/>
-  </xs:complexType>
-  <xs:complexType name="rwType">
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.tumri.com/wm"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="wm" type="wm:wmType" xmlns:wm="http://www.tumri.com/wm"/>
+    <xs:complexType name="clType">
+        <xs:sequence>
+            <xs:element type="wm:cType" name="c" maxOccurs="unbounded" minOccurs="0"
+                        xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="vlType">
+        <xs:sequence>
+            <xs:element type="wm:vType" name="v" maxOccurs="unbounded" minOccurs="0"
+                        xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="vType">
+        <xs:sequence>
+            <xs:element type="wm:clType" name="cl" xmlns:wm="http://www.tumri.com/wm"/>
+            <xs:element type="wm:rwlType" name="rwl" xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="required"/>
-        <xs:attribute type="xs:string" name="wt" use="required"/>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-  <xs:complexType name="cType">
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute type="xs:string" name="type" use="required"/>
-        <xs:attribute type="xs:string" name="val" use="required"/>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-  <xs:complexType name="wmType">
-    <xs:sequence>
-      <xs:element type="wm:alType" name="al" xmlns:wm="http://www.tumri.com/wm"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="alType">
-    <xs:sequence>
-      <xs:element type="wm:aType" name="a" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="aType">
-    <xs:sequence>
-      <xs:element type="wm:vlType" name="vl" xmlns:wm="http://www.tumri.com/wm"/>
-    </xs:sequence>
-    <xs:attribute type="xs:string" name="id" use="required"/>
-  </xs:complexType>
-  <xs:complexType name="rwlType">
-    <xs:sequence>
-      <xs:element type="wm:rwType" name="rw" maxOccurs="unbounded" minOccurs="0" xmlns:wm="http://www.tumri.com/wm"/>
-    </xs:sequence>
-  </xs:complexType>
+    </xs:complexType>
+    <xs:complexType name="rwType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="id" use="required"/>
+                <xs:attribute type="xs:string" name="wt" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="cType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="type" type="wm:dimType" xmlns:wm="http://www.tumri.com/wm" use="required"/>
+                <xs:attribute type="xs:string" name="val"/>
+                <xs:attribute type="xs:int" name="min"/>
+                <xs:attribute type="xs:int" name="max"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="wmType">
+        <xs:sequence>
+            <xs:element type="wm:alType" name="al" xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="alType">
+        <xs:sequence>
+            <xs:element type="wm:aType" name="a" maxOccurs="unbounded" minOccurs="0"
+                        xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="aType">
+        <xs:sequence>
+            <xs:element type="wm:vlType" name="vl" xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="rwlType">
+        <xs:sequence>
+            <xs:element type="wm:rwType" name="rw" maxOccurs="unbounded" minOccurs="0"
+                        xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="dimType" xmlns:wm="http://www.tumri.com/wm">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="lineid"/>
+            <xs:enumeration value="siteid"/>
+            <xs:enumeration value="buyid"/>
+            <xs:enumeration value="creativeid"/>
+            <xs:enumeration value="adid"/>
+            <xs:enumeration value="country"/>
+            <xs:enumeration value="state"/>
+            <xs:enumeration value="city"/>
+            <xs:enumeration value="zip"/>
+            <xs:enumeration value="area"/>
+            <xs:enumeration value="dma"/>
+            <xs:enumeration value="t1"/>
+            <xs:enumeration value="t2"/>
+            <xs:enumeration value="t3"/>
+            <xs:enumeration value="t4"/>
+            <xs:enumeration value="t5"/>
+            <xs:enumeration value="f1"/>
+            <xs:enumeration value="f2"/>
+            <xs:enumeration value="f3"/>
+            <xs:enumeration value="f4"/>
+            <xs:enumeration value="f5"/>
+            <xs:enumeration value="ub"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

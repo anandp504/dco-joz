@@ -42,7 +42,7 @@ public class TestRecipeWeightTargeting {
 
         WMXMLParser parser = new WMXMLParserV1();
         parser.process("/Users/nipun/ws/work-nbp/depot/Tumri/tas/joz/test/data/csl/test.xml");
-        
+
 //        //Load the weights
 //        Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();
 //        contextMap.put(WMIndex.Attribute.kState, WMUtils.getDictId(WMIndex.Attribute.kState,"CA"));
@@ -79,13 +79,15 @@ public class TestRecipeWeightTargeting {
         for (int i=0;i<10;i++) {
             TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
             JozAdRequest jozRequest = new JozAdRequest();
-            jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "105004");
+            jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "108173");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "13477514");
             jozRequest.setValue(JozAdRequest.KEY_REGION, "TX");
             jozRequest.setValue(JozAdRequest.KEY_DMACODE, "123567");
-            jozRequest.setValue(JozAdRequest.KEY_AREACODE, "xyz");
-            jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "skyscraper");
-            jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "Y");
+            jozRequest.setValue(JozAdRequest.KEY_AREACODE, "333");
+            jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+            jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD2, "d,a");
+            jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD4, "g");
+            jozRequest.setValue(JozAdRequest.KEY_USER_BUCKET, "99");
 
             AdDataRequest request = new AdDataRequest(jozRequest);
             Features f = new Features();
@@ -93,7 +95,11 @@ public class TestRecipeWeightTargeting {
             Assert.assertTrue(r!=null);
             System.out.println("Try " + i + " ===>" + r.getName() + " " + r.getId() + " " + r.getAdpodId());
             System.out.println("Try " + i + " ===>" + f.getAdpodName());
-            System.out.println("Selected Context ID ===>" + f.getFeaturesDetail("RWM-ID:"));
+            try {
+                System.out.println("Selected Context ID ===>" + f.getFeaturesDetail("RWM-ID"));
+            } catch (Exception e) {
+                //
+            }
             System.out.println("---------------------");
             //Assert.assertTrue(f.getAdpodName().equals("admin_custom"));
         }

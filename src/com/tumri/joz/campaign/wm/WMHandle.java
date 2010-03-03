@@ -35,9 +35,12 @@ public class WMHandle implements Handle, Cloneable {
 	private double score = 0.0;
 	private double normFactor = 1.0;
 	private long oid = 0;
+	private long sid = 0;
+    private boolean noneHandle = false;
 
-	public WMHandle(long aOid, Map<WMAttribute, Integer> contextMap, List<RecipeWeight> recipeWeights) {
+    public WMHandle(long aOid,long aSid, Map<WMAttribute, Integer> contextMap, List<RecipeWeight> recipeWeights) {
 		this.oid = aOid;
+		this.sid = aSid;
 		this.recipeList = recipeWeights;
 		this.contextMap = contextMap;
 		if (contextMap != null) {
@@ -60,7 +63,15 @@ public class WMHandle implements Handle, Cloneable {
 		return score;
 	}
 
-	public void setScore(double d) {
+    public long getSid() {
+        return sid;
+    }
+
+    public void setSid(long sid) {
+        this.sid = sid;
+    }
+
+    public void setScore(double d) {
 		score = d;
 	}
 
@@ -77,6 +88,7 @@ public class WMHandle implements Handle, Cloneable {
 		if (o == null || getClass() != o.getClass()) return false;
 		WMHandle that = (WMHandle) o;
 		if (oid != that.oid) return false;
+		if (sid != that.sid) return false;
 		return true;
 	}
 
@@ -90,8 +102,11 @@ public class WMHandle implements Handle, Cloneable {
 		if (score > ph.score) return -1;
 		if (score < ph.score) return 1;
 
-		return (oid < ph.oid ? -1 :
-				oid == ph.oid ? 0 : 1);
+		if (oid < ph.oid) return -1;
+		if (oid > ph.oid) return 1;
+
+		return (sid < ph.sid ? -1 :
+				sid == ph.sid ? 0 : 1);
 	}
 
 
@@ -102,6 +117,8 @@ public class WMHandle implements Handle, Cloneable {
 		if (handle1.score < handle2.score) return -1;
 		if (handle1.oid < handle2.oid) return -1;
 		if (handle1.oid > handle2.oid) return 1;
+		if (handle1.sid < handle2.sid) return -1;
+		if (handle1.sid > handle2.sid) return 1;
 		return 0;
 
 	}
@@ -126,6 +143,7 @@ public class WMHandle implements Handle, Cloneable {
 		copyVector.contextMap = this.contextMap;
 		copyVector.score = this.score;
 		copyVector.oid = this.oid;
+		copyVector.sid = this.sid;
 		return copyVector;
 	}
 
@@ -141,4 +159,12 @@ public class WMHandle implements Handle, Cloneable {
 	public Map<WMAttribute, Integer> getContextMap() {
 		return contextMap;
 	}
+
+    public boolean isNoneHandle() {
+        return noneHandle;
+    }
+
+    public void setNoneHandle(boolean noneHandle) {
+        this.noneHandle = noneHandle;
+    }
 }

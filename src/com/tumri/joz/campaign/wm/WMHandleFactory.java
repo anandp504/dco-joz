@@ -55,8 +55,8 @@ public class WMHandleFactory {
 	 * @param id
 	 * @return
 	 */
-	public WMHandle getHandle(long id, Map<WMAttribute, Integer> contextMap, List<RecipeWeight> recipeWeights) {
-		WMHandle p = new WMHandle(id, contextMap, recipeWeights);
+	public WMHandle getHandle(long id, long sid, Map<WMAttribute, Integer> contextMap, List<RecipeWeight> recipeWeights) {
+		WMHandle p = new WMHandle(id, sid, contextMap, recipeWeights);
 		Handle ph = wmHandles.find(p);
 		if (ph != null) {
 			p = (WMHandle) ph;
@@ -66,17 +66,6 @@ public class WMHandleFactory {
 		}
 		return p;
 
-	}
-
-	/**
-	 * Get the handle if already there, else create one
-	 *
-	 * @param id
-	 * @return
-	 */
-	public List<WMHandle> getHandles(long id, Map<WMAttribute, List<Integer>> contextMap, List<RecipeWeight> recipeWeights) {
-		List<WMHandle> retList = new ArrayList<WMHandle>();
-		return retList;
 	}
 
 	/**

@@ -16,7 +16,6 @@ import java.util.*;
 public class WMRangeIndex<V, Value> extends AbstractRangeIndex<WMAttribute, V, Value> {
 
 	private WMAttribute type;
-
 	public WMRangeIndex() {
 	}
 
@@ -33,13 +32,7 @@ public class WMRangeIndex<V, Value> extends AbstractRangeIndex<WMAttribute, V, V
 		return null;
 	}
 
-	public static List<WMAttribute> getAllowdAttributes() {
-		List<WMAttribute> retList = new ArrayList<WMAttribute>();
-		retList.add(WMAttribute.ub);
-		return retList;
-	}
-
-	@Test
+    @Test
 	public void test() {
 //		SortedSet<Integer> ss = new SortedArraySet<Integer>();
 //		ss.add(1);
@@ -75,7 +68,7 @@ public class WMRangeIndex<V, Value> extends AbstractRangeIndex<WMAttribute, V, V
 
 		Range<Integer> r6 = new Range<Integer>(1, 1);
 
-		WMRangeIndex<Integer, String> rangeIndex = new WMRangeIndex<Integer, String>(WMAttribute.ub);
+		WMRangeIndex<Integer, String> rangeIndex = new WMRangeIndex<Integer, String>(WMAttribute.kUB);
 
 		rangeIndex.put(r1, "Range1");
 		rangeIndex.put(r2, "Range2");

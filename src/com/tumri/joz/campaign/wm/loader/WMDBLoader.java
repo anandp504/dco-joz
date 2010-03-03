@@ -131,7 +131,7 @@ public class WMDBLoader {
 			for (WMAttribute attr : requestMap.keySet()) {
 				Integer id = requestMap.get(attr);
 				if (id != null) {
-					if (WMRangeIndex.getAllowdAttributes().contains(attr)) {
+					if (WMUtils.getRangeAttributes().contains(attr)) {
 						TreeMap<Range<Integer>, ArrayList<WMHandle>> map = new TreeMap<Range<Integer>, ArrayList<WMHandle>>();
 						ArrayList<WMHandle> handles = new ArrayList<WMHandle>();
 						handles.add(handle);
@@ -160,6 +160,20 @@ public class WMDBLoader {
 					}
 				}
 			}
+            //ADD to none index.
+            Set<WMAttribute> noneAttrs = WMUtils.findNoneAttributes(requestMap.keySet());
+            for (WMAttribute nAttr: noneAttrs) {
+                Integer id = WMUtils.getNoneDictId(nAttr);
+                TreeMap<Integer, ArrayList<WMHandle>> map = new TreeMap<Integer, ArrayList<WMHandle>>();
+                ArrayList<WMHandle> handles = new ArrayList<WMHandle>();
+                WMHandle noneHandle = (WMHandle)handle.clone();
+                noneHandle.setNoneHandle(true);
+                handles.add(noneHandle);
+                map.put(id, handles);
+                WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(adPodId);
+                db.updateIntegerIndex(nAttr, map);
+            }
+            
 		}
 	}
 

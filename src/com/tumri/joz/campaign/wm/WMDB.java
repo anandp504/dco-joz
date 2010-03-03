@@ -145,7 +145,29 @@ public class WMDB {
 			addIndex(WMAttribute.kF3, new WMIndex<Integer, WMHandle>(WMAttribute.kF3));
 			addIndex(WMAttribute.kF4, new WMIndex<Integer, WMHandle>(WMAttribute.kF4));
 			addIndex(WMAttribute.kF5, new WMIndex<Integer, WMHandle>(WMAttribute.kF5));
-			addIndex(WMAttribute.ub, new WMRangeIndex<Integer, WMHandle>(WMAttribute.ub));
+			addIndex(WMAttribute.kUB, new WMRangeIndex<Integer, WMHandle>(WMAttribute.kUB));
+            addIndex(WMAttribute.kLineIdNone, new WMIndex<Integer, WMHandle>(WMAttribute.kLineIdNone));
+			addIndex(WMAttribute.kSiteIdNone, new WMIndex<Integer, WMHandle>(WMAttribute.kSiteIdNone));
+			addIndex(WMAttribute.kCreativeIdNone, new WMIndex<Integer, WMHandle>(WMAttribute.kCreativeIdNone));
+			addIndex(WMAttribute.kBuyIdNone, new WMIndex<Integer, WMHandle>(WMAttribute.kBuyIdNone));
+			addIndex(WMAttribute.kAdIdNone, new WMIndex<Integer, WMHandle>(WMAttribute.kAdIdNone));
+			addIndex(WMAttribute.kStateNone, new WMIndex<Integer, WMHandle>(WMAttribute.kStateNone));
+			addIndex(WMAttribute.kZipNone, new WMIndex<Integer, WMHandle>(WMAttribute.kZipNone));
+			addIndex(WMAttribute.kDMANone, new WMIndex<Integer, WMHandle>(WMAttribute.kDMANone));
+			addIndex(WMAttribute.kAreaNone, new WMIndex<Integer, WMHandle>(WMAttribute.kAreaNone));
+			addIndex(WMAttribute.kCityNone, new WMIndex<Integer, WMHandle>(WMAttribute.kCityNone));
+			addIndex(WMAttribute.kCountryNone, new WMIndex<Integer, WMHandle>(WMAttribute.kCountryNone));
+			addIndex(WMAttribute.kT1None, new WMIndex<Integer, WMHandle>(WMAttribute.kT1None));
+			addIndex(WMAttribute.kT2None, new WMIndex<Integer, WMHandle>(WMAttribute.kT2None));
+			addIndex(WMAttribute.kT3None, new WMIndex<Integer, WMHandle>(WMAttribute.kT3None));
+			addIndex(WMAttribute.kT4None, new WMIndex<Integer, WMHandle>(WMAttribute.kT4None));
+			addIndex(WMAttribute.kT5None, new WMIndex<Integer, WMHandle>(WMAttribute.kT5None));
+			addIndex(WMAttribute.kF1None, new WMIndex<Integer, WMHandle>(WMAttribute.kF1None));
+			addIndex(WMAttribute.kF2None, new WMIndex<Integer, WMHandle>(WMAttribute.kF2None));
+			addIndex(WMAttribute.kF3None, new WMIndex<Integer, WMHandle>(WMAttribute.kF3None));
+			addIndex(WMAttribute.kF4None, new WMIndex<Integer, WMHandle>(WMAttribute.kF4None));
+			addIndex(WMAttribute.kF5None, new WMIndex<Integer, WMHandle>(WMAttribute.kF5None));
+			addIndex(WMAttribute.kUBNone, new WMIndex<Integer, WMHandle>(WMAttribute.kUBNone));
 		}
 
 		public void addIndex(WMAttribute aAttribute, AbstractIndex<WMHandle, WMAttribute, ?, WMHandle> index) {
@@ -191,7 +213,7 @@ public class WMDB {
 		}
 
 		public void materializeRangeIndices() {
-			for (WMAttribute attr : WMRangeIndex.getAllowdAttributes()) {
+			for (WMAttribute attr : WMUtils.getRangeAttributes()) {
 				((WMRangeIndex<Integer, WMHandle>) m_indices.get(attr)).materialize();
 			}
 		}
@@ -217,8 +239,8 @@ public class WMDB {
 		 * @param pid
 		 * @return Handle
 		 */
-		public WMHandle getWMHandle(Long pid) {
-			WMHandle p = new WMHandle(pid, null, null);
+		public WMHandle getWMHandle(Long pid, Long sid) {
+			WMHandle p = new WMHandle(pid, sid, null, null);
 			Handle ph;
 			try {
 				m_allHandles.readerLock();
@@ -249,7 +271,7 @@ public class WMDB {
 			Enumeration<WMAttribute> keys = getIndices();
 			while (keys.hasMoreElements()) {
 				WMAttribute type = keys.nextElement();
-				if (WMRangeIndex.getAllowdAttributes().contains(type)) {
+				if (WMUtils.getRangeAttributes().contains(type)) {
 					WMRangeIndex<Integer, WMHandle> idx = (WMRangeIndex<Integer, WMHandle>) m_indices.get(type);
 					Set<Range<Integer>> res = null;
 					if (idx != null) {

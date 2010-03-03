@@ -24,7 +24,6 @@ import java.util.*;
 
 // Xerces Classes
 import com.tumri.joz.utils.AppProperties;
-import com.tumri.utils.strings.StringTokenizer;
 import org.xml.sax.*;
 import org.apache.xerces.parsers.*;
 import org.apache.log4j.Logger;
@@ -37,133 +36,187 @@ import com.tumri.joz.campaign.wm.*;
  * Time: 12:11:20 PM
  */
 public class VNodeHandler extends DefaultHandler {
-	private CharArrayWriter text = new CharArrayWriter();
-	private Stack path;
-	private Map params;
-	private DefaultHandler parent;
-	private SAXParser parser;
-	int adPodId = 0;
-	int vectorId = 0;
-	Map<WMAttribute, Integer> requestMap = new HashMap<WMAttribute, Integer>();
-	List<RecipeWeight> rwList = new ArrayList<RecipeWeight>();
-	private static final char MULTI_VALUE_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
-	private static final Logger log = Logger.getLogger(VNodeHandler.class);
+    private CharArrayWriter text = new CharArrayWriter();
+    private Stack path;
+    private Map params;
+    private DefaultHandler parent;
+    private SAXParser parser;
+    int adPodId = 0;
+    int vectorId = 0;
+    Map<WMAttribute, String> requestMap = new HashMap<WMAttribute, String>();
+    List<RecipeWeight> rwList = new ArrayList<RecipeWeight>();
+    private static final char MULTI_VALUE_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
+    private static final Logger log = Logger.getLogger(VNodeHandler.class);
 
-	public VNodeHandler(int adPodId, int vectorId, Stack path, Map params,
-	                    Attributes attributes, SAXParser parser, DefaultHandler parent) throws SAXException {
-		this.adPodId = adPodId;
-		this.vectorId = vectorId;
-		this.path = path;
-		this.params = params;
-		this.parent = parent;
-		this.parser = parser;
-		start(attributes);
-	}
-
-
-	public void start(Attributes attributes) throws SAXException {
-	}
-
-	public void end() throws SAXException {
-	}
+    public VNodeHandler(int adPodId, int vectorId, Stack path, Map params,
+                        Attributes attributes, SAXParser parser, DefaultHandler parent) throws SAXException {
+        this.adPodId = adPodId;
+        this.vectorId = vectorId;
+        this.path = path;
+        this.params = params;
+        this.parent = parent;
+        this.parser = parser;
+        start(attributes);
+    }
 
 
-	public String getText() {
-		return text.toString().trim();
-	}
+    public void start(Attributes attributes) throws SAXException {
+    }
 
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		if (qName.equals("c")) {
-			String type = attributes.getValue("type");
-			WMAttribute kAttr = WMUtils.getAttribute(type);
-			if (kAttr != null) {
-				if (WMRangeIndex.getAllowdAttributes().contains(kAttr)) { //this is a range query
-					String min = attributes.getValue("min");
-					String max = attributes.getValue("max");
-					if (min != null && max != null) {
-						try {
-							int minI = Integer.parseInt(min);
-							int maxI = Integer.parseInt(max);
-							if (minI <= maxI) {
-								Integer id = WMUtils.getDictId(kAttr, WMUtils.getUniqueIntRangeString(min, max));
-								if (id != null) {
-									updateMap(kAttr, id);
-								}
-							} else {
-								log.error("Skipping the request context - invalid min/max " +
-										"for type/value. Type = " + type + ". min = " + min + "max = " + max);
-							}
-						} catch (NumberFormatException e) {
-							log.error("Skipping the request context - invalid/unsupported values " +
-									"for type/value. Type = " + type + ". min = " + min + "max = " + max);
-						}
-
-					} else {
-						log.error("Skipping the request context - invalid/unsupported values " +
-								"for type/value. Type = " + type + ". min = " + min + "max = " + max);
-					}
-				} else {
-					String val = attributes.getValue("val");
-					if (val != null) {
-						Integer id = WMUtils.getDictId(kAttr, val);
-						if (id != null) {
-							updateMap(kAttr, id);
-						}
-					} else {
-						log.error("Skipping the request context - invalid/unsupported values " +
-								"for type/value. Type = " + type + ". Value = " + val);
-					}
-				}
-			}
-		}
-		if (qName.equals("rw")) {
-			try {
-				Integer recipeId = Integer.parseInt(attributes.getValue("id"));
-				Float wt = Float.parseFloat(attributes.getValue("wt"));
-				if (recipeId != null && wt != null) {
-					rwList.add(new RecipeWeight(recipeId, wt));
-				}
-			} catch (NumberFormatException e) {
-				log.error("Skipping recipe weight - RecipeID/Weight are badly formatted");
-			}
-
-		}
-		text.reset();
-
-	}
-
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (qName.equals("v")) {
-			//todo: explode code necessary for bug 3650
-			if (!requestMap.isEmpty() && !rwList.isEmpty()) {
-				WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
-				WMHandle h = cache.getWMHandle((long) vectorId);
-				if (h == null) {
-					h = WMHandleFactory.getInstance().getHandle(vectorId, requestMap, rwList);
-				} else {
-					h.setRecipeList(rwList);
-				}
-				WMDBLoader.updateDb(adPodId, requestMap, h);
-			} else {
-				log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);
-			}
-			end();
-			path.pop();
-			parser.setContentHandler(parent);
-		}
+    public void end() throws SAXException {
+    }
 
 
-	}
+    public String getText() {
+        return text.toString().trim();
+    }
 
-	public void characters(char[] ch, int start, int length) {
-		text.write(ch, start, length);
-	}
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        if (qName.equals("c")) {
+            String type = attributes.getValue("type");
+            WMAttribute kAttr = WMUtils.getAttribute(type);
+            if (kAttr != null) {
+                if (WMUtils.getRangeAttributes().contains(kAttr)) { //this is a range query
+                    String min = attributes.getValue("min");
+                    String max = attributes.getValue("max");
+                    if (min != null && max != null) {
+                        try {
+                            int minI = Integer.parseInt(min);
+                            int maxI = Integer.parseInt(max);
+                            if (minI <= maxI) {
+                                updateMap(kAttr, WMUtils.getUniqueIntRangeString(min, max));
+                            } else {
+                                log.error("Skipping the request context - invalid min/max " +
+                                        "for type/value. Type = " + type + ". min = " + min + "max = " + max);
+                            }
+                        } catch (NumberFormatException e) {
+                            log.error("Skipping the request context - invalid/unsupported values " +
+                                    "for type/value. Type = " + type + ". min = " + min + "max = " + max);
+                        }
+
+                    } else {
+                        log.error("Skipping the request context - invalid/unsupported values " +
+                                "for type/value. Type = " + type + ". min = " + min + "max = " + max);
+                    }
+                } else {
+                    String val = attributes.getValue("val");
+                    if (val != null) {
+                        updateMap(kAttr, val);
+                    } else {
+                        log.error("Skipping the request context - invalid/unsupported values " +
+                                "for type/value. Type = " + type + ". Value = " + val);
+                    }
+                }
+            }
+        }
+        if (qName.equals("rw")) {
+            try {
+                Integer recipeId = Integer.parseInt(attributes.getValue("id"));
+                Float wt = Float.parseFloat(attributes.getValue("wt"));
+                if (recipeId != null && wt != null) {
+                    rwList.add(new RecipeWeight(recipeId, wt));
+                }
+            } catch (NumberFormatException e) {
+                log.error("Skipping recipe weight - RecipeID/Weight are badly formatted");
+            }
+
+        }
+        text.reset();
+
+    }
+
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        if (qName.equals("v")) {
+            if (!requestMap.isEmpty() && !rwList.isEmpty()) {
+                List<Map<WMAttribute,  Integer>> explodedMap = explodeRequestMap(requestMap);
+                int count = 0;
+                for (Map<WMAttribute,  Integer> rMap: explodedMap) {
+                    WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
+                    WMHandle h = cache.getWMHandle((long) vectorId, (long) count);
+                    if (h == null) {
+                        h = WMHandleFactory.getInstance().getHandle(vectorId, count, rMap, rwList);
+                    } else {
+                        h.setRecipeList(rwList);
+                    }
+                    WMDBLoader.updateDb(adPodId, rMap, h);
+                    count++;
+                }
+            } else {
+                log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);
+            }
+            end();
+            path.pop();
+            parser.setContentHandler(parent);
+        }
 
 
-	private void updateMap(WMAttribute attr, Integer id) {
-		if (id != null) {
-			requestMap.put(attr, id);
-		}
-	}
+    }
+
+
+    private List<Map<WMAttribute,  Integer>> explodeRequestMap(Map<WMAttribute, String> reqMap) {
+        //Get the map of att to list of integers
+        Map<WMAttribute, List<Integer>> idMap = new HashMap<WMAttribute,  List<Integer>>();
+        int count = 0;
+        for (WMAttribute attr: reqMap.keySet()) {
+            List<String> parsedList = WMUtils.parseValues(reqMap.get(attr));
+            for (String val: parsedList) {
+                Integer id = WMUtils.getDictId(attr, val);
+                List<Integer> idList = idMap.get(attr);
+                if (idList==null) {
+                    idList = new ArrayList<Integer>();
+                }
+                idList.add(id);
+                idMap.put(attr, idList);
+            }
+            if (count ==0) {
+                count = parsedList.size();
+            } else {
+                count = count*parsedList.size();
+            }
+        }
+        //Initialize the maps
+        List<Map<WMAttribute,  Integer>> listMaps = new ArrayList<Map<WMAttribute,  Integer>>(count);
+        //Populate the maps
+        //add base empty Map to return list...this will be built upon.
+        listMaps.add(new HashMap<WMAttribute, Integer>());
+        Set<WMAttribute> keys = reqMap.keySet();
+        Map<WMAttribute, Integer> tmpMap = new HashMap<WMAttribute, Integer>();
+
+        for (WMAttribute attr: keys) {
+            List<Integer> tmpIds = idMap.get(attr);
+            if(tmpIds.size()>1){
+                List<Map<WMAttribute, Integer>> tmpList = new ArrayList<Map<WMAttribute, Integer>>();
+                for(Map<WMAttribute, Integer> retMap: listMaps){
+                    for(Integer id : tmpIds){
+                        Map<WMAttribute, Integer> retMapBuilder = new HashMap<WMAttribute, Integer>();
+                        retMapBuilder.putAll(retMap);
+                        retMapBuilder.putAll(tmpMap);
+                        retMapBuilder.put(attr, id);
+                        tmpList.add(retMapBuilder);
+                    }
+                }
+                listMaps=tmpList;
+                tmpMap.clear();
+            } else if(tmpIds.size() == 1) {
+                tmpMap.put(attr, tmpIds.get(0));
+            }
+
+        }
+        for(Map<WMAttribute, Integer> retMap: listMaps){
+            retMap.putAll(tmpMap);
+        }
+        return listMaps;
+    }
+
+    public void characters(char[] ch, int start, int length) {
+        text.write(ch, start, length);
+    }
+
+
+    private void updateMap(WMAttribute attr, String val) {
+        if (val != null && !val.isEmpty()) {
+            requestMap.put(attr, val);
+        }
+    }
 
 }

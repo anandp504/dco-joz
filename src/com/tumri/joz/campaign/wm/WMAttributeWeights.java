@@ -33,6 +33,28 @@ public class WMAttributeWeights implements IWeight<Handle> {
 	private static double kF4 = 1.0;
 	private static double kF5 = 1.0;
 	private static double ub = 1.0;
+    private static double kLineIdNone = 0.2;
+	private static double kSiteIdNone = 0.2;
+	private static double kCreativeIdNone = 0.2;
+	private static double kAdIdNone = 0.2;
+	private static double kBuyIdNone = 0.2;
+	private static double kStateNone = 0.2;
+	private static double kCountryNone = 0.2;
+	private static double kCityNone = 0.2;
+	private static double kAreaNone = 0.2;
+	private static double kZipNone = 0.2;
+	private static double kDMANone = 0.2;
+	private static double kT1None = 0.2;
+	private static double kT2None = 0.2;
+	private static double kT3None = 0.2;
+	private static double kT4None = 0.2;
+	private static double kT5None = 0.2;
+	private static double kF1None = 0.2;
+	private static double kF2None = 0.2;
+	private static double kF3None = 0.2;
+	private static double kF4None = 0.2;
+	private static double kF5None = 0.2;
+	private static double ubNone = 0.2;
 
 	private WMHandle requestHandle = null;
 	private WMAttribute attr = null;
@@ -69,7 +91,9 @@ public class WMAttributeWeights implements IWeight<Handle> {
 		} else {
 			return 0.0;
 		}
-		double wt = getDefaultAttributeWeight(attr);
+        WMAttribute currAttr = (((WMHandle) v).isNoneHandle())?WMUtils.getNoneAttribute(attr):attr;
+        
+		double wt = getDefaultAttributeWeight(currAttr);
 		return (wt * wt) * h.getNormFactor() * requestHandle.getNormFactor();
 	}
 
@@ -125,10 +149,54 @@ public class WMAttributeWeights implements IWeight<Handle> {
 				return kF4;
 			case kF5:
 				return kF5;
-			case ub:
+			case kUB:
 				return ub;
+			case kLineIdNone:
+				return kLineIdNone;
+			case kSiteIdNone:
+				return kSiteIdNone;
+			case kCreativeIdNone:
+				return kCreativeIdNone;
+			case kAdIdNone:
+				return kAdIdNone;
+			case kBuyIdNone:
+				return kBuyIdNone;
+			case kStateNone:
+				return kStateNone;
+			case kCountryNone:
+				return kCountryNone;
+			case kCityNone:
+				return kCityNone;
+			case kAreaNone:
+				return kAreaNone;
+			case kZipNone:
+				return kZipNone;
+			case kDMANone:
+				return kDMANone;
+			case kT1None:
+				return kT1None;
+			case kT2None:
+				return kT2None;
+			case kT3None:
+				return kT3None;
+			case kT4None:
+				return kT4None;
+			case kT5None:
+				return kT5None;
+			case kF1None:
+				return kF1None;
+			case kF2None:
+				return kF2None;
+			case kF3None:
+				return kF3None;
+			case kF4None:
+				return kF4None;
+			case kF5None:
+				return kF5None;
+			case kUBNone:
+				return ubNone;
 			default:
 		}
-		return 1.0;
+		return 0.2;
 	}
 }
