@@ -93,8 +93,7 @@ public class WMAttributeWeights implements IWeight<Handle> {
 		}
         WMAttribute currAttr = (((WMHandle) v).isNoneHandle())?WMUtils.getNoneAttribute(attr):attr;
         
-		double wt = getDefaultAttributeWeight(currAttr);
-		return (wt * wt) * h.getNormFactor() * requestHandle.getNormFactor();
+		return getDefaultAttributeWeight(currAttr);
 	}
 
 	public int match(Handle v) {

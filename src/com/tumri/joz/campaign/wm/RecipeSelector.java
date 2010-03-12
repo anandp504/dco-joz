@@ -190,9 +190,20 @@ public class RecipeSelector {
                     IWeight<Handle> wt = getHandleWeight(attr, vectors, contextMap);
                     intersector.include(vectors, wt);
                 }
+
+            }
+            //Include all other none sets
+            Set<WMAttribute> nonAttrs = WMUtils.findNoneAttributes(contextMap.keySet());
+            for (WMAttribute na: nonAttrs) {
+                AbstractIndex noneidx = wtDB.getIndex(na);
+                SortedSet<Handle> noneRes = ((WMIndex<Integer, Handle>) noneidx).get(WMUtils.getNoneDictId(na));
+                //Build intersector
+                IWeight<Handle> wt = getHandleWeight(na, noneRes, contextMap);
+                intersector.include(noneRes, wt);
             }
         }
         SortedSet<Handle> results = intersector.intersect();
+
         if (results != null) {
             res = new ArrayList<WMHandle>();
             double score = 0.0;
@@ -249,70 +260,21 @@ public class RecipeSelector {
                 } else {
                     fromIdx = ((WMIndex<Integer, WMHandle>) idx).get(contextVal);
                 }
+                MultiSortedSet<WMHandle> results = new MultiSortedSet<WMHandle>();
+
                 if (fromIdx!=null && !fromIdx.isEmpty()) {
-                    MultiSortedSet<WMHandle> results = new MultiSortedSet<WMHandle>();
                     results.add(fromIdx);
-                    //Include the none list as well
-                    if (noneidx!=null) {
-                        SortedSet<WMHandle> noneRes = ((WMIndex<Integer, WMHandle>) noneidx).get(WMUtils.getNoneDictId(kNone));
-                        results.add(noneRes);
-                    }
-                    SortedSet<Handle> validVectors = getValidVectors(contextMap, results);
-                    vectors.addAll(validVectors);
                 }
+                //Include the none list as well
+                if (noneidx!=null) {
+                    SortedSet<WMHandle> noneRes = ((WMIndex<Integer, WMHandle>) noneidx).get(WMUtils.getNoneDictId(kNone));
+                    results.add(noneRes);
+                }
+                //SortedSet<Handle> validVectors = getValidVectors(contextMap, results);
+                vectors.addAll(results);
             }
         }
         return vectors;
-    }
-
-    /**
-     * Only select the vectors whose context map is a proper subset of the request map ( also matching the values )
-     * @param reqMap
-     * @param vectors
-     * @return
-     */
-    private SortedSet<Handle> getValidVectors(Map<WMAttribute, List<Integer>> reqMap, SortedSet<WMHandle> vectors) {
-        SortedSet<Handle> retSet = new SortedArraySet<Handle>();
-        for (WMHandle h : vectors) {
-            Map<WMAttribute, Integer> conMap = h.getContextMap();
-            boolean validHandle = true;
-            for (WMAttribute attr : conMap.keySet()) {
-                List<Integer> reqVals = reqMap.get(attr);
-                boolean validHandle2 = false;
-                if (reqVals != null) {
-                    for (Integer reqVal : reqVals) {
-                        if (WMUtils.getRangeAttributes().contains(attr)) {
-                            Integer cVal = conMap.get(attr);
-                            String cDictVal = WMUtils.getDictValue(attr, cVal);
-                            String reqDictVal = WMUtils.getDictValue(attr, reqVal);
-                            List<String> minMax = WMUtils.getParsedUniqueIntRangeString(cDictVal);
-                            if (minMax != null && minMax.size() == 2) {
-                                int min = Integer.parseInt(minMax.get(0));
-                                int max = Integer.parseInt(minMax.get(1));
-                                Range<Integer> r = new Range<Integer>(min, max);
-                                if (r.contains(Integer.parseInt(reqDictVal))) {
-                                    validHandle2 = true;
-                                    break;
-                                }
-                            }
-                        } else {
-                            if (reqVal.equals(conMap.get(attr))) {
-                                validHandle2 = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (!validHandle2) {
-                    validHandle = validHandle2;
-                    break;
-                }
-            }
-            if (validHandle) {
-                retSet.add(h);
-            }
-        }
-        return retSet;
     }
 
     /**

@@ -33,7 +33,6 @@ public class WMHandle implements Handle, Cloneable {
 	private List<RecipeWeight> recipeList;
 	private Map<WMAttribute, Integer> contextMap;
 	private double score = 0.0;
-	private double normFactor = 1.0;
 	private long oid = 0;
 	private long sid = 0;
     private boolean noneHandle = false;
@@ -43,15 +42,6 @@ public class WMHandle implements Handle, Cloneable {
 		this.sid = aSid;
 		this.recipeList = recipeWeights;
 		this.contextMap = contextMap;
-		if (contextMap != null) {
-			Set<WMAttribute> keys = contextMap.keySet();
-			double n = 1.0;
-			for (WMAttribute kAttr : keys) {
-				double defWt = WMAttributeWeights.getDefaultAttributeWeight(kAttr);
-				n += defWt * defWt;
-			}
-			this.normFactor = 1 / n;
-		}
 
 	}
 
@@ -75,13 +65,6 @@ public class WMHandle implements Handle, Cloneable {
 		score = d;
 	}
 
-	public double getNormFactor() {
-		return normFactor;
-	}
-
-	public void setNormFactor(double normFactor) {
-		this.normFactor = normFactor;
-	}
 
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -99,6 +82,13 @@ public class WMHandle implements Handle, Cloneable {
 
 	public int compareTo(Object handle) {
 		WMHandle ph = (WMHandle) handle;
+        int sz = contextMap!=null?contextMap.size():0;
+        int phSz = ph.contextMap!=null?ph.contextMap.size():0;
+        
+        //Also sort in desc order of contextmap
+        if (sz > phSz) return -1;
+        if (sz < phSz) return 1;
+        
 		if (score > ph.score) return -1;
 		if (score < ph.score) return 1;
 

@@ -237,6 +237,7 @@ public class WMUtils {
                 noneAttr = WMAttribute.kUBNone;
                 break;
             default:
+                noneAttr=kAttr;
                 break;
         }
         return noneAttr;
