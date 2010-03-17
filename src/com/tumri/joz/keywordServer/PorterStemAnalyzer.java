@@ -1,5 +1,6 @@
 package com.tumri.joz.keywordServer;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -7,8 +8,12 @@ import org.apache.lucene.analysis.LowerCaseTokenizer;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.PorterStemFilter;
 
+import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -23,6 +28,7 @@ import java.util.Set;
 public class PorterStemAnalyzer extends Analyzer
 {
     private static Set _stopTable;
+    static Logger log = Logger.getLogger(ProductIndex.class);
 
     /**
      * An array containing some common English words
@@ -101,5 +107,43 @@ public class PorterStemAnalyzer extends Analyzer
     public TokenStream tokenStream(String fieldName, Reader reader)
     {
 	return tokenStream(reader);
+    }
+
+    /**
+     * Utility method to test the stemming logic
+     * @param testStr
+     * @return
+     */
+    public static List<String> stemPhrase(String testStr) {
+        List<String> result = new ArrayList<String>();
+        PorterStemAnalyzer stemmer = new PorterStemAnalyzer(STOP_WORDS);
+        StringReader reader = new StringReader(testStr);
+        TokenStream stream = stemmer.tokenStream(reader);
+
+        try {
+            org.apache.lucene.analysis.Token  t = stream.next();
+            while (t != null) {
+               result.add(t.termText());
+               t = stream.next();
+            }
+        } catch (IOException e) {
+            log.error("Exception caught on stemming" , e);
+        } finally {
+            try {
+                stream.close();
+            } catch (IOException e1) {
+                log.error("Exception caught on closing the stream" , e1);
+            }
+        }
+        return result;
+    }
+
+    //Test code for the analyzer
+    public static void main(String[] args) {
+        String testStr = "abingdon,vji,va,us,galesburg municipal airport,6141,illinois,abingdon,Destabingdon,Destvji,Destva,Destus,Destgalesburg municipal airport,Dest6141,Destillinois,Destabingdon,";
+        List<String> termList = PorterStemAnalyzer.stemPhrase(testStr);
+        for (String s: termList) {
+            System.out.println("Term: " + s);
+        }
     }
 }
