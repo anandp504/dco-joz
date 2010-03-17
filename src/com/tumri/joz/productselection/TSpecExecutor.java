@@ -65,6 +65,7 @@ public class TSpecExecutor {
     private int m_pageSize = 0;
     private Features m_feature = null;
     private boolean m_randomize = false;
+    private String m_scriptKeywords = null;
 
     private static Logger log = Logger.getLogger (TSpecExecutor.class);
 
@@ -126,7 +127,35 @@ public class TSpecExecutor {
      */
     private void setupRequestParms(){
 
-        if (request.getRequestKeyWords()!=null && !request.getRequestKeyWords().trim().equals("")) {
+        KeywordAttributeLookup.KWAttribute src = KeywordAttributeLookup.lookup(m_tspec.getKeywordSource());
+        switch(src) {
+            case S1:
+                m_scriptKeywords = request.getRequestKeyWords();
+                break;
+            case F1:
+                m_scriptKeywords = request.getExternalFilterQuery1();
+                break;
+            case F2:
+                m_scriptKeywords = request.getExternalFilterQuery2();
+                break;
+            case F3:
+                m_scriptKeywords = request.getExternalFilterQuery3();
+                break;
+            case F4:
+                m_scriptKeywords = request.getExternalFilterQuery4();
+                break;
+            case F5:
+                m_scriptKeywords = request.getExternalFilterQuery5();
+                break;
+            case IGNORE:
+                m_scriptKeywords = null;
+                break;
+            default:
+                m_scriptKeywords = request.getRequestKeyWords();
+                break;
+        }
+
+        if (m_scriptKeywords!=null && !m_scriptKeywords.trim().equals("")) {
             m_ExternalKeywords = true;
         }
 
@@ -578,36 +607,8 @@ public class TSpecExecutor {
             m_tSpecQuery.setReference(ref);
         }
 
-        String scriptKeywords = null;
-        KeywordAttributeLookup.KWAttribute src = KeywordAttributeLookup.lookup(m_tspec.getKeywordSource());
-        switch(src) {
-            case S1:
-                scriptKeywords = request.getRequestKeyWords();
-                break;
-            case F1:
-                scriptKeywords = request.getExternalFilterQuery1();
-                break;
-            case F2:
-                scriptKeywords = request.getExternalFilterQuery2();
-                break;
-            case F3:
-                scriptKeywords = request.getExternalFilterQuery3();
-                break;
-            case F4:
-                scriptKeywords = request.getExternalFilterQuery4();
-                break;
-            case F5:
-                scriptKeywords = request.getExternalFilterQuery5();
-                break;
-            case IGNORE:
-                scriptKeywords = null;
-                break;
-            default:
-                scriptKeywords = request.getRequestKeyWords();
-                break;
-        }
-        if (scriptKeywords!=null || request.isBMineUrls() || m_tspec.isMinePubUrl()) {
-            String keywords = scriptKeywords;
+        if (m_scriptKeywords!=null || request.isBMineUrls() || m_tspec.isMinePubUrl()) {
+            String keywords = m_scriptKeywords;
             if (keywords==null) {
                 keywords = "";
             }
