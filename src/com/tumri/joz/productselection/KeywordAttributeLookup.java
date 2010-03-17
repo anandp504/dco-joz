@@ -10,13 +10,13 @@ public class KeywordAttributeLookup {
     public static enum KWAttribute {S1, F1, F2, F3, F4, F5, IGNORE}
     public static HashMap<String, KWAttribute> kwSrcMap = new HashMap<String, KWAttribute>();
     static {
-        kwSrcMap.put("S1", KWAttribute.S1);
-        kwSrcMap.put("F1", KWAttribute.F1);
-        kwSrcMap.put("F2", KWAttribute.F2);
-        kwSrcMap.put("F3", KWAttribute.F3);
-        kwSrcMap.put("F4", KWAttribute.F4);
-        kwSrcMap.put("F5", KWAttribute.F5);
-        kwSrcMap.put("IGNORE", KWAttribute.IGNORE);
+        kwSrcMap.put("x2_s1", KWAttribute.S1);
+        kwSrcMap.put("x2_f1", KWAttribute.F1);
+        kwSrcMap.put("x2_f2", KWAttribute.F2);
+        kwSrcMap.put("x2_f3", KWAttribute.F3);
+        kwSrcMap.put("x2_f4", KWAttribute.F4);
+        kwSrcMap.put("x2_f5", KWAttribute.F5);
+        kwSrcMap.put("ignore", KWAttribute.IGNORE);
     }
 
     /**
@@ -27,7 +27,7 @@ public class KeywordAttributeLookup {
     public static KWAttribute lookup(String val) {
         KWAttribute src = null;
         if (val!=null) {
-            src = kwSrcMap.get(val);
+            src = kwSrcMap.get(val.toLowerCase());
         }
         if (src == null) {
            src =  KWAttribute.S1;
