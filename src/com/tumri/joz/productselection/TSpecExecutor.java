@@ -123,6 +123,19 @@ public class TSpecExecutor {
     }
 
     /**
+     * Replace comma with string for external filters. The reason for this is that comma is treated as a "Phrase" join term
+     * in lucene. Since multivalue filter fields have comma as a delimiter this could pose issues
+     * @param str
+     * @return
+     */
+    private String cleanseKeywords(String str) {
+        if (str != null) {
+            str = str.replaceAll(","," ");
+        }
+        return str;
+    }
+
+    /**
      * Setup the request parameters for the TSpecExcecutor instance.
      */
     private void setupRequestParms(){
@@ -133,19 +146,19 @@ public class TSpecExecutor {
                 m_scriptKeywords = request.getRequestKeyWords();
                 break;
             case F1:
-                m_scriptKeywords = request.getExternalFilterQuery1();
+                m_scriptKeywords = cleanseKeywords(request.getExternalFilterQuery1());
                 break;
             case F2:
-                m_scriptKeywords = request.getExternalFilterQuery2();
+                m_scriptKeywords = cleanseKeywords(request.getExternalFilterQuery2());
                 break;
             case F3:
-                m_scriptKeywords = request.getExternalFilterQuery3();
+                m_scriptKeywords = cleanseKeywords(request.getExternalFilterQuery3());
                 break;
             case F4:
-                m_scriptKeywords = request.getExternalFilterQuery4();
+                m_scriptKeywords = cleanseKeywords(request.getExternalFilterQuery4());
                 break;
             case F5:
-                m_scriptKeywords = request.getExternalFilterQuery5();
+                m_scriptKeywords = cleanseKeywords(request.getExternalFilterQuery5());
                 break;
             case IGNORE:
                 m_scriptKeywords = null;
