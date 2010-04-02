@@ -55,7 +55,7 @@ public class JozIndexCreator {
             } else
             {
                 log.info("Usage: " + usage);
-                System.exit(1);
+                throw new RuntimeException("Usage: " + usage);
             }
         }
 
@@ -65,20 +65,17 @@ public class JozIndexCreator {
             log.info("Creating dir '" +indexDir+ "'");
             indexDirF.mkdirs();
         } else {
-            log.fatal("Document directory '" +indexDirF.getAbsolutePath()+ "' exists already - please delete it or provide a new dir");
-            System.exit(1);
+            throw new RuntimeException("Document directory '" +indexDirF.getAbsolutePath()+ "' exists already - please delete it or provide a new dir");
         }
         final File newDataDocDirF = new File(newDataDir);
         if (!newDataDocDirF.exists() || !newDataDocDirF.canRead())
         {
-            log.fatal("Document directory '" +newDataDocDirF.getAbsolutePath()+ "' does not exist or is not readable, please check the path");
-            System.exit(1);
+            throw new RuntimeException("Document directory '" +newDataDocDirF.getAbsolutePath()+ "' does not exist or is not readable, please check the path");
         }
         final File oldDataDocDirF = new File(oldDataDir);
         if (!oldDataDocDirF.exists() || !oldDataDocDirF.canRead())
         {
-            log.fatal("Document directory '" +oldDataDocDirF.getAbsolutePath()+ "' does not exist or is not readable, please check the path");
-            System.exit(1);
+            throw new RuntimeException("Document directory '" +oldDataDocDirF.getAbsolutePath()+ "' does not exist or is not readable, please check the path");
         }
         JozIndexCreator jic = new JozIndexCreator(newDataDir, oldDataDir, indexDir,maxLinesPerChunk);
         jic.createJozIndexes();
@@ -89,14 +86,13 @@ public class JozIndexCreator {
         {
             Date start = new Date();
             indexDocs();
-	        ConcurrentIO.shutdown();
+	        //ConcurrentIO.shutdown();
             log.info( "Joz indexing completed : " + ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes" );
         }
         catch (Exception e)
         {
-            log.error("something screwed up: ", e );
+            throw new RuntimeException("something screwed up: ", e );
             // If we fail we must exit with a non-zero error code.
-            System.exit(1);
         }
 
     }

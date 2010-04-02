@@ -552,7 +552,7 @@ public class ProductIndex {
 
             if (arg.equals("-h")) {
                 System.out.println("Usage: " + usage);
-                System.exit(0);
+                throw new RuntimeException("Usage: " + usage);
             } else if (arg.equals("-debug")) {
                 debug = true;
             } else if (arg.equals("-dumpTokens")) {
@@ -580,7 +580,7 @@ public class ProductIndex {
                 bDisableLucene = true;
             } else {
                 log.info("Usage: " + usage);
-                System.exit(1);
+                throw new RuntimeException("Usage: " + usage);
             }
         }
 
@@ -598,7 +598,7 @@ public class ProductIndex {
             }
             catch (IOException e) {
                 log.fatal("Error loading " + deboostCategoryFile);
-                System.exit(1);
+                throw new RuntimeException("Error loading " + deboostCategoryFile);
             }
         }
 
@@ -611,14 +611,14 @@ public class ProductIndex {
             luceneIdxDirF = new File(indexDir);
             if (luceneIdxDirF.exists()) {
                 log.fatal("Cannot save lucene index to '" + indexDir + "' directory, please delete it first");
-                System.exit(1);
+                throw new RuntimeException("Cannot save lucene index to '" + indexDir + "' directory, please delete it first");
             }
         }
 
         final File currdocDirF = new File(currentDocDir);
         if (!currdocDirF.exists() || !currdocDirF.canRead()) {
             log.fatal("Document directory '" + currdocDirF.getAbsolutePath() + " does not exist or is not readable, please check the path");
-            System.exit(1);
+            throw new RuntimeException("Document directory '" + currdocDirF.getAbsolutePath() + " does not exist or is not readable, please check the path");
         }
 
 
@@ -659,7 +659,7 @@ public class ProductIndex {
         catch (Throwable e) {
             log.error("something screwed up: ", e);
             // If we fail we must exit with a non-zero error code.
-            System.exit(-1);
+            throw new RuntimeException(e);
         }
 
     }
@@ -848,12 +848,17 @@ public class ProductIndex {
             log.info("Successfully Merged lucene index... Time Taken : " + ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes");
         } catch (IOException e) {
             log.error("Exception caught when merging the indexes",e );
-	        System.exit(-1);
+	        throw new RuntimeException("Exception caught when merging the indexes");
         }
     }
 
     public static void main(String[] args) {
-        new ProductIndex().index(args);
+        try {
+            new ProductIndex().index(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     @Test
