@@ -1,11 +1,15 @@
 package com.tumri.joz.products;
 
-import com.tumri.joz.index.creator.PersistantProviderIndex;
-import com.tumri.joz.index.creator.JozIndexUpdater;
+import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.data.ContentProviderStatus;
+import com.tumri.jic.IndexCreationException;
+import com.tumri.jic.JICProperties;
+import com.tumri.jic.joz.IJozIndexUpdater;
+import com.tumri.jic.joz.PersistantProviderIndex;
+import com.tumri.joz.index.updater.JozIndexUpdater;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
-import com.tumri.content.data.ContentProviderStatus;
-import com.tumri.content.ContentProviderFactory;
+import com.tumri.utils.FSUtils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -22,11 +26,7 @@ public class JozIndexHelper {
     private String JOZ_INDEX_FILE_PATTERN = ".*_jozindex_.*.bin";
     private String indexDirName = "/data/jozindex";
     private static Logger log = Logger.getLogger(JozIndexHelper.class);
-    private JozIndexUpdater updateHandler = null;
     private static JozIndexHelper inst = null;
-
-    private boolean coldStart = false;
-    private boolean debugMode = false;
 
     public static JozIndexHelper getInstance() {
         if (inst == null) {
@@ -40,44 +40,23 @@ public class JozIndexHelper {
     }
 
     private JozIndexHelper() {
-        coldStart = false;
-        debugMode = false;
-        updateHandler = new JozIndexUpdater();
         init();
     }
 
-    public void setColdStart(boolean cs) {
-        coldStart = cs;
-    }
-
-    public void setDebugMode(boolean debug) {
-        debugMode = debug;
-    }
-
-    public JozIndexUpdater getUpdater() {
-        return updateHandler;
-    }
-
-    public boolean isColdStart() {
-        return coldStart;
-    }
-
-    public boolean isDebugMode() {
-        return debugMode;
-    }
 
     /**
      * Load the Joz index from the default dir that is set in the joz.properties
+     * This will load all the joz index files for all advertisers
      */
-    public synchronized void loadJozIndex() {
+    public synchronized void loadJozIndex(boolean hotload, boolean debug) {
         try {
-            log.info("Starting to load the Joz indexes. Hot Deploy = " + !coldStart);
+            log.info("Starting to load the Joz indexes for all advertisers. Hot Deploy = " + hotload);
             Date start = new Date();
             //Look for any Joz index files
             List<File> indexFiles = getSortedJozIndexFileList(indexDirName);
             ArrayList<String> indexFileNames = new ArrayList<String>();
             for (File f: indexFiles) {
-                readFromSerializedFile(f);
+                readFromSerializedFile(f,debug, hotload, null);
                 indexFileNames.add(f.getName());
             }
 
@@ -96,22 +75,64 @@ public class JozIndexHelper {
     }
 
     /**
+     * Load the joz index for the specific advertiser. This is not synchronized - so parallel loading is permitted
+     * @param advertiserName
+     */
+    public void loadJozIndex(String advertiserName, boolean debug, boolean hotload) {
+        try {
+            log.info("Starting to load the Joz indexes for advertiser :" + advertiserName);
+            JozIndexFileFilter filter = new JozIndexFileFilter();
+            filter.setDetails(".*." + advertiserName + JOZ_INDEX_FILE_PATTERN);
+            ArrayList<File> indexFiles = new ArrayList<File>();
+            File indexDir = new File(indexDirName);
+            FSUtils.findFiles(indexFiles, indexDir, filter);
+            if (indexFiles.size() == 0) {
+                log.error("No "+ advertiserName + " joz index files found under directory: " + indexDir.getAbsolutePath());
+            }
+            if (indexFiles.size() > 1) {
+                log.error("Multiple advertiser joz indexes found !!");
+                //TODO: Should i skip this or load each one ?
+            }
+            readFromSerializedFile(indexFiles.get(0), debug, hotload, null);
+
+            log.info("Finished loading the Joz index for advertiser : " + advertiserName);
+        } catch (Exception e) {
+            log.error("Joz index load failed.", e);
+        }
+    }
+
+    /**
      * Load the index for a given set of Bin files. This is used by the console utlity
      * @param idxDir
      * @param myBinFiles
      */
-    public synchronized void loadIndexForDebug(String idxDir, ArrayList<String> myBinFiles) {
+    public StringBuffer loadIndexForDebug(String idxDir, ArrayList<String> myBinFiles, ArrayList<Long> prods) {
+        IJozIndexUpdater updater = new JozIndexUpdater();
+        updater.setProdIds(prods);
         if(myBinFiles!=null && myBinFiles.size() > 0){
-            loadJozIndexFiles(idxDir, myBinFiles);
+            loadJozIndexFiles(idxDir, myBinFiles, updater);
         } else {
-            loadJozIndexFiles(idxDir, null);
+            loadJozIndexFiles(idxDir, null, updater);
         }
+        return updater.getBuffer();
     }
 
     private void init() {
         JOZ_INDEX_FILE_PATTERN = AppProperties.getInstance().getProperty("com.tumri.joz.index.reader.indexFileNamePattern");
         indexDirName = AppProperties.getInstance().getProperty("com.tumri.content.file.sourceDir");
         indexDirName = indexDirName + "/" + AppProperties.getInstance().getProperty("com.tumri.content.jozindexDir");
+    }
+
+    private class JozIndexFileFilter implements FilenameFilter {
+        private String pattern;
+
+        protected void setDetails(String p) {
+            this.pattern = p;
+        }
+
+        public boolean accept(File file, String name) {
+            return (name.matches(pattern));
+        }
     }
 
     /**
@@ -134,6 +155,9 @@ public class JozIndexHelper {
                 }
             }
         }
+        JozIndexFileFilter filter = new JozIndexFileFilter();
+        filter.setDetails(JOZ_INDEX_FILE_PATTERN);
+        FSUtils.findFiles(indexFiles, indexDir, filter);
         if (indexFiles.size() == 0) {
             log.error("No joz index files found in directory: " + indexDir.getAbsolutePath());
         }
@@ -181,14 +205,14 @@ public class JozIndexHelper {
     /**
      *  Load the specific set of Joz Index Files
      */
-    private void loadJozIndexFiles(String dirName, List<String> fileNames) {
+    private void loadJozIndexFiles(String dirName, List<String> fileNames, IJozIndexUpdater updater) {
         try {
             log.info("Starting to load the specified Joz indexes.");
             if (fileNames!=null && fileNames.size()>0) {
                 for (String indexFileName: fileNames) {
                     File indexFile = new File (dirName + "/" + indexFileName);
                     if (indexFile.exists()) {
-                        readFromSerializedFile(indexFile);
+                        readFromSerializedFile(indexFile, true, false, updater);
                     } else {
                         log.error("Specified file does not exist - cannot load : " + indexFile);
                     }
@@ -196,7 +220,7 @@ public class JozIndexHelper {
             } else {
                 List<File> idxFiles = getSortedJozIndexFileList(dirName);
                 for (File indexFile: idxFiles) {
-                    readFromSerializedFile(indexFile);
+                    readFromSerializedFile(indexFile, true, false, updater);
                 }
             }
             log.info("Finished loading the Joz indexes");
@@ -209,22 +233,19 @@ public class JozIndexHelper {
      * Helper method to read the index from a file.
      * @param inFile
      */
-    private void readFromSerializedFile(File inFile) throws IOException, ClassNotFoundException {
+    private void readFromSerializedFile(File inFile, boolean debugMode, boolean hotLoad, IJozIndexUpdater updater) throws IOException, ClassNotFoundException {
         log.info("Going to load the index from file : " + inFile.getAbsolutePath());
         FileInputStream fis = null;
         ObjectInputStream in = null;
-
+        if (updater==null){
+            updater = new JozIndexUpdater();
+        }
         try {
+            JICProperties.init(debugMode, hotLoad, updater);
             fis = new FileInputStream(inFile);
             in = new ObjectInputStream(new BufferedInputStream(fis));
             PersistantProviderIndex pProvIndex = (PersistantProviderIndex)in.readObject();
             in.close();
-            //Add any new products into the db
-            if (!debugMode) {
-                ProductDB.getInstance().addNewProducts(ProductHandleFactory.getInstance().getProducts());
-            }
-            ProductHandleFactory.getInstance().clearProducts();
-
         } catch (IOException ex) {
             log.error("Could not load index file.");
             throw ex;
@@ -251,9 +272,7 @@ public class JozIndexHelper {
      */
     public static void main(String[] args){
         JozIndexHelper jh = JozIndexHelper.getInstance();
-        jh.setColdStart(true);
-        jh.setDebugMode(false);
-        jh.loadJozIndex();
+        jh.loadJozIndex(false, false);
     }
 
 }

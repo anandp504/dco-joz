@@ -18,7 +18,7 @@
 package com.tumri.joz.util;
 
 import com.tumri.joz.keywordServer.ProductIndex;
-import com.tumri.joz.utils.FSUtils;
+import com.tumri.utils.FSUtils;
 
 import java.io.File;
 
@@ -63,7 +63,7 @@ public class JozTestDataProvider {
     private static void setupIndex(String baseDataDir) {
         System.out.println("Going to setup the indexes using base dir = " + baseDataDir);
         String[] indexArgs = {"-docDir",baseDataDir,"-indexDir", baseDataDir + LUCENE_INDEXDIR,"-jozindexDir", baseDataDir + JOZ_INDEXDIR};
-        new ProductIndex().index(indexArgs);
+        //new ProductIndex().index(indexArgs);
         System.out.println("Index setup complete");
     }
 

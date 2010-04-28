@@ -43,12 +43,24 @@ public class TestClass {
         }
     }
 
-    
+
+        /**
+     * Replace comma with string for external filters.
+     * @param str
+     * @return
+     */
+    private static String cleanseKeywords(String str) {
+        if (str != null) {
+            str = str.replaceAll(","," ");
+        }
+        return str;
+    }
+
     public static void main(String[] args){
 
-
-        Timestamp ts = new Timestamp(33523475189L);
-        System.out.println(ts.toString());
+          System.out.println(cleanseKeywords(",Nipun,CA, SAN Francisco"));
+//        Timestamp ts = new Timestamp(33523475189L);
+//        System.out.println(ts.toString());
 
 //            JozHCResponse response = null;
 //            try {

@@ -41,7 +41,7 @@ public class TestRecipeWeightTargeting {
         loader.loadData();
 
         WMXMLParser parser = new WMXMLParserV1();
-        parser.process("/Users/nipun/ws/work-nbp/depot/Tumri/tas/joz/test/data/csl/test.xml");
+        parser.process("/Users/nipun/ws/work-nbp/depot/Tumri/tas/joz/test/data/csl/wm.xml");
 
 //        //Load the weights
 //        Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();

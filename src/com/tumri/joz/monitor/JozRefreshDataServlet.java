@@ -49,13 +49,14 @@ public class JozRefreshDataServlet extends HttpServlet {
         String dataType = request.getParameter("type");
         if ("listing".equalsIgnoreCase(dataType)) {
             String clearListing = request.getParameter("clear-cache");
+            String advertiser = request.getParameter("adv");
             if (clearListing!=null) {
                 result = doClearListingCache();
                 jspMode = null;
             } else {
                 String revertMode = request.getParameter("full-load");
                 try {
-                    result = doRefreshListingData(revertMode);
+                    result = doRefreshListingData(advertiser, revertMode);
                 } catch (Exception e) {
                     result = "failed";
                 }
@@ -128,13 +129,14 @@ public class JozRefreshDataServlet extends HttpServlet {
     /**
      * Helper method to refresh listing data
      */
-    private synchronized String doRefreshListingData(String revertMode) throws InvalidConfigException  {
+    private synchronized String doRefreshListingData(String advertiser, String revertMode) throws InvalidConfigException  {
         if (revertMode != null) {
+            //TODO: If this is advertiser specific - we should not be clearing the db - we should delete just that advrtisers products!
             ProductDB.getInstance().clearProductDB();
         }
         ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
         ContentProvider cp = f.getContentProvider();
-        cp.refresh();
+        cp.refresh(advertiser);
         //Invoke the content refresh on Listings Data client
         ListingProviderFactory.refreshData(JOZTaxonomy.getInstance().getTaxonomy(),
                 MerchantDB.getInstance().getMerchantData());

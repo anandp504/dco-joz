@@ -1,21 +1,22 @@
-package com.tumri.joz.index.creator;
+package com.tumri.joz.index.updater;
 
 import com.tumri.content.data.Product;
 import com.tumri.content.data.ProductAttributeDetails;
-import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.JozIndexHelper;
-import com.tumri.joz.products.ProductDB;
-import com.tumri.joz.products.ProductHandle;
+import com.tumri.jic.joz.IJozIndexUpdater;
+import com.tumri.jic.joz.PersistantIndexLine;
+import com.tumri.joz.products.*;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexUtils;
 import com.tumri.joz.utils.ZipCodeDB;
-import com.tumri.utils.strings.StringTokenizer;
 import com.tumri.utils.Pair;
+import com.tumri.utils.data.SortedArraySet;
+import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.SortedSet;
 import java.util.TreeMap;
 
 /**
@@ -24,13 +25,12 @@ import java.util.TreeMap;
  * Date: Feb 15, 2008
  * Time: 8:46:27 PM
  */
-public class JozIndexUpdater {
+public class JozIndexUpdater implements IJozIndexUpdater {
     private StringBuffer debugBuffer = new StringBuffer();
     private static Logger log = Logger.getLogger(JozIndexUpdater.class);
     protected ArrayList<Long> productIds = new ArrayList<Long>();
     private static final char MULTI_VALUE_INDEX_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
     private static final String PRODUCT = "Product";
-
 
     public JozIndexUpdater() {
         debugBuffer = new StringBuffer(); //need to clear buffer each time this class is constructed.
@@ -45,21 +45,41 @@ public class JozIndexUpdater {
         debugBuffer = new StringBuffer();
     }
 
+    public Object getHandle(long pid) {
+        return ProductDB.getInstance().getHandle(pid);
+    }
+
+    public Object createNewHandle(long pid, boolean bDebug) {
+        ProductHandle p = new ProductHandle(1.0, pid);
+        SortedArraySet<Handle> productHandles = new SortedArraySet<Handle>();
+        productHandles.add(p);
+        if (!bDebug) {
+            ProductDB.getInstance().addNewProducts(productHandles);
+        }
+        return p;
+    }
+
+
     /**
      * Handle the event when a set of index details are read in
      * @param indexName Name of the index that is being updated
      * @param pids Current set of products
      */
-    public void handleLine(String indexType, String indexName, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation) {
-        if (JozIndexHelper.getInstance().isDebugMode()) {
+    public void handleLine(String indexType, String indexName, ArrayList<Object> pids, PersistantIndexLine.IndexOperation operation, boolean debug, boolean hotload) {
+        ArrayList<Handle> handleList = new ArrayList<Handle>(pids.size());
+        for (Object o: pids) {
+            handleList.add((Handle)o);
+        }
+
+        if (debug) {
             if(productIds.size()>0){
-                handleDebug(indexType,  indexName,pids, operation, productIds);
+                handleDebug(indexType,  indexName,handleList, operation, productIds);
             }   else {
-                handleDebug(indexType,  indexName,pids, operation);
+                handleDebug(indexType,  indexName,handleList, operation);
             }
         } else {
             //Update the ProductDB
-            handleUpdate(indexType, indexName,pids, operation);
+            handleUpdate(indexType, indexName,handleList, operation, hotload);
         }
     }
 
@@ -183,8 +203,8 @@ public class JozIndexUpdater {
     /**
      * Update the index
      */
-    private void handleUpdate(String indexType, String indexName, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation) {
-        if (JozIndexHelper.getInstance().isColdStart())  {
+    private void handleUpdate(String indexType, String indexName, ArrayList<Handle> pids, PersistantIndexLine.IndexOperation operation, boolean hotload) {
+        if (!hotload)  {
             if (operation == PersistantIndexLine.IndexOperation.kDelete
                     || operation == PersistantIndexLine.IndexOperation.kDelModified) {
                 //Skip Deletes for Cold Start

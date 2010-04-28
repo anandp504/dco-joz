@@ -1,6 +1,6 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.index.creator.JozIndexCreator;
+import com.tumri.joz.index.creator.joz.JozIndexCreator;
 import com.tumri.joz.utils.IndexDebugUtils;
 import junit.framework.TestCase;
 import org.junit.Test;

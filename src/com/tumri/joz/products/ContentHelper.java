@@ -92,7 +92,7 @@ public class ContentHelper implements ContentListener {
             }
 
             if (!bJozIndexDisabled) {
-                updateJozIndexes(true);
+                updateAdvertiserIndex(null, true);
             }
 
             ContentHelper h = new ContentHelper(p);
@@ -180,13 +180,15 @@ public class ContentHelper implements ContentListener {
     }
 
 
-    private static void updateJozIndexes(boolean bColdStart) {
+    private static void updateAdvertiserIndex(String advertiserName, boolean bColdStart) {
         //Load Joz Indexes
-        JozIndexHelper.getInstance().setColdStart(bColdStart);
-        JozIndexHelper.getInstance().setDebugMode(false);
-        JozIndexHelper.getInstance().loadJozIndex();
+        if (advertiserName!=null) {
+            JozIndexHelper.getInstance().loadJozIndex(advertiserName,!bColdStart, false);
+        } else {
+            JozIndexHelper.getInstance().loadJozIndex(!bColdStart, false);
+        }
         // Need to update the lucene index before deleting old products.
-        initLucene();
+        ProductIndex.loadIndexForAdvertiser(advertiserName);
         // Clear all Ospec Query Cache.
         TSpecQueryCache.getInstance().clear();
 
@@ -291,7 +293,7 @@ public class ContentHelper implements ContentListener {
         provider = p; 
     }
     
-    public void contentUpdated() {
+    public void contentUpdated(String advertiser) {
         
         if (provider == null) {
             return;
@@ -325,7 +327,7 @@ public class ContentHelper implements ContentListener {
             }
 
             if (!bJozIndexDisabled) {
-               updateJozIndexes(bColdStart);
+               updateAdvertiserIndex(advertiser, bColdStart);
             }
 
         } catch (InvalidConfigException e) {

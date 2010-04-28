@@ -140,7 +140,8 @@ public class PorterStemAnalyzer extends Analyzer
 
     //Test code for the analyzer
     public static void main(String[] args) {
-        String testStr = "abingdon,vji,va,us,galesburg municipal airport,6141,illinois,abingdon,Destabingdon,Destvji,Destva,Destus,Destgalesburg municipal airport,Dest6141,Destillinois,Destabingdon,";
+        //String testStr = "abingdon,vji,va,us,galesburg municipal airport,6141,illinois,abingdon,Destabingdon,Destvji,Destva,Destus,Destgalesburg municipal airport,Dest6141,Destillinois,Destabingdon,";
+        String testStr = "Portaland, OR";
         List<String> termList = PorterStemAnalyzer.stemPhrase(testStr);
         for (String s: termList) {
             System.out.println("Term: " + s);

@@ -1,7 +1,7 @@
 package com.tumri.joz.index;
 
-import com.tumri.joz.utils.FSUtils;
 import com.tumri.content.data.Product;
+import com.tumri.utils.FSUtils;
 
 import java.io.File;
 import java.io.IOException;

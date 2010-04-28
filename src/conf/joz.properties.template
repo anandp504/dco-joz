@@ -3,6 +3,7 @@ com.tumri.content.file.refreshInterval=-1
 com.tumri.content.file.sourceDir=/opt/Tumri/joz/data/caa/current
 com.tumri.content.file.dataDir=data
 com.tumri.content.luceneDir=lucene
+com.tumri.content.provLuceneDir=provLucene
 #com.tumri.content.file.cacheEnabled=false
 #com.tumri.content.file.cacheFilename=/tmp/ContentData.txt
 com.tumri.content.file.disableMup=true
