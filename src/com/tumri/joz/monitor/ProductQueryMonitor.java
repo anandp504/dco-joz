@@ -51,7 +51,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 
 		try {
 			ArrayList<Handle> handles = doProductSelection(tSpec, pr, new Features());
-			results = getProductData(handles);
+			results = getProductData(pr.getAdvertiser(), handles);
 		}
 		catch (Exception ex) {
 			log.error("Error reading sexpression:  ", ex);
@@ -89,7 +89,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 
 		try {
 			ArrayList<Handle> handles = doProductSelection(tSpecId, pr, new Features());
-			results = getProductData(handles);
+			results = getProductData(pr.getAdvertiser(), handles);
 		}
 		catch (Exception ex) {
 			log.error("Error reading sexpression:  " + ex.getMessage());
@@ -123,7 +123,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 	 * @return
 	 * @throws JoZException
 	 */
-	private List<Map<String, String>> getProductData(ArrayList<Handle> handles) throws JoZException {
+	private List<Map<String, String>> getProductData(String advertiser, ArrayList<Handle> handles) throws JoZException {
 		Integer maxDescLength = 100;// default
 		List<Map<String, String>> products = new ArrayList<Map<String, String>>();
 
@@ -143,7 +143,8 @@ public class ProductQueryMonitor extends ComponentMonitor {
 
 			ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
 					MerchantDB.getInstance().getMerchantData());
-			response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, null);
+            //TODO get the provider
+			response = _prov.getListing(advertiser, pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, null);
 			if (response == null) {
 				throw new JoZException("Invalid response from Listing Provider");
 			}
@@ -210,6 +211,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":externalfilterquery3");
 		keys.add(":externalfilterquery4");
 		keys.add(":externalfilterquery5");
+		keys.add(":advertiser");
 
 		if (req == null || "".equals(req.trim())) {
 			pr.setCurrPage(0);
@@ -318,6 +320,10 @@ public class ProductQueryMonitor extends ComponentMonitor {
 					} else if (":externalfilterquery5".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setExternalFilterQuery5(value.trim());
+						}
+					} else if (":advertiser".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setAdvertiser(value.trim());
 						}
 					}
 				} else {

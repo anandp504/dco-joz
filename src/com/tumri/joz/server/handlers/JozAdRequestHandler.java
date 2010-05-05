@@ -247,7 +247,7 @@ public class JozAdRequestHandler implements RequestHandler {
 
 		ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
 				MerchantDB.getInstance().getMerchantData());
-		ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, slotIdArr);
+		ListingResponse response = _prov.getListing(features.getCampaignClientName(), pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, slotIdArr);
 		if (response == null) {
 			throw new JoZException("Invalid response from Listing Provider");
 		}

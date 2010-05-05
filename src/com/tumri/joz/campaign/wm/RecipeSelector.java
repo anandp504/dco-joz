@@ -60,6 +60,21 @@ public class RecipeSelector {
     }
 
     /**
+     * For a given adpod, and a CAM get the recipe.
+     * @param adPodId
+     * @param request
+     * @param features
+     */
+    public void getRecipe(int adPodId, AdDataRequest request, Features features) {
+        //Get the CAM
+        //DO the Cross Product and select the first item
+        //Contruct the Recipe / get the recipe id ??
+        //Get the listing query - this is not connected to the recipe !! ( everything attached to the OSpec should be run !! )
+        //Log the items selected 
+
+    }
+
+    /**
      * Do the selection of recipe given the request
      *
      * @param adPodId - Current AdPod Id

@@ -22,7 +22,7 @@
                  ProductDB.getInstance().clearProductDB();
                  ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
                  ContentProvider cp = f.getContentProvider();
-                 cp.refresh();
+                 cp.refresh(null);
                  ContentProviderStatus status = cp.getStatus();
                  //Invoke the content refresh on Listings Data client
                  ListingProviderFactory.refreshData(JOZTaxonomy.getInstance().getTaxonomy(),

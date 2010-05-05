@@ -57,6 +57,8 @@ public class ProductSelectionRequest {
     private String areaCode = null;
     private String dmaCode = null;
 
+    private String advertiser = null;
+
     public boolean isBRandomize() {
         return bRandomize;
     }
@@ -241,7 +243,15 @@ public class ProductSelectionRequest {
         this.externalFilterQuery5 = externalFilterQuery5;
     }
 
-	public String toString(){
+    public String getAdvertiser() {
+        return advertiser;
+    }
+
+    public void setAdvertiser(String advertiser) {
+        this.advertiser = advertiser;
+    }
+
+    public String toString(){
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("bRandomize = ".toUpperCase() + bRandomize + " ");
@@ -269,6 +279,8 @@ public class ProductSelectionRequest {
 		sb.append("zipCode = ".toUpperCase() + zipCode + " ");
 		sb.append("areaCode = ".toUpperCase() + areaCode + " ");
 		sb.append("dmaCode = ".toUpperCase() + dmaCode + " ");
+
+        sb.append("advertiser = ".toUpperCase() + advertiser + " ");
 
 		return sb.toString();
 	}

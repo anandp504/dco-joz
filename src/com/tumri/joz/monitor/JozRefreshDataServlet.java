@@ -11,6 +11,7 @@ import com.tumri.joz.campaign.wm.loader.WMDBLoader;
 import com.tumri.joz.jozMain.ListingProviderFactory;
 import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.products.JOZTaxonomy;
+import com.tumri.joz.products.JozIndexHelper;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexLoadingComparator;
@@ -131,8 +132,7 @@ public class JozRefreshDataServlet extends HttpServlet {
      */
     private synchronized String doRefreshListingData(String advertiser, String revertMode) throws InvalidConfigException  {
         if (revertMode != null) {
-            //TODO: If this is advertiser specific - we should not be clearing the db - we should delete just that advrtisers products!
-            ProductDB.getInstance().clearProductDB();
+            JozIndexHelper.getInstance().deleteJozIndex(advertiser);
         }
         ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
         ContentProvider cp = f.getContentProvider();

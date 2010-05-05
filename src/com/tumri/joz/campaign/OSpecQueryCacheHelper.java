@@ -30,9 +30,10 @@ public class OSpecQueryCacheHelper {
             while (tSpecIter.hasNext()){
                 TSpec theTSpec = tSpecIter.next();
                 //Keyword
+                String advertiser = theTSpec.getIncludedProviders().get(0).getName();
                 String keywordExp = theTSpec.getLoadTimeKeywordExpression();
                 if (keywordExp != null){
-                    KeywordQuery kwQuery = new KeywordQuery(keywordExp,true);
+                    KeywordQuery kwQuery = new KeywordQuery(advertiser, keywordExp,true);
                     _cjquery.addQuery(kwQuery);
                 }
 

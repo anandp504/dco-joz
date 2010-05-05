@@ -98,6 +98,7 @@ public class ProductIndex {
      * @param dir
      */
     public static void init(String dir) {
+        log.info("Going to load all lucene indexes within : " + dir);
         if (dir == null || "".equals(dir.trim())) {
             dir = "./";
         }
@@ -133,6 +134,8 @@ public class ProductIndex {
                     oldMap.writerUnlock();
                 }
             }
+        } else {
+            log.error("No lucene directories found to load");
         }
     }
 
@@ -141,24 +144,30 @@ public class ProductIndex {
      * @param advertiser
      */
     public static void loadIndexForAdvertiser(String advertiser) {
-        //Locate the lucene dir for that advertiser
-        log.info("Going to load the lucene index for " + advertiser);
-        List<File> luceneDirs = findProductIndex(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR), advertiser);
-        if (luceneDirs!=null && !luceneDirs.isEmpty()) {
-            for(File lf:luceneDirs) {
-                if (lf.getName().indexOf(advertiser) > -1) {
-                    try {
-                        IndexSearcherCache cache = new IndexSearcherCache(lf);
-                        getInstance().addCache(advertiser, cache);
-                    } catch (IOException e) {
-                        log.error("Exception on loading the advertiser index",e);
-                    }
-                }
-                break;
-            }
+        if (advertiser==null){
+            init();
         } else {
-            log.error("Could not locate the lucene index for the advertiser : " + advertiser);
+            //Locate the lucene dir for that advertiser
+            advertiser = advertiser.toUpperCase();
+            log.info("Going to load the lucene index for " + advertiser);
+            List<File> luceneDirs = findProductIndex(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR), advertiser);
+            if (luceneDirs!=null && !luceneDirs.isEmpty()) {
+                for(File lf:luceneDirs) {
+                    if (lf.getName().indexOf(advertiser) > -1) {
+                        try {
+                            IndexSearcherCache cache = new IndexSearcherCache(lf);
+                            getInstance().addCache(advertiser, cache);
+                        } catch (IOException e) {
+                            log.error("Exception on loading the advertiser index",e);
+                        }
+                    }
+                    break;
+                }
+            } else {
+                log.error("Could not locate the lucene index for the advertiser : " + advertiser);
+            }
         }
+
 
     }
 
@@ -205,10 +214,13 @@ public class ProductIndex {
 
         if (luceneDirs.isEmpty()) {
             //check for new scheme
-            LuceneIndexNameFilter filter = new LuceneIndexNameFilter();
             String pattern = AppProperties.getInstance().getProperty(LUCENEDIRPATTERN);
-            filter.setDetails(pattern, advertiser);
-            FSUtils.findFiles(luceneDirs, new File(dir), filter);
+            if (advertiser==null) {
+                FSUtils.findDirectories(luceneDirs, new File(dir), pattern);
+            } else {
+                String advBaseDir = dir + "/" + advertiser.toUpperCase();
+                FSUtils.findDirectories(luceneDirs, new File(advBaseDir), pattern);
+            }
         }
         return luceneDirs;
     }
@@ -229,6 +241,7 @@ public class ProductIndex {
                 ArrayList<RAMDirectory> provIndexes = new ArrayList<RAMDirectory>();
                 for (File dir: luceneDirs) {
                     if (dir.isDirectory()) {
+                        log.info("Found index : " + dir.getAbsolutePath());
                         provIndexes.add(new RAMDirectory(dir));
                     }
                 }
@@ -281,14 +294,14 @@ public class ProductIndex {
         return cache;
     }
 
-    public ArrayList<Handle> search(String query_string, double min_score, int max_docs) {
+    public ArrayList<Handle> search(String advertiser, String query_string, double min_score, int max_docs) {
         ArrayList<Handle> alist = new ArrayList<Handle>();
         ProductDB db = ProductDB.getInstance();
         IndexSearcherCache searcherCache = getCache(DEFAULT);
         IndexSearcher searcher = searcherCache.get();
         if (searcher != null) {
             try {
-                Query q = createQuery(query_string);
+                Query q = createQuery(advertiser, query_string);
                 if (q != null) {
                     TopDocCollector tdc = new TopDocCollector(max_docs);
                     searcher.search(q, tdc);
@@ -327,10 +340,11 @@ public class ProductIndex {
         return alist;
     }
 
-    private Query createQuery(String str) {
+    private Query createQuery(String advertiser, String str) {
         QueryParser qp = new QueryParser("description", getAnalyzer(false));
         try {
             str = cleanseQueryString(str);
+            str = "+provider="+advertiser+ " " + str;
             return qp.parse(str);
         } catch (ParseException e) {
             return null;
@@ -407,7 +421,7 @@ public class ProductIndex {
             ProductIndex pi = getInstance();
             try {
                 IndexSearcher searcher = pi.getCache(DEFAULT).get();
-                Query q = createQuery("CAMERA");
+                Query q = createQuery("HP", "CAMERA");
                 TopDocCollector tdc = new TopDocCollector(2000);
                 System.out.println("Querying for CAMERA...");
                 searcher.search(q, tdc);

@@ -48,6 +48,9 @@
 	<fileset dir="${jcl.lib.dir}">
 		<include name="${jcl.lib.file}"/>
 	</fileset>
+	<fileset dir="${jic.lib.dir}">
+		<include name="${jic.lib.file}"/>
+	</fileset>
     </path>
 
     <!-- ****************************************************************** -->
@@ -72,7 +75,7 @@
     <!-- ****************************************************************** -->
 
     <target name="build"
-            depends="build-Joz-war,build-indexer-jar,dist"
+            depends="build-Joz-war,dist"
             description="Build everything and create the dist package.">
     </target>
 
@@ -121,7 +124,6 @@
             </fileset>
         </copy>
         <copy file="${dist.dir}/joz.war" todir="${package.tmp.dir}/webapps"/>
-        <copy file="${dist.dir}/IndexCreator.tgz" todir="${package.dir}"/>
         <copy file="${ext.lib.dir}/log4j-1.2.6.jar" todir="${package.tmp.dir}/common/lib"/>
         <copy file="${src.dir}/conf/local.properties" todir="${package.dir}"/>
         <!-- Create a single tgz file and delete the package directory -->

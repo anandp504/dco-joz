@@ -13,6 +13,7 @@ com.tumri.content.file.batchReadSize=5000
 com.tumri.content.file.batchReadInterval=1
 
 com.tumri.content.jozindexDir=jozindex
+com.tumri.content.prevjozindexDir=/opt/Tumri/joz/data/caa/prevjozindex
 #com.tumri.joz.index.reader.debug=false
 #com.tumri.joz.index.reader.debug.outdir=/tmp
 com.tumri.joz.index.reader.indexFileNamePattern=.*_jozindex_.*.bin

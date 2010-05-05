@@ -25,6 +25,7 @@ public class JozIndexHelper {
 
     private String JOZ_INDEX_FILE_PATTERN = ".*_jozindex_.*.bin";
     private String indexDirName = "/data/jozindex";
+    private String prevJozindexDirName = "/prevjozindex";
     private static Logger log = Logger.getLogger(JozIndexHelper.class);
     private static JozIndexHelper inst = null;
 
@@ -56,7 +57,7 @@ public class JozIndexHelper {
             List<File> indexFiles = getSortedJozIndexFileList(indexDirName);
             ArrayList<String> indexFileNames = new ArrayList<String>();
             for (File f: indexFiles) {
-                readFromSerializedFile(f,debug, hotload, null);
+                readFromSerializedFile(f,debug, hotload, null,true);
                 indexFileNames.add(f.getName());
             }
 
@@ -81,24 +82,60 @@ public class JozIndexHelper {
     public void loadJozIndex(String advertiserName, boolean debug, boolean hotload) {
         try {
             log.info("Starting to load the Joz indexes for advertiser :" + advertiserName);
-            JozIndexFileFilter filter = new JozIndexFileFilter();
-            filter.setDetails(".*." + advertiserName + JOZ_INDEX_FILE_PATTERN);
             ArrayList<File> indexFiles = new ArrayList<File>();
-            File indexDir = new File(indexDirName);
-            FSUtils.findFiles(indexFiles, indexDir, filter);
+            File indexDir = new File(indexDirName + "/" + advertiserName.toUpperCase() + "/jozindex");
+            FSUtils.findFiles(indexFiles, indexDir, JOZ_INDEX_FILE_PATTERN);
             if (indexFiles.size() == 0) {
                 log.error("No "+ advertiserName + " joz index files found under directory: " + indexDir.getAbsolutePath());
+                return;
             }
             if (indexFiles.size() > 1) {
                 log.error("Multiple advertiser joz indexes found !!");
-                //TODO: Should i skip this or load each one ?
+                for (File f: indexFiles) {
+                    readFromSerializedFile(f, debug, hotload, null, true);
+                }
             }
-            readFromSerializedFile(indexFiles.get(0), debug, hotload, null);
 
             log.info("Finished loading the Joz index for advertiser : " + advertiserName);
         } catch (Exception e) {
             log.error("Joz index load failed.", e);
         }
+    }
+
+    /**
+     * Delete all the products for a given advertiser - using the current jozindex file
+     * @param advertiserName
+     */
+    public void deleteJozIndex(String advertiserName) {
+        try {
+            if (advertiserName==null){
+                log.info("Advertiser should be specified for deleting");
+                return;
+            }
+            log.info("Starting to delete the Joz index for advertiser :" + advertiserName);
+            ArrayList<File> prevIndexFiles = new ArrayList<File>();
+            File prevIndexDir = new File(prevJozindexDirName + "/" + advertiserName.toUpperCase() + "/jozindex");
+            if (prevIndexDir.exists()) {
+                FSUtils.findFiles(prevIndexFiles, prevIndexDir, JOZ_INDEX_FILE_PATTERN);
+            }
+            if (!prevIndexFiles.isEmpty()) {
+                IJozIndexUpdater updater = new JozIndexUpdater(true);
+                for(File f: prevIndexFiles) {
+                    readFromSerializedFile(f, false, true, updater, false);
+                }
+                log.info("Finished deleting the Joz index for advertiser : " + advertiserName);
+                //Delete all the prev joz index files for that advertiser
+                if (!prevIndexDir.exists()) {
+                    FSUtils.removeFiles(prevIndexDir, true);
+                }
+
+            } else {
+                log.warn("No Joz index files for the advertiser to delete : " + advertiserName);
+            }
+        } catch (Exception e) {
+            log.error("Joz index delete failed.", e);
+        }
+
     }
 
     /**
@@ -120,19 +157,7 @@ public class JozIndexHelper {
     private void init() {
         JOZ_INDEX_FILE_PATTERN = AppProperties.getInstance().getProperty("com.tumri.joz.index.reader.indexFileNamePattern");
         indexDirName = AppProperties.getInstance().getProperty("com.tumri.content.file.sourceDir");
-        indexDirName = indexDirName + "/" + AppProperties.getInstance().getProperty("com.tumri.content.jozindexDir");
-    }
-
-    private class JozIndexFileFilter implements FilenameFilter {
-        private String pattern;
-
-        protected void setDetails(String p) {
-            this.pattern = p;
-        }
-
-        public boolean accept(File file, String name) {
-            return (name.matches(pattern));
-        }
+        prevJozindexDirName = AppProperties.getInstance().getProperty("com.tumri.content.prevjozindexDir");
     }
 
     /**
@@ -147,17 +172,7 @@ public class JozIndexHelper {
             log.error("Directory does not exist : " + dirName);
         }
 
-        File[] files = indexDir.listFiles();
-        if (files != null) {
-            for (File f: files) {
-                if (f.getName().matches(JOZ_INDEX_FILE_PATTERN)) {
-                    indexFiles.add(f);
-                }
-            }
-        }
-        JozIndexFileFilter filter = new JozIndexFileFilter();
-        filter.setDetails(JOZ_INDEX_FILE_PATTERN);
-        FSUtils.findFiles(indexFiles, indexDir, filter);
+        FSUtils.findFiles(indexFiles, indexDir, JOZ_INDEX_FILE_PATTERN);
         if (indexFiles.size() == 0) {
             log.error("No joz index files found in directory: " + indexDir.getAbsolutePath());
         }
@@ -212,7 +227,7 @@ public class JozIndexHelper {
                 for (String indexFileName: fileNames) {
                     File indexFile = new File (dirName + "/" + indexFileName);
                     if (indexFile.exists()) {
-                        readFromSerializedFile(indexFile, true, false, updater);
+                        readFromSerializedFile(indexFile, true, false, updater, false);
                     } else {
                         log.error("Specified file does not exist - cannot load : " + indexFile);
                     }
@@ -220,7 +235,7 @@ public class JozIndexHelper {
             } else {
                 List<File> idxFiles = getSortedJozIndexFileList(dirName);
                 for (File indexFile: idxFiles) {
-                    readFromSerializedFile(indexFile, true, false, updater);
+                    readFromSerializedFile(indexFile, true, false, updater, false);
                 }
             }
             log.info("Finished loading the Joz indexes");
@@ -233,7 +248,8 @@ public class JozIndexHelper {
      * Helper method to read the index from a file.
      * @param inFile
      */
-    private void readFromSerializedFile(File inFile, boolean debugMode, boolean hotLoad, IJozIndexUpdater updater) throws IOException, ClassNotFoundException {
+    private void readFromSerializedFile(File inFile, boolean debugMode, boolean hotLoad, IJozIndexUpdater updater,
+                                        boolean copy) throws IOException, ClassNotFoundException {
         log.info("Going to load the index from file : " + inFile.getAbsolutePath());
         FileInputStream fis = null;
         ObjectInputStream in = null;
@@ -263,8 +279,42 @@ public class JozIndexHelper {
                 log.error("Error in closing the file input stream", t);
             }
         }
+        //Copy to the prev folder
+        if (copy) {
+            String providerName = getProviderFromFileName(inFile.getName());
+            File prevIndexDir = new File(prevJozindexDirName + "/" + providerName.toUpperCase() + "/jozindex");
+            if (!prevIndexDir.exists()) {
+                prevIndexDir.mkdirs();
+            }
+            FSUtils.copyFile(inFile, new File(prevIndexDir.getAbsolutePath() + "/" + inFile.getName()));
+            //TODO: Garbage collect the older indexes
+        }
     }
 
+    /**
+     * Gets the provider name from a given mup file by tokenizing by _ char
+     * It is assumed that the provider name will be between the first _ char and the 5th _ char from the end
+     * Returns an empty string if the file name was not of correct syntax
+     * @param fileName - mup file name
+     * @return - provider name
+     */
+    private static String getProviderFromFileName(String fileName) {
+        String providerName = "";
+        if (fileName!=null) {
+            String[] parts = fileName.split("_");
+            if (parts.length<7) {
+                return "";
+            }
+            for (int i=1; i<parts.length-5; i++) {
+                String delim = "";
+                if (i>1) {
+                    delim = "_";
+                }
+                providerName = providerName + delim + parts[i];
+            }
+        }
+        return providerName;
+    }
 
     /**
      * Test method

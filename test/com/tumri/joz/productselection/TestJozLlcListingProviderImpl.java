@@ -49,7 +49,7 @@ public class TestJozLlcListingProviderImpl {
        int maxDescLen = 50;
        long[] requestPids = {2408854L, 2408857L};
 
-       ListingResponse response = _prov.getListing(requestPids, 50, null);
+       ListingResponse response = _prov.getListing("", requestPids, 50, null);
 
        Assert.assertNotNull(response);
        Assert.assertNotNull(response.getListingDetails());
@@ -70,7 +70,7 @@ public class TestJozLlcListingProviderImpl {
        int maxDescLen = 50;
        long[] requestPids = {1L, 2408854L};
 
-       ListingResponse response = _prov.getListing(requestPids, 50, null);
+       ListingResponse response = _prov.getListing("", requestPids, 50, null);
 
        Assert.assertNotNull(response);
        Assert.assertNotNull(response.getListingDetails());

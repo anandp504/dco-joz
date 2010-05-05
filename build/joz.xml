@@ -9,139 +9,6 @@
          It is not intended to work standalone.  -->
 
     <!-- ****************************************************************** -->
-	
-	<target name="build-indexer-zip" depends="build-Joz-jar">
-		
-		<delete dir="${stage.dir}/IndexCreator"/>
-		<mkdir dir="${stage.dir}/IndexCreator"/>
-
-		<copy todir="${stage.dir}/IndexCreator" file="${dist.dir}/joz.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-core-2.1.0.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/lucene-memory-2.1.0.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${caa.lib.dir}/${caa.lib.file}"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${llc.lib.dir}/${llc.lib.file}"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/${cma.lib.file}"/>
-	    <!--<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/jyaml-1.2.jar"/>-->
-	    <!--<copy todir="${stage.dir}/IndexCreator" file="${cma.lib.dir}/ibatis-2.3.0.677.jar"/>-->
-	    <copy todir="${stage.dir}/IndexCreator" file="${utils.lib.dir}/${utils.lib.file}"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/log4j-1.2.6.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-codec-1.3.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/commons-logging.jar"/>
-		<copy todir="${stage.dir}/IndexCreator" file="${ext.lib.dir}/hadoop-0.18.3-core.jar"/>
-
-		<touch file="${stage.dir}/IndexCreator/createIndex.sh"/>
-
-		<echo file="${stage.dir}/IndexCreator/createIndex.sh">#!/bin/sh</echo>
-		<echo file="${stage.dir}/IndexCreator/createIndex.sh">java -Xms512m -Xmx2g -classpath .:joz.jar:hadoop-0.18.3-core.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:${caa.lib.file}:${cma.lib.file}:${utils.lib.file}:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
-		<chmod file="${stage.dir}/IndexCreator/createIndex.sh" perm="a+x"></chmod>
-
-        <touch file="${stage.dir}/IndexCreator/log4j.properties"/>
-        <echo file="${stage.dir}/IndexCreator/log4j.properties">log4j.rootLogger=INFO,A1
-log4j.appender.A1=org.apache.log4j.ConsoleAppender
-log4j.appender.A1.layout=org.apache.log4j.PatternLayout
-log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
-
-        <delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
-
-		<tar destfile="${stage.dir}/IndexCreator/IndexCreator.tar">
-		    <tarfileset dir="${stage.dir}/IndexCreator">
-			<include name="*.jar"/>
-		    </tarfileset>
-		    <tarfileset dir="${stage.dir}/IndexCreator" mode="755">
-			<include name="*.sh"/>
-            <include name="*.properties"/>
-            </tarfileset>
-		</tar>
-
-		<gzip zipfile="${stage.dir}/IndexCreator/IndexCreator.tgz" src="${stage.dir}/IndexCreator/IndexCreator.tar"/>
-		<delete file="${stage.dir}/IndexCreator/IndexCreator.tar"/>
-		
-	</target>
-	
-	
-	<target name="build-data-generator-zip" depends="build-indexer-zip">
-		<delete dir="${stage.dir}/DataGenerator"/>
-		<mkdir dir="${stage.dir}/DataGenerator"/>
-		
-		<copy todir="${stage.dir}/DataGenerator" file="${stage.dir}/IndexCreator/IndexCreator.tgz"/>		
-		<copy todir="${stage.dir}/DataGenerator" file="${root.dir}/scripts/jozFetchData.sh"/>
-
-		<tar destfile="${stage.dir}/DataGenerator/JozDataGenerator.tar">
-		    <tarfileset dir="${stage.dir}/DataGenerator">
-				<include name="*.tgz"/>
-		    </tarfileset>
-		    <tarfileset dir="${stage.dir}/DataGenerator" mode="755">
-			<include name="*.sh"/>
-		    </tarfileset>
-		</tar>
-
-		<gzip zipfile="${stage.dir}/DataGenerator/JozDataGenerator.tgz" src="${stage.dir}/DataGenerator/JozDataGenerator.tar"/>
-		<delete file="${stage.dir}/DataGenerator/JozDataGenerator.tar"/>
-
-	</target>
-	
-    <target name="build-indexer-jar" depends="build-data-generator-zip">
-
-		<move file="${stage.dir}/IndexCreator/IndexCreator.tgz" todir="${dist.dir}"/>
-
-		<move file="${stage.dir}/DataGenerator/JozDataGenerator.tgz" todir="${dist.dir}"/>
-
-    </target>
-
-    <target name="build-TestListingGenerator" depends="build-indexer-zip">
-        <delete dir="${stage.dir}/TestListingGenerator"/>
-        <mkdir dir="${stage.dir}/TestListingGenerator"/>
-
-        <copy todir="${stage.dir}/TestListingGenerator" file="${dist.dir}/IndexCreator.tgz"/>
-        <javac destdir="${classes.dir}"
-               debug="on"
-               optimize="on"
-               srcdir="${test.dir}"
-               includes="**/ListingTestDataProvider.java">
-            <classpath refid="project.class.path"/>
-            <classpath><pathelement location="${dist.dir}/joz.jar"/></classpath>
-            <compilerarg value="-Xlint:unchecked"/>
-	    <compilerarg value="-Xlint:deprecation"/>
-        </javac>
-
-        <jar destfile="${stage.dir}/TestListingGenerator/testListingGen.jar">
-            <fileset dir="${classes.dir}"
-		     includes="**/*.class"/>
-            <fileset dir="${stage.dir}/TestListingGenerator"/>
-            <manifest>
-                <attribute name="Main-Class" value="com.tumri.joz.util.ListingTestDataProvider"/>
-            </manifest>
-        </jar>
-
-        <copy todir="${stage.dir}/TestListingGenerator" file="${caa.lib.dir}/${caa.lib.file}"/>
-        <copy todir="${stage.dir}/TestListingGenerator" file="${utils.lib.dir}/${utils.lib.file}"/>
-        <copy todir="${stage.dir}/TestListingGenerator">
-            <fileset dir="${test.dir}/data" includes="*.*"/>
-        </copy>
-        <touch file="${stage.dir}/TestListingGenerator/createListing.sh"/>
-
-        <echo file="${stage.dir}/TestListingGenerator/createListing.sh">#!/bin/sh</echo>
-        <echo file="${stage.dir}/TestListingGenerator/createListing.sh">java -Xms512m -Xmx1g -classpath .:${caa.lib.file}:${utils.lib.file}:testListingGen.jar com.tumri.joz.util.ListingTestDataProvider $@</echo>
-        <chmod file="${stage.dir}/TestListingGenerator/createListing.sh" perm="a+x"></chmod>
-
-        <tar destfile="${stage.dir}/TestListingGenerator/TestListingGenerator.tar">
-            <tarfileset dir="${stage.dir}/TestListingGenerator">
-                 <exclude name="*.sh"/>
-            </tarfileset>
-            <tarfileset dir="${stage.dir}/TestListingGenerator" mode="755">
-                <include name="*.sh"/>
-            </tarfileset>
-
-        </tar>
-
-        <gzip zipfile="${stage.dir}/TestListingGenerator/TestListingGenerator.tgz" src="${stage.dir}/TestListingGenerator/TestListingGenerator.tar"/>
-        <delete file="${stage.dir}/TestListingGenerator/TestListingGenerator.tar"/>
-
-        <move file="${stage.dir}/TestListingGenerator/TestListingGenerator.tgz" todir="${dist.dir}"/>
-
-    </target>
-
 
 	<target name="java-doc" depends="">
 		<delete dir="${dist.dir}/javadocs"/>
@@ -191,13 +58,8 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 			<fileset dir="${dist.dir}" includes="${version_properties_file_dest}" />
 			<fileset dir="${dist.dir}" includes="${label_file}" />
             <fileset dir="${src.dir}/conf">
-                <include name="jozindex.properties"/>
-                <include name="luceneindex.properties"/>
                 <include name="QueryHandlers.properties"/>
             </fileset>
-            <manifest>
-                <attribute name="Main-Class" value="com.tumri.joz.keywordServer.ProductIndex"/>
-            </manifest>
         </jar>
 
     </target>
@@ -220,6 +82,7 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 	    	<lib dir="${utils.lib.dir}" includes="${utils.lib.file}"/>
 		    <lib dir="${cma.lib.dir}" includes="${cma.lib.file}"/>
 			<lib dir="${jcl.lib.dir}" includes="${jcl.lib.file}"/>
+			<lib dir="${jic.lib.dir}" includes="${jic.lib.file}"/>
 		      <!--<lib dir="${cma.lib.dir}" includes="jyaml-1.2.jar"/>-->
       		<!--<lib dir="${cma.lib.dir}" includes="ibatis-2.3.0.677.jar"/>-->
       		<lib dir="${caa.lib.dir}" includes="${caa.lib.file}"/>

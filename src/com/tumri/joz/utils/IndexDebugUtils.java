@@ -121,18 +121,14 @@ public class IndexDebugUtils {
     private StringBuffer getBuffer(String binLoc, ArrayList<String> binFiles, ArrayList<Long> prodIds) {
         StringBuffer result = null;
         try {
-            JozIndexHelper.getInstance().setColdStart(true);
-            JozIndexHelper.getInstance().setDebugMode(true);
-            JozIndexHelper.getInstance().getUpdater().setProdIds(prodIds);
             if(binLoc!= null && !"".equals(binLoc)){
                 if (!new File(binLoc).exists()) {
                     return new StringBuffer("Specified binLoc does not exist : " + binLoc);
                 }
-                JozIndexHelper.getInstance().loadIndexForDebug(binLoc, binFiles);
+                result = JozIndexHelper.getInstance().loadIndexForDebug(binLoc, binFiles, prodIds);
             } else {
-                JozIndexHelper.getInstance().loadIndexForDebug("/opt/Tumri/joz/data/caa/current/jozindex", binFiles);
+                result = JozIndexHelper.getInstance().loadIndexForDebug("/opt/Tumri/joz/data/caa/current/jozindex", binFiles, prodIds);
             }
-            result = JozIndexHelper.getInstance().getUpdater().getBuffer();
         } finally {
             resetDebugMode();
         }
@@ -199,8 +195,6 @@ public class IndexDebugUtils {
      * Method to reset the debug mode nback to false
      */
     private void resetDebugMode() {
-        JozIndexHelper.getInstance().setDebugMode(false);
-        JozIndexHelper.getInstance().getUpdater().reset();
     }
 
 }

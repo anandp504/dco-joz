@@ -213,6 +213,11 @@ public class ProductSelectionProcessor {
             pr.setExternalFilterQuery5(externalFilterField5);
         }
 
+        String advertiser = request.getAdvertiser();
+        if (advertiser!=null) {
+            pr.setAdvertiser(advertiser);
+        }
+
         return pr;
     }
 

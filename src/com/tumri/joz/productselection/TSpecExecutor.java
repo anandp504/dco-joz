@@ -214,7 +214,8 @@ public class TSpecExecutor {
         KeywordQuery sKwQuery;
         if ((keywords!=null)&&(!"".equals(keywords.trim()))) {
             m_ExternalKeywords = true;
-            sKwQuery = new KeywordQuery(keywords,false);
+            String advertiser = m_tspec.getIncludedProviders().get(0).getName();
+            sKwQuery = new KeywordQuery(advertiser, keywords,false);
             m_tSpecQuery.addSimpleQuery(sKwQuery);
         }
         if (m_feature !=null) {

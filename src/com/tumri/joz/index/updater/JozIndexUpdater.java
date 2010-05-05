@@ -31,9 +31,18 @@ public class JozIndexUpdater implements IJozIndexUpdater {
     protected ArrayList<Long> productIds = new ArrayList<Long>();
     private static final char MULTI_VALUE_INDEX_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
     private static final String PRODUCT = "Product";
+    /**
+     * Reset mode will change the ADD, NOCHANGE, UPDATE to DELETE and ignore all DELETE operations
+     */
+    private boolean m_resetMode = false;
 
     public JozIndexUpdater() {
         debugBuffer = new StringBuffer(); //need to clear buffer each time this class is constructed.
+    }
+
+    public JozIndexUpdater(boolean reset) {
+        debugBuffer = new StringBuffer(); //need to clear buffer each time this class is constructed.
+        m_resetMode = reset;
     }
 
     public void setProdIds(ArrayList<Long> prods) {
@@ -66,6 +75,10 @@ public class JozIndexUpdater implements IJozIndexUpdater {
      * @param pids Current set of products
      */
     public void handleLine(String indexType, String indexName, ArrayList<Object> pids, PersistantIndexLine.IndexOperation operation, boolean debug, boolean hotload) {
+        if(m_resetMode) {
+            if (operation != PersistantIndexLine.IndexOperation.kDelete )
+            operation = PersistantIndexLine.IndexOperation.kDelete; 
+        }
         ArrayList<Handle> handleList = new ArrayList<Handle>(pids.size());
         for (Object o: pids) {
             handleList.add((Handle)o);

@@ -30,6 +30,7 @@ public enum WMAttribute {
 	kF4,
 	kF5,
     kUB,
+    kDefault,
     kLineIdNone,
     kSiteIdNone,
     kBuyIdNone,
@@ -52,4 +53,5 @@ public enum WMAttribute {
     kF4None,
     kF5None,
     kUBNone,
+    kDefaultNone,
 }

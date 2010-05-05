@@ -25,9 +25,11 @@ import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.FSUtils;
 import com.tumri.utils.data.SortedArraySet;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -181,6 +183,15 @@ public class ContentHelper implements ContentListener {
 
 
     private static void updateAdvertiserIndex(String advertiserName, boolean bColdStart) {
+        if (bColdStart) {
+            //Delete all the prev joz index files
+            String prevJozindexDirName = AppProperties.getInstance().getProperty("com.tumri.content.prevjozindexDir");
+            File prevIndexDir = new File(prevJozindexDirName);
+            if (!prevIndexDir.exists()) {
+                FSUtils.removeFiles(prevIndexDir, true);
+            }
+
+        }
         //Load Joz Indexes
         if (advertiserName!=null) {
             JozIndexHelper.getInstance().loadJozIndex(advertiserName,!bColdStart, false);

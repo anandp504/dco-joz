@@ -49,7 +49,7 @@ public class JozListingProviderImpl implements ListingProvider {
      * @param maxDescLength
      * @return
      */
-    public ListingResponse getListing(long[] pids, int maxDescLength, String[] slotData) {
+    public ListingResponse getListing(String advertiser, long[] pids, int maxDescLength, String[] slotData) {
 
         StringBuilder listingBuffr = new StringBuilder();
 
@@ -104,4 +104,5 @@ public class JozListingProviderImpl implements ListingProvider {
     public void clearCache() throws LLCClientException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
 }

@@ -217,6 +217,10 @@ public class AdDataRequest {
 		if (userAgent != null) {
 			userAgent = userAgent.trim();
 		}
+		this.advertiser = req.getValue(JozAdRequest.KEY_ADVERTISER);
+		if (advertiser != null) {
+			advertiser = advertiser.trim();
+		}
 	}
 
 	public enum AdOfferType {
@@ -443,7 +447,15 @@ public class AdDataRequest {
 		return userAgent;
 	}
 
-	public HashMap<String, String> getExtTargetFields() {
+    public String getAdvertiser() {
+        return advertiser;
+    }
+
+    public void setAdvertiser(String advertiser) {
+        this.advertiser = advertiser;
+    }
+
+    public HashMap<String, String> getExtTargetFields() {
 		HashMap<String, String> extVarsMap = new HashMap<String, String>();
 		String extField1 = getExternalTargetField1();
 		if (extField1 == null)
@@ -558,6 +570,8 @@ public class AdDataRequest {
 					adType != null ? adType : "null");
 			b.append(" :recipe-id ").append(
 					recipeId != null ? recipeId : "null");
+			b.append(" :advertiser ").append(
+					advertiser != null ? advertiser : "null");
 		} else {
 			if (_url != DEFAULT_URL)
 				b.append(" :url ").append(_url);
@@ -616,6 +630,8 @@ public class AdDataRequest {
 				b.append(" :ad-type ").append(adType);
 			if (recipeId != DEFAULT_RECIPE_ID)
 				b.append(" :recipe-id ").append(recipeId);
+			if (advertiser != DEFAULT_ADVERTISER)
+				b.append(" :advertiser ").append(advertiser);
 
 		}
 
@@ -632,7 +648,8 @@ public class AdDataRequest {
 		URL, THEME, STORE_ID, CATEGORY, T_SPEC, STRATEGY, REFERRER, ZIP_CODE, NUM_PRODUCTS, ROW_SIZE, WHICH_ROW, REVERT_TO_DEFAULT_REALM, KEYWORDS,
 		SCRIPT_KEYWORDS, INCLUDE_CAT_COUNTS, SEED, PSYCHOGRAPHICS_P, MINE_PUB_URL_P, ALLOW_TOO_FEW_PRODUCTS, AD_WIDTH, AD_HEIGHT, AD_OFFER_TYPE,
 		MULTIVALUE_FIELD1, MULTIVALUE_FIELD2, MULTIVALUE_FIELD3, MULTIVALUE_FIELD4, MULTIVALUE_FIELD5,
-		MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE, LATITUDE, ADTYPE, RECIPE_ID, LONGITUDE,
+		MIN_NUM_LEADGENS, OUTPUT_FORMAT, OUTPUT_ORDER, OUTPUT_ORDER_NOISE_STDDEV, MAX_PROD_DESC_LEN, COUNTRY, REGION, CITY, DMACODE, AREACODE, LATITUDE, ADTYPE,
+        RECIPE_ID, LONGITUDE, ADVERTISER,
 	}
 
 	private static HashMap<String, RqstParam> rqst_params = new HashMap<String, RqstParam>();
@@ -683,6 +700,7 @@ public class AdDataRequest {
 		rqst_params.put(":multivaluefield5", RqstParam.MULTIVALUE_FIELD5);
 		rqst_params.put(":ad-type", RqstParam.ADTYPE);
 		rqst_params.put(":recipe-id", RqstParam.RECIPE_ID);
+		rqst_params.put(":advertiser", RqstParam.ADVERTISER);
 	}
 
 	// WARNING: If the default value is not null, you're probably doing
@@ -726,6 +744,8 @@ public class AdDataRequest {
 
 	private static final Integer DEFAULT_RECIPE_ID = null;
 
+	private static final String DEFAULT_ADVERTISER = null;
+
 	// FIXME: should be null, fix.
 	private static final Boolean DEFAULT_INCLUDE_CAT_COUNTS = new Boolean(false); // FIXME:
 
@@ -759,7 +779,9 @@ public class AdDataRequest {
 
 	private static final Integer DEFAULT_MAX_PROD_DESC_LEN = null;
 
-	String _url = DEFAULT_URL;
+	String advertiser = "";
+
+    String _url = DEFAULT_URL;
 
 	String _theme = DEFAULT_THEME;
 

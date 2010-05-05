@@ -180,7 +180,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
     	TSpecExecutor queryExecutor = new TSpecExecutor(pr);
     	//tSpec.setMinePubUrl(false);
     	ArrayList<Handle> prodResults = queryExecutor.processQuery(tSpec);        
-    	write_result(prodResults, adResponse);
+    	write_result(pr.getAdvertiser(), prodResults, adResponse);
     }
 	private String getRecipeData(Recipe r) {
         StringBuilder sbuild = new StringBuilder();
@@ -202,7 +202,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
         return sbuild.toString();
 
     }
-	private void write_result( ArrayList<Handle> product_handles, JozAdResponse resp) throws JoZException {
+	private void write_result(String advertiser, ArrayList<Handle> product_handles, JozAdResponse resp) throws JoZException {
 		Integer maxDescLength = 100;// default
 		if (product_handles==null) {
 			throw new JoZException("No products returned by the product selection");
@@ -219,7 +219,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
 
 		ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
 				MerchantDB.getInstance().getMerchantData());
-		ListingResponse response = _prov.getListing(pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
+		ListingResponse response = _prov.getListing(advertiser, pids, (maxDescLength != null) ? maxDescLength.intValue() : 0,null);
 		if (response==null) {
 			throw new JoZException("Invalid response from Listing Provider");
 		}
@@ -248,7 +248,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
     	ProductSelectionRequest pr = createProductSelectionRequest(pageSize,pageNum);
     	TSpecExecutor queryExecutor = new TSpecExecutor(pr);
     	ArrayList<Handle> prodResults = queryExecutor.processQuery(tSpecId);
-        write_result(prodResults, adResponse);
+        write_result(pr.getAdvertiser(), prodResults, adResponse);
     }
     
    private JozCounts getTSpecCounts(TSpec tSpec) throws JoZException{

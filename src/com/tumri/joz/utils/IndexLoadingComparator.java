@@ -77,7 +77,7 @@ public class IndexLoadingComparator {
 			retInfos.add("Invalid Provider Name: " + providerName);
 			return retInfos;
 		}
-		ProductAttributeIndex index = ProductDB.getInstance().getIndex(IProduct.Attribute.kProvider);
+		ProductAttributeIndex<Integer, Handle> index = ProductDB.getInstance().getIndex(IProduct.Attribute.kProvider);
 		Integer keyId = DictionaryManager.getInstance().getId (IProduct.Attribute.kProvider, providerName);
 		if(index == null){
 			retInfos.add("Invalid Index");
