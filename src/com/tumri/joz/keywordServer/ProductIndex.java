@@ -1,16 +1,19 @@
 package com.tumri.joz.keywordServer;
 
 import com.tumri.content.ContentProviderFactory;
+import com.tumri.content.InvalidConfigException;
 import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.content.impl.file.FileContentConfigValues;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.ShellCommand;
 import com.tumri.utils.FSUtils;
 import com.tumri.utils.data.RWLockedTreeMap;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.memory.AnalyzerUtil;
@@ -24,7 +27,6 @@ import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,7 +65,7 @@ public class ProductIndex {
         if (pi == null) {
             synchronized(ProductIndex.class) {
                 if (g_Instance.get() == null) {
-                    init(null);
+                    init();
                     pi = g_Instance.get();
                 }
             }
@@ -72,32 +74,15 @@ public class ProductIndex {
     }
 
     public static void init() {
-        init(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR));
-    }
-
-    private static class LuceneIndexNameFilter implements FilenameFilter {
-        private String pattern;
-        private String advertiserName;
-
-        protected void setDetails(String p, String advertiserName) {
-            this.pattern = p;
-            this.advertiserName = advertiserName;
-        }
-
-        public boolean accept(File file, String name) {
-            if (advertiserName!=null) {
-                return (name.matches(pattern) && file.isDirectory() && file.getParent().equalsIgnoreCase(advertiserName));
-            } else {
-                return (name.matches(pattern) && file.isDirectory());
-            }
-        }
+        init(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR),
+                tmpDir);
     }
 
     /**
      * Initialize the product index, load all the provider indexes
      * @param dir
      */
-    public static void init(String dir) {
+    public static void init(String dir, String indexDir) {
         log.info("Going to load all lucene indexes within : " + dir);
         if (dir == null || "".equals(dir.trim())) {
             dir = "./";
@@ -120,7 +105,16 @@ public class ProductIndex {
                 status = null;
             }
 
-            ProductIndex pi = new ProductIndex(luceneDirs);
+            File fIndexDir = new File(indexDir);
+            if (fIndexDir.exists()){
+                FSUtils.removeFiles(fIndexDir, true);
+            }
+            ProductIndex pi = null;
+            try {
+                pi = new ProductIndex(luceneDirs);
+            } catch(Exception e) {
+                log.error("Could not create the product index after merge", e);
+            }
             ProductIndex oldIndex = g_Instance.get();
             g_Instance.set(pi);
             if (oldIndex != null)  {
@@ -235,39 +229,34 @@ public class ProductIndex {
     }
 
     private ProductIndex(List<File> luceneDirs) {
+        m_index_dir = new File(tmpDir);
         if (!luceneDirs.isEmpty()) {
             try {
-                File tmpDir = FSUtils.createTMPDir(getTmpDir(),"lucene");
-                ArrayList<RAMDirectory> provIndexes = new ArrayList<RAMDirectory>();
-                for (File dir: luceneDirs) {
-                    if (dir.isDirectory()) {
-                        log.info("Found index : " + dir.getAbsolutePath());
-                        provIndexes.add(new RAMDirectory(dir));
-                    }
-                }
                 try {
-                    mergeIndexes(tmpDir, provIndexes.toArray(new RAMDirectory[0]), true);
-                    m_index_dir = tmpDir;
+                    mergeIndexesOffline();
                 } catch (Exception e) {
                     log.fatal("Failed to create a merge the prov indexes and create directory for lucene.");
                 }
-                log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
-                addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
+                if (m_index_dir.exists() && m_index_dir.listFiles().length>0) {
+                    log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
+                    addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
+                } else {
+                    throw new RuntimeException("No provider lucene folders found, nothing to load into keyword index");
+                }
             }
             catch (IOException ex) {
                 log.error("Caught an exception while opening the index",ex);
+                throw new RuntimeException("Exception on loading index");
             }
         } else {
             log.error("No provider lucene folders found, nothing to load into keyword index");
-            log.error("Keyword search is disabled");
         }
     }
 
     private void addCache(String id, IndexSearcherCache cache) {
         //Merge the index if there is more than a certain number of advertisers
         if (m_map.size() > MAX_SECONDARY_CACHE_SIZE) {
-            //TODO: Do this in a offline process
-            ProductIndex.init();
+            mergeIndexesOffline();
         } else {
             m_map.writerLock();
             try {
@@ -275,6 +264,31 @@ public class ProductIndex {
             } finally {
                 m_map.writerUnlock();
             }
+        }
+
+
+    }
+
+    /**
+     * Invoke the shell command to the merge the indexes offline
+     */
+    private synchronized void mergeIndexesOffline() {
+        String luceneToolsDir = AppProperties.getInstance().getProperty("com.tumri.content.lucene.toolsdir");
+        File cwd = new File(luceneToolsDir);
+
+        String cmd = luceneToolsDir+"/merge.sh";
+        try {
+            int retVal = ShellCommand.executeCommand(cmd, cwd);
+            if (retVal != 0) {
+                String err = "Create index failed";
+                log.fatal(err);
+            } else {
+                m_index_dir = new File(tmpDir);
+                log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
+                addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
+            }
+        } catch(Throwable e) {
+            throw new RuntimeException("Error executing index merge process : "+e.getMessage());
         }
 
 
@@ -344,7 +358,7 @@ public class ProductIndex {
         QueryParser qp = new QueryParser("description", getAnalyzer(false));
         try {
             str = cleanseQueryString(str);
-            str = "+provider="+advertiser+ " " + str;
+            str = "+provider:"+advertiser + " " + str;
             return qp.parse(str);
         } catch (ParseException e) {
             return null;
@@ -381,11 +395,11 @@ public class ProductIndex {
      * Method to merge the multiple index files into one index
      * @param arrIndexes
      */
-    private void mergeIndexes(File indexDirF , RAMDirectory[] arrIndexes, boolean dumpTokens) {
+    private static void mergeIndexes(File indexDirF , RAMDirectory[] arrIndexes) {
         try {
             log.info("Creating Merged index...");
             Date start = new Date();
-            Analyzer analyzer = getAnalyzer(dumpTokens);
+            Analyzer analyzer = new PorterStemAnalyzer(LargeStopWordList.SMART_STOP_WORDS);
             IndexWriter writer = new IndexWriter(indexDirF, analyzer, true);
             writer.setMergeFactor(mergeFactor);
             writer.addIndexes(arrIndexes);
@@ -399,31 +413,84 @@ public class ProductIndex {
         }
     }
 
+    /**
+     * Entry point that will generate the "merged index"
+     * @param args
+     */
     public static void main(String[] args) {
-//        try {
-//            new ProductIndex().index(args);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            System.exit(-1);
-//        }
-        long start = System.currentTimeMillis();
-        for (int i=0;i<10;i++) {
-            ProductIndex.init();
+        String usage = "java -jar joz.jar [-h] [-srcDir XXX] [-indexDir XXX]";
+        String srcDir = AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR);
+        String outDir = tmpDir;
+
+        for (int i = 0; i < args.length; i++) {
+             String arg = args[i];
+
+             if (arg.equals("-h")) {
+                 System.out.println("Usage: " + usage);
+                 System.exit(0);
+                } else if (arg.equals("-srcDir")) {
+                 srcDir = args[++i];
+             } else if (arg.equals("-indexDir")) {
+                 outDir = args[++i];
+             } else {
+                 log.info("Usage: " + usage);
+                 System.exit(1);
+             }
+         }
+        if (!new File(srcDir).exists()) {
+           log.error("The Source directory does not exist : " + srcDir);
+            System.exit(1);
         }
-        System.out.println("Done. Time taken = " + (System.currentTimeMillis() - start)/1000 + " secs");
+        File foutDir = new File(outDir);
+        if (foutDir.exists()) {
+            FSUtils.removeFiles(foutDir, true);
+        } else {
+            foutDir.mkdirs();
+        }
+        
+
+        try {
+            long start = System.currentTimeMillis();
+            List<File> luceneDirs = findProductIndex(srcDir,null);
+
+            ArrayList<RAMDirectory> provIndexes = new ArrayList<RAMDirectory>();
+            for (File dir: luceneDirs) {
+                if (dir.isDirectory()) {
+                    log.info("Found index : " + dir.getAbsolutePath());
+                    provIndexes.add(new RAMDirectory(dir));
+                }
+            }
+            try {
+                mergeIndexes(foutDir, provIndexes.toArray(new RAMDirectory[0]));
+            } catch (Exception e) {
+                log.fatal("Failed to create a merge the prov indexes and create directory for lucene.",e);
+            }
+
+            log.info("Done. Time taken = " + (System.currentTimeMillis() - start)/1000 + " secs");
+        } catch (IOException e) {
+            log.info("Unexpected error on index merge", e);
+        }
     }
 
     @Test
     public void test() {
         long start = System.currentTimeMillis();
-        for (int i=0;i<10;i++) {
+        try {
+            ContentProviderFactory f = null;
+            // Filename or Properties ???
+            f = ContentProviderFactory.getInstance();
+            f.init(AppProperties.getInstance().getProperties());
+        } catch (InvalidConfigException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        for (int i=0;i<1;i++) {
             init();
             ProductIndex pi = getInstance();
             try {
-                IndexSearcher searcher = pi.getCache(DEFAULT).get();
-                Query q = createQuery("HP", "CAMERA");
+                IndexSearcher searcher = pi.getCache("ADIDAS").get();
+                Query q = createQuery("ADIDAS", "women");
                 TopDocCollector tdc = new TopDocCollector(2000);
-                System.out.println("Querying for CAMERA...");
+                System.out.println("Querying for products...");
                 searcher.search(q, tdc);
                 TopDocs topdocs = tdc.topDocs();
                 if (topdocs != null) {

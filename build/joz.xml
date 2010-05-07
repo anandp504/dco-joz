@@ -10,6 +10,52 @@
 
     <!-- ****************************************************************** -->
 
+    <target name="build-lucenetools" depends="build-Joz-jar">
+
+        <delete dir="${stage.dir}/lucene"/>
+        <mkdir dir="${stage.dir}/lucene"/>
+
+        <copy todir="${stage.dir}/lucene" file="${dist.dir}/joz.jar"/>
+        <copy todir="${stage.dir}/lucene" file="${ext.lib.dir}/lucene-core-2.1.0.jar"/>
+        <copy todir="${stage.dir}/lucene" file="${ext.lib.dir}/lucene-memory-2.1.0.jar"/>
+        <copy todir="${stage.dir}/lucene" file="${caa.lib.dir}/${caa.lib.file}"/>
+        <copy todir="${stage.dir}/lucene" file="${llc.lib.dir}/${llc.lib.file}"/>
+        <copy todir="${stage.dir}/lucene" file="${jic.lib.dir}/${jic.lib.file}"/>
+        <copy todir="${stage.dir}/lucene" file="${cma.lib.dir}/${cma.lib.file}"/>
+        <copy todir="${stage.dir}/lucene" file="${utils.lib.dir}/${utils.lib.file}"/>
+        <copy todir="${stage.dir}/lucene" file="${ext.lib.dir}/log4j-1.2.6.jar"/>
+        <copy todir="${stage.dir}/lucene" file="${ext.lib.dir}/commons-codec-1.3.jar"/>
+        <copy todir="${stage.dir}/lucene" file="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"/>
+        <copy todir="${stage.dir}/lucene" file="${ext.lib.dir}/commons-logging.jar"/>
+        <copy todir="${stage.dir}/lucene" file="${ext.lib.dir}/hadoop-0.18.3-core.jar"/>
+
+        <touch file="${stage.dir}/lucene/merge.sh"/>
+
+        <echo file="${stage.dir}/lucene/merge.sh">#!/bin/sh</echo>
+        <echo file="${stage.dir}/lucene/merge.sh">java -Xms512m -Xmx2g -classpath .:joz.jar:hadoop-0.18.3-core.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:${caa.lib.file}:${cma.lib.file}:${jic.lib.file}:${utils.lib.file}:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.joz.keywordServer.ProductIndex $@</echo>
+        <chmod file="${stage.dir}/lucene/merge.sh" perm="a+x"></chmod>
+
+        <touch file="${stage.dir}/lucene/log4j.properties"/>
+        <echo file="${stage.dir}/lucene/log4j.properties">log4j.rootLogger=INFO,A1
+log4j.appender.A1=org.apache.log4j.ConsoleAppender
+log4j.appender.A1.layout=org.apache.log4j.PatternLayout
+log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
+
+        <tar destfile="${stage.dir}/lucene/lucene.tar">
+            <tarfileset dir="${stage.dir}/lucene">
+            <include name="*.jar"/>
+            </tarfileset>
+            <tarfileset dir="${stage.dir}/lucene" mode="755">
+            <include name="*.sh"/>
+            <include name="*.properties"/>
+            </tarfileset>
+        </tar>
+
+        <gzip zipfile="${dist.dir}/lucene.tar.gz" src="${stage.dir}/lucene/lucene.tar"/>
+        <delete file="${stage.dir}/lucene/lucene.tar"/>
+
+    </target>
+
 	<target name="java-doc" depends="">
 		<delete dir="${dist.dir}/javadocs"/>
 		<mkdir dir="${dist.dir}/javadocs"/>

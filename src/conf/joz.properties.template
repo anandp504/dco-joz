@@ -14,6 +14,8 @@ com.tumri.content.file.batchReadInterval=1
 
 com.tumri.content.jozindexDir=jozindex
 com.tumri.content.prevjozindexDir=/opt/Tumri/joz/data/caa/prevjozindex
+com.tumri.content.luceneindexdir=/opt/Tumri/joz/data/caa/luceneindex
+com.tumri.content.lucene.toolsdir=/opt/Tumri/joz/current/tools/lucene
 #com.tumri.joz.index.reader.debug=false
 #com.tumri.joz.index.reader.debug.outdir=/tmp
 com.tumri.joz.index.reader.indexFileNamePattern=.*_jozindex_.*.bin
