@@ -21,8 +21,11 @@ import com.tumri.content.*;
 import com.tumri.content.data.Content;
 import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.joz.campaign.TSpecQueryCache;
+import com.tumri.joz.index.DictionaryManager;
+import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.keywordServer.ProductIndex;
+import com.tumri.joz.utils.IndexUtils;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.FSUtils;
@@ -316,6 +319,20 @@ public class ContentHelper implements ContentListener {
             //Need to check for revert mode.
             if (ProductDB.getInstance().isEmpty()) {
                 bColdStart = true;
+                log.info("Doing full load for all advertisers");
+            }
+            if (advertiser!=null) {
+                IProduct.Attribute kAttr = IndexUtils.getAttribute("provider");
+                ProductAttributeIndex theIndex=ProductDB.getInstance().getIndex(kAttr);
+                Integer keyId = DictionaryManager.getInstance().getId (kAttr, advertiser);
+                if (theIndex!= null && keyId!=null && keyId>=0) {
+                    SortedSet<Handle> results = theIndex.get(keyId);
+                    if (results==null || results.isEmpty()) {
+                        bColdStart = true;
+                        log.info("Doing full load for specific advertiser : " + advertiser);
+                    }
+                }
+
             }
 
             if (!st.merchantDataDisabled) {

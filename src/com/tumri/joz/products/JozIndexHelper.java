@@ -282,10 +282,12 @@ public class JozIndexHelper {
         //Copy to the prev folder
         if (copy) {
             String providerName = getProviderFromFileName(inFile.getName());
+            log.info("Provider name = " + providerName);
             File prevIndexDir = new File(prevJozindexDirName + "/" + providerName.toUpperCase() + "/jozindex");
             if (!prevIndexDir.exists()) {
                 prevIndexDir.mkdirs();
             }
+            log.info("The prev joz index path = " + prevIndexDir.getAbsolutePath());
             FSUtils.copyFile(inFile, new File(prevIndexDir.getAbsolutePath() + "/" + inFile.getName()));
             //TODO: Garbage collect the older indexes
         }
@@ -302,10 +304,10 @@ public class JozIndexHelper {
         String providerName = "";
         if (fileName!=null) {
             String[] parts = fileName.split("_");
-            if (parts.length<7) {
+            if (parts.length<4) {
                 return "";
             }
-            for (int i=1; i<parts.length-5; i++) {
+            for (int i=0; i<parts.length-3; i++) {
                 String delim = "";
                 if (i>1) {
                     delim = "_";
