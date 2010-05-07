@@ -276,7 +276,8 @@ public class ProductIndex {
         String luceneToolsDir = AppProperties.getInstance().getProperty("com.tumri.content.lucene.toolsdir");
         File cwd = new File(luceneToolsDir);
 
-        String cmd = luceneToolsDir+"/merge.sh";
+        String srcDir = AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR);
+        String cmd = luceneToolsDir+"/merge.sh -srcDir " + srcDir + " -indexDir " + tmpDir;
         try {
             int retVal = ShellCommand.executeCommand(cmd, cwd);
             if (retVal != 0) {
