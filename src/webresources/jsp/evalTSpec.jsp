@@ -41,7 +41,7 @@
         <h4>Enter ProductSelectionRequest Info:</h4>
         <i>(Keys= :num_products :offertype :city :state :country :zipcode :dmacode :areacode
             :brandomize :bmineurls :bpaginate :bbackfill :requestkeywords :requestcategory :externalfilterquery1
-            :externalfilterquery2 :externalfilterquery3 :externalfilterquery4 :externalfilterquery5)</i>
+            :externalfilterquery2 :externalfilterquery3 :externalfilterquery4 :externalfilterquery5 :advertiser)</i>
         <br>
         <textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:2cm"><%
             if (psrReq != null) {

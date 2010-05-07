@@ -20,6 +20,7 @@ public class ShellCommand
 
     public static int executeCommand(String cmd, File cwd) throws Throwable {
         try {
+            log.info("Going to run command : " + cmd);
             ShellCommand scmd = new ShellCommand(cmd, cwd.getAbsolutePath());
             return scmd.exec();
 		} catch (Throwable e) {

@@ -179,7 +179,7 @@ public class JozConsoleServlet extends HttpServlet {
 				String reqPSR = request.getParameter("text_eval_expr");
 				String reqTSpec = request.getParameter("text_eval_expr2");
 				ProductQueryMonitor pqm=new ProductQueryMonitor();
-				ProductQueryMonitorStatus pqmstat=(ProductQueryMonitorStatus)pqm.getStatus(reqPSR, reqTSpec);
+				ProductQueryMonitorStatus pqmstat=(ProductQueryMonitorStatus)pqm.getStatus(reqPSR, reqTSpec,null);
 				String rawData = null;
 				if(pqmstat != null){
 					rawData = pqmstat.getProductRawData();

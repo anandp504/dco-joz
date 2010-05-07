@@ -134,6 +134,7 @@
 	List<ProductInfo> excludedProducts = tspec.getExcludedProducts();
 	List<ProductInfo> includedProducts = tspec.getIncludedProducts();
 	List<KeywordInfo> includedKeywords = tspec.getIncludedKeywords();
+    String advertiser= includedProviders.get(0).getName();
 	String imageUrlPrefix=((AppProperties.getInstance()).getProperty("ProductImagesHostUrl"));
     if (imageUrlPrefix !=null) {
         imageUrlPrefix = imageUrlPrefix.trim();
@@ -210,7 +211,7 @@
 	int nextPageStartIndex=0;
 	ProductQueryMonitorStatus pqmstat=null;
 	ProductQueryMonitor pqm=new ProductQueryMonitor();
-	pqmstat=(ProductQueryMonitorStatus)pqm.getStatus(tSpecId);
+	pqmstat=(ProductQueryMonitorStatus)pqm.getStatus(tSpecId,advertiser);
 
 	if (null == pageAction) {
 		if(pqmstat == null){

@@ -57,13 +57,12 @@ public class JozIndexUpdater implements IJozIndexUpdater {
     public Object getHandle(long pid) {
         return ProductDB.getInstance().getHandle(pid);
     }
+    private SortedArraySet<Handle> productHandles = new SortedArraySet<Handle>();
 
     public Object createNewHandle(long pid, boolean bDebug) {
         ProductHandle p = new ProductHandle(1.0, pid);
-        SortedArraySet<Handle> productHandles = new SortedArraySet<Handle>();
-        productHandles.add(p);
         if (!bDebug) {
-            ProductDB.getInstance().addNewProducts(productHandles);
+            productHandles.add(p);
         }
         return p;
     }
@@ -91,6 +90,10 @@ public class JozIndexUpdater implements IJozIndexUpdater {
                 handleDebug(indexType,  indexName,handleList, operation);
             }
         } else {
+            if (operation != PersistantIndexLine.IndexOperation.kDelete && !productHandles.isEmpty()) {
+                ProductDB.getInstance().addNewProducts(productHandles);
+                productHandles = new SortedArraySet<Handle>();
+            }
             //Update the ProductDB
             handleUpdate(indexType, indexName,handleList, operation, hotload);
         }

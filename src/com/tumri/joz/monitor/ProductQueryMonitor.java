@@ -43,15 +43,17 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		throw new UnsupportedOperationException("Method not supported");
 	}
 
-	public MonitorStatus getStatus(String prS, String tSpecS) {
+	public MonitorStatus getStatus(String prS, String tSpecS, String advertiser) {
 		ProductSelectionRequest pr = generateProductSelectionRequest(prS);
 		TSpec tSpec = generateTSpec(tSpecS);
-
+        if (advertiser==null) {
+            advertiser = pr.getAdvertiser();
+        }
 		List<Map<String, String>> results;
 
 		try {
 			ArrayList<Handle> handles = doProductSelection(tSpec, pr, new Features());
-			results = getProductData(pr.getAdvertiser(), handles);
+			results = getProductData(advertiser, handles);
 		}
 		catch (Exception ex) {
 			log.error("Error reading sexpression:  ", ex);
