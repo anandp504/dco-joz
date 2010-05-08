@@ -69,16 +69,17 @@ public class ANodeHandler extends DefaultHandler {
 		return text.toString().trim();
 	}
 
-	public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
+    @SuppressWarnings("unchecked")
+    public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
 	                         Attributes attributes) throws SAXException {
 		if (qName.equals("a")) {
-			log.info("Processing Adpod = " + attributes.getValue("id"));
+			log.debug("Processing Adpod = " + attributes.getValue("id"));
 		}
 		if (qName.equals("v")) {
 			Integer vectorId = null;
 			try {
 				vectorId = Integer.parseInt(attributes.getValue("id"));
-				log.info("Processing Vector id = " + vectorId);
+				log.debug("Processing Vector id = " + vectorId);
 			} catch (NumberFormatException e) {
 				throw new SAXException("Invalid Id for the vector - skipping vector node");
 			}

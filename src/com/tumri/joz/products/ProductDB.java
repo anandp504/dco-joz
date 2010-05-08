@@ -914,28 +914,6 @@ public class ProductDB {
         }
     }
 
-    /**
-     * Clear products for a specific advertiser
-     * @param advertiserName
-     */
-    public void clearAdvertiserProducts(String advertiserName) {
-        //Do a lookup
-        IProduct.Attribute kAttr = IndexUtils.getAttribute("provider");
-        ProductAttributeIndex theIndex=ProductDB.getInstance().getIndex(kAttr);
-        Integer keyId = DictionaryManager.getInstance().getId (kAttr, advertiserName);
-        if (theIndex!= null && keyId!=null && keyId>=0) {
-            SortedSet<Handle> results = theIndex.get(keyId);
-            //Delete the results from all indexes
-            TreeMap<Integer, ArrayList<Handle>> mindex = new TreeMap<Integer, ArrayList<Handle>>();
-            ArrayList<Handle> list = (new ArrayList<Handle>());
-            list.addAll(results);
-            mindex.put(keyId, list);
-            deleteIntegerIndex(IProduct.Attribute.kProvider, mindex);
-
-        }
-
-    }
-
     public Enumeration<IProduct.Attribute> getIndices() {
         return m_indices.keys();
     }

@@ -110,7 +110,6 @@ public class CampaignDBDataLoader {
             campaignDB.loadUrlNoneAdPods(urlNoneAdPodsIterator);
             campaignDB.loadRecipes(recipesIterator);
             campaignDB.loadAdPodCampaignMapping(adPodCampaignMappings);
-            campaignDB.loadLocationNameIdMapping(locationNameIdMappings);
             campaignDB.loadExternalVariableAdPods(extVariablesAdPodMap);
             campaignDB.loadNonExternalVariableAdPods(nonExtVariablesAdPodMap);
 

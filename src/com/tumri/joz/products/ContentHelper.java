@@ -306,7 +306,8 @@ public class ContentHelper implements ContentListener {
         super();
         provider = p; 
     }
-    
+
+    @SuppressWarnings({"unchecked"})
     public void contentUpdated(String advertiser) {
         
         if (provider == null) {

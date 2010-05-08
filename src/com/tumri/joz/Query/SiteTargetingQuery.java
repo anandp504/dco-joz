@@ -22,12 +22,10 @@ import java.util.Iterator;
  */
 public class SiteTargetingQuery extends TargetingQuery {
     private int locationId;
-    private String themeName;
     private String adType;
 
-    public SiteTargetingQuery(int locationId, String themeName, String adType) {
+    public SiteTargetingQuery(int locationId, String adType) {
         this.locationId = locationId;
-        this.themeName = themeName;
         this.adType = adType;
     }
 
@@ -37,16 +35,12 @@ public class SiteTargetingQuery extends TargetingQuery {
 
     public SortedSet<Handle> exec() {
         SortedSet<Handle> locationResults      = execLocationQuery();
-        SortedSet<Handle> themeResults         = execThemeQuery();
         //SortedSet<Handle> runOfNetworksResults = execRunOfNetworkQuery();
 
 
         MultiSortedSet<Handle> results = new MultiSortedSet<Handle>();
         if(locationResults != null) {
             results.add(locationResults);
-        }
-        if(themeResults != null) {
-            results.add(themeResults);
         }
 //        if(runOfNetworksResults != null) {
 //            results.add(runOfNetworksResults);
@@ -65,21 +59,6 @@ public class SiteTargetingQuery extends TargetingQuery {
         return results;
     }
 
-    @SuppressWarnings({"unchecked"})
-    private SortedSet<Handle> execThemeQuery() {
-        SortedSet<Handle> results = null;
-        if(themeName != null && !themeName.equals("") && adType != null && !adType.equals("")) {
-            //Do a look up for the Location ID for the given theme. ThemeQuery is executed as a location query internally
-            Integer thmLocId = CampaignDB.getInstance().getLocationIdForName(themeName+adType);
-            if (thmLocId != null) {
-                locationId = thmLocId.intValue();
-            } else {
-                locationId = 0;
-            }
-            results = execLocationQuery();
-        }
-        return results;
-    }
 
 //    private SortedSet<Handle> execRunOfNetworkQuery() {
 //        SortedSet<Handle> results;

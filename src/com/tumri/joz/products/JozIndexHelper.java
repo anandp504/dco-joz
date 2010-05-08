@@ -8,6 +8,7 @@ import com.tumri.jic.joz.IJozIndexUpdater;
 import com.tumri.jic.joz.PersistantProviderIndex;
 import com.tumri.joz.index.updater.JozIndexUpdater;
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.utils.IndexLoadingComparator;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.utils.FSUtils;
 import org.apache.log4j.Logger;
@@ -282,18 +283,20 @@ public class JozIndexHelper {
         //Copy to the prev folder
         if (copy) {
             String providerName = getProviderFromFileName(inFile.getName());
-            log.info("Provider name = " + providerName);
             File prevIndexDir = new File(prevJozindexDirName + "/" + providerName.toUpperCase() + "/jozindex");
             if (!prevIndexDir.exists()) {
                 prevIndexDir.mkdirs();
             }
-            log.info("The prev joz index path = " + prevIndexDir.getAbsolutePath());
+            IndexLoadingComparator comp = new IndexLoadingComparator();
+            if (comp.validateForAdvertiser(providerName)) {
+                //GC all the older indexes
+                FSUtils.removeFiles(prevIndexDir,true);
+            }
             FSUtils.copyFile(inFile, new File(prevIndexDir.getAbsolutePath() + "/" + inFile.getName()));
-            //TODO: Garbage collect the older indexes
         }
     }
 
-    /**
+    /**                                      
      * Gets the provider name from a given mup file by tokenizing by _ char
      * It is assumed that the provider name will be between the first _ char and the 5th _ char from the end
      * Returns an empty string if the file name was not of correct syntax

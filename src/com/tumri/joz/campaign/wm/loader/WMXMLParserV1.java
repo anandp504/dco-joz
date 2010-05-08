@@ -82,7 +82,12 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 	}
 
 	public void finalize() {
-		WMDB.getInstance().purgeOldEntries(adpodInclList);
+        try {
+            super.finalize();
+        } catch (Throwable throwable) {
+            log.error("Exception caught on finalize");
+        }
+        WMDB.getInstance().purgeOldEntries(adpodInclList);
 	}
 
 	public void process() throws WMLoaderException {
@@ -104,6 +109,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 		log.info("Finished processing the document");
 	}
 
+    @SuppressWarnings("unchecked")
 	public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
 	                         Attributes attributes) throws SAXException {
 		if (qName.equals("a")) {

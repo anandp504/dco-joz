@@ -85,6 +85,7 @@ public class RangeIndexDomainMapping<Key> implements Comparable, Comparator {
 		return ranges;
 	}
 
+    @SuppressWarnings("unchecked")
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -92,6 +93,7 @@ public class RangeIndexDomainMapping<Key> implements Comparable, Comparator {
 		return key.equals(rdm.getKey());
 	}
 
+    @SuppressWarnings("unchecked")
 	public int compare(Object o, Object o1) {
 		if (o == o1) return 0;
 		if (o == null || getClass() != o.getClass()) return -1;
@@ -101,6 +103,7 @@ public class RangeIndexDomainMapping<Key> implements Comparable, Comparator {
 		return ((Comparable) m1.getKey()).compareTo((Comparable) m2.getKey());
 	}
 
+    @SuppressWarnings("unchecked")
 	public int compareTo(Object o) {
 		if (o == this) return 0;
 		if (o == null || getClass() != o.getClass()) return -1;

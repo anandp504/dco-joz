@@ -153,6 +153,7 @@ public class JozIndexRequestHandler implements RequestHandler {
      * @param providerId
      * @return
      */
+    @SuppressWarnings("unchecked")
     private SortedSet<String> getProviderIndexVals(Product.Attribute kAttr, String providerId) {
         SortedSet<String> indexVals = new SortedArraySet<String>();
         ProductAttributeIndex<Integer,Handle> providerIndex = ProductDB.getInstance().getIndex(Product.Attribute.kProvider);

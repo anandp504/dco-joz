@@ -75,7 +75,6 @@ public class TransientDataManager {
             reloadCampaign();
             reloadOSpec();
             reloadUrlMappings();
-            reloadThemeMappings();
             reloadLocationMappings();
         }
         finally {
@@ -118,26 +117,6 @@ public class TransientDataManager {
                         }
                         catch (TransientDataException e) {
                             log.error("Error occured while reloading urlmapping in TransientDataManager", e);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private void reloadThemeMappings() {
-        Iterator iterator = themeMapRequest.values().iterator();
-        if(iterator != null && iterator.hasNext()) {
-            while(iterator.hasNext()) {
-                List<IncorpDeltaMappingRequest<String>> requestList = (List<IncorpDeltaMappingRequest<String>>)iterator.next();
-                if(requestList != null) {
-                    for (IncorpDeltaMappingRequest<String> request : requestList) {
-                        try {
-                            addThemeMapping(request);
-                        }
-                        catch (TransientDataException e) {
-                            log.error("Error occured while reloading thememapping in TransientDataManager", e);
                         }
                     }
                 }
@@ -382,41 +361,6 @@ public class TransientDataManager {
         deleteNonUrlMapping(adPodId);
     }
 
-    public void addThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode, String url) throws TransientDataException {
-        if(campaignDB.getOspec(tSpecName) == null || !safeContainsOSpecKey(tSpecName)) {
-            throw new TransientDataException("Ospec for this name doesnt Exist");
-        }
-        Integer locId = CampaignDB.getInstance().getLocationIdForName(themeName);
-        int thmLocId = 0;
-        if (locId == null) {
-            //1. Create ID for Theme - use that as location id and add location mapping
-            thmLocId = idSequence.incrementAndGet();
-            thmLocId = thmLocId + lowBound;
-        } else {
-           thmLocId = locId; 
-        }
-        //Create Location mapping
-        addLocationMapping(new Integer(thmLocId).toString(), tSpecName, weight, geocode, url);
-        campaignDB.addLocationNameIdMap(themeName, new Integer(thmLocId));
-    }
-
-    @SuppressWarnings({"deprecation"})
-    private void addThemeMapping(IncorpDeltaMappingRequest<String> request) throws TransientDataException {
-        Theme theme = campaignDB.getTheme(request.getId());
-        if(theme == null) {
-            int themeId = idSequence.incrementAndGet();
-            themeId = themeId + lowBound;
-            theme = new Theme();
-            theme.setId(themeId);
-            theme.setName(request.getId());
-            campaignDB.addTheme(theme);
-        }
-        //Create Location mapping
-        IncorpDeltaMappingRequest<Integer> locrequest = new IncorpDeltaMappingRequest<Integer>(theme.getId(), request.getTSpecName(), request.getWeight(), request.getGeocode(),request.getUrl());
-        addLocationMapping(locrequest);
-        campaignDB.addLocationNameIdMap(request.getId(), theme.getId());
-    }
-
     private IncorpDeltaMappingRequest<String> getExistingUrlMapping(IncorpDeltaMappingRequest<String> request) {
         if(request == null) {
             return null;
@@ -601,20 +545,6 @@ public class TransientDataManager {
                     //campaignDB.deleteUrl(url.getName());
                 }
             }
-        }
-    }
-
-    @SuppressWarnings({"deprecation"})
-    public void deleteThemeMapping(String themeName, String tSpecName, float weight, Geocode geocode, String url) {
-        Integer thmLocId = CampaignDB.getInstance().getLocationIdForName(themeName);
-        if (thmLocId != null) {
-            deleteLocationMapping(thmLocId.toString(), tSpecName, weight, geocode, url);
-        }
-        
-        //Delete the mapping from the CampaignDB if there is nothing more mapped to the tspec
-        List <IncorpDeltaMappingRequest<Integer>>  locationRequestList      = locationMapRequest.safeGet(tSpecName);
-        if (locationRequestList==null || locationRequestList.size()==0) {
-            CampaignDB.getInstance().deleteLocationNameIdMapping(themeName);
         }
     }
 
@@ -1006,33 +936,6 @@ public class TransientDataManager {
                     if(adPodId != null) {
                         deleteNonGeocodeMapping(adPodId);
                         oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), urlName));
-                    }
-                }
-            }
-        }
-
-        if(themeRequestList != null) {
-            for (IncorpDeltaMappingRequest<String> themeRequest : themeRequestList) {
-                String themeName = themeRequest.getId();
-                Theme theme = campaignDB.getTheme(themeName);
-                if (theme != null) {
-                    campaignDB.getThemeAdPodMappingIndex().remove(theme.getName());
-                    campaignDB.deleteTheme(theme.getName());
-                }
-                if(themeRequest.getGeocode() != null) {
-                    Integer adPodId;
-                    adPodId = oSpecSiteGeoAdPodMap.safeGet(generateKey(oSpec.getName(), themeName));
-                    if(adPodId != null) {
-                        deleteGeocodeMapping(themeRequest.getGeocode(), adPodId);
-                        oSpecSiteGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), themeName));
-                    }
-                }
-                else {
-                    Integer adPodId;
-                    adPodId = oSpecSiteNonGeoAdPodMap.safeGet(generateKey(oSpec.getName(), themeName));
-                    if(adPodId != null) {
-                        deleteNonGeocodeMapping(adPodId);
-                        oSpecSiteNonGeoAdPodMap.safeRemove(generateKey(oSpec.getName(), themeName));
                     }
                 }
             }

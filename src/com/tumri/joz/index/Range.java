@@ -27,7 +27,8 @@ public class Range<Value> extends Pair<Value, Value> implements Comparator<Range
 		this.max = max;
 	}
 
-	public boolean contains(Value valToCompare) {
+    @SuppressWarnings("unchecked")
+    public boolean contains(Value valToCompare) {
 		if (max == null || max == null || valToCompare == null) {
 			return false;
 		}
@@ -37,6 +38,7 @@ public class Range<Value> extends Pair<Value, Value> implements Comparator<Range
 		return true;
 	}
 
+    @SuppressWarnings("unchecked")
 	public int compare(Range<Value> r, Range<Value> r1) {
 		if (r.equals(r1)) {
 			return 0;
@@ -62,6 +64,7 @@ public class Range<Value> extends Pair<Value, Value> implements Comparator<Range
 	}
 
 	@Override
+    @SuppressWarnings("unchecked")
 	public int compareTo(Pair<Value, Value> o) {
 		Range<Value> r1 = (Range<Value>) o;
 		if (this.equals(r1)) {

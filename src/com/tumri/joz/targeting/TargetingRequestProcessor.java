@@ -101,16 +101,7 @@ public class TargetingRequestProcessor {
 	                features.setCampaignClientName(str.getCampaignClientName());
                     features.setRecipeId(theRecipe.getId());
                     features.setRecipeName(theRecipe.getName());
-                    String theme = request.get_theme();
-                    String adtype = request.getAdType();
                     Integer targetedLocationId = null;
-                    if (theme != null&&!theme.equals("")&&adtype!=null&&!"".equals(adtype)) {
-                        features.setTargetedLocationName(theme);
-                        targetedLocationId = CampaignDB.getInstance().getLocationIdForName(theme+adtype);
-                        if (targetedLocationId!=null){
-                            features.setTargetedLocationId(Integer.toString(targetedLocationId));
-                        }
-                    }
                     String locationIdStr = request.get_store_id();
                     if (locationIdStr!= null&&!locationIdStr.equals("")) {
                         try {
@@ -174,7 +165,7 @@ public class TargetingRequestProcessor {
 
         }
         try {
-            SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId, themeName, adType);
+            SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId, adType);
             UrlTargetingQuery urlQuery = new UrlTargetingQuery(urlName);
             GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
             TimeTargetingQuery timeQuery = new TimeTargetingQuery();

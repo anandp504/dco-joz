@@ -92,22 +92,22 @@ public class JozRefreshDataServlet extends HttpServlet {
                 result = "failed";
             }
         }  else if ("validateIndex".equalsIgnoreCase(dataType)) {
-	        responseJSP = "/jsp/MupIndexComparison.jsp";
+            responseJSP = "/jsp/MupIndexComparison.jsp";
             try {
-	            IndexLoadingComparator validator = new IndexLoadingComparator();
-	            List<String> infos = validator.validate(null);
-	            if (jspMode!=null) {
-		           request.setAttribute("infos", infos);
-	            } else {
-		            StringBuilder sb = new StringBuilder();
-		            if (infos!=null) {
-			            for (String s:infos) {
-				            sb.append(s);
-				            sb.append("\n");
-			            }
-		            }
-		            result = sb.toString();
-	            }
+                IndexLoadingComparator validator = new IndexLoadingComparator();
+                List<String> infos = validator.validate(null);
+                if (jspMode!=null) {
+                    request.setAttribute("infos", infos);
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    if (infos!=null) {
+                        for (String s:infos) {
+                            sb.append(s);
+                            sb.append("\n");
+                        }
+                    }
+                    result = sb.toString();
+                }
             } catch (Exception e) {
                 result = "failed";
             }
@@ -132,7 +132,11 @@ public class JozRefreshDataServlet extends HttpServlet {
      */
     private synchronized String doRefreshListingData(String advertiser, String revertMode) throws InvalidConfigException  {
         if (revertMode != null) {
-            JozIndexHelper.getInstance().deleteJozIndex(advertiser);
+            if (advertiser!=null) {
+                JozIndexHelper.getInstance().deleteJozIndex(advertiser);
+            } else {
+                ProductDB.getInstance().clearProductDB();
+            }
         }
         ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
         ContentProvider cp = f.getContentProvider();

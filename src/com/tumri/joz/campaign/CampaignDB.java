@@ -1,17 +1,14 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
-import com.tumri.cma.misc.SexpOSpecHelper;
-import com.tumri.utils.Pair;
-import com.tumri.utils.sexp.BadSexpException;
-import com.tumri.joz.products.Handle;
 import com.tumri.joz.index.AtomicAdpodIndex;
-import com.tumri.joz.utils.AppProperties;
+import com.tumri.joz.products.Handle;
+import com.tumri.utils.Pair;
 
-import java.util.*;
-import java.io.IOException;
-
-import org.apache.log4j.Logger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * CampaignDB is an in-memory representation for campaign(CMA) database that holds all the campagin related domain objects for
@@ -21,8 +18,6 @@ import org.apache.log4j.Logger;
  */
 @SuppressWarnings({"deprecation"})
 public abstract class CampaignDB {
-
-    private static Logger log = Logger.getLogger (CampaignDB.class);
 
     private static CampaignDB campaignDB = CampaignDBCompleteRefreshImpl.getInstance(); //CampaignDBIncrementalRefreshImpl.getInstance();
 
@@ -43,10 +38,6 @@ public abstract class CampaignDB {
 
     public abstract Url getUrl(int urlId);
 
-    public abstract Theme getTheme(String themeName);
-
-    public abstract Theme getTheme(int themeId);
-
     public abstract Location getLocation(int locationId);
 
     public abstract Geocode getGeocode(int geocodeId);
@@ -56,10 +47,6 @@ public abstract class CampaignDB {
     public abstract void addUrl(Url url);
 
     public abstract void deleteUrl(String urlName);
-
-    public abstract void addTheme(Theme theme);
-
-    public abstract void deleteTheme(String themeName);
 
     public abstract void addLocation(Location location);
 
@@ -85,15 +72,11 @@ public abstract class CampaignDB {
 
     public abstract void addUrlMapping(UrlAdPodMapping mapping);
 
-    public abstract void addThemeMapping(ThemeAdPodMapping mapping);
-
     public abstract void addLocationMapping(LocationAdPodMapping mapping);
 
     public abstract void addGeocodeMapping(Geocode geocode, int adPodId, float weight);
 
     public abstract void deleteUrlMapping(String urlName, int adPodId);
-
-    public abstract void deleteThemeMapping(String themeName, int adPodId);
 
     public abstract void deleteLocationMapping(int locationId, int adPodId);
 
@@ -115,15 +98,9 @@ public abstract class CampaignDB {
 
     public abstract void loadUrls(Iterator<Url> iterator);
 
-    @SuppressWarnings({"deprecation"})
-    public abstract void loadThemes(Iterator<Theme> iterator);
-
     public abstract void loadLocations(Iterator<Location> iterator);
 
     public abstract void loadUrlAdPodMappings(Iterator<UrlAdPodMapping> iterator);
-
-    @SuppressWarnings({"deprecation"})
-    public abstract void loadThemeAdPodMappings(Iterator<ThemeAdPodMapping> iterator);
 
     public abstract void loadLocationAdPodMappings(Iterator<LocationAdPodMapping> iterator);
 
@@ -131,10 +108,6 @@ public abstract class CampaignDB {
 
     public abstract AtomicAdpodIndex<String, Handle> getUrlAdPodMappingIndex();
     
-    public abstract AtomicAdpodIndex<String, Handle> getThemeAdPodMappingIndex();
-
-    public abstract AtomicAdpodIndex<String, Handle> getRunOfNetworkAdPodIndex();
-
     public abstract AtomicAdpodIndex<String, Handle> getNonGeoAdPodIndex();
 
     public abstract AtomicAdpodIndex<String, Handle> getAdpodGeoCountryIndex();
@@ -186,14 +159,6 @@ public abstract class CampaignDB {
     public abstract void loadAdPodCampaignMapping(Iterator<Pair<Integer, Integer>> iterator);
 
     public abstract AtomicAdpodIndex<String, Handle> getNonUrlAdPodIndex();
-
-    public abstract void loadLocationNameIdMapping(Iterator<Pair<String, Integer>> iterator);
-
-    public abstract Integer getLocationIdForName(String locationName);
-
-    public abstract void addLocationNameIdMap(String locName, Integer id);
-
-    public abstract void deleteLocationNameIdMapping(String themeName);
 
     public abstract boolean isEmpty();
 

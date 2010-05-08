@@ -76,6 +76,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	 * Sets the reference point of staring the intersection, default is first()
 	 * @param aReference value
 	 */
+    @SuppressWarnings("unchecked")
 	public void setReference(Value aReference) {
 		m_reference = aReference;
 		if (m_reference != null && m_rankedSet == null) {
@@ -656,6 +657,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		throw new NoSuchElementException();
 	}
 
+    @SuppressWarnings({"unchecked"})
 	public Comparator<? super Value> comparator() {
 		if(m_rankedSet!=null && !m_rankedSet.isEmpty()){
 			return new ProductHandle(1.0, 1L);

@@ -5,6 +5,7 @@ import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.IProduct;
 import com.tumri.joz.products.ProductDB;
+import com.tumri.utils.FSUtils;
 import com.tumri.utils.data.SetDifference;
 import com.tumri.utils.data.SortedArraySet;
 import org.junit.Test;
@@ -43,10 +44,10 @@ public class IndexLoadingComparator {
 		dirName.append("data");
 
 		File f = new File(dirName.toString());
+        ArrayList<File> files = new ArrayList<File>();
+        FSUtils.findFiles(files, f, "US.*DEFAULT_provider-content.*");
 
-		File[] files = f.listFiles(new MupFilenameFilter("US.*DEFAULT_provider-content.*"));
-
-		if(files == null){
+		if(files.isEmpty()){
 			infos.add("No MUP files found at dir: " + f.getAbsolutePath());
 			return infos;
 		}
@@ -71,6 +72,36 @@ public class IndexLoadingComparator {
 
 	}
 
+    @SuppressWarnings("unchecked")
+    public boolean validateForAdvertiser(String advertiser){
+		bErrorsFound = false;
+		List<String> infos = new ArrayList<String>();
+        ArrayList<File> mupFiles = new ArrayList<File>();
+        String	mupDir = AppProperties.getInstance().getProperty("com.tumri.content.file.sourceDir");
+        File indexDir = new File(mupDir + "/" + advertiser.toUpperCase() + "/data");
+        FSUtils.findFiles(mupFiles, indexDir, "US.*DEFAULT_provider-content.*");
+
+		if(mupFiles.isEmpty()){
+			infos.add("No MUP files found at dir: " + indexDir.getAbsolutePath());
+			return false;
+		}
+
+		for(File mupFile: mupFiles){
+			List<String> info = new ArrayList<String>();
+			try{
+				info.addAll(compareProducts(mupFile, advertiser));
+			} catch (Throwable t){
+				info.add(t.getMessage());
+			}
+			infos.addAll(info);
+		}
+
+
+		return !bErrorsFound;
+
+	}
+
+    @SuppressWarnings("unchecked")
 	private List<String> compareProducts(File f, String providerName){
 		List<String> retInfos = new ArrayList<String>();
 		if(providerName == null){

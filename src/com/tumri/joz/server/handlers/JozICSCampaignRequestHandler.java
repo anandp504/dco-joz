@@ -124,7 +124,8 @@ public class JozICSCampaignRequestHandler implements RequestHandler {
             response.addDetails(JozICSCampaignResponse.KEY_ERROR, "Error in command "+commandType);
         }
     }
-    
+
+    @SuppressWarnings("unchecked")
     private ArrayList<JozAdvertiser> getAllAdvertisers(){
     	// return all advertisers
     	ArrayList<JozAdvertiser> advertisers = new ArrayList<JozAdvertiser>();   	

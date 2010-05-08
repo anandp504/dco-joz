@@ -42,9 +42,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 	//Use recipe map to maintain the recipe id to recipe lookup
 	private AtomicReference<RWLockedTreeMap<Integer, Recipe>>   recipeMap    = new AtomicReference<RWLockedTreeMap<Integer, Recipe>>(new RWLockedTreeMap<Integer, Recipe>());
 
-	@SuppressWarnings({"deprecation"})
-	private AtomicReference<RWLockedTreeMap<Integer,Theme>>    themeMap      = new AtomicReference<RWLockedTreeMap<Integer, Theme>>(new RWLockedTreeMap<Integer, Theme>());
-	private AtomicReference<RWLockedTreeMap<String, Theme>>    themeNameMap  = new AtomicReference<RWLockedTreeMap<String, Theme>>(new RWLockedTreeMap<String, Theme>());
 
 	private AtomicReference<RWLockedTreeMap<Integer,Location>> locationMap   = new AtomicReference<RWLockedTreeMap<Integer, Location>>(new RWLockedTreeMap<Integer, Location>());
 
@@ -53,9 +50,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
 	//Map adpod Id to campaign ID
 	private AtomicReference<RWLockedTreeMap<Integer, Integer>> adPodCampaignMap = new AtomicReference<RWLockedTreeMap<Integer, Integer>>(new RWLockedTreeMap<Integer, Integer>());
-
-	//Map Location Name (Theme) to location ID
-	private AtomicReference<RWLockedTreeMap<String, Integer>> locationNameIdMap = new AtomicReference<RWLockedTreeMap<String, Integer>>(new RWLockedTreeMap<String, Integer>());
 
 	//Maintain TSpec/Listing query map
 	private AtomicReference<RWLockedTreeMap<Integer, TSpec>>    tspecMap      = new AtomicReference<RWLockedTreeMap<Integer, TSpec>>(new RWLockedTreeMap<Integer, TSpec>());
@@ -76,7 +70,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
 	// All indices required in targeting
 	private AtomicAdpodIndex<Integer, Handle> adpodLocationMappingIndex = new AtomicAdpodIndex<Integer, Handle>(new AdpodIndex<Integer, Handle>(AdpodIndex.Attribute.kLocation));
-	private AtomicAdpodIndex<String, Handle>  adpodThemeMappingIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kTheme));
 	private AtomicAdpodIndex<String, Handle>  adpodUrlMappingIndex      = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kUrl));
 	private AtomicAdpodIndex<String, Handle>  adpodRunOfNetworkIndex    = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kRunofNetwork));
 	private AtomicAdpodIndex<String, Handle>  adpodGeoNoneIndex         = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kGeoNone));
@@ -184,14 +177,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		return urlMap.get().safeGet(urlId);
 	}
 
-	public Theme getTheme(String themeName) {
-		return themeNameMap.get().safeGet(themeName);
-	}
-
-	public Theme getTheme(int themeId) {
-		return themeMap.get().safeGet(themeId);
-	}
-
 	public Location getLocation(int locationId) {
 		return locationMap.get().safeGet(locationId);
 	}
@@ -209,17 +194,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		int id = urlNameMap.get().safeGet(urlName).getId();
 		urlMap.get().safeRemove(id);
 		urlNameMap.get().safeRemove(urlName);
-	}
-
-	public void addTheme(Theme theme) {
-		themeMap.get().safePut(theme.getId(), theme);
-		themeNameMap.get().safePut(theme.getName(), theme);
-	}
-
-	public void deleteTheme(String themeName) {
-		int id = themeNameMap.get().safeGet(themeName).getId();
-		themeMap.get().safeRemove(id);
-		themeNameMap.get().safeRemove(themeName);
 	}
 
 	public void addLocation(Location location) {
@@ -249,20 +223,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 			//Url or Adpod not found, some inconsistency caused this. The url-adpod mapping for that particular
 			// url or adpod will not be added to index.
 			log.error("The Url or Adpod was not found in the urlMap/adPodMap when looking it up while creating url-adpod-mapping Indexes");
-		}
-	}
-
-	public void addThemeMapping(ThemeAdPodMapping mapping) {
-		Theme theme = themeMap.get().safeGet(mapping.getThemeId());
-		AdPod adPod = adPodMap.get().safeGet(mapping.getAdPodId());
-		if(theme != null && adPod != null) {
-			String themeName = theme.getName();
-			adpodThemeMappingIndex.put(themeName, new AdPodHandle(adPod.getId(), TargetingScoreHelper.getInstance().getThemeScore(), mapping.getWeight()));
-		}
-		else {
-			//Theme or Adpod not found, some inconsistency caused this. The theme-adpod mapping for that particular
-			// theme or adpod will not be added to index.
-			log.error("The Theme or Adpod was not found in the themeMap/adPodMap when looking it up while creating theme-adpod-mapping Indexes");
 		}
 	}
 
@@ -391,35 +351,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 			}
 		}
 
-	}
-
-	public void deleteThemeMapping(String themeName, int adPodId) {
-		SortedSet<Handle> set = adpodThemeMappingIndex.get(themeName);
-		Iterator iterator = set.iterator();
-		Handle handleToDelete = null;
-		if(iterator != null && iterator.hasNext()) {
-			while(iterator.hasNext()) {
-				Handle handle = (Handle)iterator.next();
-				if(handle.getOid() == adPodId) {
-					handleToDelete = handle;
-					break;
-				}
-			}
-			if(handleToDelete != null) {
-				if(set instanceof RWLocked) {
-					((RWLocked)set).writerLock();
-					try {
-						set.remove(handleToDelete);
-					}
-					finally {
-						((RWLocked)set).writerUnlock();
-					}
-				}
-				else {
-					set.remove(handleToDelete);
-				}
-			}
-		}
 	}
 
 	public void deleteLocationMapping(int locationId, int adPodId) {
@@ -738,23 +669,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
 	}
 
-	@SuppressWarnings({"deprecation"})
-	public void loadThemes(Iterator<Theme> iterator) {
-		if(iterator == null) {
-			return;
-		}
-		if(iterator.hasNext()) {
-			RWLockedTreeMap<Integer,Theme> map = new RWLockedTreeMap<Integer,Theme>();
-			RWLockedTreeMap<String,Theme> nameMap = new RWLockedTreeMap<String,Theme>();
-			while(iterator.hasNext()) {
-				Theme theme = iterator.next();
-				map.put(theme.getId(), theme);
-				nameMap.put(theme.getName(), theme);
-			}
-			themeMap.compareAndSet(themeMap.get(), map);
-			themeNameMap.compareAndSet(themeNameMap.get(), nameMap);
-		}
-	}
 
 	public void loadLocations(Iterator<Location> iterator) {
 		if(iterator == null) {
@@ -818,42 +732,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		}
 	}
 
-	@SuppressWarnings({"deprecation"})
-	public void loadThemeAdPodMappings(Iterator<ThemeAdPodMapping> iterator) {
-		if(iterator == null) {
-			return;
-		}
-		if(iterator.hasNext()) {
-			Map<String, List<Handle>>  themeAdPodMap = new HashMap<String, List<Handle>>();
-			AdpodIndex<String, Handle> index         = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kTheme);
-			Theme theme;
-			AdPod adPod;
-			List<Handle> list;
-
-			while(iterator.hasNext()) {
-				ThemeAdPodMapping themeAdPodMapping = iterator.next();
-				theme = themeMap.get().safeGet(themeAdPodMapping.getThemeId());
-				adPod = adPodMap.get().safeGet(themeAdPodMapping.getAdPodId());
-				if(theme != null && adPod != null) {
-					list = themeAdPodMap.get(theme.getName());
-					if(list == null) {
-						list = new ArrayList<Handle>();
-					}
-					int oid = adPod.getId(); //themeAdPodMapping.getId();
-					list.add(new AdPodHandle(oid, TargetingScoreHelper.getInstance().getThemeScore(), themeAdPodMapping.getWeight()));
-					themeAdPodMap.put(theme.getName(), list);
-				}
-				else {
-					//Theme or Adpod not found, some inconsistency caused this. The theme-adpod mapping for that particular
-					// theme or adpod will not be added to index.
-					log.error("The Theme or Adpod was not found in the themeMap/adPodMap when looking it up while creating theme-adpod-mapping Indexes");
-				}
-			}
-			index.put(themeAdPodMap);
-			adpodThemeMappingIndex.set(index);
-		}
-	}
-
 	public void loadLocationAdPodMappings(Iterator<LocationAdPodMapping> iterator) {
 		if(iterator == null) {
 			return;
@@ -895,14 +773,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
 	public AtomicAdpodIndex<String, Handle> getUrlAdPodMappingIndex() {
 		return adpodUrlMappingIndex;
-	}
-
-	public AtomicAdpodIndex<String, Handle> getThemeAdPodMappingIndex() {
-		return adpodThemeMappingIndex;
-	}
-
-	public AtomicAdpodIndex<String, Handle> getRunOfNetworkAdPodIndex() {
-		return adpodRunOfNetworkIndex;
 	}
 
 	public AtomicAdpodIndex<String, Handle> getNonGeoAdPodIndex() {
@@ -1066,41 +936,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		return campaignMap.get().safeGet(campaignId);
 	}
 
-	/**
-	 * Load the Location Name to ID mapping
-	 * @param iterator
-	 */
-	public void loadLocationNameIdMapping(Iterator<Pair<String, Integer>> iterator) {
-		if(iterator == null) {
-			return;
-		}
-		if(iterator.hasNext()) {
-			RWLockedTreeMap<String,Integer> map = new RWLockedTreeMap<String,Integer>();
-			while(iterator.hasNext()) {
-				Pair<String, Integer> pair = iterator.next();
-				String locationName = pair.getFirst();
-				Integer locId = pair.getSecond();
-				map.put(locationName, locId);
-			}
-			locationNameIdMap.compareAndSet(locationNameIdMap.get(), map);
-		}
-	}
-
-	/**
-	 * Lookup the location Name id map
-	 * @param locationName
-	 */
-	public Integer getLocationIdForName(String locationName) {
-		return locationNameIdMap.get().safeGet(locationName);
-	}
-
-	public void addLocationNameIdMap(String locName, Integer id) {
-		locationNameIdMap.get().safePut(locName, id);
-	}
-
-	public void deleteLocationNameIdMapping(String locName) {
-		locationNameIdMap.get().safeRemove(locName);
-	}
 
 	public boolean isEmpty(){
 		return (campaignMap.get().isEmpty());

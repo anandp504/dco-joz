@@ -145,9 +145,6 @@ public class OSpecHelper {
                     TransientDataManager.getInstance().addLocationMapping(tmp_site_spec, tSpecName, weight, geoObj, null);
                     break;
 
-                case THEME:
-                    TransientDataManager.getInstance().addThemeMapping(tmp_site_spec, tSpecName, weight, geoObj, null);
-                    break;
                 }
 
             }
@@ -162,9 +159,6 @@ public class OSpecHelper {
                     TransientDataManager.getInstance().deleteLocationMapping(tmp_site_spec, tSpecName, weight, geoObj, null);
                     break;
 
-                case THEME:
-                    TransientDataManager.getInstance().deleteThemeMapping(tmp_site_spec, tSpecName, weight, geoObj, null);
-                    break;
                 }
             }
 		}

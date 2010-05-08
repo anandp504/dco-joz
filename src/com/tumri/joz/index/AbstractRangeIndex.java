@@ -136,6 +136,7 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	 * @param key
 	 * @return
 	 */
+    @SuppressWarnings("unchecked")
 	private SortedSet<Range<V>> getMatchingRanges(V key) {
 		SortedSet<Range<V>> set = new SortedArraySet<Range<V>>();
 		m_set.readerLock();
@@ -328,7 +329,7 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	 * Gets the count of values associated with a given key
 	 * Use this method sparingly, this can be very exoensive
 	 *
-	 * @param key
+	 * @param range
 	 * @return count of values associated with the key
 	 */
 	@Override

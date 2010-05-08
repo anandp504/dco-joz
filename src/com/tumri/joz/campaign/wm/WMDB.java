@@ -212,6 +212,7 @@ public class WMDB {
 			((AbstractIndex<WMHandle, WMAttribute, Integer, WMHandle>) m_indices.get(type)).delete(mindex);
 		}
 
+        @SuppressWarnings("unchecked")
 		public void materializeRangeIndices() {
 			for (WMAttribute attr : WMUtils.getRangeAttributes()) {
 				((WMRangeIndex<Integer, WMHandle>) m_indices.get(attr)).materialize();
@@ -267,6 +268,7 @@ public class WMDB {
 		 *
 		 * @param includedWMHandlesIdSet
 		 */
+        @SuppressWarnings("unchecked")
 		public void purgeOldKeys(Set<Integer> includedWMHandlesIdSet) {
 			Enumeration<WMAttribute> keys = getIndices();
 			while (keys.hasMoreElements()) {

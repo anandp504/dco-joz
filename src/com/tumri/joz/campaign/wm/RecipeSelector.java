@@ -177,7 +177,7 @@ public class RecipeSelector {
      * @return - List of recipe weigt
      */
     private List<RecipeWeight> pickOneRecipeList(List<WMHandle> bestMatchAL, Features features) {
-        WMHandle bestMatch = null;
+        WMHandle bestMatch;
         if (bestMatchAL.isEmpty()) {
             return null;
         } else if (bestMatchAL.size() == 1) {
@@ -190,6 +190,7 @@ public class RecipeSelector {
         return bestMatch.getRecipeList();
     }
 
+    @SuppressWarnings("unchecked")
     private List<WMHandle> getMatchingVectors(WMDB.WMIndexCache wtDB, Map<WMAttribute, List<Integer>> contextMap) {
         List<WMHandle> res = new ArrayList<WMHandle>();
 
@@ -248,6 +249,7 @@ public class RecipeSelector {
      * @param contextMap
      * @return
      */
+    @SuppressWarnings("unchecked")
     private SortedSet<Handle> getVectorsFromIndex(WMDB.WMIndexCache wtDB, WMAttribute attr, Map<WMAttribute, List<Integer>> contextMap) {
         SortedSet<Handle> vectors = null;
         AbstractIndex idx = wtDB.getIndex(attr);
