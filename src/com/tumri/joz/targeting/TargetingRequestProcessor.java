@@ -25,18 +25,18 @@ import java.util.*;
 public class TargetingRequestProcessor {
 
     private static TargetingRequestProcessor processor = null;
-	public static final String PROCESS_STATS_ID = "TG";
+    public static final String PROCESS_STATS_ID = "TG";
 
     private TargetingRequestProcessor() {
     }
 
     public static TargetingRequestProcessor getInstance() {
         if (processor == null) {
-          synchronized (TargetingRequestProcessor.class) {
-            if (processor == null) {
-              processor = new TargetingRequestProcessor();
+            synchronized (TargetingRequestProcessor.class) {
+                if (processor == null) {
+                    processor = new TargetingRequestProcessor();
+                }
             }
-          }
         }
         return processor;
     }
@@ -45,7 +45,7 @@ public class TargetingRequestProcessor {
 
     public Recipe processRequest(AdDataRequest request, Features features) {
         //long startTime = System.nanoTime();
-	    PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
+        PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
         Recipe theRecipe = null;
         OSpec oSpec;
         if(request == null) {
@@ -58,10 +58,22 @@ public class TargetingRequestProcessor {
             if (recipeId > 0) {
                 //If Recipe Id is provided - then target to specific set of TSpecs
                 theRecipe = CampaignDB.getInstance().getRecipe(recipeId);
+
                 if (theRecipe ==null) {
                     log.error("Targeted Recipe ID : " + recipeId + " not present in Campaign DB");
                 }
                 if (features!=null && theRecipe !=null) {
+                    //Get the campaign client name from the tspec - we need this for the listings lookup
+                    List<RecipeTSpecInfo> infoListRecipe = theRecipe.getTSpecInfo();
+                    if (infoListRecipe != null&& !infoListRecipe.isEmpty()) {
+                        RecipeTSpecInfo info = infoListRecipe.get(0);
+                        int tspecId = info.getTspecId();
+                        TSpec theTSpec = CampaignDB.getInstance().getTspec(tspecId);
+                        if (theTSpec!=null) {
+                            String advName = theTSpec.getIncludedProviders().get(0).getName();
+                            features.setCampaignClientName(advName);
+                        }
+                    }
                     features.setRecipeId(theRecipe.getId());
                 }
             } else if(tSpecName != null && !"".equals(tSpecName)) {
@@ -97,8 +109,8 @@ public class TargetingRequestProcessor {
                     features.setAdpodName(str.getAdPodName());
                     features.setCampaignId(str.getCampaignId());
                     features.setCampaignName(str.getCampaignName());
-	                features.setCampaignClientId(str.getCampaignClientId());
-	                features.setCampaignClientName(str.getCampaignClientName());
+                    features.setCampaignClientId(str.getCampaignClientId());
+                    features.setCampaignClientName(str.getCampaignClientName());
                     features.setRecipeId(theRecipe.getId());
                     features.setRecipeName(theRecipe.getName());
                     Integer targetedLocationId = null;
@@ -116,14 +128,14 @@ public class TargetingRequestProcessor {
                         if (loc!=null) {
                             features.setLocationClientId(loc.getClientId());
                             features.setLocationClientName(loc.getClientName());
-	                        features.setTargetedLocationName(loc.getName());
+                            features.setTargetedLocationName(loc.getName());
                         }
                     }
                 }
             }
         }
         catch(NumberFormatException e){
-        	log.warn("Invalid value specified for the location : ",e);
+            log.warn("Invalid value specified for the location : ",e);
         }
         catch(Throwable t) {
             //It is critical to catch any unexpected error so that the JoZ server doesnt exit
@@ -131,7 +143,7 @@ public class TargetingRequestProcessor {
         }
 
         //Do not fall back to any default tspec.
-	    PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID);
+        PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID);
 //        long endTime =  System.nanoTime();
 //        long totalTargetingTime = endTime - startTime;
 
@@ -151,7 +163,7 @@ public class TargetingRequestProcessor {
     private SiteTargetingResults doSiteTargeting(AdDataRequest request, Features feature) {
         Recipe theRecipe = null;
         int locationId       = 0;
-        
+
         String locationIdStr = request.get_store_id();
         String themeName     = request.get_theme();
         String urlName       = request.get_url();
@@ -174,9 +186,9 @@ public class TargetingRequestProcessor {
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
             ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
             cjQuery.setStrict(true);
-            cjQuery.addQuery(siteQuery);           
+            cjQuery.addQuery(siteQuery);
             cjQuery.addQuery(geoQuery);
-            cjQuery.addQuery(urlQuery);          
+            cjQuery.addQuery(urlQuery);
             cjQuery.addQuery(timeQuery);
             cjQuery.addQuery(adTypeQuery);
             Set<String> extVars = extVarsMap.keySet();
@@ -212,7 +224,7 @@ public class TargetingRequestProcessor {
                 theRecipe = selectRecipe(request, theAdPod,feature );
                 if (theRecipe == null) {
                     log.error("Could not find the recipe for the selected adpod. Not able to select recipe");
-                } 
+                }
             }
         }
         if (theRecipe!=null) {
