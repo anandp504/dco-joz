@@ -95,14 +95,7 @@ public class ProductIndex {
             ArrayList<String> luceneFileNames = new ArrayList<String>();
             for (File lf : luceneDirs) {
                 luceneFileNames.add(lf.getName());
-
-            }
-            ContentProviderStatus status = null;
-            try {
-                status = ContentProviderFactory.getInstance().getContentProvider().getStatus();
-                status.luceneFileNames = luceneFileNames;
-            } catch (Exception ex) {
-                status = null;
+                ContentProviderStatus.getInstance().luceneFileNames.put(lf.getParentFile().getName(), lf.getAbsolutePath());
             }
 
             File fIndexDir = new File(indexDir);
@@ -151,6 +144,7 @@ public class ProductIndex {
                         try {
                             IndexSearcherCache cache = new IndexSearcherCache(lf);
                             getInstance().addCache(advertiser, cache);
+                            ContentProviderStatus.getInstance().luceneFileNames.put(advertiser, lf.getAbsolutePath());
                         } catch (IOException e) {
                             log.error("Exception on loading the advertiser index",e);
                         }

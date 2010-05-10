@@ -56,19 +56,10 @@ public class JozIndexHelper {
             Date start = new Date();
             //Look for any Joz index files
             List<File> indexFiles = getSortedJozIndexFileList(indexDirName);
-            ArrayList<String> indexFileNames = new ArrayList<String>();
             for (File f: indexFiles) {
                 readFromSerializedFile(f,debug, hotload, null,true);
-                indexFileNames.add(f.getName());
             }
 
-            ContentProviderStatus status = null;
-            try {
-                status = ContentProviderFactory.getInstance().getContentProvider().getStatus();
-                status.jozIndexFileNames = indexFileNames;
-            } catch (Exception ex) {
-                status = null;
-            }
             log.info("Finished loading the Joz indexes");
             log.info( ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes" );
         } catch (Exception e) {
@@ -293,6 +284,7 @@ public class JozIndexHelper {
                 FSUtils.removeFiles(prevIndexDir,true);
             }
             FSUtils.copyFile(inFile, new File(prevIndexDir.getAbsolutePath() + "/" + inFile.getName()));
+            ContentProviderStatus.getInstance().jozIndexFileNames.put(providerName, inFile.getName());
         }
     }
 

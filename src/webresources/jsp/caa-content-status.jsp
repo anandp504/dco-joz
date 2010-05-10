@@ -16,7 +16,7 @@
     ContentProviderStatus status = null;
     String errorMessage = "";
     try {
-        status = ContentProviderFactory.getInstance().getContentProvider().getStatus();
+        status = ContentProviderStatus.getInstance();
     }
     catch (Exception ex) {
         errorMessage = ex.getMessage();
@@ -44,10 +44,6 @@
           <td colspan=2>Content Data Refresh Summary</td>
       </tr>
       <tr>
-          <td>Content refresh interval:</td>
-          <td><%=status.refreshInterval%>&nbsp;minutes</td>
-      </tr>
-      <tr>
           <td>Last refresh time:</td>
           <td><%=status.lastRefreshTime == -1 ? "not available" : TIME_FORMAT.format(status.lastRefreshTime)%></td>
       </tr>
@@ -68,10 +64,6 @@
           <td><%=status.lastErrorRunTime == -1 ? "not available" : TIME_FORMAT.format(status.lastErrorRunTime)%></td>
       </tr>
       <tr>
-          <td>Current Publication Number:</td>
-          <td><%=status.publicationNumber%></td>
-      </tr>
-      <tr>
           <td>Content Details</td>
           <td><a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/refresh?type=caadetails">Content Details</a></td>
       </tr>
@@ -85,10 +77,12 @@
         <% if (status.runHistory != null && status.runHistory.size() > 0) { %>
          <table class="table">
           <tr class="table_header">
-            <td colspan=4>Content Refresh History</td>
+            <td colspan=6>Content Refresh History</td>
           </tr>
           <tr class="table_column_header">
               <td>Publication Number</td>
+              <td>Advertisers</td>
+              <td>Tumri Taxonomy Version</td>
               <td>Refresh Time</td>
               <td>Status</td>
               <td>Details</td>
@@ -96,6 +90,8 @@
            <% for (ContentProviderStatus.ContentProviderStatusHistory hist : status.runHistory) { %>
            <tr class="table_row">
              <td><%=hist.contentPubNumber%></td>
+             <td><%=hist.getAdvDetails()%></td>
+             <td><%=hist.getTumriTaxVersion()%></td>
              <td><%=TIME_FORMAT.format(hist.refreshTime)%></td>
              <td><%=(hist.runStatus)?"SUCCESS":"FAILED"%></td>
              <td><span class="errorDetail"><%=hist.runDetailMessage%></span></td>
