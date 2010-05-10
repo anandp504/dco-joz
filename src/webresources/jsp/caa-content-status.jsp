@@ -71,7 +71,7 @@
          <% } %>
         <br>
         <p class="label">
-            <a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/refresh?type=listing&jspMode=true" onclick="return confirm('This will force a data refresh. Do you want to continue?');">Refresh Data</a>
+            <a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/refresh?type=listing&jspMode=true" onclick="return confirm('This will force a data refresh of all advertisers. Do you want to continue?');">Refresh Data</a>
         </p>
         <br>
         <% if (status.runHistory != null && status.runHistory.size() > 0) { %>
