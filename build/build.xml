@@ -75,7 +75,7 @@
     <!-- ****************************************************************** -->
 
     <target name="build"
-            depends="build-lucenetools,build-Joz-war,dist"
+            depends="build-lucenetools,build-indextools,build-Joz-war,dist"
             description="Build everything and create the dist package.">
     </target>
 
@@ -131,6 +131,7 @@
         <gzip zipfile="${package.dir}/${package.name}.tar.gz" src="${package.tmp.dir}/${package.name}.tar"/>
         <delete dir="${package.tmp.dir}"/>
         <copy file="${dist.dir}/lucene.tar.gz" todir="${package.dir}"/>
+        <copy file="${dist.dir}/index.tar.gz" todir="${package.dir}"/>
     	<!-- Copy buildtools.jar and start/stop service scripts. -->
 		<mkdir dir="${dist.dir}/${product_name}-install-${build_version}/bin"/>
 		<mkdir dir="${dist.dir}/${product_name}-install-${build_version}/lib"/>

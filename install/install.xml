@@ -54,6 +54,15 @@
                 <include name="*.sh"/>
             </fileset>
         </chmod>
+        <!-- Untar the index.tgz -->
+        <echo message="${install.src.dir}/${component.product.name}/index.tar.gz"/>
+        <gunzip src="${install.src.dir}/${component.product.name}/index.tar.gz"/>
+        <untar src="${install.src.dir}/${component.product.name}/index.tar" dest="${tumri.component.home}/tools/index"/>
+        <chmod perm="+rx" type="both">
+            <fileset dir="${tumri.component.home}/tools/index">
+                <include name="*.sh"/>
+            </fileset>
+        </chmod>
         <!-- Installing component artifact files -->
         <gunzip src="${install.src.dir}/${component.product.name}/${component.src1.file}"/>
         <untar src="${install.src.dir}/${component.product.name}/${component.src1.basename}.tar" dest="${tomcat.home}"/>	<!-- /opt/Tumri/<component>/<component>-<version>/tomcat5 -->

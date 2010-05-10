@@ -56,6 +56,51 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 
     </target>
 
+    <target name="build-indextools" depends="build-Joz-jar">
+
+        <delete dir="${stage.dir}/index"/>
+        <mkdir dir="${stage.dir}/index"/>
+
+        <copy todir="${stage.dir}/index" file="${ext.lib.dir}/lucene-core-2.1.0.jar"/>
+        <copy todir="${stage.dir}/index" file="${ext.lib.dir}/lucene-memory-2.1.0.jar"/>
+        <copy todir="${stage.dir}/index" file="${caa.lib.dir}/${caa.lib.file}"/>
+        <copy todir="${stage.dir}/index" file="${llc.lib.dir}/${llc.lib.file}"/>
+        <copy todir="${stage.dir}/index" file="${jic.lib.dir}/${jic.lib.file}"/>
+        <copy todir="${stage.dir}/index" file="${cma.lib.dir}/${cma.lib.file}"/>
+        <copy todir="${stage.dir}/index" file="${utils.lib.dir}/${utils.lib.file}"/>
+        <copy todir="${stage.dir}/index" file="${ext.lib.dir}/log4j-1.2.6.jar"/>
+        <copy todir="${stage.dir}/index" file="${ext.lib.dir}/commons-codec-1.3.jar"/>
+        <copy todir="${stage.dir}/index" file="${ext.lib.dir}/commons-httpclient-3.0-rc2.jar"/>
+        <copy todir="${stage.dir}/index" file="${ext.lib.dir}/commons-logging.jar"/>
+        <copy todir="${stage.dir}/index" file="${ext.lib.dir}/hadoop-0.18.3-core.jar"/>
+
+        <touch file="${stage.dir}/index/createindex.sh"/>
+
+        <echo file="${stage.dir}/index/createindex.sh">#!/bin/sh</echo>
+        <echo file="${stage.dir}/index/createindex.sh">java -Xms512m -Xmx2g -classpath .:joz.jar:hadoop-0.18.3-core.jar:lucene-core-2.1.0.jar:lucene-memory-2.1.0.jar:${caa.lib.file}:${cma.lib.file}:${jic.lib.file}:${utils.lib.file}:log4j-1.2.6.jar:commons-codec-1.3.jar:commons-httpclient-3.0-rc2.jar:commons-logging.jar com.tumri.jic.IndexCreator $@</echo>
+        <chmod file="${stage.dir}/index/createindex.sh" perm="a+x"></chmod>
+
+        <touch file="${stage.dir}/index/log4j.properties"/>
+        <echo file="${stage.dir}/index/log4j.properties">log4j.rootLogger=INFO,A1
+log4j.appender.A1=org.apache.log4j.ConsoleAppender
+log4j.appender.A1.layout=org.apache.log4j.PatternLayout
+log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
+
+        <tar destfile="${stage.dir}/index/index.tar">
+            <tarfileset dir="${stage.dir}/index">
+            <include name="*.jar"/>
+            </tarfileset>
+            <tarfileset dir="${stage.dir}/index" mode="755">
+            <include name="*.sh"/>
+            <include name="*.properties"/>
+            </tarfileset>
+        </tar>
+
+        <gzip zipfile="${dist.dir}/index.tar.gz" src="${stage.dir}/index/index.tar"/>
+        <delete file="${stage.dir}/index/index.tar"/>
+
+    </target>
+
 	<target name="java-doc" depends="">
 		<delete dir="${dist.dir}/javadocs"/>
 		<mkdir dir="${dist.dir}/javadocs"/>
