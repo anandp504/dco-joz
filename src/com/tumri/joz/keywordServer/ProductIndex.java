@@ -45,6 +45,7 @@ public class ProductIndex {
     private static final String PROVLUCENEDIR = "com.tumri.content.provLuceneDir";
     private static final String LUCENETMPDIR = "com.tumri.content.luceneTmpDir";
     private static final String LUCENEDIRPATTERN = "com.tumri.content.luceneDir";
+    private static final String CONFIG_LUCENE_CACHE_SIZE = "com.tumri.content.lucene.cache.size";
 
     private static AtomicReference<ProductIndex> g_Instance = new AtomicReference<ProductIndex>();
     private static String tmpDir = System.getProperty("java.io.tmpdir") + File.separator + "lucene";
@@ -55,7 +56,7 @@ public class ProductIndex {
     // Map m_map maintains map from Advertisername -> SearchCache
     private RWLockedTreeMap<String, IndexSearcherCache> m_map = new RWLockedTreeMap<String, IndexSearcherCache>();
     private static final String DEFAULT = "DEFAULT";
-    private static final int MAX_SECONDARY_CACHE_SIZE = 3;
+    private static int MAX_SECONDARY_CACHE_SIZE = 3;
 
     /**
      * @return singleton instance of LuceneDB
@@ -76,6 +77,11 @@ public class ProductIndex {
     public static void init() {
         init(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR),
                 tmpDir);
+        try {
+            MAX_SECONDARY_CACHE_SIZE = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_LUCENE_CACHE_SIZE));
+        } catch(Exception e) {
+            MAX_SECONDARY_CACHE_SIZE = 3;
+        }
     }
 
     /**
