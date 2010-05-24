@@ -1,6 +1,8 @@
 <%@ page language="java" import="com.tumri.content.ContentProviderFactory" %>
 <%@ page language="java" import="com.tumri.content.data.ContentProviderStatus" %>
 <%@ page language="java" import="java.text.SimpleDateFormat" %>
+<%@ page import="com.tumri.utils.strings.StringTokenizer" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page language="java" %>
 <%@ page language="java" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -90,7 +92,26 @@
            <% for (ContentProviderStatus.ContentProviderStatusHistory hist : status.runHistory) { %>
            <tr class="table_row">
              <td><%=hist.contentPubNumber%></td>
-             <td><%=hist.getAdvDetails()%></td>
+             <td>
+                 <%
+                     String advDetStr = hist.getAdvDetails();
+                     if (advDetStr!=null) {
+                         StringTokenizer st = new StringTokenizer(advDetStr, ',');
+                         ArrayList<String> advList = st.getTokens();
+                         if (!advList.isEmpty()) {
+                 %>
+                 <table>
+                 <%
+                             for (String adv: advList) {
+                                 %>
+                     <tr><td><%=adv%></td></tr>
+                                 <%
+                             }
+                         }
+                     }
+                 %>
+                 </table>
+             </td>
              <td><%=hist.getTumriTaxVersion()%></td>
              <td><%=TIME_FORMAT.format(hist.refreshTime)%></td>
              <td><%=(hist.runStatus)?"SUCCESS":"FAILED"%></td>
