@@ -131,15 +131,18 @@ public class JozRefreshDataServlet extends HttpServlet {
      * Helper method to refresh listing data
      */
     private synchronized String doRefreshListingData(String advertiser, String revertMode) throws InvalidConfigException  {
+        String advStr = advertiser!=null?"all advertisers":advertiser;
+
         if (revertMode != null) {
-            log.warn("Content full load starting for " + advertiser!=null?"all advertisers":advertiser);
+
+            log.warn("Content full load starting for " + advStr);
             if (advertiser!=null) {
                 JozIndexHelper.getInstance().deleteJozIndex(advertiser);
             } else {
                 ProductDB.getInstance().clearProductDB();
             }
         }  else {
-            log.warn("Content load starting for " + advertiser!=null?"all advertisers":advertiser);
+            log.warn("Content load starting for " + advStr);
         }
         ContentProviderFactory f = ContentProviderFactory.getDefaultInitializedInstance();
         ContentProvider cp = f.getContentProvider();
@@ -150,9 +153,9 @@ public class JozRefreshDataServlet extends HttpServlet {
         ContentProviderStatus status = cp.getStatus();
         String success = (status.lastRunStatus == true ? "success" : "failed");
         if (revertMode!=null) {
-            log.warn("Content full load finished for " + advertiser!=null?"all advertisers":advertiser + ". Status =  " + success);
+            log.warn("Content full load finished for " + advStr + ". Status =  " + success);
         } else {
-            log.warn("Content load finished for " + advertiser!=null?"all advertisers":advertiser + ". Status =  " + success);
+            log.warn("Content load finished for " + advStr + ". Status =  " + success);
         }
         return success;
     }

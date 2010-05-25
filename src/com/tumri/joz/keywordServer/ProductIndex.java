@@ -232,21 +232,9 @@ public class ProductIndex {
         m_index_dir = new File(tmpDir);
         if (!luceneDirs.isEmpty()) {
             try {
-                try {
-                    mergeIndexesOffline();
-                } catch (Exception e) {
-                    log.fatal("Failed to create a merge the prov indexes and create directory for lucene.");
-                }
-                if (m_index_dir.exists() && m_index_dir.listFiles().length>0) {
-                    log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
-                    addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
-                } else {
-                    throw new RuntimeException("No provider lucene folders found, nothing to load into keyword index");
-                }
-            }
-            catch (IOException ex) {
-                log.error("Caught an exception while opening the index",ex);
-                throw new RuntimeException("Exception on loading index");
+                mergeIndexesOffline();
+            } catch (Exception e) {
+                log.fatal("Failed to create a merge the prov indexes and create directory for lucene.");
             }
         } else {
             log.error("No provider lucene folders found, nothing to load into keyword index");
@@ -285,8 +273,12 @@ public class ProductIndex {
                 log.fatal(err);
             } else {
                 m_index_dir = new File(tmpDir);
-                log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
-                addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
+                if (m_index_dir.exists() && m_index_dir.listFiles().length>0) {
+                    log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
+                    addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
+                } else {
+                    throw new RuntimeException("Merged lucene index not found, nothing to load into keyword index");
+                }
             }
         } catch(Throwable e) {
             throw new RuntimeException("Error executing index merge process : "+e.getMessage());
@@ -424,22 +416,22 @@ public class ProductIndex {
         String outDir = tmpDir;
 
         for (int i = 0; i < args.length; i++) {
-             String arg = args[i];
+            String arg = args[i];
 
-             if (arg.equals("-h")) {
-                 System.out.println("Usage: " + usage);
-                 System.exit(0);
-                } else if (arg.equals("-srcDir")) {
-                 srcDir = args[++i];
-             } else if (arg.equals("-indexDir")) {
-                 outDir = args[++i];
-             } else {
-                 log.info("Usage: " + usage);
-                 System.exit(1);
-             }
-         }
+            if (arg.equals("-h")) {
+                System.out.println("Usage: " + usage);
+                System.exit(0);
+            } else if (arg.equals("-srcDir")) {
+                srcDir = args[++i];
+            } else if (arg.equals("-indexDir")) {
+                outDir = args[++i];
+            } else {
+                log.info("Usage: " + usage);
+                System.exit(1);
+            }
+        }
         if (!new File(srcDir).exists()) {
-           log.error("The Source directory does not exist : " + srcDir);
+            log.error("The Source directory does not exist : " + srcDir);
             System.exit(1);
         }
         File foutDir = new File(outDir);
@@ -448,7 +440,7 @@ public class ProductIndex {
         } else {
             foutDir.mkdirs();
         }
-        
+
 
         try {
             long start = System.currentTimeMillis();
@@ -457,7 +449,7 @@ public class ProductIndex {
             ArrayList<RAMDirectory> provIndexes = new ArrayList<RAMDirectory>();
             for (File dir: luceneDirs) {
                 if (dir.isDirectory()) {
-                    log.info("Found index : " + dir.getAbsolutePath());
+                    log.debug("Found index : " + dir.getAbsolutePath());
                     provIndexes.add(new RAMDirectory(dir));
                 }
             }
