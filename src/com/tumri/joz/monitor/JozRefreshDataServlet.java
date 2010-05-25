@@ -131,7 +131,7 @@ public class JozRefreshDataServlet extends HttpServlet {
      * Helper method to refresh listing data
      */
     private synchronized String doRefreshListingData(String advertiser, String revertMode) throws InvalidConfigException  {
-        String advStr = advertiser!=null?"all advertisers":advertiser;
+        String advStr = advertiser==null?"all advertisers":advertiser;
 
         if (revertMode != null) {
 
