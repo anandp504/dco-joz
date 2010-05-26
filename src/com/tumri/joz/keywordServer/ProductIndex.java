@@ -230,9 +230,18 @@ public class ProductIndex {
 
     private ProductIndex(List<File> luceneDirs) {
         m_index_dir = new File(tmpDir);
+
         if (!luceneDirs.isEmpty()) {
             try {
                 mergeIndexesOffline();
+                m_index_dir = new File(tmpDir);
+                if (m_index_dir.exists() && m_index_dir.listFiles().length>0) {
+                    log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
+                    addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
+                } else {
+                    throw new RuntimeException("Merged lucene index not found, nothing to load into keyword index");
+                }
+
             } catch (Exception e) {
                 log.fatal("Failed to create a merge the prov indexes and create directory for lucene.");
             }
@@ -245,6 +254,7 @@ public class ProductIndex {
         //Merge the index if there is more than a certain number of advertisers
         if (m_map.size() > MAX_SECONDARY_CACHE_SIZE) {
             mergeIndexesOffline();
+            init(); //reinitialize
         } else {
             m_map.writerLock();
             try {
@@ -272,13 +282,7 @@ public class ProductIndex {
                 String err = "Create index failed";
                 log.fatal(err);
             } else {
-                m_index_dir = new File(tmpDir);
-                if (m_index_dir.exists() && m_index_dir.listFiles().length>0) {
-                    log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
-                    addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
-                } else {
-                    throw new RuntimeException("Merged lucene index not found, nothing to load into keyword index");
-                }
+                log.info("Finished index merge, reinitializing");
             }
         } catch(Throwable e) {
             throw new RuntimeException("Error executing index merge process : "+e.getMessage());
