@@ -146,7 +146,7 @@ public class ProductIndex {
             List<File> luceneDirs = findProductIndex(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR), advertiser);
             if (luceneDirs!=null && !luceneDirs.isEmpty()) {
                 for(File lf:luceneDirs) {
-                    if (lf.getName().indexOf(advertiser) > -1) {
+                    if (lf.getParentFile().getName().equals(advertiser)) {
                         try {
                             IndexSearcherCache cache = new IndexSearcherCache(lf);
                             getInstance().addCache(advertiser, cache);

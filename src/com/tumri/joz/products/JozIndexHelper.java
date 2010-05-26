@@ -81,12 +81,10 @@ public class JozIndexHelper {
                 log.error("No "+ advertiserName + " joz index files found under directory: " + indexDir.getAbsolutePath());
                 return;
             }
-            if (indexFiles.size() > 1) {
-                log.error("Multiple advertiser joz indexes found !!");
-                for (File f: indexFiles) {
-                    readFromSerializedFile(f, debug, hotload, null, true);
-                }
+            for (File f: indexFiles) {
+                readFromSerializedFile(f, debug, hotload, null, true);
             }
+
 
             log.info("Finished loading the Joz index for advertiser : " + advertiserName);
         } catch (Exception e) {
@@ -288,7 +286,7 @@ public class JozIndexHelper {
         }
     }
 
-    /**                                      
+    /**
      * Gets the provider name from a given mup file by tokenizing by _ char
      * It is assumed that the provider name will be between the first _ char and the 5th _ char from the end
      * Returns an empty string if the file name was not of correct syntax
