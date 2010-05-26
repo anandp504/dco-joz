@@ -8,6 +8,7 @@ import com.tumri.cma.domain.UIProperty;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.JoZException;
+import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.ListingProviderFactory;
 import com.tumri.joz.jozMain.MerchantDB;
@@ -179,10 +180,20 @@ public class JozTSpecRequestHandler implements RequestHandler {
     	ProductSelectionRequest pr = createProductSelectionRequest(pageSize,pageNum);
     	TSpecExecutor queryExecutor = new TSpecExecutor(pr);
     	//tSpec.setMinePubUrl(false);
-    	ArrayList<Handle> prodResults = queryExecutor.processQuery(tSpec);        
-    	write_result(pr.getAdvertiser(), prodResults, adResponse);
+    	ArrayList<Handle> prodResults = queryExecutor.processQuery(tSpec);
+        String adv = getProviderFromTSpec(tSpec);
+    	write_result(adv, prodResults, adResponse);
     }
-	private String getRecipeData(Recipe r) {
+
+    private String getProviderFromTSpec(TSpec tSpec) {
+        String adv = null;
+        if (tSpec!=null && tSpec.getIncludedProviders()!=null&& !tSpec.getIncludedProviders().isEmpty()) {
+                adv = tSpec.getIncludedProviders().get(0).getName();
+        }
+        return adv;
+    }
+
+    private String getRecipeData(Recipe r) {
         StringBuilder sbuild = new StringBuilder();
         List<UIProperty> props = r.getProperties();
         if (props!= null) {
@@ -247,8 +258,10 @@ public class JozTSpecRequestHandler implements RequestHandler {
     	log.debug("pageNum "+pageNum);
     	ProductSelectionRequest pr = createProductSelectionRequest(pageSize,pageNum);
     	TSpecExecutor queryExecutor = new TSpecExecutor(pr);
+        TSpec tspec = CampaignDB.getInstance().getTspec(tSpecId);
+        String adv = getProviderFromTSpec(tspec);
     	ArrayList<Handle> prodResults = queryExecutor.processQuery(tSpecId);
-        write_result(pr.getAdvertiser(), prodResults, adResponse);
+        write_result(adv, prodResults, adResponse);
     }
     
    private JozCounts getTSpecCounts(TSpec tSpec) throws JoZException{
