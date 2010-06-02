@@ -211,7 +211,7 @@
 	int nextPageStartIndex=0;
 	ProductQueryMonitorStatus pqmstat=null;
 	ProductQueryMonitor pqm=new ProductQueryMonitor();
-	pqmstat=(ProductQueryMonitorStatus)pqm.getStatus(tSpecId,advertiser);
+	pqmstat=(ProductQueryMonitorStatus)pqm.getStatus(tSpecId, advertiser);
 
 	if (null == pageAction) {
 		if(pqmstat == null){

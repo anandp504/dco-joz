@@ -75,7 +75,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 	 * @param tSpecId
 	 * @return
 	 */
-	public MonitorStatus getStatus(int tSpecId) {
+	public MonitorStatus getStatus(int tSpecId, String advertiser) {
 
 		ProductSelectionRequest pr = new ProductSelectionRequest();
 		pr.setPageSize(100);
@@ -91,7 +91,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 
 		try {
 			ArrayList<Handle> handles = doProductSelection(tSpecId, pr, new Features());
-			results = getProductData(pr.getAdvertiser(), handles);
+			results = getProductData(advertiser, handles);
 		}
 		catch (Exception ex) {
 			log.error("Error reading sexpression:  " + ex.getMessage());
