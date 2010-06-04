@@ -34,6 +34,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA.
@@ -57,6 +59,8 @@ public class ProductIndex {
     private RWLockedTreeMap<String, IndexSearcherCache> m_map = new RWLockedTreeMap<String, IndexSearcherCache>();
     private static final String DEFAULT = "DEFAULT";
     private static int MAX_SECONDARY_CACHE_SIZE = 3;
+
+    private static final Pattern p = Pattern.compile("\\cM\\s");
 
     /**
      * @return singleton instance of LuceneDB
@@ -355,7 +359,7 @@ public class ProductIndex {
         QueryParser qp = new QueryParser("description", getAnalyzer(false));
         try {
             str = cleanseQueryString(str);
-            str = "+provider:"+advertiser + " " + str;
+            str = "+provider:"+advertiser + " +description:" + str;
             return qp.parse(str);
         } catch (ParseException e) {
             return null;
@@ -369,7 +373,8 @@ public class ProductIndex {
      */
     private String cleanseQueryString(String queryStr){
         if (queryStr!=null) {
-            queryStr = queryStr.replaceAll("[\\\\cM\\s]", " ");
+            Matcher m = p.matcher(queryStr);
+            queryStr = m.replaceAll(" ");
         }
         return queryStr;
     }
