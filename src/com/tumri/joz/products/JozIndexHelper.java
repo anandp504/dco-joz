@@ -56,11 +56,21 @@ public class JozIndexHelper {
             Date start = new Date();
             //Look for any Joz index files
             List<File> indexFiles = getSortedJozIndexFileList(indexDirName);
+            boolean bErrors = false;
             for (File f: indexFiles) {
-                readFromSerializedFile(f,debug, hotload, null,true);
+                try {
+                    readFromSerializedFile(f,debug, hotload, null,true);
+                } catch (Exception e) {
+                    log.error("Exception caught on loading the index file : " + f.getAbsolutePath());
+                    bErrors = true;
+                }
             }
 
-            log.info("Finished loading the Joz indexes");
+            if (!bErrors) {
+                log.info("Finished loading the Joz indexes");
+            } else {
+                log.info("Finished loading the Joz indexes, with errors");
+            }
             log.info( ((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes" );
         } catch (Exception e) {
             log.error("Joz index load failed.", e);
