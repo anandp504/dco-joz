@@ -146,6 +146,15 @@ public class JozIndexHelper {
     public StringBuffer loadIndexForDebug(String idxDir, ArrayList<String> myBinFiles, ArrayList<Long> prods) {
         IJozIndexUpdater updater = new JozIndexUpdater();
         updater.setProdIds(prods);
+        //Set JIC in debug mode
+        Properties props = new Properties();
+        props.setProperty("com.tumri.jic.debug","true");
+        props.setProperty("com.tumri.jic.hotload","false");
+        try {
+            JICProperties.init(props);
+        } catch (IndexCreationException e) {
+            log.error("Could not initialize the JIC properties", e);
+        }
         if(myBinFiles!=null && myBinFiles.size() > 0){
             loadJozIndexFiles(idxDir, myBinFiles, updater);
         } else {

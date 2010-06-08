@@ -197,7 +197,7 @@ public class ContentHelper implements ContentListener {
         }
         //Load Joz Indexes
         if (advertiserName!=null) {
-            JozIndexHelper.getInstance().loadJozIndex(advertiserName,!bColdStart, false);
+            JozIndexHelper.getInstance().loadJozIndex(advertiserName,false, !bColdStart);
         } else {
             JozIndexHelper.getInstance().loadJozIndex(!bColdStart, false);
         }
