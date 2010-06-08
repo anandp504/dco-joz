@@ -48,6 +48,11 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		TSpec tSpec = generateTSpec(tSpecS);
         if (advertiser==null) {
             advertiser = pr.getAdvertiser();
+        } else {
+           List<ProviderInfo> info =  tSpec.getIncludedProviders();
+            if (info!=null && !info.isEmpty()) {
+                advertiser = info.get(0).getName();
+            }
         }
 		List<Map<String, String>> results;
 
@@ -132,6 +137,9 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		if (handles == null) {
 			throw new JoZException("No products returned by the product selection");
 		}
+        if (advertiser == null) {
+            throw new JoZException("No advertiser specified in request or tspec to get the listing data");
+        }
 
 		String jsonStr = null;
 		ListingResponse response = null;
@@ -145,7 +153,6 @@ public class ProductQueryMonitor extends ComponentMonitor {
 
 			ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
 					MerchantDB.getInstance().getMerchantData());
-            //TODO get the provider
 			response = _prov.getListing(advertiser, pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, null);
 			if (response == null) {
 				throw new JoZException("Invalid response from Listing Provider");
