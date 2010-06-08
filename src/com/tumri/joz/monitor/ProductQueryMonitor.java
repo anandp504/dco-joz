@@ -48,7 +48,9 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		TSpec tSpec = generateTSpec(tSpecS);
         if (advertiser==null) {
             advertiser = pr.getAdvertiser();
-        } else {
+        }
+
+        if (advertiser==null) {
            List<ProviderInfo> info =  tSpec.getIncludedProviders();
             if (info!=null && !info.isEmpty()) {
                 advertiser = info.get(0).getName();
