@@ -18,6 +18,7 @@
 package com.tumri.joz.productselection;
 
 import com.tumri.cma.domain.ProductInfo;
+import com.tumri.cma.domain.ProviderInfo;
 import com.tumri.cma.domain.TSpec;
 import com.tumri.content.data.Product;
 import com.tumri.content.data.dictionary.DictionaryManager;
@@ -91,6 +92,14 @@ public class TSpecExecutor {
             return null;
         }
 
+        //Set the Features campaign client name here if needed.
+        if (m_feature.getCampaignClientName()==null) {
+            List<ProviderInfo> info = m_tspec.getIncludedProviders();
+            if (info!=null && info.size()>0) {
+                String providerName = info.get(0).getName();
+                m_feature.setCampaignClientName(providerName);
+            }
+        }
         ArrayList<Handle> includedProds = getIncludedProducts(m_tspec);
         if (includedProds!= null && includedProds.size()>0) {
             return includedProds;
