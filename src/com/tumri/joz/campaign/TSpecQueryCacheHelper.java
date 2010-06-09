@@ -25,8 +25,11 @@ public class TSpecQueryCacheHelper {
         ConjunctQuery _cjquery = new ConjunctQuery (new ProductQueryProcessor());
         //Keyword
         String keywordExp = theTSpec.getLoadTimeKeywordExpression();
-        String advertiser = theTSpec.getIncludedProviders().get(0).getName();
         if (keywordExp != null && !"".equals(keywordExp.trim())){
+            String advertiser = null;
+            if (theTSpec.getIncludedProviders()!=null && !theTSpec.getIncludedProviders().isEmpty()) {
+                advertiser = theTSpec.getIncludedProviders().get(0).getName();
+            }
             KeywordQuery kwQuery = new KeywordQuery(advertiser, keywordExp,true);
             _cjquery.addQuery(kwQuery);
         }
@@ -37,7 +40,7 @@ public class TSpecQueryCacheHelper {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, bixList, true);
             if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         //Included brand
@@ -46,7 +49,7 @@ public class TSpecQueryCacheHelper {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kBrand, binList, false);
             if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         //Include cats
@@ -55,7 +58,7 @@ public class TSpecQueryCacheHelper {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cinList, false);
             if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
 
             //Category Field Attributes
             for (CategoryInfo ci: cinList) {
@@ -78,14 +81,14 @@ public class TSpecQueryCacheHelper {
                             Product.Attribute fieldPos = cad.getFieldPos();
                             if (dt == ProductAttributeDetails.DataType.kInteger) {
                                 //range query - we multiply by 100 to support upto 2 decimal places
-	                            if(lowRangeValue >= 0 && highRangeValue > 0){
-									int lowRangeValId = new Double(lowRangeValue).intValue()*100;
-									int highRangeValId = new Double(highRangeValue).intValue()*100;
-									long lowRangekey = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, lowRangeValId);
-									long highRangekey = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, highRangeValId);
-									SimpleQuery csq = new LongRangeQuery (IProduct.Attribute.kCategoryNumericField,lowRangekey, highRangekey);
-									_cjquery.addQuery(csq);
-	                            }
+                                if(lowRangeValue >= 0 && highRangeValue > 0){
+                                    int lowRangeValId = new Double(lowRangeValue).intValue()*100;
+                                    int highRangeValId = new Double(highRangeValue).intValue()*100;
+                                    long lowRangekey = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, lowRangeValId);
+                                    long highRangekey = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, highRangeValId);
+                                    SimpleQuery csq = new LongRangeQuery (IProduct.Attribute.kCategoryNumericField,lowRangekey, highRangekey);
+                                    _cjquery.addQuery(csq);
+                                }
                             } else if (dt == ProductAttributeDetails.DataType.kText) {
                                 //categoryFieldValue might comma separated list of values
                                 if (categoryFieldValue != null && !"".equals(categoryFieldValue.trim())) {
@@ -115,9 +118,9 @@ public class TSpecQueryCacheHelper {
         List<CategoryInfo> cexList = theTSpec.getExcludedCategories();
         if (cexList != null) {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kCategory, cexList, true);
-	        if(sq!=null){
+            if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         //Included merchants
@@ -126,16 +129,16 @@ public class TSpecQueryCacheHelper {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kSupplier, inMerchants, false);
             if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         //Excluded merchants
         List<MerchantInfo> exMerchants = theTSpec.getExcludedMerchants();
         if (exMerchants != null) {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kSupplier, exMerchants, true);
-           if(sq!=null){
+            if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         //Included Providers
@@ -144,7 +147,7 @@ public class TSpecQueryCacheHelper {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProvider, inProviders, false);
             if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         //Excluded Providers
@@ -153,7 +156,7 @@ public class TSpecQueryCacheHelper {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProvider, exProviders, true);
             if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         //CPC Range
@@ -229,7 +232,7 @@ public class TSpecQueryCacheHelper {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGlobalId, inGlobals, false);
             if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         //Excluded GlobalsIds
@@ -238,13 +241,13 @@ public class TSpecQueryCacheHelper {
             SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kGlobalId, exGlobalIds, true);
             if(sq!=null){
                 _cjquery.addQuery(sq);
-	        }
+            }
         }
 
         String productType = theTSpec.getSpecType();
         //Default to product
         if (productType == null || "".equals(productType.trim())) {
-           productType = PRODUCT;
+            productType = PRODUCT;
         }
         SimpleQuery sq = buildAttributeQuery(IProduct.Attribute.kProductType, productType.toUpperCase(), false);
         _cjquery.addQuery(sq);
@@ -267,34 +270,34 @@ public class TSpecQueryCacheHelper {
             for (int i=0;i<values.size();i++){
                 if (type.equals(IProduct.Attribute.kCategory)) {
                     CategoryInfo cInfo = (CategoryInfo)values.get(i);
-	                String cName = cInfo.getName();
-	                if(cName != null && !"".equals(cName.trim())){
+                    String cName = cInfo.getName();
+                    if(cName != null && !"".equals(cName.trim())){
                         valueStrList.add(cName);
-	                }
+                    }
                 } else if (type.equals(IProduct.Attribute.kBrand)) {
                     BrandInfo bInfo = (BrandInfo)values.get(i);
-	                String bName = bInfo.getName();
-	                if(bName != null && !"".equals(bName.trim())){
+                    String bName = bInfo.getName();
+                    if(bName != null && !"".equals(bName.trim())){
                         valueStrList.add(bName);
-	                }
+                    }
                 } else if (type.equals(IProduct.Attribute.kProvider)) {
                     ProviderInfo pInfo = (ProviderInfo)values.get(i);
-	                String pName = pInfo.getName();
-	                if(pName != null && !"".equals(pName.trim())){
+                    String pName = pInfo.getName();
+                    if(pName != null && !"".equals(pName.trim())){
                         valueStrList.add(pName);
-	                }
+                    }
                 } else if (type.equals(IProduct.Attribute.kSupplier)) {
                     MerchantInfo mInfo = (MerchantInfo)values.get(i);
-	                String mName = mInfo.getName();
-	                if(mName != null && !"".equals(mName.trim())){
+                    String mName = mInfo.getName();
+                    if(mName != null && !"".equals(mName.trim())){
                         valueStrList.add(mInfo.getName());
-	                }
+                    }
                 } else if (type.equals(IProduct.Attribute.kGlobalId)) {
                     GlobalIdInfo gInfo = (GlobalIdInfo)values.get(i);
-	                String gName = gInfo.getName();
-	                if(gName != null && !"".equals(gName.trim())){
+                    String gName = gInfo.getName();
+                    if(gName != null && !"".equals(gName.trim())){
                         valueStrList.add(gInfo.getName());
-	                }
+                    }
                 } else if (type.equals(IProduct.Attribute.kProductType)) {
                     valueStrList.add((String)values.get(i));
                 }
@@ -305,9 +308,9 @@ public class TSpecQueryCacheHelper {
             }
         }
         SimpleQuery sq = null;
-	    if(valueIdList.size() > 0){
-	        sq = new AttributeQuery (type, valueIdList);
-		    sq.setNegation(bNegation);
+        if(valueIdList.size() > 0){
+            sq = new AttributeQuery (type, valueIdList);
+            sq.setNegation(bNegation);
         }
 
         return sq;

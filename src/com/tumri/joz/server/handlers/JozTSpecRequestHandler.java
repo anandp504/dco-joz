@@ -214,6 +214,10 @@ public class JozTSpecRequestHandler implements RequestHandler {
 
     }
 	private void write_result(String advertiser, ArrayList<Handle> product_handles, JozAdResponse resp) throws JoZException {
+        if (advertiser==null) {
+            throw new JoZException("No Provider information found in the tspec");
+        }
+
 		Integer maxDescLength = 100;// default
 		if (product_handles==null) {
 			throw new JoZException("No products returned by the product selection");

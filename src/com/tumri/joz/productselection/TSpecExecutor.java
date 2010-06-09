@@ -222,8 +222,11 @@ public class TSpecExecutor {
     private void doKeywordSearch(String keywords) {
         KeywordQuery sKwQuery;
         if ((keywords!=null)&&(!"".equals(keywords.trim()))) {
+            String advertiser = null;
             m_ExternalKeywords = true;
-            String advertiser = m_tspec.getIncludedProviders().get(0).getName();
+            if (m_tspec.getIncludedProviders()!=null && !m_tspec.getIncludedProviders().isEmpty()){
+                advertiser = m_tspec.getIncludedProviders().get(0).getName();
+            }
             sKwQuery = new KeywordQuery(advertiser, keywords,false);
             m_tSpecQuery.addSimpleQuery(sKwQuery);
         }

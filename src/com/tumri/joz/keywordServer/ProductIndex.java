@@ -312,7 +312,10 @@ public class ProductIndex {
     public ArrayList<Handle> search(String advertiser, String query_string, double min_score, int max_docs) {
         ArrayList<Handle> alist = new ArrayList<Handle>();
         ProductDB db = ProductDB.getInstance();
-        IndexSearcherCache searcherCache = getCache(DEFAULT);
+        if (advertiser==null) {
+            advertiser = DEFAULT;
+        }
+        IndexSearcherCache searcherCache = getCache(advertiser);
         IndexSearcher searcher = searcherCache.get();
         if (searcher != null) {
             try {
@@ -359,7 +362,9 @@ public class ProductIndex {
         QueryParser qp = new QueryParser("description", getAnalyzer(false));
         try {
             str = cleanseQueryString(str);
-            str = "+provider:"+advertiser + " +description:" + str;
+            if (advertiser!=null){
+                str = "+provider:"+advertiser + " +description:" + str;
+            } 
             return qp.parse(str);
         } catch (ParseException e) {
             return null;
