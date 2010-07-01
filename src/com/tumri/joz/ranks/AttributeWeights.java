@@ -29,8 +29,9 @@ abstract public class AttributeWeights implements IWeight<Handle> {
   private static double kAreaCode = 1.05;
   private static double kGeoEnabled = 1.0;
   private static double kGlobalId = 1.2;
-  private static double kCategoryTextField = 1.2;
-  private static double kCategoryNumericField = 1.2;
+  private static double kBT = 1.2;
+  private static double kHHI = 1.2;
+  private static double kMS = 1.2;
   private static double kMultiValueTextField = 1.05;
   private static double kNone = 1.0;
 
@@ -64,8 +65,9 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kDMA: return DmaCodeWeight.getInstance();
       case kGeoEnabledFlag: return GeoEnabledWeight.getInstance();
       case kGlobalId: return GlobalIdWeight.getInstance();
-      case kCategoryTextField: return CategoryTextFieldWeight.getInstance();
-      case kCategoryNumericField: return CategoryNumericFieldWeight.getInstance();
+      case kBT: return MultiValueTextFieldWeight.getInstance();
+      case kHHI: return MultiValueTextFieldWeight.getInstance();
+      case kMS: return MultiValueTextFieldWeight.getInstance();
       case kMultiValueTextField: return MultiValueTextFieldWeight.getInstance();
       case kNone:
       default: return NeutralWeight.getInstance();
@@ -94,8 +96,9 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kArea: return kAreaCode;
       case kGeoEnabledFlag: return kGeoEnabled;
       case kGlobalId: return kGlobalId;
-      case kCategoryTextField: return kCategoryTextField;
-      case kCategoryNumericField: return kCategoryNumericField;
+      case kHHI: return kHHI;
+      case kBT: return kBT;
+      case kMS: return kMS;
       case kMultiValueTextField: return kMultiValueTextField;
       case kNone: return kNone;
       default:

@@ -61,6 +61,15 @@ public class EvalMonitor extends ComponentMonitor {
 		keys.put(":" + JozAdRequest.KEY_ZIP_CODE, JozAdRequest.KEY_ZIP_CODE);
 		keys.put(":" + JozAdRequest.KEY_EXTERNAL_PAGE_ID, JozAdRequest.KEY_EXTERNAL_PAGE_ID);
 		keys.put(":" + JozAdRequest.KEY_USER_BUCKET, JozAdRequest.KEY_USER_BUCKET);
+		keys.put(":" + JozAdRequest.KEY_AGE, JozAdRequest.KEY_AGE);
+		keys.put(":" + JozAdRequest.KEY_GENDER, JozAdRequest.KEY_GENDER);
+		keys.put(":" + JozAdRequest.KEY_RETARGETING_UT1, JozAdRequest.KEY_RETARGETING_UT1);
+		keys.put(":" + JozAdRequest.KEY_RETARGETING_UT2, JozAdRequest.KEY_RETARGETING_UT2);
+		keys.put(":" + JozAdRequest.KEY_RETARGETING_UT3, JozAdRequest.KEY_RETARGETING_UT3);
+		keys.put(":" + JozAdRequest.KEY_RETARGETING_UT4, JozAdRequest.KEY_RETARGETING_UT4);
+		keys.put(":" + JozAdRequest.KEY_RETARGETING_UT5, JozAdRequest.KEY_RETARGETING_UT5);
+		keys.put(":" + JozAdRequest.KEY_MARITAL_STATUS, JozAdRequest.KEY_MARITAL_STATUS);
+		keys.put(":" + JozAdRequest.KEY_HOUSEHOLD_INCOME, JozAdRequest.KEY_HOUSEHOLD_INCOME);
 	}
 
 	public JozAdRequest makeRequest(String requestString) {

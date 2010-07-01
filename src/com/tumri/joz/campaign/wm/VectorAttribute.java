@@ -6,7 +6,7 @@ package com.tumri.joz.campaign.wm;
  * Date: Feb 12, 2010
  * Time: 11:19:02 AM
  */
-public enum WMAttribute {
+public enum VectorAttribute {
 	kRequestVector,
 	kLineId,
 	kSiteId,
@@ -54,4 +54,5 @@ public enum WMAttribute {
     kF5None,
     kUBNone,
     kDefaultNone,
+    kExpId,
 }

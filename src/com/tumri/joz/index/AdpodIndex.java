@@ -18,6 +18,11 @@ public class AdpodIndex<Key, Value> extends AbstractIndex<AdPod, AdpodIndex.Attr
     public static final String GEO_NONE       = "GEO_NONE";
     public static final String URL_NONE       = "URL_NONE";
     public static final String EXTERNAL_VARIABLE_NONE       = "EXTERNAL_VARIABLE_NONE";
+    public static final String AGE_NONE       = "AGE_NONE";
+    public static final String GENDER_NONE       = "GENDER_NONE";
+    public static final String BT_NONE       = "BT_NONE";
+    public static final String HHI_NONE       = "HHI_NONE";
+    public static final String MS_NONE       = "MS_NONE";
 
     private Attribute type;
     public AdpodIndex(AdpodIndex.Attribute type) {
@@ -51,5 +56,15 @@ public class AdpodIndex<Key, Value> extends AbstractIndex<AdPod, AdpodIndex.Attr
         kUrlNone,
         kExtTarget,
         kExtTargetNone,
+        kAge,
+        kAgeNone,
+        kGender,
+        kGenderNone,
+        kHHI,
+        kHHINone,
+        kBT,
+        kBTNone,
+        kMS,
+        kMSNone,
     }
 }

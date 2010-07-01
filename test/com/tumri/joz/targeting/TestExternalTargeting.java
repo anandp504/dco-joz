@@ -49,7 +49,7 @@ public class TestExternalTargeting {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = trp.processRequest(request, f);
+        Recipe r = null; ///trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());
@@ -67,7 +67,7 @@ public class TestExternalTargeting {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = trp.processRequest(request, f);
+        Recipe r = null; ///trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());
@@ -86,7 +86,7 @@ public class TestExternalTargeting {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = trp.processRequest(request, f);
+        Recipe r = null; ///trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());
@@ -104,7 +104,7 @@ public class TestExternalTargeting {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = trp.processRequest(request, f);
+        Recipe r = null; ///trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());
@@ -123,7 +123,7 @@ public class TestExternalTargeting {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = trp.processRequest(request, f);
+        Recipe r = null; ///trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());

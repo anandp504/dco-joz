@@ -60,58 +60,7 @@ public class TSpecQueryCacheHelper {
                 _cjquery.addQuery(sq);
             }
 
-            //Category Field Attributes
-            for (CategoryInfo ci: cinList) {
-                String catId = ci.getName();
-                CategoryInfoAttributes cia = ci.getAttribs();
-                if (cia != null) {
-                    //There are attribs for this query
-                    List<CategoryAttribute> attribs = cia.getAttribs();
-                    for (CategoryAttribute attr : attribs) {
-                        String categoryFieldName = attr.getName();
-                        String categoryFieldValue = attr.getTextValue();
-                        double lowRangeValue = attr.getLowRangeValue();
-                        double highRangeValue = attr.getHighRangeValue();
-
-                        DictionaryManager dm = DictionaryManager.getInstance ();
-                        Integer cId = dm.getId (IProduct.Attribute.kCategory, catId);
-                        ProductAttributeDetails cad = IndexUtils.getDetailsForCategoryFieldName(cId, categoryFieldName);
-                        if (cad != null) {
-                            ProductAttributeDetails.DataType dt = cad.getFieldtype();
-                            Product.Attribute fieldPos = cad.getFieldPos();
-                            if (dt == ProductAttributeDetails.DataType.kInteger) {
-                                //range query - we multiply by 100 to support upto 2 decimal places
-                                if(lowRangeValue >= 0 && highRangeValue > 0){
-                                    int lowRangeValId = new Double(lowRangeValue).intValue()*100;
-                                    int highRangeValId = new Double(highRangeValue).intValue()*100;
-                                    long lowRangekey = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, lowRangeValId);
-                                    long highRangekey = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, highRangeValId);
-                                    SimpleQuery csq = new LongRangeQuery (IProduct.Attribute.kCategoryNumericField,lowRangekey, highRangekey);
-                                    _cjquery.addQuery(csq);
-                                }
-                            } else if (dt == ProductAttributeDetails.DataType.kText) {
-                                //categoryFieldValue might comma separated list of values
-                                if (categoryFieldValue != null && !"".equals(categoryFieldValue.trim())) {
-                                    ArrayList<Long> valueIdList = new ArrayList<Long>();
-                                    StringTokenizer st = new StringTokenizer(categoryFieldValue, ',');
-                                    ArrayList<String> valueStrList = st.getTokens();
-                                    for (int i=0;i<valueStrList.size();i++){
-                                        String valueStr = valueStrList.get(i);
-                                        int fieldValId = IndexUtils.getIndexIdFromDictionary(fieldPos, valueStr);
-                                        long key = IndexUtils.createIndexKeyForCategoryAttribute(cId, fieldPos, fieldValId);
-                                        valueIdList.add(key);
-                                    }
-                                    //simple query
-                                    SimpleQuery csq = new LongTextQuery(IProduct.Attribute.kCategoryTextField, valueIdList);
-                                    _cjquery.addQuery(csq);
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
+       }
 
 
         //Excluded cats
@@ -243,6 +192,7 @@ public class TSpecQueryCacheHelper {
                 _cjquery.addQuery(sq);
             }
         }
+
 
         String productType = theTSpec.getSpecType();
         //Default to product

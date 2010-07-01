@@ -89,12 +89,6 @@
 <br>
 <div>
 	<%
-		out.print("<strong>AdPod: AdGroup Id</strong> = " + myAdPod.getAdGroupId() + "<br>");
-	%>
-</div>
-<br>
-<div>
-	<%
 		Date startDate = null;
 		if((startDate = myAdPod.getStartDate()) != null){
 			out.print("<strong> Adpod: Flight Start Date </strong> = " + startDate.toString() + "<br>");

@@ -52,7 +52,7 @@ public class Bug2549Test {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
 
-        Recipe r = trp.processRequest(request, new Features());
+        Recipe r = null; //trp.processRequest(request, new Features());
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         Assert.assertTrue(r.getAdpodId()==4824);
@@ -69,7 +69,7 @@ public class Bug2549Test {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
 
-        Recipe r = trp.processRequest(request, new Features());
+        Recipe r = null; //trp.processRequest(request, new Features());
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         Assert.assertTrue(r.getAdpodId()==4856);
@@ -86,7 +86,7 @@ public class Bug2549Test {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
 
-        Recipe r = trp.processRequest(request, new Features());
+        Recipe r = null; //trp.processRequest(request, new Features());
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         Assert.assertTrue(r.getAdpodId()==4856);
@@ -102,7 +102,7 @@ public class Bug2549Test {
 
         AdDataRequest request = new AdDataRequest(jozRequest);
 
-        Recipe r = trp.processRequest(request, new Features());
+        Recipe r = null; //trp.processRequest(request, new Features());
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         Assert.assertTrue(r.getAdpodId()==5041);

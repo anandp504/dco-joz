@@ -55,11 +55,7 @@
 	}
 
 	Campaign myCampaign = campaignDB.getCampaign(Integer.parseInt(campaignName));
-	List<AdGroup> adGroups = myCampaign.getAdGroups();
 	List<AdPod> adPods = myCampaign.getAdpods();
-	if(adGroups == null){
-		adGroups = new ArrayList<AdGroup>();
-	}
 	if(adPods == null){
 		adPods = new ArrayList<AdPod>();
 	}
@@ -199,26 +195,7 @@
 		<input type="button" value="Get AdPod" onClick="javascript:submitAdPodForm()" <%=" " + display%>>
 	</form>
 </div>
-<br>
-<div>
-	<form id="AdGroupSelForm" action="/joz/jsp/adGroupSelection.jsp" method="post">
-		<div>
-			<strong>Select AdGroup (Name, Id)</strong> (<%=adGroups.size()%> AdGroup(s)):
-		</div>
-		<select id="AdGroupList">
-			<%
-				for(int i=0;i<adGroups.size();i++) {
-					if(adGroups.get(i) != null){
-						out.print("<option value=\""+myCampaign.getId() + " " + adGroups.get(i).getId()+"\">"+adGroups.get(i).getName() + ", " + adGroups.get(i).getId() + "</option>");
-					}
-				}
-			%>
-		</select>
-		<input type="hidden"  name="selAdGroup"  id="selAdGroup" value=""/>
-		<input type="button" value="Get AdGroup" onClick="javascript:submitAdGroupForm()"/>
-	</form>
-</div>
-<br>
+br>
 
 
 </body>

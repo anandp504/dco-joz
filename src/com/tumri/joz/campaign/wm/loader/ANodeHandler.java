@@ -23,13 +23,11 @@ import java.util.*;
 import java.io.*;
 
 // Xerces Classes
+import com.tumri.joz.campaign.wm.VectorHandle;
 import org.xml.sax.*;
 import org.apache.xerces.parsers.*;
 import org.apache.log4j.Logger;
 import org.xml.sax.helpers.DefaultHandler;
-import com.tumri.joz.campaign.wm.WMDB;
-import com.tumri.joz.campaign.wm.WMHandleFactory;
-import com.tumri.joz.campaign.wm.WMHandle;
 import com.tumri.joz.products.Handle;
 
 /**
@@ -46,6 +44,7 @@ public class ANodeHandler extends DefaultHandler {
 	int adPodId = 0;
 	private static final Logger log = Logger.getLogger(ANodeHandler.class);
 	private Set<Integer> vectorInclList = new HashSet<Integer>();
+    private SortedSet<VectorHandle> allHandles = null;
 
 	public ANodeHandler(int adPodId, Stack path, Map params, Attributes attributes, SAXParser parser,
 	                    DefaultHandler parent) throws SAXException {
@@ -84,7 +83,7 @@ public class ANodeHandler extends DefaultHandler {
 				throw new SAXException("Invalid Id for the vector - skipping vector node");
 			}
 			vectorInclList.add(vectorId);
-			DefaultHandler handler = new VNodeHandler(adPodId, vectorId, path, params, attributes, parser, this);
+			DefaultHandler handler = new VNodeHandler(adPodId,vectorId, path, params, attributes, parser, this);
 			path.push("v");
 			parser.setContentHandler(handler);
 
@@ -95,14 +94,6 @@ public class ANodeHandler extends DefaultHandler {
 
 	public void endElement(java.lang.String uri, java.lang.String localName, java.lang.String qName) throws SAXException {
 		if (qName.equals("a")) {
-			WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
-			if (cache != null) {
-				cache.purgeOldKeys(vectorInclList);
-				cache.materializeRangeIndices();
-				SortedSet<WMHandle> allHandles = WMHandleFactory.getInstance().getHandles();
-				cache.addNewHandles(allHandles);
-			}
-			WMHandleFactory.getInstance().clear();
 			end();
 			path.pop();
 			parser.setContentHandler(parent);

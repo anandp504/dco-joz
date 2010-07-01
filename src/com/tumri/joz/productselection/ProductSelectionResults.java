@@ -1,5 +1,7 @@
 package com.tumri.joz.productselection;
 
+import com.tumri.cma.domain.CAMDimensionType;
+import com.tumri.cma.domain.Experience;
 import com.tumri.cma.domain.Recipe;
 import com.tumri.joz.products.Handle;
 
@@ -16,6 +18,12 @@ public class ProductSelectionResults {
 	HashMap<String, String> featuresMap = null;
     Recipe targetedRecipe = null;
     String targetedTSpecName = null;
+    Experience targetedExperience = null;
+
+    private String[] camDimensionNames = null;
+    private CAMDimensionType[] camDimensionTypes = null;
+    private String[] attributeValues = null;
+    private int[] attributePositions = null;
 
     HashMap<Integer, ArrayList<Handle>> tspecResultsMap = null;
     HashMap<Integer, String> tspecSlotIdMap = null;
@@ -71,5 +79,45 @@ public class ProductSelectionResults {
 
     public HashMap<Integer, String> getTspecSlotIdMap() {
         return tspecSlotIdMap;
+    }
+
+    public String[] getCamDimensionNames() {
+        return camDimensionNames;
+    }
+
+    public void setCamDimensionNames(String[] camDimensionNames) {
+        this.camDimensionNames = camDimensionNames;
+    }
+
+    public CAMDimensionType[] getCamDimensionTypes() {
+        return camDimensionTypes;
+    }
+
+    public void setCamDimensionTypes(CAMDimensionType[] camDimensionTypes) {
+        this.camDimensionTypes = camDimensionTypes;
+    }
+
+    public String[] getAttributeValues() {
+        return attributeValues;
+    }
+
+    public void setAttributeValues(String[] attributeValues) {
+        this.attributeValues = attributeValues;
+    }
+
+    public int[] getAttributePositions() {
+        return attributePositions;
+    }
+
+    public void setAttributePositions(int[] attributePositions) {
+        this.attributePositions = attributePositions;
+    }
+
+    public Experience getTargetedExperience() {
+        return targetedExperience;
+    }
+
+    public void setTargetedExperience(Experience targetedExperience) {
+        this.targetedExperience = targetedExperience;
     }
 }

@@ -129,46 +129,6 @@ public class ProductWrapper implements IProduct {
         return prod.getGlobalIdStr();
     }
 
-    public Integer getCategoryField1() {
-        return prod.getCategoryField1();
-    }
-
-    public String getCategoryField1Str() {
-        return prod.getCategoryField1Str();
-    }
-
-    public Integer getCategoryField2() {
-        return prod.getCategoryField2();
-    }
-
-    public String getCategoryField2Str() {
-        return prod.getCategoryField2Str();
-    }
-
-    public Integer getCategoryField3() {
-        return prod.getCategoryField3();
-    }
-
-    public String getCategoryField3Str() {
-        return prod.getCategoryField3Str();
-    }
-
-    public Integer getCategoryField4() {
-        return prod.getCategoryField4();
-    }
-
-    public String getCategoryField4Str() {
-        return prod.getCategoryField4Str();
-    }
-
-    public Integer getCategoryField5() {
-        return prod.getCategoryField5();
-    }
-
-    public String getCategoryField5Str() {
-        return prod.getCategoryField5Str();
-    }
-
     public Integer getPassThrough1() {
         return prod.getPassThrough1();
     }
@@ -398,6 +358,83 @@ public class ProductWrapper implements IProduct {
         return (getGId() != null ? getGId().hashCode() : 0);
       }
 
+    public Integer getAge() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 
-    
+    public String getAgeStr() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getGender() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getGenderStr() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getHHI() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getHHIStr() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getBT() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getBTStr() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getMS() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getMSStr() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getUT1() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getUT1Str() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getUT2() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getUT2Str() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getUT3() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getUT3Str() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getUT4() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getUT4Str() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Integer getUT5() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getUT5Str() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

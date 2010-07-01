@@ -1,6 +1,5 @@
 package com.tumri.joz.campaign.wm;
 
-import com.tumri.joz.campaign.wm.WMAttribute;
 import com.tumri.joz.index.AbstractRangeIndex;
 import com.tumri.joz.index.Range;
 import org.junit.Test;
@@ -13,17 +12,17 @@ import java.util.*;
  * Date: Feb 9, 2010
  * Time: 11:47:06 AM
  */
-public class WMRangeIndex<V, Value> extends AbstractRangeIndex<WMAttribute, V, Value> {
+public class VectorRangeIndex<V, Value> extends AbstractRangeIndex<VectorAttribute, V, Value> {
 
-	private WMAttribute type;
-	public WMRangeIndex() {
+	private VectorAttribute type;
+	public VectorRangeIndex() {
 	}
 
-	public WMRangeIndex(WMAttribute type) {
+	public VectorRangeIndex(VectorAttribute type) {
 		this.type = type;
 	}
 
-	public WMAttribute getType() {
+	public VectorAttribute getType() {
 		return type;
 	}
 
@@ -68,7 +67,7 @@ public class WMRangeIndex<V, Value> extends AbstractRangeIndex<WMAttribute, V, V
 
 		Range<Integer> r6 = new Range<Integer>(1, 1);
 
-		WMRangeIndex<Integer, String> rangeIndex = new WMRangeIndex<Integer, String>(WMAttribute.kUB);
+		VectorRangeIndex<Integer, String> rangeIndex = new VectorRangeIndex<Integer, String>(VectorAttribute.kUB);
 
 		rangeIndex.put(r1, "Range1");
 		rangeIndex.put(r2, "Range2");

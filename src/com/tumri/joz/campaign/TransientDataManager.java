@@ -188,7 +188,6 @@ public class TransientDataManager {
         theCampaign.setSource("ADVERTISER");
 
         String tSpecName = oSpec.getName();
-        AdGroup adGroup = new AdGroup();
         AdPod theAdPod = new AdPod();
         theCampaign.setId(idSequence.incrementAndGet());
         theAdPod.setId(idSequence.incrementAndGet());
@@ -208,8 +207,6 @@ public class TransientDataManager {
             aRecipe.addTSpecInfo(tSpecInfo);
         }
         theAdPod.addRecipe(aRecipe);
-        adGroup.addAdPod(theAdPod);
-        theCampaign.addAdGroup(adGroup);
         return theCampaign;
     }
 
@@ -224,6 +221,12 @@ public class TransientDataManager {
         if (adPodList != null) {
             for (AdPod adpod: adPodList) {
                 addAdPodToCampaignDB(camp.getId(), adpod);
+            }
+        }
+        List<Experience> expList = camp.getExperiences();
+        if (expList!=null) {
+            for (Experience exp: expList) {
+                campaignDB.addExperience(exp);
             }
         }
     }
@@ -261,7 +264,6 @@ public class TransientDataManager {
     private int createAdPod(OSpec ospec) {
         //Create the campaign and adpod objects here
         Campaign theCampaign = new Campaign();
-        AdGroup adGroup = new AdGroup();
         AdPod theAdPod = new AdPod();
         theCampaign.setId(idSequence.incrementAndGet());
         int adPodId = idSequence.incrementAndGet();
@@ -274,8 +276,6 @@ public class TransientDataManager {
         aRecipe.setId(idSequence.incrementAndGet());
         aRecipe.setName(ospec.getName());
         theAdPod.addRecipe(aRecipe);
-        adGroup.addAdPod(theAdPod);
-        theCampaign.addAdGroup(adGroup);
         campaignDB.addCampaign(theCampaign);
         campaignDB.addAdPod(theAdPod);
         campaignDB.addAdpodCampaignMapping(adPodId, theCampaign.getId());
@@ -851,6 +851,12 @@ public class TransientDataManager {
      */
     private void deleteDependencies(Campaign camp) {
         if (camp != null) {
+            List<Experience> expList = camp.getExperiences();
+            if (expList!=null) {
+                for (Experience exp: expList) {
+                    campaignDB.delExperience(exp.getId());
+                }
+            }
             List<AdPod> adPodList = camp.getAdpods();
             if (adPodList != null && !adPodList.isEmpty()) {
                 for (AdPod adpod: adPodList) {

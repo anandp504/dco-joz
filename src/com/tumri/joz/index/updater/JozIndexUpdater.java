@@ -262,6 +262,18 @@ public class JozIndexUpdater implements IJozIndexUpdater {
             } else if (operation == PersistantIndexLine.IndexOperation.kDelModified || operation == PersistantIndexLine.IndexOperation.kDelete){
                 ProductDB.getInstance().deleteDoubleIndex(idxAttr, mindex);
             }
+        }  else if (idxAttr == Product.Attribute.kAge) {
+            Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal.toUpperCase());
+            //No need to update the index for this - just update the handle
+            for (Handle h : pids) {
+                ((ProductHandle)h).setAge(val);
+            }
+        }  else if (idxAttr == Product.Attribute.kGender) {
+            Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal.toUpperCase());
+            //No need to update the index for this - just update the handle
+            for (Handle h : pids) {
+                ((ProductHandle)h).setGender(val);
+            }
         }  else if (idxAttr == Product.Attribute.kProductType) {
             if (indexVal == null || indexVal.equals("")) {
                 indexVal = PRODUCT;
@@ -271,15 +283,25 @@ public class JozIndexUpdater implements IJozIndexUpdater {
             for (Handle h : pids) {
                 ((ProductHandle)h).setProductType(val);
             }
+        }  else if (idxAttr == Product.Attribute.kHHI) {
+            Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal.toUpperCase());
+            //No need to update the index for this - just update the handle
+            for (Handle h : pids) {
+                ((ProductHandle)h).setHouseHoldIncome(val);
+            }
+        }    else if (idxAttr == Product.Attribute.kMS) {
+            Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal.toUpperCase());
+            //No need to update the index for this - just update the handle
+            for (Handle h : pids) {
+                ((ProductHandle)h).setMaritalStatus(val);
+            }
         }  else if (idxAttr == Product.Attribute.kCategory ||
                 idxAttr == Product.Attribute.kBrand ||
                 idxAttr == Product.Attribute.kSupplier ||
                 idxAttr == Product.Attribute.kProvider ||
-//				idxAttr == Product.Attribute.kImageWidth ||
-//				idxAttr == Product.Attribute.kImageHeight ||
-//                idxAttr == Product.Attribute.kProductType ||
                 idxAttr == Product.Attribute.kGeoEnabledFlag ||
                 idxAttr == Product.Attribute.kProviderCategory ||
+                idxAttr == Product.Attribute.kBT ||
                 idxAttr == Product.Attribute.kGlobalId) {
             //Integer
             TreeMap<Integer, ArrayList<Handle>> mindex = new TreeMap<Integer, ArrayList<Handle>>();
@@ -292,65 +314,17 @@ public class JozIndexUpdater implements IJozIndexUpdater {
                 ProductDB.getInstance().deleteIntegerIndex(idxAttr, mindex);
             }
 
-        } else if (idxAttr == Product.Attribute.kCategoryField1 ||
-                idxAttr == Product.Attribute.kCategoryField2 ||
-                idxAttr == Product.Attribute.kCategoryField3 ||
-                idxAttr == Product.Attribute.kCategoryField4 ||
-                idxAttr == Product.Attribute.kCategoryField5) {
-            String catIdStr = indexVal.substring(0,indexVal.indexOf("|"));
-            int catId = IndexUtils.getIndexIdFromDictionary(Product.Attribute.kCategory, catIdStr);
-            ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(catId, idxAttr);
-            if (details != null) {
-                ProductAttributeDetails.DataType type = details.getFieldtype();
-                if (type != null) {
-                    TreeMap<Long, ArrayList<Handle>> mindex = new TreeMap<Long, ArrayList<Handle>>();
-                    String fieldValStr = indexVal.substring(indexVal.indexOf("|") +1, indexVal.length());
-                    int fieldValId = 0;
-                    if (type == ProductAttributeDetails.DataType.kText) {
-                        fieldValId = IndexUtils.getIndexIdFromDictionary(idxAttr, fieldValStr);
-                    } else  if (type == ProductAttributeDetails.DataType.kInteger) {
-                        //Multiply by 100 to support upto 2 decimal places
-                        if (fieldValStr.indexOf('.')>-1) {
-                            //Double value
-                            Double tmpDbl = Double.parseDouble(fieldValStr)*100;
-                            fieldValId = tmpDbl.intValue();
-                        } else {
-                            fieldValId = Integer.parseInt(fieldValStr)*100;
-                        }
-                    }
-                    long key = IndexUtils.createIndexKeyForCategoryAttribute(catId, idxAttr, fieldValId);
-                    mindex.put(key, pids);
-
-                    if (operation == PersistantIndexLine.IndexOperation.kAdd ||
-                            operation == PersistantIndexLine.IndexOperation.kAddModified
-                            || operation == PersistantIndexLine.IndexOperation.kNoChange) {
-                        if (type == ProductAttributeDetails.DataType.kText) {
-                            //Text index
-                            ProductDB.getInstance().updateLongIndex(Product.Attribute.kCategoryTextField, mindex);
-                        } else  if (type == ProductAttributeDetails.DataType.kInteger) {
-                            //Range Index
-                            ProductDB.getInstance().updateLongIndex(Product.Attribute.kCategoryNumericField, mindex);
-                        }
-                    } else if (operation == PersistantIndexLine.IndexOperation.kDelModified ||
-                            operation == PersistantIndexLine.IndexOperation.kDelete){
-                        if (type == ProductAttributeDetails.DataType.kText) {
-                            //Text index
-                            ProductDB.getInstance().deleteLongIndex(Product.Attribute.kCategoryTextField, mindex);
-                        } else  if (type == ProductAttributeDetails.DataType.kInteger) {
-                            //Range Index
-                            ProductDB.getInstance().deleteLongIndex(Product.Attribute.kCategoryNumericField, mindex);
-                        }
-                    }
-
-
-                }
-            }
-
         }  else if (idxAttr == Product.Attribute.kExternalFilterField1 ||
                 idxAttr == Product.Attribute.kExternalFilterField2 ||
                 idxAttr == Product.Attribute.kExternalFilterField3 ||
                 idxAttr == Product.Attribute.kExternalFilterField4 ||
-                idxAttr == Product.Attribute.kExternalFilterField5) {
+                idxAttr == Product.Attribute.kExternalFilterField5 ||
+                idxAttr == Product.Attribute.kUT1 ||
+                idxAttr == Product.Attribute.kUT2 ||
+                idxAttr == Product.Attribute.kUT3 ||
+                idxAttr == Product.Attribute.kUT4 ||
+                idxAttr == Product.Attribute.kUT5
+                ) {
             //Multi value index.
             StringTokenizer st = new StringTokenizer(indexVal, MULTI_VALUE_INDEX_DELIM);
             ArrayList<String> indexVals = st.getTokens();

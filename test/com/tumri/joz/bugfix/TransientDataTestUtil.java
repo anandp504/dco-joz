@@ -131,9 +131,9 @@ public class TransientDataTestUtil {
         // Return the right Cmd* class to handle this request.
 
         if (cmd_name.equals ("get-ad-data")) {
-            AdDataRequest rqst = new AdDataRequest (e);
+            AdDataRequest rqst = null; //new AdDataRequest (e);
 
-            recipe = processor.processRequest(rqst, new Features());
+            recipe = null; //processor.processRequest(rqst, new Features());
 
         } else {
             fail("The request could not be parsed correctly");

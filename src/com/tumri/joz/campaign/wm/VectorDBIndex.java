@@ -1,5 +1,5 @@
 /*
- * RecipeWeight.java
+ * WMIndex.java
  *
  * COPYRIGHT (C)  TUMRI INC.  ALL RIGHTS RESERVED. TUMRI AND LOGO ARE
  * EITHER TRADEMARKS OR REGISTERED TRADEMARKS OF TUMRI.  ALL OTHER COMPANY,
@@ -17,34 +17,32 @@
  */
 package com.tumri.joz.campaign.wm;
 
+import com.tumri.utils.index.AbstractIndex;
+
+import java.util.List;
+import java.util.Map;
+
 /**
- * Recipe Weight Impl
+ * Holds the relationship between the request attribute val to the Request Vectors
+ *
  * @author: nipun
  * Date: Aug 3, 2009
- * Time: 2:05:23 PM
+ * Time: 1:26:38 PM
  */
-public class RecipeWeight {
-    private int recipeId;
-    private double weight;
+public class VectorDBIndex<Key, Value> extends AbstractIndex<VectorHandle, VectorAttribute, Key, Value> {
 
-    public RecipeWeight(Integer recipeId, double weight) {
-        this.recipeId = recipeId;
-        this.weight = weight;
-    }
-    
-    public int getRecipeId() {
-        return recipeId;
-    }
+	private VectorAttribute type;
 
-    public void setRecipeId(int recipeId) {
-        this.recipeId = recipeId;
-    }
+	public VectorDBIndex(VectorAttribute type) {
+		this.type = type;
+	}
 
-    public double getWeight() {
-        return weight;
-    }
+	public VectorAttribute getType() {
+		return type;
+	}
 
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
+	public List<Map.Entry<Key, Value>> getEntries(VectorHandle p) {
+		throw new UnsupportedOperationException("This method is not supported by this index.");
+	}
+
 }

@@ -441,7 +441,7 @@ public class UrlScavengerTest {
 			// Return the right Cmd* class to handle this request.
 
 			if (cmd_name.equals ("get-ad-data")) {
-				rqst = new AdDataRequest (e);
+				rqst = null; //new AdDataRequest (e);
 			} else {
 				System.out.println("The request could not be parsed correctly");
 				Assert.assertTrue(false);

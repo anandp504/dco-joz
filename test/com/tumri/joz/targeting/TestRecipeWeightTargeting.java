@@ -17,6 +17,9 @@
  */
 package com.tumri.joz.targeting;
 
+import com.tumri.joz.campaign.wm.*;
+import com.tumri.joz.campaign.wm.loader.WMLoaderException;
+import com.tumri.joz.products.Handle;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Assert;
@@ -27,6 +30,8 @@ import com.tumri.joz.server.domain.JozAdRequest;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.cma.domain.Recipe;
+
+import java.util.*;
 
 /**
  * @author: nipun
@@ -40,58 +45,81 @@ public class TestRecipeWeightTargeting {
         CampaignDBDataLoader loader = CampaignDBDataLoader.getInstance();
         loader.loadData();
 
-        WMXMLParser parser = new WMXMLParserV1();
-        parser.process("/Users/nipun/ws/work-nbp/depot/Tumri/tas/joz/test/data/csl/wm.xml");
+        try {
+            WMXMLParser parser = new WMXMLParserV1();
+            parser.process("/Users/nipun/ws/work-nbp/depot/dev/branch/tc/tas/joz/test/data/csl/wm-test.xml");
+        } catch (WMLoaderException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
-//        //Load the weights
-//        Map<WMIndex.Attribute, Integer> contextMap = new HashMap<WMIndex.Attribute, Integer>();
-//        contextMap.put(WMIndex.Attribute.kState, WMUtils.getDictId(WMIndex.Attribute.kState,"CA"));
-//        contextMap.put(WMIndex.Attribute.kLineId, WMUtils.getDictId(WMIndex.Attribute.kLineId,"CA"));
-//        contextMap.put(WMIndex.Attribute.kCountry, WMUtils.getDictId(WMIndex.Attribute.kCountry,"CA"));
-//        contextMap.put(WMIndex.Attribute.kZip, WMUtils.getDictId(WMIndex.Attribute.kZip,"CA"));
-//        //contextMap.put(WMIndex.Attribute.kLineId, "5555");
+        //Load the weights
+//        List details = new ArrayList<Integer>();
+//        details.add(WMUtils.getDictId(WMAttribute.kT1, "12345"));
+//        Map<WMAttribute, List<Integer>> map = new HashMap<WMAttribute, List<Integer>>();
+//        map.put(WMAttribute.kT1, details);
+//        VectorHandle h1 = new VectorHandle(12, 10, 1, map, false );
+//        SortedBag<Pair<CreativeSet, Double>> optRules = null;
 //
-//        List<RecipeWeight> rwList = new ArrayList<RecipeWeight>();
-//        rwList.add(new RecipeWeight(1974, 100));
-//        rwList.add(new RecipeWeight(4219, 0));
-//        rwList.add(new RecipeWeight(4220, 0));
-//        WMHandle h = WMHandleFactory.getInstance().getHandle(100, contextMap, rwList);
-//
-//        WMDBLoader.updateDb(4445, contextMap, h);
-//
-//        Map<WMIndex.Attribute, Integer> contextMap2 = new HashMap<WMIndex.Attribute, Integer>();
-//        contextMap2.put(WMIndex.Attribute.kState, WMUtils.getDictId(WMIndex.Attribute.kState,"CA"));
-//        contextMap2.put(WMIndex.Attribute.kLineId, WMUtils.getDictId(WMIndex.Attribute.kLineId,"12345A"));
-//        //contextMap2.put(WMIndex.Attribute.kLineId, "9888");
-//        //contextMap2.put(WMIndex.Attribute.kZip, "78978");
-//
-//        List<RecipeWeight> rwList2 = new ArrayList<RecipeWeight>();
-//        rwList2.add(new RecipeWeight(4220, 100));
-//        rwList2.add(new RecipeWeight(4219, 0));
-//        rwList2.add(new RecipeWeight(1974, 0));
-//        WMHandle h2 = WMHandleFactory.getInstance().getHandle(101, contextMap2, rwList2);
-//
-//        WMDBLoader.updateDb(4445, contextMap2, h2);
+//        WMDBLoader.updateDb(optRules, map, h1);
+    }
+
+    @Test
+    public void test0() {
+        VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
+        JozAdRequest jozRequest = new JozAdRequest();
+        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "12345");
+        jozRequest.setValue(JozAdRequest.KEY_REGION, "TX");
+        jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
+        AdDataRequest request = new AdDataRequest(jozRequest);
+        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(4445, request);
+//        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
+//        Assert.assertTrue(results!=null);
+//        for (Handle h : results) {
+//            VectorHandle vh = (VectorHandle)h;
+//            int[] dets = VectorHandleImpl.getIdDetails(vh.getOid());
+//            System.out.println("Experience id = " + dets[1] + ". Adpod id = " + dets[0] + ". Score = " + vh.getScore());
+//        }
+    }
+
+    @Test
+    public void test1() {
+        VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
+        JozAdRequest jozRequest = new JozAdRequest();
+        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "4444");
+        jozRequest.setValue(JozAdRequest.KEY_REGION, "WY");
+        jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
+        AdDataRequest request = new AdDataRequest(jozRequest);
+        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(4445, request);
+//        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
+//        Assert.assertTrue(results!=null);
+//        for (Handle h : results) {
+//            VectorHandle vh = (VectorHandle)h;
+//            int[] dets = vh.getIdDetails(vh.getOid());
+//            System.out.println("Experience id = " + dets[1] + ". Adpod id = " + dets[0] + ". Score = " + vh.getScore());
+//        }
     }
 
     @Test
     public void testCase0() {
+        System.out.println("Beginning test");
         for (int i=0;i<10;i++) {
             TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
             JozAdRequest jozRequest = new JozAdRequest();
-            jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "108173");
-            jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "13477514");
-            jozRequest.setValue(JozAdRequest.KEY_REGION, "TX");
+            jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "105002");
+            jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "12345");
+            jozRequest.setValue(JozAdRequest.KEY_REGION, "CA");
             jozRequest.setValue(JozAdRequest.KEY_DMACODE, "123567");
             jozRequest.setValue(JozAdRequest.KEY_AREACODE, "333");
+            jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
             jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD2, "d,a");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD4, "g");
             jozRequest.setValue(JozAdRequest.KEY_USER_BUCKET, "99");
-
+            VectorDB db = VectorDB.getInstance();
             AdDataRequest request = new AdDataRequest(jozRequest);
             Features f = new Features();
-            Recipe r = trp.processRequest(request, f);
+            TargetingResults trs = trp.processRequest(request, f);
+            Recipe r = trs.getRecipe();
             Assert.assertTrue(r!=null);
             System.out.println("Try " + i + " ===>" + r.getName() + " " + r.getId() + " " + r.getAdpodId());
             System.out.println("Try " + i + " ===>" + f.getAdpodName());

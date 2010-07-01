@@ -17,6 +17,8 @@
  */
 package com.tumri.joz.campaign.wm.loader;
 
+import com.tumri.cma.rules.CreativeSet;
+import com.tumri.cma.rules.ListingClause;
 import com.tumri.joz.campaign.wm.*;
 import com.tumri.joz.index.Range;
 import com.tumri.joz.utils.AppProperties;
@@ -28,6 +30,8 @@ import java.io.Writer;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
+import com.tumri.utils.Pair;
+import com.tumri.utils.data.SortedBag;
 import org.apache.log4j.Logger;
 
 /**
@@ -70,6 +74,7 @@ public class WMDBLoader {
 					parserImpl.process(xmlFile.getAbsolutePath());
 					loadedFiles.add(xmlFile.getAbsolutePath());
 				} catch (WMLoaderException e) {
+                    log.error("Exception on loading file", e);
 					failedFilesErrors.add("Failed to load : " + xmlFile.getAbsolutePath() + ". Reason : " + e.getMessage());
 					error = true;
 				}
@@ -126,52 +131,63 @@ public class WMDBLoader {
 
 	}
 
-	public static void updateDb(Integer adPodId, Map<WMAttribute, Integer> requestMap, WMHandle handle) {
+	public static void updateDb(int expId, SortedBag<Pair<CreativeSet, Double>> optRules,
+                                SortedBag<Pair<ListingClause, Double>> lcRules,
+                                Map<VectorAttribute,  List<Integer>> requestMap, VectorHandle handle) {
+        VectorDB.getInstance().addClause(handle.getOid(), lcRules);
+        VectorDB.getInstance().addRules(handle.getOid(), optRules);
+
+        TreeMap<Integer, ArrayList<VectorHandle>> idmap = new TreeMap<Integer, ArrayList<VectorHandle>>();
+        ArrayList<VectorHandle> idHandles = new ArrayList<VectorHandle>();
+        idHandles.add(handle);
+        idmap.put(expId, idHandles);
+        VectorDB.getInstance().updateIntegerIndex(VectorAttribute.kExpId, idmap);
+
 		if (requestMap != null && !requestMap.isEmpty()) {
-			for (WMAttribute attr : requestMap.keySet()) {
-				Integer id = requestMap.get(attr);
-				if (id != null) {
-					if (WMUtils.getRangeAttributes().contains(attr)) {
-						TreeMap<Range<Integer>, ArrayList<WMHandle>> map = new TreeMap<Range<Integer>, ArrayList<WMHandle>>();
-						ArrayList<WMHandle> handles = new ArrayList<WMHandle>();
-						handles.add(handle);
+			for (VectorAttribute attr : requestMap.keySet()) {
+				List<Integer> idList = requestMap.get(attr);
+                for (Integer id: idList) {
+                    if (id != null) {
 
-						String s = WMUtils.getDictValue(attr, id);
-						List<String> list = WMUtils.getParsedUniqueIntRangeString(s);
-						if (list != null && list.size() == 2) {
-							int min = Integer.parseInt(list.get(0));
-							int max = Integer.parseInt(list.get(1));
-							Range<Integer> r = new Range<Integer>(min, max);
-							map.put(r, handles);
-							WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(adPodId);
-							db.updateRangeIndex(attr, map);
-						} else {
-							//todo
-							log.warn("skipping context");
-						}
+                        if (VectorUtils.getRangeAttributes().contains(attr)) {
+                            TreeMap<Range<Integer>, ArrayList<VectorHandle>> map = new TreeMap<Range<Integer>, ArrayList<VectorHandle>>();
+                            ArrayList<VectorHandle> handles = new ArrayList<VectorHandle>();
+                            handles.add(handle);
 
-					} else {
-						TreeMap<Integer, ArrayList<WMHandle>> map = new TreeMap<Integer, ArrayList<WMHandle>>();
-						ArrayList<WMHandle> handles = new ArrayList<WMHandle>();
-						handles.add(handle);
-						map.put(id, handles);
-						WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(adPodId);
-						db.updateIntegerIndex(attr, map);
-					}
-				}
-			}
+                            String s = VectorUtils.getDictValue(attr, id);
+                            List<String> list = VectorUtils.getParsedUniqueIntRangeString(s);
+                            if (list != null && list.size() == 2) {
+                                int min = Integer.parseInt(list.get(0));
+                                int max = Integer.parseInt(list.get(1));
+                                Range<Integer> r = new Range<Integer>(min, max);
+                                map.put(r, handles);
+                                VectorDB.getInstance().updateRangeIndex(attr, map);
+                            } else {
+                                //todo
+                                log.warn("skipping context");
+                            }
+
+                        } else {
+                            TreeMap<Integer, ArrayList<VectorHandle>> map = new TreeMap<Integer, ArrayList<VectorHandle>>();
+                            ArrayList<VectorHandle> handles = new ArrayList<VectorHandle>();
+                            handles.add(handle);
+                            map.put(id, handles);
+                            VectorDB.getInstance().updateIntegerIndex(attr, map);
+                        }
+                    }
+                }
+            }
             //ADD to none index.
-            Set<WMAttribute> noneAttrs = WMUtils.findNoneAttributes(requestMap.keySet());
-            for (WMAttribute nAttr: noneAttrs) {
-                Integer id = WMUtils.getNoneDictId(nAttr);
-                TreeMap<Integer, ArrayList<WMHandle>> map = new TreeMap<Integer, ArrayList<WMHandle>>();
-                ArrayList<WMHandle> handles = new ArrayList<WMHandle>();
-                WMHandle noneHandle = (WMHandle)handle.clone();
-                noneHandle.setNoneHandle(true);
+            Set<VectorAttribute> noneAttrs = VectorUtils.findNoneAttributes(requestMap.keySet());
+            for (VectorAttribute nAttr: noneAttrs) {
+                Integer id = VectorUtils.getNoneDictId(nAttr);
+                TreeMap<Integer, ArrayList<VectorHandle>> map = new TreeMap<Integer, ArrayList<VectorHandle>>();
+                ArrayList<VectorHandle> handles = new ArrayList<VectorHandle>();
+                //No need to clone the entire handle because none index just needs the id, and the none flag
+                VectorHandle noneHandle = new VectorHandleImpl(handle.getOid(), true);
                 handles.add(noneHandle);
                 map.put(id, handles);
-                WMDB.WMIndexCache db = WMDB.getInstance().getWeightDB(adPodId);
-                db.updateIntegerIndex(nAttr, map);
+                VectorDB.getInstance().updateIntegerIndex(nAttr, map);
             }
             
 		}

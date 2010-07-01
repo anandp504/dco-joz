@@ -85,7 +85,7 @@ public class WMContentProviderStatus {
         StringWriter sb = new StringWriter();
         sb.append(super.toString());
         sb.append("RefreshInterval(minutes): " + refreshInterval + "\n");
-        sb.append("Last Run Suceeded: " + ((lastRunStatus)?"Yes":"No") + "\n");
+        sb.append("Last Run Succeeded: " + ((lastRunStatus)?"Yes":"No") + "\n");
 
         if (lastRefreshTime != -1) {
             sb.append("Last Refresh Time:" + TIME_FORMAT.format(lastRefreshTime) + "\n");

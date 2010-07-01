@@ -17,6 +17,8 @@
  */
 package com.tumri.joz.productselection;
 
+import com.tumri.cma.domain.ExperienceTSpecInfo;
+import com.tumri.joz.targeting.TargetingResults;
 import org.apache.log4j.Logger;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
@@ -40,49 +42,86 @@ import java.util.Collections;
 public class ProductSelectionProcessor {
 
     private static Logger log = Logger.getLogger (ProductSelectionProcessor.class);
-	public static final String PROCESS_STATS_ID = "PS";
+    public static final String PROCESS_STATS_ID = "PS";
 
     @SuppressWarnings("unchecked")
     public ProductSelectionResults processRequest(AdDataRequest request, Features features) {
         ProductSelectionResults pResults = null;
         try {
-            Recipe targetedRecipe = TargetingRequestProcessor.getInstance().processRequest(request, features);
-	        PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
+            TargetingResults trs = TargetingRequestProcessor.getInstance().processRequest(request, features);
+            PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
             //long startTime = System.currentTimeMillis();
-            
-            if (targetedRecipe != null) {
-                pResults = new ProductSelectionResults();
-                pResults.setTargetedTSpecName(targetedRecipe.getName());
-                pResults.setTargetedRecipe(targetedRecipe);
-                List<RecipeTSpecInfo> infoListRecipe = targetedRecipe.getTSpecInfo();
-                if (infoListRecipe != null) {
-                    Collections.sort(infoListRecipe);
-                    ProductSelectionRequest pr = prepareRequest(request);
-                    //The order of tspecs are important in the case of included prods
-                    for (RecipeTSpecInfo queryInfoRecipe : infoListRecipe) {
-                        int tspecId = queryInfoRecipe.getTspecId();
-                        int numProds = queryInfoRecipe.getNumProducts();
-                        String slotId = queryInfoRecipe.getSlotId();
-                        if (numProds > 0) {
-                            pr.setPageSize(numProds);
-                            pr.setCurrPage(0);
-                        } else {
-                            continue;
-                        }
-                        ArrayList<Handle> prodResults = doProductSelection(tspecId, pr, features);
-                        if (prodResults==null) {
-                            prodResults = new ArrayList<Handle>();
-                        }
 
-                        pResults.addResults(tspecId, slotId, prodResults);
+            if (trs != null) {
+                pResults = new ProductSelectionResults();
+                if (trs.getRecipe()!=null) {
+                    Recipe targetedRecipe = trs.getRecipe();
+                    pResults.setTargetedTSpecName(targetedRecipe.getName());
+                    pResults.setTargetedRecipe(targetedRecipe);
+                    List<RecipeTSpecInfo> infoListRecipe = targetedRecipe.getTSpecInfo();
+                    if (infoListRecipe != null) {
+                        Collections.sort(infoListRecipe);
+                        ProductSelectionRequest pr = prepareRequest(request);
+                        pr.setListingClause(trs.getListingClause());
+                        //The order of tspecs are important in the case of included prods
+                        for (RecipeTSpecInfo queryInfoRecipe : infoListRecipe) {
+                            int tspecId = queryInfoRecipe.getTspecId();
+                            int numProds = queryInfoRecipe.getNumProducts();
+                            String slotId = queryInfoRecipe.getSlotId();
+                            if (numProds > 0) {
+                                pr.setPageSize(numProds);
+                                pr.setCurrPage(0);
+                            } else {
+                                continue;
+                            }
+                            ArrayList<Handle> prodResults = doProductSelection(tspecId, pr, features);
+                            if (prodResults==null) {
+                                prodResults = new ArrayList<Handle>();
+                            }
+
+                            pResults.addResults(tspecId, slotId, prodResults);
+                        }
+                    } else {
+                        log.info("No TSpecs found in the targeting recipe. Skipping product selection");
                     }
                 } else {
-                    log.info("No TSpecs found in the targeting recipe. Skipping product selection");
+                    //Experience based
+                    List<ExperienceTSpecInfo> infoListExp = trs.getInfoListExperience();
+                    if (infoListExp!=null) {
+                        Collections.sort(infoListExp);
+                        ProductSelectionRequest pr = prepareRequest(request);
+                        pr.setListingClause(trs.getListingClause());
+                        //The order of tspecs are important in the case of included prods
+                        for (ExperienceTSpecInfo queryInfoRecipe : infoListExp) {
+                            int tspecId = queryInfoRecipe.getTspecId();
+                            int numProds = queryInfoRecipe.getNumProducts();
+                            String slotId = queryInfoRecipe.getSlotId();
+                            if (numProds > 0) {
+                                pr.setPageSize(numProds);
+                                pr.setCurrPage(0);
+                            } else {
+                                continue;
+                            }
+                            ArrayList<Handle> prodResults = doProductSelection(tspecId, pr, features);
+                            if (prodResults==null) {
+                                prodResults = new ArrayList<Handle>();
+                            }
+
+                            pResults.addResults(tspecId, slotId, prodResults);
+                        }
+                    } else {
+                        log.info("No TSpecs found in the targeted experience. Skipping product selection");
+                    }
+                    pResults.setAttributePositions(trs.getAttributePositions());
+                    pResults.setAttributeValues(trs.getAttributeValues());
+                    pResults.setCamDimensionNames(trs.getCamDimensionNames());
+                    pResults.setCamDimensionTypes(trs.getCamDimensionTypes());
+                    pResults.setTargetedExperience(trs.getExperience());
                 }
             } else {
-                log.error("No Recipe found during targeting. Skipping product selection");
+                log.error("No Recipe/Creative found during targeting. Skipping product selection");
             }
-	        PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID);
+            PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID);
             //log.debug("Product Selection processing time : " + (System.currentTimeMillis() - startTime) + " millis.");
         } catch (Throwable t) {
             log.error("Product Selection layer: unexpected error. The products selection has failed", t);
@@ -111,24 +150,19 @@ public class ProductSelectionProcessor {
             pr.setCurrPage(0);
             pr.setBPaginate(false);
         }
-        
-        SexpUtils.MaybeBoolean mMineUrls = request.get_mine_pub_url_p();
-        if (mMineUrls == null || mMineUrls == SexpUtils.MaybeBoolean.FALSE) {
-            pr.setBMineUrls(false);
-        } else if (mMineUrls == SexpUtils.MaybeBoolean.TRUE) {
-            pr.setBMineUrls(true);
-        }
+
+        pr.setBMineUrls(false);
 
         String keywords = "";
         String scriptKeywords = request.get_script_keywords();
-		if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords.trim()))) {
+        if ((scriptKeywords!=null)&&(!"".equals(scriptKeywords.trim()))) {
             keywords= scriptKeywords.trim();
         }
-        
+
         String requestKeyWords = request.get_keywords();
         if ((requestKeyWords!=null)&&(!"".equals(requestKeyWords.trim()))) {
             keywords = keywords + " " + requestKeyWords.trim();
-	        keywords = keywords.trim();
+            keywords = keywords.trim();
         }
 
         if (keywords!=null && !"".equals(keywords)) {
@@ -213,10 +247,36 @@ public class ProductSelectionProcessor {
             pr.setExternalFilterQuery5(externalFilterField5);
         }
 
-        String advertiser = request.getAdvertiser();
-        if (advertiser!=null) {
-            pr.setAdvertiser(advertiser);
+        String age = request.getAge();
+        if (age!=null) {
+            pr.setAge(age);
         }
+
+        String gender = request.getGender();
+        if (gender!=null) {
+            pr.setGender(gender);
+        }
+
+        String bt = request.getBt();
+        if (bt!=null) {
+            pr.setBt(bt);
+        }
+
+        String ms = request.getMs();
+        if (ms!=null) {
+            pr.setMs(ms);
+        }
+
+        String hhi = request.getHhi();
+        if (hhi!=null) {
+            pr.setHhi(hhi);
+        }
+	    
+		pr.setUt1(request.getUt1());
+		pr.setUt2(request.getUt2());
+		pr.setUt3(request.getUt3());
+		pr.setUt4(request.getUt4());
+		pr.setUt5(request.getUt5());
 
         return pr;
     }

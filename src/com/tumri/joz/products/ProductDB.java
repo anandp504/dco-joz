@@ -79,6 +79,8 @@ public class ProductDB {
 
 //    pdb.addIndex(IProduct.Attribute.kProductType, new ProductTypeIndex());
         pdb.registerFilter(IProduct.Attribute.kProductType, new ProductTypeFilter());
+        pdb.registerFilter(IProduct.Attribute.kAge, new AgeFilter());
+        pdb.registerFilter(IProduct.Attribute.kGender, new GenderFilter());
 
 //    pdb.addIndex(IProduct.Attribute.kImageWidth, new ImageWidthIndex());
 //    pdb.registerFilter(IProduct.Attribute.kImageWidth, new ImageWidthFilter());
@@ -110,11 +112,14 @@ public class ProductDB {
         pdb.addIndex(IProduct.Attribute.kGlobalId, new GlobalIdIndex());
         pdb.registerFilter(IProduct.Attribute.kGlobalId, new GlobalIdFilter());
 
-        pdb.addIndex(IProduct.Attribute.kCategoryTextField, new TextIndexImpl(IProduct.Attribute.kCategoryTextField));
-        pdb.registerLongFilter(IProduct.Attribute.kCategoryTextField, new TextFilterImpl(IProduct.Attribute.kCategoryTextField));
+        pdb.addIndex(IProduct.Attribute.kBT, new BTIndex());
+        pdb.registerFilter(IProduct.Attribute.kBT, new BTFilter());
 
-        pdb.addIndex(IProduct.Attribute.kCategoryNumericField, new RangeIndexImpl(IProduct.Attribute.kCategoryNumericField));
-        pdb.registerLongFilter(IProduct.Attribute.kCategoryNumericField, new RangeFilterImpl(IProduct.Attribute.kCategoryNumericField));
+        // pdb.addIndex(IProduct.Attribute.kMS, new MSIndex());
+        pdb.registerFilter(IProduct.Attribute.kMS, new MSFilter());
+
+        // pdb.addIndex(IProduct.Attribute.kHHI, new HHIIndex());
+        pdb.registerFilter(IProduct.Attribute.kHHI, new HHIFilter());
 
         pdb.addIndex(IProduct.Attribute.kMultiValueTextField, new TextIndexImpl(IProduct.Attribute.kMultiValueTextField));
         pdb.registerLongFilter(IProduct.Attribute.kMultiValueTextField, new TextFilterImpl(IProduct.Attribute.kMultiValueTextField));
@@ -353,8 +358,9 @@ public class ProductDB {
         TreeMap<Integer, ArrayList<Handle>> mgeoenabled = new TreeMap<Integer, ArrayList<Handle>>();
         TreeMap<Integer, ArrayList<Handle>> mprovcategory = new TreeMap<Integer, ArrayList<Handle>>();
         TreeMap<Integer, ArrayList<Handle>> mglobalid = new TreeMap<Integer, ArrayList<Handle>>();
-        TreeMap<Long, ArrayList<Handle>> mcategorytextattr = new TreeMap<Long, ArrayList<Handle>>();
-        TreeMap<Long, ArrayList<Handle>> mcategorynumattr = new TreeMap<Long, ArrayList<Handle>>();
+        TreeMap<Integer, ArrayList<Handle>> mbt = new TreeMap<Integer, ArrayList<Handle>>();
+        TreeMap<Integer, ArrayList<Handle>> mhhi = new TreeMap<Integer, ArrayList<Handle>>();
+        TreeMap<Integer, ArrayList<Handle>> mms = new TreeMap<Integer, ArrayList<Handle>>();
         TreeMap<Long, ArrayList<Handle>> mmultitextattr = new TreeMap<Long, ArrayList<Handle>>();
         TreeMap<Integer, ArrayList<Handle>> mlat = new TreeMap<Integer, ArrayList<Handle>>();
         TreeMap<Integer, ArrayList<Handle>> mlong = new TreeMap<Integer, ArrayList<Handle>>();
@@ -583,136 +589,36 @@ public class ProductDB {
                 }
             }
             {
-                Integer k = p.getCategoryField1();
-                Integer c = p.getCategory();
-                if (k != null && c!=null) {
-                    long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField1,k);
-                    ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField1);
-                    ProductAttributeDetails.DataType type = details.getFieldtype();
-                    if (type != null) {
-                        if (type == ProductAttributeDetails.DataType.kText) {
-                            ArrayList<Handle> list = mcategorytextattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorytextattr.put(key, list);
-                            }
-                            list.add(h);
-                        }  else {
-                            ArrayList<Handle> list = mcategorynumattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorynumattr.put(key, list);
-                            }
-                            list.add(h);
-                        }
+                Integer k = p.getHHI();
+                if (k!=null) {
+                    ArrayList<Handle> list = mhhi.get(k);
+                    if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mhhi.put(k, list);
                     }
+                    list.add(h);
                 }
             }
             {
-                Integer k = p.getCategoryField2();
-                Integer c = p.getCategory();
-                if (k != null && c!=null) {
-                    long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField2,k);
-                    ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField2);
-                    ProductAttributeDetails.DataType type = details.getFieldtype();
-
-                    if (type != null) {
-                        if (type == ProductAttributeDetails.DataType.kText) {
-                            ArrayList<Handle> list = mcategorytextattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorytextattr.put(key, list);
-                            }
-                            list.add(h);
-                        }  else {
-                            ArrayList<Handle> list = mcategorynumattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorynumattr.put(key, list);
-                            }
-                            list.add(h);
-                        }
+                Integer k = p.getMS();
+                if (k!=null) {
+                    ArrayList<Handle> list = mms.get(k);
+                    if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mms.put(k, list);
                     }
-
+                    list.add(h);
                 }
             }
             {
-                Integer k = p.getCategoryField3();
-                Integer c = p.getCategory();
-                if (k != null && c!=null) {
-                    long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField3,k);
-                    ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField3);
-                    ProductAttributeDetails.DataType type = details.getFieldtype();
-                    if (type != null) {
-                        if (type == ProductAttributeDetails.DataType.kText) {
-                            ArrayList<Handle> list = mcategorytextattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorytextattr.put(key, list);
-                            }
-                            list.add(h);
-                        }  else {
-                            ArrayList<Handle> list = mcategorynumattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorynumattr.put(key, list);
-                            }
-                            list.add(h);
-                        }
+                Integer k = p.getBT();
+                if (k!=null) {
+                    ArrayList<Handle> list = mbt.get(k);
+                    if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mbt.put(k, list);
                     }
-
-                }
-            }
-            {
-                Integer k = p.getCategoryField4();
-                Integer c = p.getCategory();
-                if (k != null && c!=null) {
-                    long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField4,k);
-                    ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField4);
-                    ProductAttributeDetails.DataType type = details.getFieldtype();
-                    if (type != null) {
-                        if (type == ProductAttributeDetails.DataType.kText) {
-                            ArrayList<Handle> list = mcategorytextattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorytextattr.put(key, list);
-                            }
-                            list.add(h);
-                        }  else {
-                            ArrayList<Handle> list = mcategorynumattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorynumattr.put(key, list);
-                            }
-                            list.add(h);
-                        }
-                    }
-                }
-            }
-            {
-                Integer k = p.getCategoryField5();
-                Integer c = p.getCategory();
-                if (k != null && c!=null) {
-                    long key = IndexUtils.createIndexKeyForCategoryAttribute(c,IProduct.Attribute.kCategoryField5,k);
-                    ProductAttributeDetails details = IndexUtils.getDetailsForCategoryField(c, IProduct.Attribute.kCategoryField5);
-                    ProductAttributeDetails.DataType type = details.getFieldtype();
-                    if (type != null) {
-                        if (type == ProductAttributeDetails.DataType.kText) {
-                            ArrayList<Handle> list = mcategorytextattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorytextattr.put(key, list);
-                            }
-                            list.add(h);
-                        }  else {
-                            ArrayList<Handle> list = mcategorynumattr.get(key);
-                            if (list == null) {
-                                list = new ArrayList<Handle>();
-                                mcategorynumattr.put(key, list);
-                            }
-                            list.add(h);
-                        }
-                    }
+                    list.add(h);
                 }
             }
             {
@@ -775,6 +681,66 @@ public class ProductDB {
                     list.add(h);
                 }
             }
+            {
+                Integer k = p.getUT1();
+                if (k!= null) {
+                    long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kUT1,k);
+                    ArrayList<Handle> list = mmultitextattr.get(k);
+                    if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mmultitextattr.put(key, list);
+                    }
+                    list.add(h);
+                }
+            }
+            {
+                Integer k = p.getUT2();
+                if (k!= null) {
+                    long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kUT2,k);
+                    ArrayList<Handle> list = mmultitextattr.get(k);
+                    if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mmultitextattr.put(key, list);
+                    }
+                    list.add(h);
+                }
+            }
+            {
+                Integer k = p.getUT3();
+                if (k!= null) {
+                    long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kUT3,k);
+                    ArrayList<Handle> list = mmultitextattr.get(k);
+                    if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mmultitextattr.put(key, list);
+                    }
+                    list.add(h);
+                }
+            }
+            {
+                Integer k = p.getUT4();
+                if (k!= null) {
+                    long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kUT4,k);
+                    ArrayList<Handle> list = mmultitextattr.get(k);
+                    if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mmultitextattr.put(key, list);
+                    }
+                    list.add(h);
+                }
+            }
+            {
+                Integer k = p.getUT5();
+                if (k!= null) {
+                    long key = IndexUtils.createLongIndexKey(IProduct.Attribute.kUT5,k);
+                    ArrayList<Handle> list = mmultitextattr.get(k);
+                    if (list == null) {
+                        list = new ArrayList<Handle>();
+                        mmultitextattr.put(key, list);
+                    }
+                    list.add(h);
+                }
+            }
 
         }
         {
@@ -802,10 +768,9 @@ public class ProductDB {
             updateIntegerIndex(IProduct.Attribute.kGeoEnabledFlag, mgeoenabled);
             updateIntegerIndex(IProduct.Attribute.kCategory, mprovcategory);
             updateIntegerIndex(IProduct.Attribute.kGlobalId, mglobalid);
-
-            updateLongIndex(IProduct.Attribute.kCategoryTextField, mcategorytextattr);
-            updateLongIndex(IProduct.Attribute.kCategoryNumericField, mcategorynumattr);
-
+            updateIntegerIndex(IProduct.Attribute.kHHI, mglobalid);
+            updateIntegerIndex(IProduct.Attribute.kBT, mglobalid);
+            updateIntegerIndex(IProduct.Attribute.kMS, mglobalid);
             updateLongIndex(IProduct.Attribute.kMultiValueTextField, mmultitextattr);
 
         }

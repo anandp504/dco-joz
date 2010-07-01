@@ -17,6 +17,7 @@
  */
 package com.tumri.joz.productselection;
 
+import com.tumri.cma.rules.ListingClause;
 import com.tumri.joz.jozMain.AdDataRequest;
 
 /**
@@ -45,6 +46,18 @@ public class ProductSelectionRequest {
     private String externalFilterQuery4 = null;
     private String externalFilterQuery5 = null;
     
+    private String age = null;
+    private String gender = null;
+    private String hhi = null;
+    private String bt = null;
+    private String ms = null;
+
+	private String ut1 = null;
+    private String ut2 = null;
+    private String ut3 = null;
+    private String ut4 = null;
+    private String ut5 = null;
+
     private int adWidth = -1;
     private int adHeight = -1;
 
@@ -58,6 +71,8 @@ public class ProductSelectionRequest {
     private String dmaCode = null;
 
     private String advertiser = null;
+
+    private ListingClause listingClause = null;
 
     public boolean isBRandomize() {
         return bRandomize;
@@ -249,6 +264,94 @@ public class ProductSelectionRequest {
 
     public void setAdvertiser(String advertiser) {
         this.advertiser = advertiser;
+    }
+
+    public ListingClause getListingClause() {
+        return listingClause;
+    }
+
+    public void setListingClause(ListingClause listingClause) {
+        this.listingClause = listingClause;
+    }
+
+    public String getMs() {
+        return ms;
+    }
+
+    public void setMs(String ms) {
+        this.ms = ms;
+    }
+
+	public String getUt1() {
+		return ut1;
+	}
+
+	public void setUt1(String ut1) {
+		this.ut1 = ut1;
+	}
+
+	public String getUt2() {
+		return ut2;
+	}
+
+	public void setUt2(String ut2) {
+		this.ut2 = ut2;
+	}
+
+	public String getUt3() {
+		return ut3;
+	}
+
+	public void setUt3(String ut3) {
+		this.ut3 = ut3;
+	}
+
+	public String getUt4() {
+		return ut4;
+	}
+
+	public void setUt4(String ut4) {
+		this.ut4 = ut4;
+	}
+
+	public String getUt5() {
+		return ut5;
+	}
+
+	public void setUt5(String ut5) {
+		this.ut5 = ut5;
+	}
+
+	public String getBt() {
+        return bt;
+    }
+
+    public void setBt(String bt) {
+        this.bt = bt;
+    }
+
+    public String getHhi() {
+        return hhi;
+    }
+
+    public void setHhi(String hhi) {
+        this.hhi = hhi;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
     }
 
     public String toString(){

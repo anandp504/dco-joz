@@ -22,6 +22,39 @@
 						<c type="zip" val="94065"/>
 					</cl>
 					<rwl>
+						<rw id="4220" wt="0"/>
+                        <rw id="4219" wt="50.0"/>
+                        <rw id="1974" wt="50.0"/>
+					</rwl>
+                </v>
+				<v id="102">
+					<cl>
+						<c type="lineid" val="12345"/>
+						<c type="state" val="TX"/>
+					</cl>
+					<rwl>
+						<rw id="4220" wt="100.0"/>
+                        <rw id="4219" wt="0"/>
+                        <rw id="1974" wt="0"/>
+					</rwl>
+                </v>
+                <v id="103">
+					<cl>
+						<c type="lineid" val="12345"/>
+						<c type="state" val="TX"/>
+					</cl>
+					<rwl>
+						<rw id="4220" wt="100.0"/>
+                        <rw id="4219" wt="0"/>
+                        <rw id="1974" wt="0"/>
+					</rwl>
+                </v>
+                <v id="104">
+					<cl>
+						<c type="lineid" val="3333,4444,5555"/>
+						<c type="state" val="NY,WY"/>
+					</cl>
+					<rwl>
 						<rw id="4220" wt="100.0"/>
                         <rw id="4219" wt="0"/>
                         <rw id="1974" wt="0"/>
@@ -29,29 +62,27 @@
                 </v>
 			</vl>
 		</a>
-        <a id="2299">
+        <a id="4442">
             <vl>
-                <v id="100">
+                <v id="900">
                     <cl>
                         <c type="lineid" val="12345"/>
                         <c type="state" val="CA"/>
                     </cl>
                     <rwl>
-                        <rw id="1974" wt="100.0"/>
-                        <rw id="4219" wt="0"/>
-                        <rw id="4220" wt="0"/>
+                        <rw id="4225" wt="1.0"/>
+                        <rw id="4223" wt="100.0"/>
                     </rwl>
                 </v>
-                <v id="101">
+                <v id="901">
                     <cl>
                         <c type="lineid" val="12345"/>
                         <c type="state" val="CA"/>
                         <c type="zip" val="94065"/>
                     </cl>
                     <rwl>
-                        <rw id="4220" wt="100.0"/>
-                        <rw id="4219" wt="0"/>
-                        <rw id="1974" wt="0"/>
+                        <rw id="4225" wt="100.0"/>
+                        <rw id="4223" wt="1.0"/>
                     </rwl>
                 </v>
             </vl>

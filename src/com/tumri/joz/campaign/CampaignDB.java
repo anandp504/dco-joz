@@ -86,6 +86,8 @@ public abstract class CampaignDB {
 
     public abstract void loadAdPods(Iterator<AdPod> iterator);
 
+    public abstract void loadExperiences(Iterator<Experience> iterator);
+
     public abstract void loadRunOfNetworkAdPods(Iterator<AdPod> iterator);
 
     public abstract void loadGeoNoneAdPods(Iterator<AdPod> iterator);
@@ -125,6 +127,8 @@ public abstract class CampaignDB {
     public abstract AdPod getAdPod(AdPodHandle handle);
 
     public abstract AdPod getAdPod(int adPodId);
+    
+    public abstract Experience getExperience(int expId);
 
     public abstract Campaign getCampaign(AdPodHandle handle);
 
@@ -133,6 +137,10 @@ public abstract class CampaignDB {
     public abstract void addCampaign(Campaign campaign);
 
     public abstract void delCampaign(int campaignId);
+
+    public abstract void addExperience(Experience exp);
+
+    public abstract void delExperience(int expId);
 
     public abstract void addRecipe(Recipe recipe);
 
@@ -179,5 +187,49 @@ public abstract class CampaignDB {
     public abstract AtomicAdpodIndex<String, Handle> getExternalVariableAdPodMappingIndex(String variableName);
     
     public abstract AtomicAdpodIndex<String, Handle> getNonExternalVariableAdPodMappingIndex(String variableName);
+
+    public abstract CAM getDefaultCAM(int adpodId);
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodAgeIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodAgeNoneIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodGenderIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodGenderNoneIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodBTIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodBTNoneIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodMSIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodMSNoneIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodHHIIndex();
+
+    public abstract AtomicAdpodIndex<String, Handle> getAdpodHHINoneIndex();
+
+    public abstract void loadAgeAdPodMappings(Iterator<AgeAdPodMapping> iterator);
+
+    public abstract void loadGenderAdPodMappings(Iterator<GenderAdPodMapping> iterator);
+
+    public abstract void loadBTAdPodMappings(Iterator<BTAdPodMapping> iterator);
+
+    public abstract void loadMSAdPodMappings(Iterator<MSAdPodMapping> iterator);
+    
+    public abstract void loadHHIAdPodMappings(Iterator<HHIAdPodMapping> iterator);
+
+    public abstract void loadAgeNoneAdPods(Iterator<AdPod> iterator);
+
+    public abstract void loadHHINoneAdPods(Iterator<AdPod> iterator);
+
+    public abstract void loadMSNoneAdPods(Iterator<AdPod> iterator);
+
+    public abstract void loadBTNoneAdPods(Iterator<AdPod> iterator);
+
+    public abstract void loadGenderNoneAdPods(Iterator<AdPod> iterator);
+
+
 
 }

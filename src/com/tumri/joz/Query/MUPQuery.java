@@ -16,21 +16,25 @@ import java.util.SortedSet;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class MUPQuery extends SimpleQuery {
-  private IProduct.Attribute m_attribute;
-  protected MUPQuery(IProduct.Attribute aAttribute) {
-    super();
-    m_attribute = aAttribute;
-  }
-  public IProduct.Attribute getAttribute() {
-    return m_attribute;
-  }
-  public IWeight<Handle> getWeight() {
-    return AttributeWeights.getWeight(m_attribute);
-  }
-  public boolean hasIndex() {
-    return ProductDB.getInstance().hasIndex(m_attribute);
-  }
-  public SortedSet<Handle> getAll() {
-    return ProductDB.getInstance().getAll();
-  }
+    private IProduct.Attribute m_attribute;
+    private IWeight<Handle> m_weight;
+    protected MUPQuery(IProduct.Attribute aAttribute) {
+        super();
+        m_attribute = aAttribute;
+    }
+    public IProduct.Attribute getAttribute() {
+        return m_attribute;
+    }
+    public IWeight<Handle> getWeight() {
+        return (m_weight!=null)?m_weight:AttributeWeights.getWeight(m_attribute);
+    }
+    public boolean hasIndex() {
+        return ProductDB.getInstance().hasIndex(m_attribute);
+    }
+    public SortedSet<Handle> getAll() {
+        return ProductDB.getInstance().getAll();
+    }
+    public void setWeight(IWeight<Handle> wt) {
+        m_weight = wt;
+    }
 }

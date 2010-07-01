@@ -5,14 +5,14 @@ import com.tumri.cma.CMAFactory;
 import com.tumri.cma.RepositoryException;
 import com.tumri.cma.domain.*;
 import com.tumri.cma.service.CampaignDeltaProvider;
+import com.tumri.joz.campaign.wm.VectorDB;
+import com.tumri.joz.campaign.wm.VectorHandle;
+import com.tumri.joz.campaign.wm.VectorHandleFactory;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.Pair;
 import org.apache.log4j.Logger;
 
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * CamapignDBDataLoader loads all the campaign related data from the repository using the CampaignDeltaProvider API.
@@ -67,7 +67,7 @@ public class CampaignDBDataLoader {
             // between the following two calls
             // 1. get method for url adpod mapping
             // 2. get method for adpods
-            // The above siutation though not very common as the window between two calls will be in miliseconds,
+            // The above situation though not very common as the window between two calls will be in miliseconds,
             // if occured should be appropriately handled by the CampaignDB.
 
             Iterator<UrlAdPodMapping>        urlsAdPodMappingIterator      = deltaProvider.getUrlAdpodMappings(region);
@@ -82,12 +82,22 @@ public class CampaignDBDataLoader {
             Iterator<OSpec>    oSpecsIterator    = deltaProvider.getOspecs(region);
             Iterator<Campaign> campaignsIterator = deltaProvider.getCampaigns(region);
             Iterator<Recipe> recipesIterator = deltaProvider.getRecipes(region);
+            Iterator<Experience> expIterator = deltaProvider.getExperiences(region);
             Iterator<AdPod> urlNoneAdPodsIterator = deltaProvider.getNonUrlSpecificAdPods(region);
             Iterator<Pair<Integer, Integer>> adPodCampaignMappings            = deltaProvider.getAllAdPodCampaignMappings(region);
             Iterator<Pair<String, Integer>> locationNameIdMappings            = deltaProvider.getLocationNameIdMappings();
             HashMap<String, ArrayList<AdPodExternalVariableMapping>> extVariablesAdPodMap = deltaProvider.getExternalVariableAdpodMappings(region);
             HashMap<String, ArrayList<AdPod>> nonExtVariablesAdPodMap = deltaProvider.getNonExternalVariableAdPods(region);
-
+            Iterator<AgeAdPodMapping> ageMappings = deltaProvider.getAllAgeAdPodMappings(region);
+            Iterator<GenderAdPodMapping> genderMappings = deltaProvider.getAllGenderAdPodMappings(region);
+            Iterator<BTAdPodMapping> btMappings = deltaProvider.getAllBTAdPodMappings(region);
+            Iterator<MSAdPodMapping> msMappings = deltaProvider.getAllMSAdPodMappings(region);
+            Iterator<HHIAdPodMapping> hhiMappings = deltaProvider.getAllHHIAgeAdPodMappings(region);
+            Iterator<AdPod> nonAgeAdpods = deltaProvider.getNonAgeAdpods(region);
+            Iterator<AdPod> nonGenderAdpods = deltaProvider.getNonGenderAdpods(region);
+            Iterator<AdPod> nonBTAdpods = deltaProvider.getNonBTAdpods(region);
+            Iterator<AdPod> nonMSAdpods = deltaProvider.getNonMSAdpods(region);
+            Iterator<AdPod> nonHHIAdpods = deltaProvider.getNonHHIAdpods(region);
             //long lispDataReadEndTime = System.currentTimeMillis();
             //System.out.println("Data Retrieval from Lisp Provider API: " + (lispDataReadEndTime - lispDataReadStartTime) + " ms");
 
@@ -112,10 +122,27 @@ public class CampaignDBDataLoader {
             campaignDB.loadAdPodCampaignMapping(adPodCampaignMappings);
             campaignDB.loadExternalVariableAdPods(extVariablesAdPodMap);
             campaignDB.loadNonExternalVariableAdPods(nonExtVariablesAdPodMap);
-
+            campaignDB.loadExperiences(expIterator);
+            campaignDB.loadAgeAdPodMappings(ageMappings);
+            campaignDB.loadAgeNoneAdPods(nonAgeAdpods);
+            campaignDB.loadGenderAdPodMappings(genderMappings);
+            campaignDB.loadGenderNoneAdPods(nonGenderAdpods);
+            campaignDB.loadBTAdPodMappings(btMappings);
+            campaignDB.loadBTNoneAdPods(nonBTAdpods);
+            campaignDB.loadMSAdPodMappings(msMappings);
+            campaignDB.loadMSNoneAdPods(nonMSAdpods);
+            campaignDB.loadHHIAdPodMappings(hhiMappings);
+            campaignDB.loadHHINoneAdPods(nonHHIAdpods);
             TransientDataManager.getInstance().reloadInCampaignDB();
 
             TSpecQueryCache.getInstance().load(oSpecsIterator2);
+
+            //Load the Recipe information into the VectorDB as default rules
+            SortedSet<VectorHandle> defHandles = VectorHandleFactory.getInstance().getCurrHandles();
+            VectorDB.getInstance().addDefNewHandles(defHandles);
+            VectorHandleFactory.getInstance().clear();
+            //TODO: Also get the personalization rules
+
             //long campaignIndexEndTime = System.currentTimeMillis();
             //System.out.println("Campaign Indexing Time: " + (campaignIndexEndTime - campaignIndexStartTime) + " ms");
 

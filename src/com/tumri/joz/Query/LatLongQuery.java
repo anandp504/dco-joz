@@ -57,4 +57,9 @@ public class LatLongQuery extends AttributeQuery {
     public IWeight<Handle> getWeight() {
         return AttributeWeights.getWeight(IProduct.Attribute.kRadius);
     }
+
+
+    public void setWeight(IWeight<Handle> wt) {
+        throw new UnsupportedOperationException("This is not supported");
+    }
 }

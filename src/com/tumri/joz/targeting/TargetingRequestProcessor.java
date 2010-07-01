@@ -1,12 +1,13 @@
 package com.tumri.joz.targeting;
 
 import com.tumri.cma.domain.*;
+import com.tumri.cma.rules.CreativeInstance;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.AdPodHandle;
 import com.tumri.joz.campaign.CampaignDB;
-import com.tumri.joz.campaign.wm.RecipeSelector;
-import com.tumri.joz.campaign.wm.WMIndex;
-import com.tumri.joz.campaign.wm.WMUtils;
+import com.tumri.joz.campaign.wm.VectorTargetingProcessor;
+import com.tumri.joz.campaign.wm.VectorSelectionException;
+import com.tumri.joz.campaign.wm.VectorTargetingResult;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
@@ -43,10 +44,9 @@ public class TargetingRequestProcessor {
 
     private static Logger log = Logger.getLogger (TargetingRequestProcessor.class);
 
-    public Recipe processRequest(AdDataRequest request, Features features) {
-        //long startTime = System.nanoTime();
+    public TargetingResults processRequest(AdDataRequest request, Features features) {
         PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
-        Recipe theRecipe = null;
+        TargetingResults trs = null;
         OSpec oSpec;
         if(request == null) {
             return null;
@@ -55,16 +55,55 @@ public class TargetingRequestProcessor {
         try {
             String tSpecName = request.get_t_spec();
             int recipeId = request.getRecipeId();
-            if (recipeId > 0) {
+            int expId = request.getExpId();
+            if (expId > 0) {
+                Experience exp = CampaignDB.getInstance().getExperience(expId);
+                if (exp ==null) {
+                    log.error("Targeted Experience Id : " + expId + " not present in Campaign DB");
+                } else {
+                    trs = new TargetingResults();
+                    trs.setExperience(exp);
+                    trs.setInfoListExperience(exp.getOfferLists());
+                    CAM theCAM = exp.getCam();
+                    
+                    //Select the creative instance
+                    VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
+                    VectorTargetingResult vtr = proc.processRequest(expId, theCAM, request, features);
+                    CreativeInstance ci = vtr.getCi();
+
+                    String[] attribValues = ci.getAttributes();
+                    int[] dimIdx = ci.getAttributeIds();
+
+                    trs.setAttributePositions(dimIdx);
+                    trs.setAttributeValues(attribValues);
+                    CAMDimension[] dims = theCAM.getCamDimensions();
+                    String[] attrNames = new String[dims.length];
+                    CAMDimensionType[] dimTypes = new CAMDimensionType[dims.length];
+                    int i = 0;
+                    for (CAMDimension dim: dims) {
+                        attrNames[i] = dim.getName();
+                        dimTypes[i] = dim.getType();
+                        i++;
+                    }
+                    trs.setCamDimensionNames(attrNames);
+                    trs.setCamDimensionTypes(dimTypes);
+                    trs.setListingClause(vtr.getLc());
+                    features.setExpName(exp.getName());
+                }
+            } else if (recipeId > 0) {
                 //If Recipe Id is provided - then target to specific set of TSpecs
-                theRecipe = CampaignDB.getInstance().getRecipe(recipeId);
+
+                Recipe theRecipe = CampaignDB.getInstance().getRecipe(recipeId);
 
                 if (theRecipe ==null) {
                     log.error("Targeted Recipe ID : " + recipeId + " not present in Campaign DB");
+                }  else {
+                    trs =  new TargetingResults();
+                    trs.setRecipe(theRecipe);
                 }
-                if (features!=null && theRecipe !=null) {
+                if (features!=null && trs !=null) {
                     //Get the campaign client name from the tspec - we need this for the listings lookup
-                    List<RecipeTSpecInfo> infoListRecipe = theRecipe.getTSpecInfo();
+                    List<RecipeTSpecInfo> infoListRecipe = trs.getInfoListRecipe();
                     if (infoListRecipe != null&& !infoListRecipe.isEmpty()) {
                         RecipeTSpecInfo info = infoListRecipe.get(0);
                         int tspecId = info.getTspecId();
@@ -80,6 +119,7 @@ public class TargetingRequestProcessor {
                 //If tspec name is provided - then  target to the OSpec name
                 //Create a new recipe, add all the tspecs from the ospec into it.
                 oSpec = CampaignDB.getInstance().getOspec(tSpecName);
+                Recipe theRecipe = null;
                 if (oSpec != null) {
                     theRecipe = new Recipe();
                     theRecipe.setId(0);
@@ -96,6 +136,8 @@ public class TargetingRequestProcessor {
                         features.setRecipeId(theRecipe.getId());
                         features.setRecipeName(theRecipe.getName());
                     }
+                    trs = new TargetingResults();
+                    trs.setRecipe(theRecipe);
                 } else {
                     log.error("Targeted TSpec : " + tSpecName + " not present in Campaign DB");
                 }
@@ -103,16 +145,18 @@ public class TargetingRequestProcessor {
             else {
                 //Default to Targeting
                 SiteTargetingResults str = doSiteTargeting(request, features);
-                theRecipe = str.getCurrRecipe();
-                if(theRecipe != null && features!= null) {
+                trs = str.getCurrCreative();
+                if(trs != null && features!= null) {
                     features.setAdPodId(str.getAdPodId());
                     features.setAdpodName(str.getAdPodName());
                     features.setCampaignId(str.getCampaignId());
                     features.setCampaignName(str.getCampaignName());
                     features.setCampaignClientId(str.getCampaignClientId());
                     features.setCampaignClientName(str.getCampaignClientName());
-                    features.setRecipeId(theRecipe.getId());
-                    features.setRecipeName(theRecipe.getName());
+                    if (trs.getRecipe()!=null) {
+                        features.setRecipeId(trs.getRecipe().getId());
+                        features.setRecipeName(trs.getRecipe().getName());
+                    }
                     Integer targetedLocationId = null;
                     String locationIdStr = request.get_store_id();
                     if (locationIdStr!= null&&!locationIdStr.equals("")) {
@@ -139,20 +183,17 @@ public class TargetingRequestProcessor {
         }
         catch(Throwable t) {
             //It is critical to catch any unexpected error so that the JoZ server doesnt exit
-            log.error("Targeting layer: unxepected error. Owner need to look into the issue", t);
+            log.error("Targeting layer: unexpected error. Owner need to look into the issue", t);
         }
 
-        //Do not fall back to any default tspec.
         PerformanceStats.getInstance().registerFinishEvent(PROCESS_STATS_ID);
-//        long endTime =  System.nanoTime();
-//        long totalTargetingTime = endTime - startTime;
 
-        if (theRecipe == null) {
-            log.error("Could not target Recipe for the given request. " + request.toString(true));
+        if (trs == null) {
+            log.error("Could not target Creative Instance for the given request. " + request.toString());
         } else {
-            log.debug(request.toString(true));
+            log.debug(request.toString());
         }
-        return theRecipe;
+        return trs;
     }
 
     /**
@@ -161,11 +202,10 @@ public class TargetingRequestProcessor {
      * @return  results
      */
     private SiteTargetingResults doSiteTargeting(AdDataRequest request, Features feature) {
-        Recipe theRecipe = null;
+        TargetingResults targetingResults = null;
         int locationId       = 0;
 
         String locationIdStr = request.get_store_id();
-        String themeName     = request.get_theme();
         String urlName       = request.get_url();
         String adType = request.getAdType();
         HashMap<String, String> extVarsMap = request.getExtTargetFields();
@@ -181,6 +221,11 @@ public class TargetingRequestProcessor {
             UrlTargetingQuery urlQuery = new UrlTargetingQuery(urlName);
             GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
             TimeTargetingQuery timeQuery = new TimeTargetingQuery();
+            AgeTargetingQuery ageQuery = new AgeTargetingQuery(request.getAge());
+            BTTargetingQuery btQuery = new BTTargetingQuery(request.getBt());
+            MSTargetingQuery msQuery = new MSTargetingQuery(request.getMs());
+            HHITargetingQuery hhiQuery = new HHITargetingQuery(request.getHhi());
+            GenderTargetingQuery genQuery = new GenderTargetingQuery(request.getGender());
             AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);
 
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
@@ -191,6 +236,11 @@ public class TargetingRequestProcessor {
             cjQuery.addQuery(urlQuery);
             cjQuery.addQuery(timeQuery);
             cjQuery.addQuery(adTypeQuery);
+            cjQuery.addQuery(ageQuery);
+            cjQuery.addQuery(btQuery);
+            cjQuery.addQuery(msQuery);
+            cjQuery.addQuery(hhiQuery);
+            cjQuery.addQuery(genQuery);
             Set<String> extVars = extVarsMap.keySet();
             for(String extVar : extVars) {
                 ExternalVariableTargetingQuery externalVariableQuery = new ExternalVariableTargetingQuery(extVar, extVarsMap.get(extVar));
@@ -221,25 +271,90 @@ public class TargetingRequestProcessor {
                 str.setAdPodId(theAdPod.getId());
                 str.setAdPodName(theAdPod.getName());
                 log.debug("Targeted adpod : " + theAdPod.getName() + " . id= " + theAdPod.getId());
-                theRecipe = selectRecipe(request, theAdPod,feature );
-                if (theRecipe == null) {
-                    log.error("Could not find the recipe for the selected adpod. Not able to select recipe");
+                try {
+                    targetingResults = selectCreative(request, theAdPod,feature );
+                } catch (VectorSelectionException e) {
+                    log.error("Creative selection has failed");
+                }
+                if (targetingResults == null) {
+                    log.error("Could not find the creative for the selected adpod. Not able to select creative");
                 }
             }
         }
-        if (theRecipe!=null) {
-            log.debug("Targeted recipe : " + theRecipe.getName() + " . id= " + theRecipe.getId());
-            str.setCurrRecipe(theRecipe);
+        if (targetingResults!=null) {
+            if (targetingResults.getRecipe()!=null) {
+                log.debug("Targeted recipe : " + targetingResults.getRecipe() + " . id= " + targetingResults.getRecipe().getId());
+            } else {
+                log.debug("Targeted Creative instance : " + targetingResults.getAttributeValues());
+            }
+            str.setCurrCreative(targetingResults);
         }
         return str;
     }
 
-    private Recipe selectRecipe(AdDataRequest request, AdPod theAdPod, Features feature) {
-        Recipe theRecipe;
-        RecipeSelector proc = RecipeSelector.getInstance();
+    private TargetingResults selectCreative(AdDataRequest request, AdPod theAdPod, Features feature) throws VectorSelectionException {
+        VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
 
-        theRecipe = proc.getRecipe(theAdPod.getId(), theAdPod.getRecipes(), request, feature);
-        return theRecipe;
+        List<Recipe> recipes = theAdPod.getRecipes();
+        CAM theCAM = null;
+        Experience exp = null;
+        CreativeInstance ci = null;
+        int expId = theAdPod.getExperienceId();
+
+        if (recipes!=null || expId <=0) {
+            theCAM = CampaignDB.getInstance().getDefaultCAM(theAdPod.getId());
+            expId = theAdPod.getId();
+        } else {
+            exp = CampaignDB.getInstance().getExperience(expId);
+            if (exp!=null) {
+                theCAM = exp.getCam();
+            }
+        }
+
+        if (theCAM==null) {
+            throw new RuntimeException("Could not get CAM for the given request");
+        }
+
+        VectorTargetingResult vtr = proc.processRequest(expId, theCAM, request, feature);
+        ci = vtr.getCi();
+
+        String[] attribValues = ci.getAttributes();
+        int[] dimIdx = ci.getAttributeIds();
+
+        TargetingResults trs = new TargetingResults();
+        if (dimIdx.length ==1 && theCAM.getCAMDimension(CAMDimensionType.RECIPEID)!=null) {
+            //This is recipe targeting
+            int recipeId = Integer.parseInt(attribValues[0]);
+            Recipe theRecipe = CampaignDB.getInstance().getRecipe(recipeId);
+            trs.setRecipe(theRecipe);
+            trs.setInfoListRecipe(theRecipe.getTspecInfoList());
+        } else {
+            //Experience based targeting
+            trs.setAttributePositions(dimIdx);
+            trs.setAttributeValues(attribValues);
+            CAMDimension[] dims = theCAM.getCamDimensions();
+            String[] attrNames = new String[dims.length];
+            CAMDimensionType[] dimTypes = new CAMDimensionType[dims.length];
+            int i = 0;
+            for (CAMDimension dim: dims) {
+                attrNames[i] = dim.getName();
+                dimTypes[i] = dim.getType();
+                i++;
+            }
+            trs.setCamDimensionNames(attrNames);
+            trs.setCamDimensionTypes(dimTypes);
+            if (exp!=null) {
+                trs.setInfoListExperience(exp.getOfferLists());
+            }
+            if (exp!=null) {
+                feature.setExpId(expId);
+                feature.setExpName(exp.getName());
+                trs.setExperience(exp);
+            }
+
+        }
+        trs.setListingClause(vtr.getLc());
+        return trs;
     }
 
     private AdPodHandle pickOneAdPod(SortedSet<Handle> results) {
@@ -330,7 +445,7 @@ public class TargetingRequestProcessor {
     }
 
     private class SiteTargetingResults {
-        Recipe currRecipe = null;
+        TargetingResults currCreative = null;
         Integer adPodId = null;
         Integer campaignId = null;
         Integer campaignClientId = null;
@@ -354,12 +469,12 @@ public class TargetingRequestProcessor {
             this.campaignId = campaignId;
         }
 
-        public Recipe getCurrRecipe() {
-            return currRecipe;
+        public TargetingResults getCurrCreative() {
+            return currCreative;
         }
 
-        public void setCurrRecipe(Recipe currRecipe) {
-            this.currRecipe = currRecipe;
+        public void setCurrCreative(TargetingResults currCreative) {
+            this.currCreative = currCreative;
         }
 
         public String getAdPodName() {
@@ -393,6 +508,10 @@ public class TargetingRequestProcessor {
 
         public void setCampaignClientName(String campaignClientName) {
             this.campaignClientName = campaignClientName;
+        }
+
+        public void addCreativeElem(String attribName, String attribValue) {
+
         }
     }
 }

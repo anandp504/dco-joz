@@ -19,7 +19,7 @@ public abstract class SimpleQuery implements Query, Comparable, Cloneable {
 
   public enum Type {
     kAttribute, kRange, kKeyword, kProductType,
-    kSite, kUrl, kGeo, kTime, kAdType,kExtTarget,
+    kSite, kUrl, kGeo, kTime, kAdType,kExtTarget,kAge,kHHI,kBT,kGender,kMS
   }
 
   private boolean m_negation; // used to express !=, not in range queries
@@ -32,6 +32,7 @@ public abstract class SimpleQuery implements Query, Comparable, Cloneable {
   public abstract SortedSet<Handle> exec();
   public abstract IFilter<Handle> getFilter();
   public abstract IWeight<Handle> getWeight();
+  public abstract void setWeight(IWeight<Handle> wt);
 
   /**
    * @return true of the query has index built

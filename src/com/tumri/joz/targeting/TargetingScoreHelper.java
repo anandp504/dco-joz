@@ -28,6 +28,17 @@ public class TargetingScoreHelper {
     private double dmacodeScore  = 0.95;
     private double areacodeScore = 0.90;
 
+    private double btscore = 1.0;
+    private double btnonescore = 0.2;
+    private double agescore = 1.0;
+    private double agenonescore = 0.2;
+    private double genderscore = 1.0;
+    private double gendernonescore = 0.2;
+    private double hhiscore = 1.0;
+    private double hhinonescore = 0.2;
+    private double msscore = 1.0;
+    private double msnonescore = 0.2;
+
     private double runOfNetworkScore = 0.2;
     private int runOfNetworkWeight   = 1;
     private double geoNoneScore      = 0.2;
@@ -254,4 +265,45 @@ public class TargetingScoreHelper {
 	public double getTargetingVariableScore() {
 		return targetingVariableScore;
 	}
+
+
+    public double getBtscore() {
+        return btscore;
+    }
+
+    public double getBtnonescore() {
+        return btnonescore;
+    }
+
+    public double getAgescore() {
+        return agescore;
+    }
+
+    public double getAgenonescore() {
+        return agenonescore;
+    }
+
+    public double getGenderscore() {
+        return genderscore;
+    }
+
+    public double getGendernonescore() {
+        return gendernonescore;
+    }
+
+    public double getHhiscore() {
+        return hhiscore;
+    }
+
+    public double getHhinonescore() {
+        return hhinonescore;
+    }
+
+    public double getMsscore() {
+        return msscore;
+    }
+
+    public double getMsnonescore() {
+        return msnonescore;
+    }
 }

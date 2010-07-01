@@ -337,6 +337,8 @@ public class ProductIndex {
                                 if (ph != null) {
                                     ProductHandle newHandle = new ProductHandle(score,ph.getOid());
                                     newHandle.setProductType(((ProductHandle) ph).getProductType());
+                                    newHandle.setAge(((ProductHandle) ph).getAge());
+                                    newHandle.setGender(((ProductHandle) ph).getGender());
                                     alist.add(newHandle);
                                 }
                                 if (score < min_score) break;

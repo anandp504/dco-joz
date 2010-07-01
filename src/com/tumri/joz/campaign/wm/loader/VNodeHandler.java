@@ -23,7 +23,13 @@ import java.io.*;
 import java.util.*;
 
 // Xerces Classes
-import com.tumri.joz.utils.AppProperties;
+import com.tumri.cma.domain.*;
+import com.tumri.cma.rules.CreativeSet;
+import com.tumri.cma.rules.ListingClause;
+import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.utils.Pair;
+import com.tumri.utils.data.SortedBag;
+import com.tumri.utils.data.SortedListBag;
 import org.xml.sax.*;
 import org.apache.xerces.parsers.*;
 import org.apache.log4j.Logger;
@@ -36,187 +42,256 @@ import com.tumri.joz.campaign.wm.*;
  * Time: 12:11:20 PM
  */
 public class VNodeHandler extends DefaultHandler {
-    private CharArrayWriter text = new CharArrayWriter();
-    private Stack path;
-    private Map params;
-    private DefaultHandler parent;
-    private SAXParser parser;
-    int adPodId = 0;
-    int vectorId = 0;
-    Map<WMAttribute, String> requestMap = new HashMap<WMAttribute, String>();
-    List<RecipeWeight> rwList = new ArrayList<RecipeWeight>();
-    private static final char MULTI_VALUE_DELIM = AppProperties.getInstance().getMultiValueDelimiter();
-    private static final Logger log = Logger.getLogger(VNodeHandler.class);
+	private CharArrayWriter text = new CharArrayWriter();
+	private Stack path;
+	private Map params;
+	private DefaultHandler parent;
+	private SAXParser parser;
+	int adPodId = 0;
+	int vectorId = 0;
+	Map<VectorAttribute, String> requestMap = new HashMap<VectorAttribute, String>();
+	SortedBag<Pair<CreativeSet, Double>> optRules = new SortedListBag<Pair<CreativeSet, Double>>();
+	SortedBag<Pair<ListingClause, Double>> lcRules = new SortedListBag<Pair<ListingClause, Double>>();
+	Map<String,Pair<CreativeSet, Double>> recipeRuleMap = new HashMap<String, Pair<CreativeSet, Double>>();
+	private CAM cam;
+	private static final Logger log = Logger.getLogger(VNodeHandler.class);
 
-    public VNodeHandler(int adPodId, int vectorId, Stack path, Map params,
-                        Attributes attributes, SAXParser parser, DefaultHandler parent) throws SAXException {
-        this.adPodId = adPodId;
-        this.vectorId = vectorId;
-        this.path = path;
-        this.params = params;
-        this.parent = parent;
-        this.parser = parser;
-        start(attributes);
-    }
+	public VNodeHandler(int adPodId,int vectorId, Stack path, Map params,
+	                    Attributes attributes, SAXParser parser, DefaultHandler parent) throws SAXException {
+		this.adPodId = adPodId;
+		this.vectorId = vectorId;
+		this.path = path;
+		this.params = params;
+		this.parent = parent;
+		this.parser = parser;
+		this.cam = getCAM(adPodId);
+		start(attributes);
+	}
 
+	/**
+	 * Get teh CAM object from teh CampaignsDB
+	 * @param adpodId
+	 * @return
+	 */
+	private CAM getCAM(int adpodId) {
+		AdPod theAdPod = CampaignDB.getInstance().getAdPod(adpodId);
+		CAM theCAM = null;
 
-    public void start(Attributes attributes) throws SAXException {
-    }
+		if (theAdPod!=null) {
+			List<Recipe> recipes = theAdPod.getRecipes();
+			int expId = theAdPod.getExperienceId();
+			if (recipes!=null || expId <= 0) {
+				theCAM = CampaignDB.getInstance().getDefaultCAM(adPodId);
+				for (Recipe r: recipes) {
+					if (r.getWeight() > 0.0) {
+						CreativeSet oRule = new CreativeSet(theCAM);
+						String rid = Integer.toString(r.getId());
+						oRule.add(CAMDimensionType.RECIPEID, rid);
+						Pair<CreativeSet, Double> rulePair = new Pair<CreativeSet, Double>();
+						rulePair.setFirst(oRule);
+						rulePair.setSecond(r.getWeight());
+						//optRules.add(rulePair);
+						recipeRuleMap.put(rid, rulePair);
+					}
+				}
 
-    public void end() throws SAXException {
-    }
-
-
-    public String getText() {
-        return text.toString().trim();
-    }
-
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        if (qName.equals("c")) {
-            String type = attributes.getValue("type");
-            WMAttribute kAttr = WMUtils.getAttribute(type);
-            if (kAttr != null) {
-                if (WMUtils.getRangeAttributes().contains(kAttr)) { //this is a range query
-                    String min = attributes.getValue("min");
-                    String max = attributes.getValue("max");
-                    if (min != null && max != null) {
-                        try {
-                            int minI = Integer.parseInt(min);
-                            int maxI = Integer.parseInt(max);
-                            if (minI <= maxI) {
-                                updateMap(kAttr, WMUtils.getUniqueIntRangeString(min, max));
-                            } else {
-                                log.error("Skipping the request context - invalid min/max " +
-                                        "for type/value. Type = " + type + ". min = " + min + "max = " + max);
-                            }
-                        } catch (NumberFormatException e) {
-                            log.error("Skipping the request context - invalid/unsupported values " +
-                                    "for type/value. Type = " + type + ". min = " + min + "max = " + max);
-                        }
-
-                    } else {
-                        log.error("Skipping the request context - invalid/unsupported values " +
-                                "for type/value. Type = " + type + ". min = " + min + "max = " + max);
-                    }
-                } else {
-                    String val = attributes.getValue("val");
-                    if (val != null) {
-                        updateMap(kAttr, val);
-                    } else {
-                        log.error("Skipping the request context - invalid/unsupported values " +
-                                "for type/value. Type = " + type + ". Value = " + val);
-                    }
-                }
-            }
-        }
-        if (qName.equals("rw")) {
-            try {
-                Integer recipeId = Integer.parseInt(attributes.getValue("id"));
-                Float wt = Float.parseFloat(attributes.getValue("wt"));
-                if (recipeId != null && wt != null) {
-                    rwList.add(new RecipeWeight(recipeId, wt));
-                }
-            } catch (NumberFormatException e) {
-                log.error("Skipping recipe weight - RecipeID/Weight are badly formatted");
-            }
-
-        }
-        text.reset();
-
-    }
-
-    public void endElement(String uri, String localName, String qName) throws SAXException {
-        if (qName.equals("v")) {
-            if (!requestMap.isEmpty() && !rwList.isEmpty()) {
-                List<Map<WMAttribute,  Integer>> explodedMap = explodeRequestMap(requestMap);
-                int count = 0;
-                for (Map<WMAttribute,  Integer> rMap: explodedMap) {
-                    WMDB.WMIndexCache cache = WMDB.getInstance().getWeightDB(adPodId);
-                    WMHandle h = cache.getWMHandle((long) vectorId, (long) count);
-                    if (h == null) {
-                        h = WMHandleFactory.getInstance().getHandle(vectorId, count, rMap, rwList);
-                    } else {
-                        h.setRecipeList(rwList);
-                    }
-                    WMDBLoader.updateDb(adPodId, rMap, h);
-                    count++;
-                }
-            } else {
-                log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);
-            }
-            end();
-            path.pop();
-            parser.setContentHandler(parent);
-        }
+			} else {
+				Experience exp = CampaignDB.getInstance().getExperience(expId);
+				if (exp!=null) {
+					theCAM = exp.getCam();
+				}
+			}
+		} else {
+			Experience exp = CampaignDB.getInstance().getExperience(adpodId);
+			if (exp!=null) {
+				theCAM = exp.getCam();
+			}
+		}
+		return theCAM;
+	}
 
 
-    }
+	public void start(Attributes attributes) throws SAXException {
+	}
+
+	public void end() throws SAXException {
+	}
 
 
-    private List<Map<WMAttribute,  Integer>> explodeRequestMap(Map<WMAttribute, String> reqMap) {
-        //Get the map of att to list of integers
-        Map<WMAttribute, List<Integer>> idMap = new HashMap<WMAttribute,  List<Integer>>();
-        int count = 0;
-        for (WMAttribute attr: reqMap.keySet()) {
-            List<String> parsedList = WMUtils.parseValues(reqMap.get(attr));
-            for (String val: parsedList) {
-                Integer id = WMUtils.getDictId(attr, val);
-                List<Integer> idList = idMap.get(attr);
-                if (idList==null) {
-                    idList = new ArrayList<Integer>();
-                }
-                idList.add(id);
-                idMap.put(attr, idList);
-            }
-            if (count ==0) {
-                count = parsedList.size();
-            } else {
-                count = count*parsedList.size();
-            }
-        }
-        //Initialize the maps
-        List<Map<WMAttribute,  Integer>> listMaps = new ArrayList<Map<WMAttribute,  Integer>>(count);
-        //Populate the maps
-        //add base empty Map to return list...this will be built upon.
-        listMaps.add(new HashMap<WMAttribute, Integer>());
-        Set<WMAttribute> keys = reqMap.keySet();
-        Map<WMAttribute, Integer> tmpMap = new HashMap<WMAttribute, Integer>();
+	public String getText() {
+		return text.toString().trim();
+	}
 
-        for (WMAttribute attr: keys) {
-            List<Integer> tmpIds = idMap.get(attr);
-            if(tmpIds.size()>1){
-                List<Map<WMAttribute, Integer>> tmpList = new ArrayList<Map<WMAttribute, Integer>>();
-                for(Map<WMAttribute, Integer> retMap: listMaps){
-                    for(Integer id : tmpIds){
-                        Map<WMAttribute, Integer> retMapBuilder = new HashMap<WMAttribute, Integer>();
-                        retMapBuilder.putAll(retMap);
-                        retMapBuilder.putAll(tmpMap);
-                        retMapBuilder.put(attr, id);
-                        tmpList.add(retMapBuilder);
-                    }
-                }
-                listMaps=tmpList;
-                tmpMap.clear();
-            } else if(tmpIds.size() == 1) {
-                tmpMap.put(attr, tmpIds.get(0));
-            }
+	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+		if (qName.equals("c")) {
+			String type = attributes.getValue("type");
+			VectorAttribute kAttr = VectorUtils.getAttribute(type);
+			if (kAttr != null) {
+				if (VectorUtils.getRangeAttributes().contains(kAttr)) { //this is a range query
+					String min = attributes.getValue("min");
+					String max = attributes.getValue("max");
+					if (min != null && max != null) {
+						try {
+							int minI = Integer.parseInt(min);
+							int maxI = Integer.parseInt(max);
+							if (minI <= maxI) {
+								updateMap(kAttr, VectorUtils.getUniqueIntRangeString(min, max));
+							} else {
+								log.error("Skipping the request context - invalid min/max " +
+										"for type/value. Type = " + type + ". min = " + min + "max = " + max);
+							}
+						} catch (NumberFormatException e) {
+							log.error("Skipping the request context - invalid/unsupported values " +
+									"for type/value. Type = " + type + ". min = " + min + "max = " + max);
+						}
 
-        }
-        for(Map<WMAttribute, Integer> retMap: listMaps){
-            retMap.putAll(tmpMap);
-        }
-        return listMaps;
-    }
+					} else {
+						log.error("Skipping the request context - invalid/unsupported values " +
+								"for type/value. Type = " + type + ". min = " + min + "max = " + max);
+					}
+				} else {
+					String val = attributes.getValue("val");
+					if (val != null) {
+						updateMap(kAttr, val);
+					} else {
+						log.error("Skipping the request context - invalid/unsupported values " +
+								"for type/value. Type = " + type + ". Value = " + val);
+					}
+				}
+			}
+		}
+		if (qName.equals("rw")) {
+			try {
+				Integer recipeId = Integer.parseInt(attributes.getValue("id"));
+				Double wt = Double.parseDouble(attributes.getValue("wt"));
+				if (recipeId != null && wt != null && cam!=null) {
+					Pair<CreativeSet, Double> rulePair = recipeRuleMap.get(recipeId.toString());
+					if (rulePair!=null) {
+						//Merge of the default weight is being done to the recipe weights here.
+						//TODO: Need to calculate the actual weights and put that in here !! this will remove any ambiguity
+						rulePair.setSecond(wt);
+						//optRules.add(rulePair);
+					} else {
+						log.warn("Recipe id in the weight matrix file is invalid : " + recipeId + ". For adpod id = " + adPodId);
+					}
+				} else {
+					log.warn("Skipping recipe weight : invalid cam/recipeid/weight");
+				}
+			} catch (NumberFormatException e) {
+				log.error("Skipping recipe weight - RecipeID/Weight are badly formatted");
+			}
 
-    public void characters(char[] ch, int start, int length) {
-        text.write(ch, start, length);
-    }
+		}
+		if (qName.equals("cs")) {
+			try {
+				String rule = attributes.getValue("rule");
+				Double wt = Double.parseDouble(attributes.getValue("wt"));
+				if (rule != null && wt != null && cam!=null) {
+					CreativeSet csSet = new CreativeSet(cam, rule);
+					Pair<CreativeSet, Double> rulePair = new Pair<CreativeSet, Double>();
+					rulePair.setFirst(csSet);
+					rulePair.setSecond(wt);
+					optRules.add(rulePair);
+				} else {
+					log.warn("Skipping creative set : invalid cam/cs/weight");
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Skipping the creative set since weight is invalid : ");
+			}
+		}
+		if (qName.equals("lc")) {
+			try {
+				String clause = attributes.getValue("clause");
+				String value = attributes.getValue("val");
+				Double wt = Double.parseDouble(attributes.getValue("wt"));
+				if (clause != null && wt != null && cam!=null) {
+					ListingClause lc = new ListingClause(clause, value);
+					Pair<ListingClause, Double> lcPair = new Pair<ListingClause, Double>();
+					lcPair.setFirst(lc);
+					lcPair.setSecond(wt);
+					lcRules.add(lcPair);
+
+				} else {
+					log.warn("Skipping creative set : invalid cam/cs/weight");
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Skipping the creative set since weight is invalid : ");
+			}
+		}
+		text.reset();
+
+	}
+
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if (qName.equals("v")) {
+			if (!recipeRuleMap.isEmpty()) {
+				//Add to bag
+				optRules = new SortedListBag<Pair<CreativeSet, Double>>();
+				for (String rid: recipeRuleMap.keySet()) {
+					optRules.add(recipeRuleMap.get(rid));
+				}
+			}
+			if (!requestMap.isEmpty() && !optRules.isEmpty()) {
+				Map<VectorAttribute,  List<Integer>> idMap = explodeRequestMap(requestMap);
+				VectorHandle h = VectorHandleFactory.getInstance().getHandle(adPodId, vectorId, VectorHandle.OPTIMIZATION, idMap, true);
+				if (h != null) {
+					WMDBLoader.updateDb(adPodId, optRules, lcRules, idMap, h);
+				}
+			} else {
+				log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);
+			}
+			end();
+			path.pop();
+			parser.setContentHandler(parent);
+		}
 
 
-    private void updateMap(WMAttribute attr, String val) {
-        if (val != null && !val.isEmpty()) {
-            requestMap.put(attr, val);
-        }
-    }
+	}
+
+
+	private Map<VectorAttribute,  List<Integer>> explodeRequestMap(Map<VectorAttribute, String> reqMap) {
+		//Get the map of att to list of integers
+		Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute,  List<Integer>>();
+		int count = 0;
+		for (VectorAttribute attr: reqMap.keySet()) {
+			List<String> parsedList = VectorUtils.parseValues(reqMap.get(attr));
+			for (String val: parsedList) {
+				Integer id = VectorUtils.getDictId(attr, val);
+				List<Integer> idList = idMap.get(attr);
+				if (idList==null) {
+					idList = new ArrayList<Integer>();
+				}
+				idList.add(id);
+				idMap.put(attr, idList);
+			}
+			if (count ==0) {
+				count = parsedList.size();
+			} else {
+				count = count*parsedList.size();
+			}
+		}
+		return idMap;
+	}
+
+	public void characters(char[] ch, int start, int length) {
+		text.write(ch, start, length);
+	}
+
+
+	private void updateMap(VectorAttribute attr, String val) {
+		if (val != null && !val.isEmpty()) {
+			requestMap.put(attr, val);
+		}
+	}
+
+	/**
+	 * Construct a creative set from the given recipe id
+	 * @param recipeId
+	 * @param wt
+	 * @return
+	 */
+	private CreativeSet getCreativeSet(Integer recipeId, Float wt) {
+		return null;
+	}
 
 }

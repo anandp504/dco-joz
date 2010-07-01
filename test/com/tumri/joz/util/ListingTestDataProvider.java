@@ -160,11 +160,6 @@ public class ListingTestDataProvider {
             retVal.setAreaCodeStr(getAttrValue(IProduct.Attribute.kArea)); //Area Code
             retVal.setProviderCategoryStr(getAttrValue(IProduct.Attribute.kProviderCategory)); //Provider Category
             retVal.setGlobalIdStr("UNSPSC" + prodId); //Global ID
-            retVal.setCategoryField1Str(""); //Category Field 1
-            retVal.setCategoryField2Str(""); //Category Field 2
-            retVal.setCategoryField3Str(""); //Category Field 3
-            retVal.setCategoryField4Str(""); //Category Field 4
-            retVal.setCategoryField5Str(""); //Category Field 5
             retVal.setPassThroughField11Str("PassThru" + prodId); //Pass Thru 1
             retVal.setPassThroughField12Str("PassThru" + prodId); //Pass Thru 2
             retVal.setPassThroughField13Str("PassThru" + prodId); //Pass Thru 3
@@ -214,11 +209,6 @@ public class ListingTestDataProvider {
             sBuilder.append(prod.getAreaCodeStr() + "\t");
             sBuilder.append(prod.getProviderCategoryStr() + "\t");
             sBuilder.append(prod.getGlobalIdStr() + "\t");
-            sBuilder.append(prod.getCategoryField1Str() + "\t");
-            sBuilder.append(prod.getCategoryField2Str() + "\t");
-            sBuilder.append(prod.getCategoryField3Str() + "\t");
-            sBuilder.append(prod.getCategoryField4Str() + "\t");
-            sBuilder.append(prod.getCategoryField5Str() + "\t");
             sBuilder.append(prod.getPassThrough1Str() + "\t");
             sBuilder.append(prod.getPassThrough2Str() + "\t");
             sBuilder.append(prod.getPassThrough3Str() + "\t");

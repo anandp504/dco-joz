@@ -29,6 +29,8 @@ public class Features {
     private String adpodName = null;
     private int recipeId = 0;
     private String recipeName = null;
+    private int expId = 0;
+    private String expName = null;
     private int campaignClientId = 0;
     private String campaignClientName = null;
     private boolean bGeoUsed = false;
@@ -197,40 +199,56 @@ public class Features {
         this.locationClientName = locationClientName;
     }
 
-	/*public String toString(){
-		StringBuffer buff = new StringBuffer();
+    public int getExpId() {
+        return expId;
+    }
 
-		buff.append("_joz_version = " + _joz_version);
-		buff.append(" | ");
-		buff.append("_host_name = " +  _host_name);
-		buff.append(" | ");
-		buff.append("jozFeaturesMap = " + jozFeaturesMap);
-		buff.append(" | ");
-		buff.append("campaignId = " + campaignId);
-		buff.append(" | ");
-		buff.append("campaignName = " + campaignName);
-		buff.append(" | ");
-		buff.append("adPodId = " + adPodId);
-		buff.append(" | ");
-		buff.append("adpodName = " + adpodName);
-		buff.append(" | ");
-		buff.append("recipeId = " + recipeId);
-		buff.append(" | ");
-		buff.append("recipeName = " + recipeName);
-		buff.append(" | ");
-		buff.append("campaignClientId = " + campaignClientId);
-		buff.append(" | ");
-		buff.append("campaignClientName = " + campaignClientName);
-		buff.append(" | ");
-		buff.append("bGeoUsed = " + bGeoUsed);
-		buff.append(" | ");
-		buff.append("targetedLocationId = " + targetedLocationId);
-		buff.append(" | ");
-		buff.append("targetedLocationName = " + targetedLocationName);
-		buff.append(" | ");
-		buff.append("locationClientId = " + locationClientId);
-		buff.append(" | ");
-		buff.append("locationClientName = " + locationClientName);
-		return buff.toString();
-	}*/
+    public void setExpId(int expId) {
+        this.expId = expId;
+    }
+
+    public String getExpName() {
+        return expName;
+    }
+
+    public void setExpName(String expName) {
+        this.expName = expName;
+    }
+
+    /*public String toString(){
+         StringBuffer buff = new StringBuffer();
+
+         buff.append("_joz_version = " + _joz_version);
+         buff.append(" | ");
+         buff.append("_host_name = " +  _host_name);
+         buff.append(" | ");
+         buff.append("jozFeaturesMap = " + jozFeaturesMap);
+         buff.append(" | ");
+         buff.append("campaignId = " + campaignId);
+         buff.append(" | ");
+         buff.append("campaignName = " + campaignName);
+         buff.append(" | ");
+         buff.append("adPodId = " + adPodId);
+         buff.append(" | ");
+         buff.append("adpodName = " + adpodName);
+         buff.append(" | ");
+         buff.append("recipeId = " + recipeId);
+         buff.append(" | ");
+         buff.append("recipeName = " + recipeName);
+         buff.append(" | ");
+         buff.append("campaignClientId = " + campaignClientId);
+         buff.append(" | ");
+         buff.append("campaignClientName = " + campaignClientName);
+         buff.append(" | ");
+         buff.append("bGeoUsed = " + bGeoUsed);
+         buff.append(" | ");
+         buff.append("targetedLocationId = " + targetedLocationId);
+         buff.append(" | ");
+         buff.append("targetedLocationName = " + targetedLocationName);
+         buff.append(" | ");
+         buff.append("locationClientId = " + locationClientId);
+         buff.append(" | ");
+         buff.append("locationClientName = " + locationClientName);
+         return buff.toString();
+     }*/
 }

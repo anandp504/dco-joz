@@ -8,26 +8,26 @@ import java.util.Hashtable;
 /**
  * Dictionary Manager impl for Weights
  */
-public class WMDictionaryManager {
-	private static WMDictionaryManager g_Instance = null;
-	Hashtable<WMAttribute, IDictionary> m_table = new Hashtable<WMAttribute, IDictionary>();
+public class VectorDictionaryManager {
+	private static VectorDictionaryManager g_Instance = null;
+	Hashtable<VectorAttribute, IDictionary> m_table = new Hashtable<VectorAttribute, IDictionary>();
 
 	static {
-		WMDictionaryManager dm = getInstance();
+		VectorDictionaryManager dm = getInstance();
 	}
 
-	public static WMDictionaryManager getInstance() {
+	public static VectorDictionaryManager getInstance() {
 		if (g_Instance == null) {
-			synchronized (WMDictionaryManager.class) {
+			synchronized (VectorDictionaryManager.class) {
 				if (g_Instance == null) {
-					g_Instance = new WMDictionaryManager();
+					g_Instance = new VectorDictionaryManager();
 				}
 			}
 		}
 		return g_Instance;
 	}
 
-	protected final IDictionary getDictionary(WMAttribute aAttribute) {
+	protected final IDictionary getDictionary(VectorAttribute aAttribute) {
 		if (m_table.containsKey(aAttribute)) {
 			return m_table.get(aAttribute);
 		}
@@ -38,7 +38,7 @@ public class WMDictionaryManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public final Integer getId(WMAttribute aAttribute, Object obj) {
+	public final Integer getId(VectorAttribute aAttribute, Object obj) {
 		IDictionary dict = getDictionary(aAttribute);
 		if (dict != null) {
 			// ??? This gets an "unchecked call" warning.
@@ -47,7 +47,7 @@ public class WMDictionaryManager {
 		return -1;
 	}
 
-	public final Object getValue(WMAttribute aAttribute, int index) {
+	public final Object getValue(VectorAttribute aAttribute, int index) {
 		IDictionary dict = m_table.get(aAttribute);
 		if (dict != null) {
 			return dict.getValue(index);
@@ -55,7 +55,7 @@ public class WMDictionaryManager {
 		return null;
 	}
 
-	public int maxId(WMAttribute aAttribute) {
+	public int maxId(VectorAttribute aAttribute) {
 		IDictionary dict = m_table.get(aAttribute);
 		if (dict != null) {
 			return dict.maxId();
@@ -63,7 +63,7 @@ public class WMDictionaryManager {
 		return 0;
 	}
 
-	public int minId(WMAttribute aAttribute) {
+	public int minId(VectorAttribute aAttribute) {
 		IDictionary dict = m_table.get(aAttribute);
 		if (dict != null) {
 			return dict.minId();
@@ -72,12 +72,12 @@ public class WMDictionaryManager {
 	}
 
 
-	public void addType(WMAttribute aAttribute, IDictionary dict) {
+	public void addType(VectorAttribute aAttribute, IDictionary dict) {
 		if (!m_table.containsKey(aAttribute))
 			m_table.put(aAttribute, dict);
 	}
 
-	public void remove(WMAttribute aAttribute, int index) {
+	public void remove(VectorAttribute aAttribute, int index) {
 		IDictionary dict = getDictionary(aAttribute);
 		if (dict != null) {
 			dict.remove(index);

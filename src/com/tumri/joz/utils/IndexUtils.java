@@ -19,22 +19,6 @@ public class IndexUtils {
         int result = 0;
 
         switch(kAttr) {
-            case kCategoryField1:
-                result = 1;
-                break;
-
-            case kCategoryField2:
-                result = 2;
-                break;
-            case kCategoryField3:
-                result = 3;
-                break;
-            case kCategoryField4:
-                result = 4;
-                break;
-            case kCategoryField5:
-                result = 5;
-                break;
             case kExternalFilterField1:
                 result = 1;
                 break;
@@ -49,6 +33,21 @@ public class IndexUtils {
                 break;
             case kExternalFilterField5:
                 result = 5;
+                break;
+            case kUT1:
+                result = 6;
+                break;
+            case kUT2:
+                result = 7;
+                break;
+            case kUT3:
+                result = 8;
+                break;
+            case kUT4:
+                result = 9;
+                break;
+            case kUT5:
+                result = 10;
                 break;
         }
 
@@ -245,20 +244,20 @@ public class IndexUtils {
             case kGlobalId:
                 id = DictionaryManager.getId(Product.Attribute.kGlobalId, indexVal);
                 break;
-            case kCategoryField1:
-                id = DictionaryManager.getId(Product.Attribute.kCategoryField1, indexVal);
+            case kAge:
+                id = DictionaryManager.getId(Product.Attribute.kAge, indexVal);
                 break;
-            case kCategoryField2:
-                id = DictionaryManager.getId(Product.Attribute.kCategoryField2, indexVal);
+            case kHHI:
+                id = DictionaryManager.getId(Product.Attribute.kHHI, indexVal);
                 break;
-            case kCategoryField3:
-                id = DictionaryManager.getId(Product.Attribute.kCategoryField3, indexVal);
+            case kMS:
+                id = DictionaryManager.getId(Product.Attribute.kMS, indexVal);
                 break;
-            case kCategoryField4:
-                id = DictionaryManager.getId(Product.Attribute.kCategoryField4, indexVal);
+            case kBT:
+                id = DictionaryManager.getId(Product.Attribute.kBT, indexVal);
                 break;
-            case kCategoryField5:
-                id = DictionaryManager.getId(Product.Attribute.kCategoryField5, indexVal);
+            case kGender:
+                id = DictionaryManager.getId(Product.Attribute.kGender, indexVal);
                 break;
             case kExternalFilterField1:
                 id = DictionaryManager.getId(Product.Attribute.kExternalFilterField1, indexVal);
@@ -274,6 +273,21 @@ public class IndexUtils {
                 break;
             case kExternalFilterField5:
                 id = DictionaryManager.getId(Product.Attribute.kExternalFilterField5, indexVal);
+                break;
+            case kUT1:
+                id = DictionaryManager.getId(Product.Attribute.kUT1, indexVal);
+                break;
+            case kUT2:
+                id = DictionaryManager.getId(Product.Attribute.kUT2, indexVal);
+                break;
+            case kUT3:
+                id = DictionaryManager.getId(Product.Attribute.kUT3, indexVal);
+                break;
+            case kUT4:
+                id = DictionaryManager.getId(Product.Attribute.kUT4, indexVal);
+                break;
+            case kUT5:
+                id = DictionaryManager.getId(Product.Attribute.kUT5, indexVal);
                 break;
         }
         return id;
@@ -324,16 +338,16 @@ public class IndexUtils {
             id = Product.Attribute.kProviderCategory;
         } else if (indexType.equals("globalid")) {
             id = Product.Attribute.kGlobalId;
-        } else if (indexType.equals("categoryfield1")) {
-            id = Product.Attribute.kCategoryField1;
-        } else if (indexType.equals("categoryfield2")) {
-            id = Product.Attribute.kCategoryField2;
-        } else if (indexType.equals("categoryfield3")) {
-            id = Product.Attribute.kCategoryField3;
-        } else if (indexType.equals("categoryfield4")) {
-            id = Product.Attribute.kCategoryField4;
-        } else if (indexType.equals("categoryfield5")) {
-            id = Product.Attribute.kCategoryField5;
+        } else if (indexType.equals("age")) {
+            id = Product.Attribute.kAge;
+        } else if (indexType.equals("gender")) {
+            id = Product.Attribute.kGender;
+        } else if (indexType.equals("hhi")) {
+            id = Product.Attribute.kHHI;
+        } else if (indexType.equals("ms")) {
+            id = Product.Attribute.kMS;
+        } else if (indexType.equals("bt")) {
+            id = Product.Attribute.kBT;
         } else if (indexType.equals("externalfilterf1")) {
             id = Product.Attribute.kExternalFilterField1;
         } else if (indexType.equals("externalfilterf2")) {
@@ -344,6 +358,16 @@ public class IndexUtils {
             id = Product.Attribute.kExternalFilterField4;
         } else if (indexType.equals("externalfilterf5")) {
             id = Product.Attribute.kExternalFilterField5;
+        } else if (indexType.equals("ut1")) {
+            id = Product.Attribute.kUT1;
+        } else if (indexType.equals("ut2")) {
+            id = Product.Attribute.kUT2;
+        } else if (indexType.equals("ut3")) {
+            id = Product.Attribute.kUT3;
+        } else if (indexType.equals("ut4")) {
+            id = Product.Attribute.kUT4;
+        } else if (indexType.equals("ut5")) {
+            id = Product.Attribute.kUT5;
         }
         return id;
     }
@@ -388,16 +412,16 @@ public class IndexUtils {
             name = "providercategory";
         } else if (id == Product.Attribute.kGlobalId) {
             name = "globalid";
-        } else if (id == Product.Attribute.kCategoryField1) {
-            name = "categoryfield1";
-        } else if (id == Product.Attribute.kCategoryField2) {
-            name = "categoryfield2";
-        } else if (id == Product.Attribute.kCategoryField3) {
-            name = "categoryfield3";
-        } else if (id == Product.Attribute.kCategoryField4) {
-            name = "categoryfield4";
-        } else if (id == Product.Attribute.kCategoryField5) {
-            name = "categoryfield5";
+        } else if (id == Product.Attribute.kAge) {
+            name = "age";
+        } else if (id == Product.Attribute.kGender) {
+            name = "gender";
+        } else if (id == Product.Attribute.kBT) {
+            name = "bt";
+        } else if (id == Product.Attribute.kMS) {
+            name = "ms";
+        } else if (id == Product.Attribute.kHHI) {
+            name = "hhi";
         } else if (id == Product.Attribute.kExternalFilterField1) {
             name = "externalfilterf1";
         } else if (id == Product.Attribute.kExternalFilterField2) {
@@ -408,6 +432,16 @@ public class IndexUtils {
             name = "externalfilterf4";
         } else if (id == Product.Attribute.kExternalFilterField5) {
             name = "externalfilterf5";
+        } else if (id == Product.Attribute.kUT1) {
+            name = "ut1";
+        } else if (id == Product.Attribute.kUT2) {
+            name = "ut2";
+        } else if (id == Product.Attribute.kUT3) {
+            name = "ut3";
+        } else if (id == Product.Attribute.kUT4) {
+            name = "ut4";
+        } else if (id == Product.Attribute.kUT5) {
+            name = "ut5";
         }
 
         return name;

@@ -465,9 +465,9 @@ public class TargetingRequestProcessorTest {
             // Return the right Cmd* class to handle this request.
 
             if (cmd_name.equals ("get-ad-data")) {
-                AdDataRequest rqst = new AdDataRequest (e);
+                AdDataRequest rqst = null; //new AdDataRequest (e);
                 
-                recipe = processor.processRequest(rqst, null);
+                Recipe r1 = null; ///trp.processRequest(request, f);
                 //Assert.assertNotNull(oSpec);
 
             } else {

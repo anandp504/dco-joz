@@ -1,8 +1,11 @@
 <%@ page language="java" import="java.util.*" %>
 <%@ page language="java" import="com.tumri.cma.domain.*" %>
 <%@ page language="java" import="com.tumri.joz.campaign.CampaignDB" %>
-<%@ page language="java" import="com.tumri.utils.strings.StringTokenizer" %>
 <%@ page import="com.tumri.joz.campaign.wm.*" %>
+<%@ page import="com.tumri.cma.rules.CreativeSet" %>
+<%@ page import="com.tumri.utils.Pair" %>
+<%@ page import="com.tumri.utils.data.SortedBag" %>
+<%@ page import="com.tumri.cma.rules.ListingClause" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -62,35 +65,37 @@
 <br>
 <%
     CampaignDB campaignDB = CampaignDB.getInstance();
-    WMDB db = WMDB.getInstance();
-    Set<Integer> adPodIds = db.getAdpodIds();
+    VectorDB db = VectorDB.getInstance();
+    Iterator<VectorHandle> defHandles = db.getAllDefHandles();
+    Iterator<VectorHandle> persHandles = db.getAllPersHandles();
+    Iterator<VectorHandle> optHandles = db.getAllOptHandles();
 %>
 <table class="table" border="1">
     <tr class="table_header">
         <th>AdPod</th>
         <th>Request Context</th>
-        <th>Recipe/Weight</th>
+        <th>Rule Set</th>
     </tr>
     <tr class="table_column_header">
         <th>Id, Name</th>
         <th>Type, Value(s)</th>
-        <th>Id, Name, Weight</th>
+        <th>Creative Set (Default), RecipeId, Weight</th>
     </tr>
     <%
-        for (Integer adPodId : adPodIds) {
+        while (defHandles.hasNext()) {
+            VectorHandleImpl handle = (VectorHandleImpl)defHandles.next();
+            int adpodId = handle.getExpId();
+            int vectorId = handle.getVectorId();
 
-            if (null == adPodId) continue;
-            AdPod adPod = campaignDB.getAdPod(adPodId);
-            //Now print the data into html.
-            int size = db.getWeightDB(adPodId).getNumHandles();
+            AdPod adPod = campaignDB.getAdPod(adpodId);
     %>
     <tr valign="middle">
-        <td align="left" rowspan="<%=size +1%>">
+        <td align="left" rowspan="2">
             <%if (adPod != null) {%>
             <%=adPod.getId()%>, <a href="/joz/jsp/adPodSelection.jsp?selAdPod=<%=adPod.getId()%>"><%=adPod.getName()%>
         </a>
             <% } else { %>
-            Adpod not found in campaignDB: <%=adPodId%>
+            Adpod not found in campaignDB: <%=adpodId%>
             <%}%>
         </td>
         <td align="center">
@@ -102,60 +107,208 @@
     </tr>
 
     <%
-        Iterator<WMHandle> iter = db.getWeightDB(adPodId).getAllHandles();
-
-        if (iter != null) {
-            while (iter.hasNext()) {
-                WMHandle h = iter.next();
-                long contextId = h.getOid();
-                long secId = h.getSid();
-                Map<WMAttribute, Integer> contextMap = h.getContextMap();
-                Set<WMAttribute> keys = contextMap.keySet();
+                Map<VectorAttribute, List<Integer>> contextMap = handle.getContextMap();
+                Set<VectorAttribute> keys = contextMap.keySet();
     %>
     <tr>
         <td>
             <ul><%
-                for (WMAttribute k : keys) {
-                    String val = WMUtils.getDictValue(k, contextMap.get(k));
-                    String vectorId = contextId + "-" + secId;
+                for (VectorAttribute k : keys) {
+                    List<Integer> idList = contextMap.get(k);
+                    String val = "";
+                    for (Integer id: idList) {
+                        val = val + ","  + VectorUtils.getDictValue(k, id);
+                    }
             %>
-                <li><%=vectorId %>,<%=k.name()%>,<%=val%>
+                <li><%=vectorId %>=<%=k.name()%>,<%=val%>
                 </li>
                 <%
                     }
                 %></ul>
         </td>
         <%
-            List<RecipeWeight> rwList = h.getRecipeList();
+            SortedBag<Pair<CreativeSet, Double>> ruleList = db.getRules(handle.getOid());
         %>
         <td>
             <ul><%
-                for (RecipeWeight rw : rwList) {
-                    Recipe r = campaignDB.getRecipe(rw.getRecipeId());
-                    if (r != null) {
+                for (Pair<CreativeSet, Double> rulePair : ruleList) {
+                    CreativeSet cs = rulePair.getFirst();
+                    List<String> valueList = cs.getAttributes(0); //For recipe
+                    Double wt = rulePair.getSecond();
             %>
-                <li><%=r.getId()%>,<a href="/joz/jsp/recipeSelection.jsp?selRecipe=<%=r.getId()%>"><%=r.getName()%>
-                </a>,<%=rw.getWeight()%>
+                <li><%=valueList.get(0)%> <%=wt%>
                 </li>
                 <%
-                } else {
-                %>
-                <li>Recipe not found in campaignDB: id: <%=rw.getRecipeId()%> weight: <%=rw.getWeight()%>
-                </li>
-                <%
-                        }
-                    }
+                }
                 %></ul>
         </td>
     </tr>
     <%
-            }
-        }
+        } // End of def handles loop
     %>
+    <tr class="table_column_header">
+        <th>Id, Name</th>
+        <th>Type, Value(s)</th>
+        <th>Creative Set (Opt), RecipeId, Weight</th>
+    </tr>
+    <%
+        while (optHandles.hasNext()) {
+            VectorHandleImpl handle = (VectorHandleImpl)optHandles.next();
+            
+            int adpodId = handle.getExpId();
+            int vectorId = handle.getVectorId();
+
+            AdPod adPod = campaignDB.getAdPod(adpodId);
+    %>
+    <tr valign="middle">
+        <td align="left" rowspan="2">
+            <%if (adPod != null) {%>
+            <%=adPod.getId()%>, <a href="/joz/jsp/adPodSelection.jsp?selAdPod=<%=adPod.getId()%>"><%=adPod.getName()%>
+        </a>
+            <% } else { %>
+            Adpod not found in campaignDB: <%=adpodId%>
+            <%}%>
+        </td>
+        <td align="center">
+            Id, Type, Value
+        </td>
+        <td align="center">
+            Id, Name, Weight
+        </td>
+    </tr>
 
     <%
-        }
+                Map<VectorAttribute, List<Integer>> contextMap = handle.getContextMap();
+                Set<VectorAttribute> keys = contextMap.keySet();
     %>
+    <tr>
+        <td>
+            <ul><%
+                for (VectorAttribute k : keys) {
+                    List<Integer> idList = contextMap.get(k);
+                    String val = "";
+                    for (Integer id: idList) {
+                        val = val + ","  + VectorUtils.getDictValue(k, id);
+                    }
+            %>
+                <li><%=vectorId %>=<%=k.name()%>,<%=val%>
+                </li>
+                <%
+                    }
+                %></ul>
+        </td>
+        <%
+            SortedBag<Pair<CreativeSet, Double>> ruleList = db.getRules(handle.getOid());
+            SortedBag<Pair<ListingClause, Double>> clauses = db.getClauses(handle.getOid());
+				      %>
+        <td>
+            <ul><%
+                if (ruleList!=null) {
+                for (Pair<CreativeSet, Double> rulePair : ruleList) {
+                    CreativeSet cs = rulePair.getFirst();
+                    Double wt = rulePair.getSecond();
+            %>
+                <li><%=cs%> <%=wt%>
+                </li>
+                <%
+                }
+                    } else {
+                    %>
+                    No Rules Found!
+                    <%
+                }
+                %></ul>
+            <ul><%
+                if (clauses!=null) {
+                for (Pair<ListingClause, Double> rulePair : clauses) {
+                    ListingClause lc = rulePair.getFirst();
+                    Double wt = rulePair.getSecond();
+            %>
+                <li><%=lc%> <%=wt%>
+                </li>
+                <%
+                }
+                    } else {
+                    %>
+                    No Rules Found!
+                    <%
+                }
+                %></ul>
+        </td>
+    </tr>
+    <%
+        } // End of def handles loop
+    %>
+    <tr class="table_column_header">
+        <th>Id, Name</th>
+        <th>Type, Value(s)</th>
+        <th>Creative Set (Pers), RecipeId, Weight</th>
+    </tr>
+    <%
+        while (persHandles.hasNext()) {
+            VectorHandleImpl handle = (VectorHandleImpl)persHandles.next();
+            int adpodId = handle.getExpId();
+            int vectorId = handle.getVectorId();
+
+            AdPod adPod = campaignDB.getAdPod(adpodId);
+    %>
+    <tr valign="middle">
+        <td align="left" rowspan="2">
+            <%if (adPod != null) {%>
+            <%=adPod.getId()%>, <a href="/joz/jsp/adPodSelection.jsp?selAdPod=<%=adPod.getId()%>"><%=adPod.getName()%>
+        </a>
+            <% } else { %>
+            Adpod not found in campaignDB: <%=adpodId%>
+            <%}%>
+        </td>
+        <td align="center">
+            Id, Type, Value
+        </td>
+        <td align="center">
+            Id, Name, Weight
+        </td>
+    </tr>
+
+    <%
+                Map<VectorAttribute, List<Integer>> contextMap = handle.getContextMap();
+                Set<VectorAttribute> keys = contextMap.keySet();
+    %>
+    <tr>
+        <td>
+            <ul><%
+                for (VectorAttribute k : keys) {
+                    List<Integer> idList = contextMap.get(k);
+                    String val = "";
+                    for (Integer id: idList) {
+                        val = val + ","  + VectorUtils.getDictValue(k, id);
+                    }
+            %>
+                <li><%=vectorId %>=<%=k.name()%>,<%=val%>
+                </li>
+                <%
+                    }
+                %></ul>
+        </td>
+        <%
+            SortedBag<Pair<CreativeSet, Double>> ruleList = db.getRules(handle.getOid());
+        %>
+        <td>
+            <ul><%
+                for (Pair<CreativeSet, Double> rulePair : ruleList) {
+                    CreativeSet cs = rulePair.getFirst();
+                    Double wt = rulePair.getSecond();
+            %>
+                <li><%=cs%> <%=wt%>
+                </li>
+                <%
+                }
+                %></ul>
+        </td>
+    </tr>
+    <%
+        } // End of pers handles loop
+    %>
+
 </table>
 
 
