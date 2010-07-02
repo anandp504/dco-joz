@@ -36,6 +36,8 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
      */
     private double score = 0.0;
 
+    private int m_size = 0;
+
 
     private VectorHandleImpl() {
 
@@ -45,6 +47,7 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
         this.id = createId(expId, vId);
         this.type = (byte)type;
         this.contextDetails = getContextDetailsArr(contextMap, isMultiple);
+        computeSize();
     }
 
 
@@ -52,22 +55,26 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
         this.id = id;
         this.type = (byte)type;
         this.contextDetails = getContextDetailsArr(contextMap, isMultiple);
+        computeSize();
     }
 
     public VectorHandleImpl(long id) {
         this.id = id;
         this.contextDetails = null;
+        computeSize();
     }
 
     public VectorHandleImpl(long id, boolean isNonHandle) {
         this.id = id;
         this.noneHandle = isNonHandle;
         this.contextDetails = null;
+        computeSize();
     }
 
     public VectorHandleImpl(int eid, int vecid) {
         this.id = createId(eid, vecid);
         this.contextDetails = null;
+        computeSize();
     }
 
 
@@ -90,17 +97,21 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
      * @return
      */
     public int getSize() {
-        if (contextDetails==null){
-            return 0;
-        }
-        int addr = contextDetails[0];
-        int size = 0;
-        for (int i=0;i<31;i++){
-            if ((addr & 1<<i) == 1) {
-                size++;
+        return m_size;
+    }
+
+    private void computeSize(){
+        if (contextDetails!=null){
+            int addr = contextDetails[0];
+            int size = 0;
+            while(addr>0){
+                if ((addr & 0x1) == 1) {
+                    size++;
+                }
+                addr>>>=1;
             }
+            m_size= size;
         }
-        return size;
     }
 
     /**
@@ -110,10 +121,10 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
      */
     public int compareTo(Object handle) {
         VectorHandle ph = (VectorHandle) handle;
-        if (getScore() > ph.getScore()) return -1;
-        if (getScore() < ph.getScore()) return 1;
-        if (getOid() < ph.getOid()) return -1;
-        if (getOid() > ph.getOid()) return 1;
+        long oid1 = getOid();
+        long oid2 = ph.getOid();
+        if (oid1 < oid2) return -1;
+        if (oid1 > oid2) return 1;
         return 0;
     }
 
@@ -127,24 +138,31 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
     public int compare(Object h1, Object h2) {
         VectorHandle ph1 = (VectorHandle) h1;
         VectorHandle ph2 = (VectorHandle) h2;
-        int sz = ph1.getSize();
-        int phSz = ph2.getSize();
-
-        if (sz > phSz) return -1;
-        if (sz < phSz) return 1;
-
-        if (ph1.getScore() > ph2.getScore()) return -1;
-        if (ph1.getScore() < ph2.getScore()) return 1;
-
-        if (ph1.getContextDetails()!=null && ph2.getContextDetails()!=null){
-            int addr = ph1.getContextDetails()[0];
-            int taddr = ph2.getContextDetails()[0];
-            if (addr > taddr) return -1;
-            if (addr < taddr) return 1;
+        int diffSize = ph1.getSize() - ph2.getSize();
+        if (diffSize!=0){
+            return diffSize;
         }
 
-        return (ph1.getOid() < ph2.getOid() ? -1 :
-                ph1.getOid() == ph2.getOid() ? 0 : 1);
+//        double score = ph1.getScore();
+//        double phScore  = ph2.getScore();
+//
+//
+//        if (score > phScore) return -1;
+//        if (score < phScore) return 1;
+
+        int[] addr1 = ph1.getContextDetails();
+        int[] addr2 = ph2.getContextDetails();
+        if (addr1 !=null && addr2 !=null){
+            int diff = addr1[0]-addr2[0];
+            if (diff!=0){
+                return diff;
+            }
+        }
+
+        long oid = ph1.getOid();
+        long phOid = ph2.getOid();
+        return (oid < phOid ? -1 :
+                oid == phOid ? 0 : 1);
 
     }
 
@@ -205,11 +223,11 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
         //0th position is the dictionary
         ArrayList<VectorAttribute>  keys = new ArrayList<VectorAttribute> ();
         int addr = getContextDetails()[0];
-        //TODO: Shift down until the value goes to 0, and get
-        for (int i=0;i<30;i++) {
-            if ((addr & (1<<i)) >0 ) {
+        for (int i=0;(i<30&&addr>0);i++) {
+            if ((addr & 0x1) ==1) {
                 keys.add(VectorUtils.getAttribute(i));
             }
+            addr>>>=1;
         }
         return keys;
     }
@@ -399,6 +417,13 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
 			return VectorHandleImpl.this.getSize();
 		}
 
+        public Map<VectorAttribute, List<Integer>> getContextMap() {
+            return VectorHandleImpl.this.getContextMap();
+        }
+
+        public boolean isNoneHandle() {
+            return VectorHandleImpl.this.isNoneHandle();
+        }
     }
 
 }

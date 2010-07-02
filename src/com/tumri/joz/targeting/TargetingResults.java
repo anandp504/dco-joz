@@ -1,7 +1,7 @@
 package com.tumri.joz.targeting;
 
 import com.tumri.cma.domain.*;
-import com.tumri.cma.rules.ListingClause;
+import com.tumri.joz.rules.ListingClause;
 
 import java.util.List;
 

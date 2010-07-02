@@ -21,6 +21,7 @@ import com.tumri.cma.domain.CAMDimensionType;
 import com.tumri.cma.domain.Experience;
 import com.tumri.cma.domain.Recipe;
 import com.tumri.cma.domain.UIProperty;
+import com.tumri.cma.util.ExperienceUtils;
 import com.tumri.joz.JoZException;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
@@ -151,6 +152,8 @@ public class JozAdRequestHandler implements RequestHandler {
                 response.addDetails(JozAdResponse.KEY_RECIPE_NAME, features.getRecipeName());
                 response.addDetails(JozAdResponse.KEY_RECIPE_ID, Integer.toString(r.getId()));
             } else {
+                //TODO: Send Long value back
+               // long newRecId = ExperienceUtils.createRecipeId()
                 String recipeId = Integer.toString(features.getRecipeId());
                 String recipeName = features.getExpName()+"_"+recipeId;
                 response.addDetails(JozAdResponse.KEY_RECIPE_ID, recipeId);

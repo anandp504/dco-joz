@@ -73,7 +73,7 @@ public class VectorAttributeWeights implements IWeight<Handle> {
      */
     public double getWeight(Handle v) {
         VectorHandle h = (VectorHandle) v;
-        if (((VectorHandleImpl)h).isNoneHandle()) {
+        if (h.isNoneHandle()) {
             VectorAttribute currAttr=  VectorUtils.getNoneAttribute(attr);
             return getDefaultAttributeWeight(currAttr);
         }

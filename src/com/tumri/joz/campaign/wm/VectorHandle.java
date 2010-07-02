@@ -2,6 +2,9 @@ package com.tumri.joz.campaign.wm;
 
 import com.tumri.joz.products.Handle;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Abstract implementation of the VectorHandle
  */
@@ -21,5 +24,9 @@ public interface VectorHandle extends Handle {
 	public abstract int[] getContextDetails();
 
 	public abstract int getSize();
+
+    public Map<VectorAttribute, List<Integer>> getContextMap();
+
+    public boolean isNoneHandle();
     
 }

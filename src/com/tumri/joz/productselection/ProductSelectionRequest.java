@@ -17,7 +17,7 @@
  */
 package com.tumri.joz.productselection;
 
-import com.tumri.cma.rules.ListingClause;
+import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.jozMain.AdDataRequest;
 
 /**

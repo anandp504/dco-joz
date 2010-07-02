@@ -18,9 +18,10 @@
 package com.tumri.joz.campaign.wm.loader;
 
 import com.tumri.cma.rules.CreativeSet;
-import com.tumri.cma.rules.ListingClause;
+import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.campaign.wm.*;
 import com.tumri.joz.index.Range;
+import com.tumri.joz.products.Handle;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
 
@@ -137,8 +138,8 @@ public class WMDBLoader {
         VectorDB.getInstance().addClause(handle.getOid(), lcRules);
         VectorDB.getInstance().addRules(handle.getOid(), optRules);
 
-        TreeMap<Integer, ArrayList<VectorHandle>> idmap = new TreeMap<Integer, ArrayList<VectorHandle>>();
-        ArrayList<VectorHandle> idHandles = new ArrayList<VectorHandle>();
+        TreeMap<Integer, ArrayList<Handle>> idmap = new TreeMap<Integer, ArrayList<Handle>>();
+        ArrayList<Handle> idHandles = new ArrayList<Handle>();
         idHandles.add(handle);
         idmap.put(expId, idHandles);
         VectorDB.getInstance().updateIntegerIndex(VectorAttribute.kExpId, idmap);
@@ -150,8 +151,8 @@ public class WMDBLoader {
                     if (id != null) {
 
                         if (VectorUtils.getRangeAttributes().contains(attr)) {
-                            TreeMap<Range<Integer>, ArrayList<VectorHandle>> map = new TreeMap<Range<Integer>, ArrayList<VectorHandle>>();
-                            ArrayList<VectorHandle> handles = new ArrayList<VectorHandle>();
+                            TreeMap<Range<Integer>, ArrayList<Handle>> map = new TreeMap<Range<Integer>, ArrayList<Handle>>();
+                            ArrayList<Handle> handles = new ArrayList<Handle>();
                             handles.add(handle);
 
                             String s = VectorUtils.getDictValue(attr, id);
@@ -168,8 +169,8 @@ public class WMDBLoader {
                             }
 
                         } else {
-                            TreeMap<Integer, ArrayList<VectorHandle>> map = new TreeMap<Integer, ArrayList<VectorHandle>>();
-                            ArrayList<VectorHandle> handles = new ArrayList<VectorHandle>();
+                            TreeMap<Integer, ArrayList<Handle>> map = new TreeMap<Integer, ArrayList<Handle>>();
+                            ArrayList<Handle> handles = new ArrayList<Handle>();
                             handles.add(handle);
                             map.put(id, handles);
                             VectorDB.getInstance().updateIntegerIndex(attr, map);
@@ -181,8 +182,8 @@ public class WMDBLoader {
             Set<VectorAttribute> noneAttrs = VectorUtils.findNoneAttributes(requestMap.keySet());
             for (VectorAttribute nAttr: noneAttrs) {
                 Integer id = VectorUtils.getNoneDictId(nAttr);
-                TreeMap<Integer, ArrayList<VectorHandle>> map = new TreeMap<Integer, ArrayList<VectorHandle>>();
-                ArrayList<VectorHandle> handles = new ArrayList<VectorHandle>();
+                TreeMap<Integer, ArrayList<Handle>> map = new TreeMap<Integer, ArrayList<Handle>>();
+                ArrayList<Handle> handles = new ArrayList<Handle>();
                 //No need to clone the entire handle because none index just needs the id, and the none flag
                 VectorHandle noneHandle = new VectorHandleImpl(handle.getOid(), true);
                 handles.add(noneHandle);

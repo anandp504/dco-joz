@@ -4,17 +4,14 @@ import com.tumri.cma.domain.CAM;
 import com.tumri.cma.rules.CreativeInstance;
 import com.tumri.cma.rules.CreativeSelector;
 import com.tumri.cma.rules.CreativeSet;
-import com.tumri.cma.rules.ListingClause;
+import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.index.Range;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.IWeight;
 import com.tumri.utils.Pair;
-import com.tumri.utils.data.MultiSortedSet;
-import com.tumri.utils.data.SortedArraySet;
-import com.tumri.utils.data.SortedBag;
-import com.tumri.utils.data.SortedListBag;
+import com.tumri.utils.data.*;
 import com.tumri.utils.index.AbstractIndex;
 import com.tumri.utils.stats.PerformanceStats;
 import org.apache.log4j.Logger;
@@ -54,42 +51,62 @@ public class VectorTargetingProcessor {
 		Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, request);
 		VectorTargetingResult vtr = new VectorTargetingResult();
 
-		SortedSet<Handle> matchingVectors = getMatchingVectors(contextMap);
+		SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
+        SortedSet<Handle> matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
+
 		CreativeSelector cs = cam.getSelector();
 		CreativeSet cur = cam.getAllCreatives();
 		ArrayList<Integer> vectorIdList = new ArrayList<Integer>();
 		boolean skipRules = false;
 		ListingClause lc = null;
-		if (matchingVectors != null) {
-			SortedBag<Pair<CreativeSet, Double>> rules = null;
+		if (!matchingVectors.isEmpty()) {
+			SortedBag<Pair<CreativeSet, Double>> rules = new SortedListBag<Pair<CreativeSet, Double>>();
 			double prevScore = 0.0;
 			VectorHandle prevHandle = null;
-			boolean first = true;
 			for (Handle h : matchingVectors) {
 				//Get the Listing clause details
-				SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
-				if (clauses!=null) {
-					lc = selectClause(lc, clauses);
-				}
+                {
+                    SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
+                    if (clauses!=null) {
+                        try {
+                            if (clauses instanceof RWLocked) {
+                                ((RWLocked)clauses).readerLock();
+                            }
+                            lc = selectClause(lc, clauses);
+                        } finally {
+                            if (clauses instanceof RWLocked) {
+                                ((RWLocked)clauses).readerUnlock();
+                            }
+                        }
+                    }
+                }
 				//Now check the creative rules
 				if (!skipRules) {
 					VectorHandle vector = (VectorHandle) h;
 					prevHandle = vector;
-					double currentScore = 0;
-
-					currentScore = vector.getScore();
-					if (first) {
-						rules = new SortedListBag<Pair<CreativeSet, Double>>();
-						first = false;
-					}
+					double currentScore = vector.getScore();
 					if (prevScore > 0 && (prevScore != currentScore || !prevHandle.isMatch(vector)) && !rules.isEmpty()) {
 						cur = cs.applyRules(rules,cur);
 						rules = new SortedListBag<Pair<CreativeSet, Double>>();
 					}
 					int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
 					vectorIdList.add(dets[0]);
-					rules.addAll(VectorDB.getInstance().getRules(h.getOid()));
-					if (cur.size() == 1) {
+                    {
+                        SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
+                        try {
+                            if (trules instanceof RWLocked) {
+                               ((RWLocked)trules).readerLock();
+                            }
+                            //TODO: Avoid addAll since it is expensive - use BagUnion ( need a RW locked version of it )
+                            rules.addAll(trules);
+
+                        } finally {
+                            if (trules instanceof RWLocked) {
+                               ((RWLocked)trules).readerUnlock(); 
+                            }
+                        }
+                    }
+                    if (cur.size() == 1) {
 						skipRules = true;
 					} else {
 						prevScore = currentScore;
@@ -171,7 +188,7 @@ public class VectorTargetingProcessor {
 				while(group.hasNext()) {
 					Pair<ListingClause,Double> pair = group.next();
 					wt += pair.getSecond();
-					if (wt > rand || !group.hasNext()) {
+					if (wt >= rand || !group.hasNext()) {
 						list.add(pair.getFirst());
 						break;
 					}
@@ -190,34 +207,6 @@ public class VectorTargetingProcessor {
 		return mainClause;
 	}
 
-
-
-	private List<CreativeSet> resolveBag(SortedBag<Pair<CreativeSet, Double>> bag) {
-		Random r = new Random();
-		List<CreativeSet> list = new ArrayList<CreativeSet>();
-		Iterator<SortedBag.Group<Pair<CreativeSet,Double>>> groups = bag.groupBy(null);
-		while(groups.hasNext()) {
-			SortedBag.Group<Pair<CreativeSet,Double>> group = groups.next();
-			Pair<CreativeSet,Double> key = group.key();
-			double score = 0;
-			while(group.hasNext()) {
-				score += group.next().getSecond();
-			}
-			group = bag.getGroup(key);
-			double rand = (r.nextInt(1000) * score)/1000;
-			double wt = 0;
-			while(group.hasNext()) {
-				Pair<CreativeSet,Double> pair = group.next();
-				wt += pair.getSecond();
-				if (wt > rand || !group.hasNext()) {
-					list.add(pair.getFirst());
-					break;
-				}
-			}
-		}
-		return list;
-	}
-
 	/**
 	 * For a given attribute, for each value, look up the handles from the index and add it to a return SortedSet
 	 *
@@ -227,7 +216,7 @@ public class VectorTargetingProcessor {
 	 */
 	@SuppressWarnings("unchecked")
 	private SortedSet<Handle> getVectorsFromIndex( VectorAttribute attr, Map<VectorAttribute, List<Integer>> contextMap) {
-		SortedSet<Handle> vectors = null;
+		MultiSortedSet<Handle> vectors = null;
 		AbstractIndex idx = VectorDB.getInstance().getIndex(attr);
 		VectorAttribute kNone = VectorUtils.getNoneAttribute(attr);
 		AbstractIndex noneidx = VectorDB.getInstance().getIndex(kNone);
@@ -236,36 +225,32 @@ public class VectorTargetingProcessor {
 			List<Integer> contextVals = contextMap.get(attr);
 			for (Integer contextVal : contextVals) {
 				if (vectors == null) {
-					vectors = new SortedArraySet<Handle>();
+					vectors = new MultiSortedSet<Handle>();
 				}
-				SortedSet<VectorHandle> fromIdx = null;
+				SortedSet<Handle> fromIdx = null;
 				if (VectorUtils.getRangeAttributes().contains(attr)) {
 					//this lookup of dict value is necessary for range queries.
 					String ubValS = VectorUtils.getDictValue(attr, contextVal);
 					try {
 						Integer ubVal = Integer.parseInt(ubValS);
 						Range<Integer> r = new Range<Integer>(ubVal, ubVal);
-						fromIdx = ((VectorRangeIndex<Integer, VectorHandle>) idx).get(r);
+						fromIdx = idx.get(r);
 					} catch (NumberFormatException e) {
 						log.error("Error: Non-Number received as user-bucket: " + ubValS);
 					}
 
 				} else {
-					fromIdx = ((VectorDBIndex<Integer, VectorHandle>) idx).get(contextVal);
+					fromIdx = idx.get(contextVal);
 				}
-				//TODO: Change this to be  setunion ?
-				MultiSortedSet<VectorHandle> results = new MultiSortedSet<VectorHandle>();
 
 				if (fromIdx!=null && !fromIdx.isEmpty()) {
-					results.add(fromIdx);
+					vectors.add(fromIdx);
 				}
 				//Include the none list as well
 				if (noneidx!=null) {
-					SortedSet<VectorHandle> noneRes = ((VectorDBIndex<Integer, VectorHandle>) noneidx).get(VectorUtils.getNoneDictId(kNone));
-					results.add(noneRes);
+					SortedSet<Handle> noneRes = noneidx.get(VectorUtils.getNoneDictId(kNone));
+					vectors.add(noneRes);
 				}
-				//SortedSet<Handle> validVectors = getValidVectors(contextMap, results);
-				vectors.addAll(results);
 			}
 		}
 		return vectors;

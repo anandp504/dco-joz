@@ -1,7 +1,7 @@
 package com.tumri.joz.campaign.wm;
 
 import com.tumri.cma.rules.CreativeInstance;
-import com.tumri.cma.rules.ListingClause;
+import com.tumri.joz.rules.ListingClause;
 
 /**
  * Bean class to hold the result of the vector targeting.

@@ -18,7 +18,7 @@
 package com.tumri.joz.productselection;
 
 import com.tumri.cma.domain.*;
-import com.tumri.cma.rules.ListingClause;
+import com.tumri.joz.rules.ListingClause;
 import com.tumri.content.data.Product;
 import com.tumri.content.data.dictionary.DictionaryManager;
 import com.tumri.joz.Query.*;

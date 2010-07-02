@@ -17,6 +17,7 @@
  */
 package com.tumri.joz.campaign.wm;
 
+import com.tumri.joz.products.Handle;
 import com.tumri.utils.index.AbstractIndex;
 
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.Map;
  * Date: Aug 3, 2009
  * Time: 1:26:38 PM
  */
-public class VectorDBIndex<Key, Value> extends AbstractIndex<VectorHandle, VectorAttribute, Key, Value> {
+public class VectorDBIndex<Key, Value> extends AbstractIndex<Handle, VectorAttribute, Key, Value> {
 
 	private VectorAttribute type;
 
@@ -41,7 +42,7 @@ public class VectorDBIndex<Key, Value> extends AbstractIndex<VectorHandle, Vecto
 		return type;
 	}
 
-	public List<Map.Entry<Key, Value>> getEntries(VectorHandle p) {
+	public List<Map.Entry<Key, Value>> getEntries(Handle p) {
 		throw new UnsupportedOperationException("This method is not supported by this index.");
 	}
 

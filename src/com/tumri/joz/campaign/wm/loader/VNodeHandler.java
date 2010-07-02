@@ -25,7 +25,7 @@ import java.util.*;
 // Xerces Classes
 import com.tumri.cma.domain.*;
 import com.tumri.cma.rules.CreativeSet;
-import com.tumri.cma.rules.ListingClause;
+import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.utils.Pair;
 import com.tumri.utils.data.SortedBag;

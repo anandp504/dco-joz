@@ -357,18 +357,20 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	 * This method must be called in order for put() to take effect.
 	 */
 	public void materialize() {
-		m_map_builder.writerLock();
-		m_map.writerLock();
-		try {
-			m_map.putAll(m_map_builder);
-		} finally {
-			try {
-				m_map_builder.clear();
-			} finally {
-				m_map_builder.writerUnlock();
-			}
-			m_map.writerUnlock();
-		}
+        {
+            m_map_builder.writerLock();
+            try {
+                m_map.writerLock();
+                m_map.putAll(m_map_builder);
+            } finally {
+                try {
+                    m_map_builder.clear();
+                } finally {
+                    m_map.writerUnlock();
+                    m_map_builder.writerUnlock();
+                }
+            }
+        }
 
 		SortedSet<Range<V>> tmpSet = new SortedArraySet<Range<V>>();
 		m_set_builder.writerLock();
