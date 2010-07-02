@@ -85,7 +85,7 @@ public class AdDataRequest {
 	private String externalTargetField5 = null;
 	private String adType = "";
 
-	private Integer recipeId = null;
+	private Long recipeId = null;
 
 	private String buyId = null;
 	private String siteId = null;
@@ -177,7 +177,7 @@ public class AdDataRequest {
 		this._longitude = req.getValue(JozAdRequest.KEY_LONGITUDE);
 		this.adType = req.getValue(JozAdRequest.KEY_AD_TYPE);
 		try {
-			this.recipeId = Integer.parseInt(req.getValue(JozAdRequest.KEY_RECIPE_ID));
+			this.recipeId = Long.parseLong(req.getValue(JozAdRequest.KEY_RECIPE_ID));
 		} catch (Exception e) {
 			this.recipeId = null;
 		}
@@ -550,11 +550,11 @@ public class AdDataRequest {
 		return adType;
 	}
 
-	public Integer getRecipeId() {
+	public Long getRecipeId() {
 		if (recipeId != null) {
 			return recipeId;
 		} else {
-			return -1;
+			return -1L;
 		}
 	}
 
@@ -606,7 +606,7 @@ public class AdDataRequest {
 		}
     }
 
-    public Integer getVeriationId() {
+    public Integer getVariationId() {
         if (variationId != null) {
 			return variationId;
 		} else {

@@ -3,11 +3,12 @@ package com.tumri.joz.targeting;
 import com.tumri.cma.domain.*;
 import com.tumri.cma.rules.CreativeInstance;
 import com.tumri.cma.rules.CreativeSet;
+import com.tumri.cma.util.ExperienceUtils;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.AdPodHandle;
 import com.tumri.joz.campaign.CampaignDB;
-import com.tumri.joz.campaign.wm.VectorTargetingProcessor;
 import com.tumri.joz.campaign.wm.VectorSelectionException;
+import com.tumri.joz.campaign.wm.VectorTargetingProcessor;
 import com.tumri.joz.campaign.wm.VectorTargetingResult;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
@@ -55,9 +56,15 @@ public class TargetingRequestProcessor {
 
         try {
             String tSpecName = request.get_t_spec();
-            int recipeId = request.getRecipeId();
+            long recipeId = request.getRecipeId();
             int expId = request.getExpId();
-            if (expId > 0) {
+            if (expId > 0 || recipeId > Integer.MAX_VALUE) {
+                int varId = -1;
+                if (recipeId > Integer.MAX_VALUE) {
+                    int[] details = ExperienceUtils.getRecipeIdDetails(recipeId);
+                    expId = details[1];
+                    varId = details[0];
+                }
                 Experience exp = CampaignDB.getInstance().getExperience(expId);
                 if (exp ==null) {
                     log.error("Targeted Experience Id : " + expId + " not present in Campaign DB");
@@ -67,15 +74,17 @@ public class TargetingRequestProcessor {
                     trs.setInfoListExperience(exp.getOfferLists());
                     CAM theCAM = exp.getCam();
                     //Check if variation id is provided.
-                    int varId = request.getVeriationId();
+                    if (varId==-1) {
+                        varId = request.getVariationId();
+                    }
                     CreativeInstance ci = null;
                     if (varId>0) {
                         //Select the creative instance for the given variation id
                         try {
-                            int[] selectedDimIds = CreativeInstance.getCreativeAttributeIds(varId);
+                            int[] selectedDimIds = ExperienceUtils.getAttributeIds(varId);
                             //Construct a creative set
                             CreativeSet cs = new CreativeSet(theCAM);
-                            for (int i=0;i<selectedDimIds.length;i++){
+                            for (int i=0;i<theCAM.getNumberOfDimensions();i++){
                                 cs.add(i,selectedDimIds[i]);
                             }
                             ci = cs.getCreativeInstance();
@@ -351,7 +360,7 @@ public class TargetingRequestProcessor {
             trs.setInfoListRecipe(theRecipe.getTspecInfoList());
         } else {
             //Experience based targeting
-            int variationId = CreativeInstance.getId(dimIdx);
+            int variationId = ExperienceUtils.getVariationId(dimIdx);
             feature.setRecipeId(variationId); // Set the variation id into the recipe id field
             trs.setAttributePositions(dimIdx);
             trs.setAttributeValues(attribValues);

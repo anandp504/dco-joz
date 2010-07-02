@@ -144,9 +144,9 @@ public abstract class CampaignDB {
 
     public abstract void addRecipe(Recipe recipe);
 
-    public abstract void delRecipe(int recipeId);
+    public abstract void delRecipe(long recipeId);
 
-    public abstract Recipe getRecipe(int recipeId);
+    public abstract Recipe getRecipe(long recipeId);
 
     public abstract void addTSpec(TSpec tspec);
 

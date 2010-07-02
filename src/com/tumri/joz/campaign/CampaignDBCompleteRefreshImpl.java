@@ -47,7 +47,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     private AtomicReference<RWLockedTreeMap<String, Url>>       urlNameMap    = new AtomicReference<RWLockedTreeMap<String, Url>>(new RWLockedTreeMap<String, Url>());
 
     //Use recipe map to maintain the recipe id to recipe lookup
-    private AtomicReference<RWLockedTreeMap<Integer, Recipe>>   recipeMap    = new AtomicReference<RWLockedTreeMap<Integer, Recipe>>(new RWLockedTreeMap<Integer, Recipe>());
+    private AtomicReference<RWLockedTreeMap<Long, Recipe>>   recipeMap    = new AtomicReference<RWLockedTreeMap<Long, Recipe>>(new RWLockedTreeMap<Long, Recipe>());
 
 
     private AtomicReference<RWLockedTreeMap<Integer,Location>> locationMap   = new AtomicReference<RWLockedTreeMap<Integer, Location>>(new RWLockedTreeMap<Integer, Location>());
@@ -946,14 +946,14 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
     }
 
     public void addRecipe(Recipe recipe) {
-        recipeMap.get().safePut(recipe.getId(), recipe);
+        recipeMap.get().safePut(new Long(recipe.getId()), recipe);
     }
 
-    public void delRecipe(int recipeId) {
+    public void delRecipe(long recipeId) {
         recipeMap.get().safeRemove(recipeId);
     }
 
-    public Recipe getRecipe(int recipeId) {
+    public Recipe getRecipe(long recipeId) {
         return recipeMap.get().safeGet(recipeId);
     }
 
@@ -997,11 +997,11 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             return;
         }
         if(iterator.hasNext()) {
-            RWLockedTreeMap<Integer,Recipe> map = new RWLockedTreeMap<Integer,Recipe>();
+            RWLockedTreeMap<Long,Recipe> map = new RWLockedTreeMap<Long,Recipe>();
 
             while(iterator.hasNext()) {
                 Recipe recipe = iterator.next();
-                map.put(recipe.getId(), recipe);
+                map.put(new Long(recipe.getId()), recipe);
             }
             recipeMap.compareAndSet(recipeMap.get(), map);
         }
@@ -1108,10 +1108,10 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
     public ArrayList<Recipe> getRecipes() {
         ArrayList<Recipe> recipeArrayList = new ArrayList<Recipe>();
-        RWLockedTreeMap<Integer, Recipe> recipeTreeMap = recipeMap.get();
-        Iterator<Integer> recipeKeyIter = recipeTreeMap.keySet().iterator();
+        RWLockedTreeMap<Long, Recipe> recipeTreeMap = recipeMap.get();
+        Iterator<Long> recipeKeyIter = recipeTreeMap.keySet().iterator();
         while(recipeKeyIter.hasNext()) {
-            Integer recipeId = recipeKeyIter.next();
+            Long recipeId = recipeKeyIter.next();
             recipeArrayList.add(recipeTreeMap.get(recipeId));
         }
         return recipeArrayList;

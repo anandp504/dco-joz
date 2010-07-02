@@ -250,8 +250,8 @@ public class TransientDataManagerTest {
         Campaign testCampaign = new Campaign();
         testCampaign.setId(101);
         testCampaign.setName("testCampaign");
-        AdGroup testGroup = new AdGroup();
-        testGroup.setId(102);
+//        AdGroup testGroup = new AdGroup();
+//        testGroup.setId(102);
         AdPod testAdPod = new AdPod();
         Recipe testRecipe = new Recipe();
         testRecipe.setId(103);
@@ -272,8 +272,8 @@ public class TransientDataManagerTest {
         testProperty.setId(104);
         testRecipe.addProperty(testProperty);
         testAdPod.addRecipe(testRecipe);
-        testGroup.addAdPod(testAdPod);
-        testCampaign.addAdGroup(testGroup);
+//        testGroup.addAdPod(testAdPod);
+        //testCampaign.addAdGroup(testGroup);
         try {
             TransientDataManager.getInstance().addCampaign(testCampaign);
         } catch (JoZException e) {
@@ -312,14 +312,6 @@ public class TransientDataManagerTest {
 
         // Return the right Cmd* class to handle this request.
 
-        if (cmd_name.equals ("get-ad-data")) {
-            AdDataRequest rqst = new AdDataRequest (e);
-
-            recipe = processor.processRequest(rqst, new Features());
-
-        } else {
-            fail("The request could not be parsed correctly");
-        }
 
         return recipe;
 
