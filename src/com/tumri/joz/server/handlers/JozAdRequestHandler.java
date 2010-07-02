@@ -151,6 +151,10 @@ public class JozAdRequestHandler implements RequestHandler {
                 response.addDetails(JozAdResponse.KEY_RECIPE_NAME, features.getRecipeName());
                 response.addDetails(JozAdResponse.KEY_RECIPE_ID, Integer.toString(r.getId()));
             } else {
+                String recipeId = Integer.toString(features.getRecipeId());
+                String recipeName = features.getExpName()+"_"+recipeId;
+                response.addDetails(JozAdResponse.KEY_RECIPE_ID, recipeId);
+                response.addDetails(JozAdResponse.KEY_RECIPE_NAME, recipeName);
                 recipeData = getExpData(prs);
             }
 

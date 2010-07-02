@@ -97,6 +97,7 @@ public class AdDataRequest {
 	private String ub = null;
 
     private Integer expId = null;
+    private Integer variationId = null;
     private String age=null;
     private String gender = null;
     private String hhi = null;
@@ -254,6 +255,12 @@ public class AdDataRequest {
             this.expId = Integer.parseInt(req.getValue(JozAdRequest.KEY_EXPERIENCE_ID));
         } catch (Exception e) {
             this.expId = null;
+        }
+
+        try {
+            this.variationId = Integer.parseInt(req.getValue(JozAdRequest.KEY_VARIATION_ID));
+        } catch (Exception e) {
+            this.variationId = null;
         }
 
         this.age = req.getValue(JozAdRequest.KEY_AGE);
@@ -510,7 +517,31 @@ public class AdDataRequest {
 		if (extField5 == null)
 			extField5 = "";
 		extVarsMap.put("x2_t5", extField5);
-        //TODO Add ut1 thru ut5
+
+		String ut1 = getUt1();
+		if (ut1 == null)
+			ut1 = "";
+		extVarsMap.put("ut1", ut1);
+
+		String ut2 = getUt2();
+		if (ut2 == null)
+			ut2 = "";
+		extVarsMap.put("ut2", ut2);
+
+		String ut3 = getUt3();
+		if (ut3 == null)
+			ut3 = "";
+		extVarsMap.put("ut3", ut3);
+
+		String ut4 = getUt1();
+		if (ut4 == null)
+			ut4 = "";
+		extVarsMap.put("ut4", ut4);
+
+		String ut5 = getUt5();
+		if (ut5 == null)
+			ut5 = "";
+		extVarsMap.put("ut5", ut5);
 
 		return extVarsMap;
 	}
@@ -570,6 +601,14 @@ public class AdDataRequest {
     public Integer getExpId() {
         if (expId != null) {
 			return expId;
+		} else {
+			return -1;
+		}
+    }
+
+    public Integer getVeriationId() {
+        if (variationId != null) {
+			return variationId;
 		} else {
 			return -1;
 		}

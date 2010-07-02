@@ -2,6 +2,7 @@ package com.tumri.joz.targeting;
 
 import com.tumri.cma.domain.*;
 import com.tumri.cma.rules.CreativeInstance;
+import com.tumri.cma.rules.CreativeSet;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.AdPodHandle;
 import com.tumri.joz.campaign.CampaignDB;
@@ -65,12 +66,33 @@ public class TargetingRequestProcessor {
                     trs.setExperience(exp);
                     trs.setInfoListExperience(exp.getOfferLists());
                     CAM theCAM = exp.getCam();
-                    
-                    //Select the creative instance
-                    VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
-                    VectorTargetingResult vtr = proc.processRequest(expId, theCAM, request, features);
-                    CreativeInstance ci = vtr.getCi();
+                    //Check if variation id is provided.
+                    int varId = request.getVeriationId();
+                    CreativeInstance ci = null;
+                    if (varId>0) {
+                        //Select the creative instance for the given variation id
+                        try {
+                            int[] selectedDimIds = CreativeInstance.getCreativeAttributeIds(varId);
+                            //Construct a creative set
+                            CreativeSet cs = new CreativeSet(theCAM);
+                            for (int i=0;i<selectedDimIds.length;i++){
+                                cs.add(i,selectedDimIds[i]);
+                            }
+                            ci = cs.getCreativeInstance();
+                        } catch (Exception e) {
+                            log.error("Invalid variation id for the given cam", e);
+                            ci = null;
+                        }
 
+                    }
+                    if (ci==null) {
+                        //Select the creative instance from the CAM.
+                        VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
+                        VectorTargetingResult vtr = proc.processRequest(expId, theCAM, request, features);
+                        ci = vtr.getCi();
+                        trs.setListingClause(vtr.getLc());
+                    }
+                    
                     String[] attribValues = ci.getAttributes();
                     int[] dimIdx = ci.getAttributeIds();
 
@@ -87,7 +109,6 @@ public class TargetingRequestProcessor {
                     }
                     trs.setCamDimensionNames(attrNames);
                     trs.setCamDimensionTypes(dimTypes);
-                    trs.setListingClause(vtr.getLc());
                     features.setExpName(exp.getName());
                 }
             } else if (recipeId > 0) {
@@ -330,6 +351,8 @@ public class TargetingRequestProcessor {
             trs.setInfoListRecipe(theRecipe.getTspecInfoList());
         } else {
             //Experience based targeting
+            int variationId = CreativeInstance.getId(dimIdx);
+            feature.setRecipeId(variationId); // Set the variation id into the recipe id field
             trs.setAttributePositions(dimIdx);
             trs.setAttributeValues(attribValues);
             CAMDimension[] dims = theCAM.getCamDimensions();
