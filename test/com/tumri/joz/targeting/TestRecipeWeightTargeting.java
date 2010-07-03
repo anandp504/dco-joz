@@ -20,6 +20,7 @@ package com.tumri.joz.targeting;
 import com.tumri.joz.campaign.wm.*;
 import com.tumri.joz.campaign.wm.loader.WMLoaderException;
 import com.tumri.joz.products.Handle;
+import com.tumri.utils.data.SortedArraySet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Assert;
@@ -47,7 +48,7 @@ public class TestRecipeWeightTargeting {
 
         try {
             WMXMLParser parser = new WMXMLParserV1();
-            parser.process("/Users/nipun/ws/work-nbp/depot/dev/branch/tc/tas/joz/test/data/csl/wm-test.xml");
+            parser.process("/Users/nipun/ws/work-nbp/depot/Tumri/tas/joz/test/data/csl/wm-test.xml");
         } catch (WMLoaderException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -90,13 +91,20 @@ public class TestRecipeWeightTargeting {
         jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
         AdDataRequest request = new AdDataRequest(jozRequest);
         Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(4445, request);
-//        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
-//        Assert.assertTrue(results!=null);
-//        for (Handle h : results) {
-//            VectorHandle vh = (VectorHandle)h;
-//            int[] dets = vh.getIdDetails(vh.getOid());
-//            System.out.println("Experience id = " + dets[1] + ". Adpod id = " + dets[0] + ". Score = " + vh.getScore());
-//        }
+        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
+        Assert.assertTrue(results!=null);
+        for (Handle h : results) {
+            VectorHandle vh = (VectorHandle)h;
+            int[] dets = VectorUtils.getIdDetails(vh.getOid());
+            System.out.println("Experience id = " + dets[1] + ". Vector id = " + dets[0] + ". Score = " + vh.getScore());
+        }
+
+        SortedSet<Handle> results1 = new SortedArraySet<Handle>(results, new VectorHandleImpl(0L));
+        for (Handle h: results1) {
+            VectorHandle vh = (VectorHandle)h;
+            int[] dets = VectorUtils.getIdDetails(vh.getOid());
+            System.out.println("After Sort Experience id = " + dets[1] + ". Vector id = " + dets[0] + ". Score = " + vh.getScore());
+        }
     }
 
     @Test

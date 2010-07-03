@@ -138,7 +138,7 @@ public class VectorHandleImpl implements VectorHandle, Cloneable  {
     public int compare(Object h1, Object h2) {
         VectorHandle ph1 = (VectorHandle) h1;
         VectorHandle ph2 = (VectorHandle) h2;
-        int diffSize = ph1.getSize() - ph2.getSize();
+        int diffSize = ph2.getSize() - ph1.getSize();
         if (diffSize!=0){
             return diffSize;
         }

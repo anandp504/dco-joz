@@ -560,4 +560,31 @@ public class VectorUtils {
         return noneSet;
     }
 
+
+    /**
+     * Constructs an id from experience id and a vector id
+     * @param expId
+     * @param vectorId
+     * @return
+     */
+    public static long createId(int expId, int vectorId) {
+        long leid = expId;
+        long id = (leid << 32) & 0xFFFFFFFF00000000L;
+        id = id | (vectorId & 0x00000000FFFFFFFFL);
+        return id;
+    }
+
+    /**
+     * Breaks up the id back into the experience id and the vector id
+     * @param id
+     * @return - array of length 2. The 0th position is the vector id and the 1st position is the exp id.
+     */
+    public static int[] getIdDetails(long id) {
+        int[] dets = new int[2];
+        dets[0] = (int)id;
+        long hiVal = id >> 32;
+        dets[1]= (int)hiVal;
+        return dets;
+    }
+
 }
