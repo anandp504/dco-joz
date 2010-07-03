@@ -147,17 +147,19 @@ public class JozAdRequestHandler implements RequestHandler {
             //Get the recipe data
             String recipeData = null;
             Recipe r = prs.getTargetedRecipe();
+            int expId = features.getExpId();
             if (r != null) {
                 recipeData = getRecipeData(r);
                 response.addDetails(JozAdResponse.KEY_RECIPE_NAME, features.getRecipeName());
                 response.addDetails(JozAdResponse.KEY_RECIPE_ID, Integer.toString(r.getId()));
             } else {
-                //TODO: Send Long value back
-               // long newRecId = ExperienceUtils.createRecipeId()
-                String recipeId = Integer.toString(features.getRecipeId());
-                String recipeName = features.getExpName()+"_"+recipeId;
-                response.addDetails(JozAdResponse.KEY_RECIPE_ID, recipeId);
-                response.addDetails(JozAdResponse.KEY_RECIPE_NAME, recipeName);
+                long newRecId = 0L;
+                if (expId>0) {
+                    newRecId = ExperienceUtils.createRecipeId(expId, features.getRecipeId());
+                    String recipeName = features.getExpName()+"_"+Long.toString(newRecId);
+                    response.addDetails(JozAdResponse.KEY_RECIPE_ID, Long.toString(newRecId));
+                    response.addDetails(JozAdResponse.KEY_RECIPE_NAME, recipeName);
+                }
                 recipeData = getExpData(prs);
             }
 
