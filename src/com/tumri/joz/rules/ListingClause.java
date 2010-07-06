@@ -24,22 +24,22 @@ public class ListingClause implements Comparable {
 
 	static {
 		clauseScoreMap.put(TYPE_CATEGORY, 1);
-		clauseScoreMap.put(TYPE_MERCHANT, 1<<1);
-		clauseScoreMap.put(TYPE_BRAND, 1<<2);
-		clauseScoreMap.put(TYPE_PRODUCT, 1<<3);
-		clauseScoreMap.put(TYPE_KEYWORD, 1<<4);
-		clauseScoreMap.put(TYPE_GLOBALID, 1<<5);
-		clauseScoreMap.put(TYPE_HHMI, 1<<6);
-		clauseScoreMap.put(TYPE_MS, 1<<7);
-		clauseScoreMap.put(TYPE_BT, 1<<8);
-		clauseScoreMap.put(TYPE_GENDER, 1<<9);
+		clauseScoreMap.put(TYPE_MERCHANT, 1 << 1);
+		clauseScoreMap.put(TYPE_BRAND, 1 << 2);
+		clauseScoreMap.put(TYPE_PRODUCT, 1 << 3);
+		clauseScoreMap.put(TYPE_KEYWORD, 1 << 4);
+		clauseScoreMap.put(TYPE_GLOBALID, 1 << 5);
+		clauseScoreMap.put(TYPE_HHMI, 1 << 6);
+		clauseScoreMap.put(TYPE_MS, 1 << 7);
+		clauseScoreMap.put(TYPE_BT, 1 << 8);
+		clauseScoreMap.put(TYPE_GENDER, 1 << 9);
 	}
 
 	public ListingClause(ListingClause lc) {
 		merge(lc);
 	}
 
-    private int m_score = 0;
+	private int m_score = 0;
 
 	/**
 	 * Constructs a listing clause of the given type and value
@@ -48,7 +48,7 @@ public class ListingClause implements Comparable {
 	 * @param value
 	 */
 	public ListingClause(String type, String value) {
-		if (type != null) {
+		if (type != null && value != null) {
 			Integer score = clauseScoreMap.get(type);
 			if (score == null) {
 				throw new UnsupportedOperationException("This type is not supported for listing optimization : " + type);
@@ -59,7 +59,7 @@ public class ListingClause implements Comparable {
 				clauseTypeMap.put(type, res);
 			}
 			res.add(value);
-            m_score|=score;
+			m_score |= score;
 		}
 	}
 
@@ -78,20 +78,23 @@ public class ListingClause implements Comparable {
 	}
 
 	public int compareTo(Object o) {
-        ListingClause that = (ListingClause)o;
-        int diffScore = that.m_score-this.m_score;
-        if (diffScore!=0){
-            return diffScore;
-        }
+		ListingClause that = (ListingClause) o;
+		int diffScore = that.m_score - this.m_score;
+		if (diffScore != 0) {
+			return diffScore;
+		}
 		int size = this.size();
 		int oSize = that.size();
-        return (oSize-size);
+		return (oSize - size);
 	}
 
 	public int size() {
 		int size = 0;
 		for (String type : clauseTypeMap.keySet()) {
-			size = size + clauseTypeMap.get(type).size();
+			Set<String> res = clauseTypeMap.get(type);
+			if (res != null) {
+				size = size + res.size();
+			}
 		}
 		return clauseTypeMap.size();
 	}
@@ -99,25 +102,30 @@ public class ListingClause implements Comparable {
 	public void merge(ListingClause lc) {
 		if (lc.clauseTypeMap != null && !lc.clauseTypeMap.isEmpty()) {
 			for (String type : lc.clauseTypeMap.keySet()) {
-				Set<String> res = clauseTypeMap.get(type);
-				if (res == null) {
-					res = new HashSet<String>();
-					clauseTypeMap.put(type, res);
+				Set<String> res = lc.clauseTypeMap.get(type);
+				if (res != null) {
+					Set<String> res2 = clauseTypeMap.get(type);
+					if (res2 == null) {
+						res2 = new HashSet<String>();
+						clauseTypeMap.put(type, res2);
+					}
+					res2.addAll(res);
 				}
-				res.addAll(lc.clauseTypeMap.get(type));
 			}
-            this.m_score|=lc.m_score;
+			this.m_score |= lc.m_score;
 		}
 	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (String type : clauseScoreMap.keySet()) {
-			Set<String> vals = clauseTypeMap.get(type);
-			if (vals.size() > 0) {
-				sb.append(type);
-				sb.append(": ");
-				sb.append(vals);
+		if (clauseScoreMap != null) {
+			for (String type : clauseScoreMap.keySet()) {
+				Set<String> vals = clauseTypeMap.get(type);
+				if (vals != null && vals.size() > 0) {
+					sb.append(type);
+					sb.append(": ");
+					sb.append(vals);
+				}
 			}
 		}
 		return sb.toString();
