@@ -52,7 +52,7 @@ public class VectorTargetingProcessor {
 		VectorTargetingResult vtr = new VectorTargetingResult();
 
 		SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
-        SortedSet<Handle> matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
+		SortedSet<Handle> matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
 
 		CreativeSelector cs = cam.getSelector();
 		CreativeSet cur = cam.getAllCreatives();
@@ -65,61 +65,61 @@ public class VectorTargetingProcessor {
 			VectorHandle prevHandle = null;
 			for (Handle h : matchingVectors) {
 				//Get the Listing clause details
-                {
-                    SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
-                    if (clauses!=null) {
-                        try {
-                            if (clauses instanceof RWLocked) {
-                                ((RWLocked)clauses).readerLock();
-                            }
-                            lc = selectClause(lc, clauses);
-                        } finally {
-                            if (clauses instanceof RWLocked) {
-                                ((RWLocked)clauses).readerUnlock();
-                            }
-                        }
-                    }
-                }
+				{
+					SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
+					if (clauses != null) {
+						try {
+							if (clauses instanceof RWLocked) {
+								((RWLocked) clauses).readerLock();
+							}
+							lc = selectClause(lc, clauses);
+						} finally {
+							if (clauses instanceof RWLocked) {
+								((RWLocked) clauses).readerUnlock();
+							}
+						}
+					}
+				}
 				//Now check the creative rules
 				if (!skipRules) {
 					VectorHandle vector = (VectorHandle) h;
-					prevHandle = vector;
 					double currentScore = vector.getScore();
-					if (prevScore > 0 && (prevScore != currentScore || !prevHandle.isMatch(vector)) && !rules.isEmpty()) {
-						cur = cs.applyRules(rules,cur);
+					if (prevScore > 0 && (prevScore != currentScore || !vector.isMatch(prevHandle)) && !rules.isEmpty()) {
+						cur = cs.applyRules(rules, cur);
 						rules = new SortedListBag<Pair<CreativeSet, Double>>();
 					}
 					int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
 					vectorIdList.add(dets[0]);
-                    {
-                        SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
-                        try {
-                            if (trules instanceof RWLocked) {
-                               ((RWLocked)trules).readerLock();
-                            }
-                            //TODO: Avoid addAll since it is expensive - use BagUnion ( need a RW locked version of it )
-                            rules.addAll(trules);
+					{
+						SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
+						try {
+							if (trules instanceof RWLocked) {
+								((RWLocked) trules).readerLock();
+							}
+							//TODO: Avoid addAll since it is expensive - use BagUnion ( need a RW locked version of it )
+							rules.addAll(trules);
 
-                        } finally {
-                            if (trules instanceof RWLocked) {
-                               ((RWLocked)trules).readerUnlock(); 
-                            }
-                        }
-                    }
-                    if (cur.size() == 1) {
+						} finally {
+							if (trules instanceof RWLocked) {
+								((RWLocked) trules).readerUnlock();
+							}
+						}
+					}
+					if (cur.size() == 1) {
 						skipRules = true;
 					} else {
 						prevScore = currentScore;
+						prevHandle = vector;
 					}
 				}
 			}
 
-			if (rules!=null&& !rules.isEmpty()) {
-				cur = cs.applyRules(rules,cur);
+			if (rules != null && !rules.isEmpty()) {
+				cur = cs.applyRules(rules, cur);
 			}
 		}
-		if (!vectorIdList.isEmpty()){
-			features.addFeatureDetail("RWM-ID",vectorIdList.toString());
+		if (!vectorIdList.isEmpty()) {
+			features.addFeatureDetail("RWM-ID", vectorIdList.toString());
 		} else {
 			log.warn("Could not select a Vector for the given request");
 		}
@@ -131,14 +131,14 @@ public class VectorTargetingProcessor {
 		} catch (Exception e) {
 			log.warn("Could not select a viable instance from the cam", e);
 		}
-		if (lc!=null) {
+		if (lc != null) {
 			vtr.setLc(lc);
 		}
 		return vtr;
 	}
 
 	@SuppressWarnings("unchecked")
-	private SortedSet<Handle>  getMatchingVectors(Map<VectorAttribute, List<Integer>> contextMap) {
+	private SortedSet<Handle> getMatchingVectors(Map<VectorAttribute, List<Integer>> contextMap) {
 
 		//Add context matches
 		VectorSetIntersector intersector = new VectorSetIntersector(true);
@@ -156,7 +156,7 @@ public class VectorTargetingProcessor {
 			}
 			//Include all other none sets
 			Set<VectorAttribute> nonAttrs = VectorUtils.findNoneAttributes(contextMap.keySet());
-			for (VectorAttribute na: nonAttrs) {
+			for (VectorAttribute na : nonAttrs) {
 				AbstractIndex noneidx = VectorDB.getInstance().getIndex(na);
 				SortedSet<Handle> noneRes = ((VectorDBIndex<Integer, Handle>) noneidx).get(VectorUtils.getNoneDictId(na));
 				//Build intersector
@@ -171,22 +171,22 @@ public class VectorTargetingProcessor {
 	 * Select one of the listing clause and "merge" with the existing main one.
 	 */
 	private ListingClause selectClause(ListingClause mainClause, SortedBag<Pair<ListingClause, Double>> bag) {
-		if (bag!=null) {
+		if (bag != null) {
 			Random r = new Random();
 			List<ListingClause> list = new ArrayList<ListingClause>();
-			Iterator<SortedBag.Group<Pair<ListingClause,Double>>> groups = bag.groupBy(null);
-			while(groups.hasNext()) {
-				SortedBag.Group<Pair<ListingClause,Double>> group = groups.next();
-				Pair<ListingClause,Double> key = group.key();
+			Iterator<SortedBag.Group<Pair<ListingClause, Double>>> groups = bag.groupBy(null);
+			while (groups.hasNext()) {
+				SortedBag.Group<Pair<ListingClause, Double>> group = groups.next();
+				Pair<ListingClause, Double> key = group.key();
 				double score = 0;
-				while(group.hasNext()) {
+				while (group.hasNext()) {
 					score += group.next().getSecond();
 				}
 				group = bag.getGroup(key);
-				double rand = (r.nextInt(1000) * score)/1000;
+				double rand = (r.nextInt(1000) * score) / 1000;
 				double wt = 0;
-				while(group.hasNext()) {
-					Pair<ListingClause,Double> pair = group.next();
+				while (group.hasNext()) {
+					Pair<ListingClause, Double> pair = group.next();
 					wt += pair.getSecond();
 					if (wt >= rand || !group.hasNext()) {
 						list.add(pair.getFirst());
@@ -195,8 +195,8 @@ public class VectorTargetingProcessor {
 				}
 			}
 			if (!list.isEmpty()) {
-				for (ListingClause clause: list) {
-					if (mainClause==null) {
+				for (ListingClause clause : list) {
+					if (mainClause == null) {
 						mainClause = new ListingClause(clause);
 					} else {
 						mainClause.merge(clause);
@@ -215,7 +215,7 @@ public class VectorTargetingProcessor {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private SortedSet<Handle> getVectorsFromIndex( VectorAttribute attr, Map<VectorAttribute, List<Integer>> contextMap) {
+	private SortedSet<Handle> getVectorsFromIndex(VectorAttribute attr, Map<VectorAttribute, List<Integer>> contextMap) {
 		MultiSortedSet<Handle> vectors = null;
 		AbstractIndex idx = VectorDB.getInstance().getIndex(attr);
 		VectorAttribute kNone = VectorUtils.getNoneAttribute(attr);
@@ -243,11 +243,11 @@ public class VectorTargetingProcessor {
 					fromIdx = idx.get(contextVal);
 				}
 
-				if (fromIdx!=null && !fromIdx.isEmpty()) {
+				if (fromIdx != null && !fromIdx.isEmpty()) {
 					vectors.add(fromIdx);
 				}
 				//Include the none list as well
-				if (noneidx!=null) {
+				if (noneidx != null) {
 					SortedSet<Handle> noneRes = noneidx.get(VectorUtils.getNoneDictId(kNone));
 					vectors.add(noneRes);
 				}
@@ -268,7 +268,6 @@ public class VectorTargetingProcessor {
 		IWeight<Handle> wt = new VectorAttributeWeights(rv, attr);
 		return wt;
 	}
-
 
 
 }
