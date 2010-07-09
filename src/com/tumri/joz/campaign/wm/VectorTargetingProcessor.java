@@ -88,33 +88,33 @@ public class VectorTargetingProcessor {
 						cur = cs.applyRules(rules, cur);
 						rules = new SortedListBag<Pair<CreativeSet, Double>>();
 					}
-					int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
-					vectorIdList.add(dets[0]);
-					{
-						SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
-						try {
-							if (trules instanceof RWLocked) {
-								((RWLocked) trules).readerLock();
-							}
-							//TODO: Avoid addAll since it is expensive - use BagUnion ( need a RW locked version of it )
-							rules.addAll(trules);
-
-						} finally {
-							if (trules instanceof RWLocked) {
-								((RWLocked) trules).readerUnlock();
-							}
-						}
-					}
 					if (cur.size() == 1) {
 						skipRules = true;
 					} else {
 						prevScore = currentScore;
 						prevHandle = vector;
+						int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
+						vectorIdList.add(dets[0]);
+						{
+							SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
+							try {
+								if (trules instanceof RWLocked) {
+									((RWLocked) trules).readerLock();
+								}
+								//TODO: Avoid addAll since it is expensive - use BagUnion ( need a RW locked version of it )
+								rules.addAll(trules);
+
+							} finally {
+								if (trules instanceof RWLocked) {
+									((RWLocked) trules).readerUnlock();
+								}
+							}
+						}
 					}
 				}
 			}
 
-			if (rules != null && !rules.isEmpty()) {
+			if (rules != null && !rules.isEmpty() && !skipRules) {
 				cur = cs.applyRules(rules, cur);
 			}
 		}
