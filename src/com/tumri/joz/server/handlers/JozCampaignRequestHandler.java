@@ -19,6 +19,7 @@ package com.tumri.joz.server.handlers;
 
 import com.thoughtworks.xstream.XStream;
 import com.tumri.cma.domain.Campaign;
+import com.tumri.cma.domain.AdPod;
 import com.tumri.cma.export.ExportUtils;
 import com.tumri.joz.JoZException;
 import com.tumri.joz.campaign.TransientDataManager;
@@ -80,6 +81,7 @@ public class JozCampaignRequestHandler implements RequestHandler {
             log.debug("Received JozCampaign data request");
             try {
 	            XStream xstream = ExportUtils.getXStreamForExport();
+	            xstream.omitField(AdPod.class, "adGroupId");
                 // get the Campaign data object from the XML using XStream apis
             	commandType = query.getValue(JozCampaignRequest.KEY_COMMAND);
             	            	
