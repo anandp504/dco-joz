@@ -82,7 +82,7 @@ public class VectorHandleImpl implements VectorHandle, Cloneable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		VectorHandleImpl that = (VectorHandleImpl) o;
-		if (id != that.id) return false;
+		if (getOid() != that.getOid()) return false;
 		return true;
 	}
 
