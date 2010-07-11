@@ -12,17 +12,17 @@
  * WRITTEN PERMISSION OF TUMRI INC.
  *
  * @author Nipun Nair (@tumri.com)
- * @version 1.0     
+ * @version 1.0
  *
  */
 package com.tumri.joz.campaign.wm;
 
 import com.tumri.joz.products.Handle;
-import com.tumri.utils.data.SortedArraySet;
 
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @author: nipun
@@ -31,8 +31,8 @@ import java.util.SortedSet;
  */
 public class VectorHandleFactory {
 
-	private SortedArraySet<VectorHandle> newHandles = new SortedArraySet<VectorHandle>();
-	private SortedArraySet<VectorHandle> currHandles = new SortedArraySet<VectorHandle>();
+	private SortedSet<VectorHandle> newHandles = new TreeSet<VectorHandle>();
+	private SortedSet<VectorHandle> currHandles = new TreeSet<VectorHandle>();
 
 	private static VectorHandleFactory _factory;
 
@@ -58,25 +58,35 @@ public class VectorHandleFactory {
 	 * @param expId
 	 * @param vectorId
 	 * @param contextMap
-     * @param multiple
+	 * @param multiple
 	 * @return
 	 */
 	public VectorHandle getHandle(int expId, int vectorId, int type, Map<VectorAttribute, List<Integer>> contextMap, boolean multiple) {
-        VectorHandle h = VectorDB.getInstance().getVectorHandle(expId, vectorId, VectorHandle.DEFAULT);
-        if (h == null) {
-            h = new VectorHandleImpl(expId, vectorId,type, contextMap, multiple);
-            Handle ph = newHandles.find(h);
-            if (ph != null) {
-                h = (VectorHandle) ph;
-            } else {
-                //add it to the list
-                newHandles.add(h);
-            }
-        }
-        currHandles.add(h);
+		VectorHandle h = VectorDB.getInstance().getVectorHandle(expId, vectorId, type);
+		if (h == null) {
+			h = new VectorHandleImpl(expId, vectorId, type, contextMap, multiple);
+			Handle ph = find(newHandles, h);
+			if (ph != null) {
+				h = (VectorHandle) ph;
+			} else {
+				//add it to the list
+				newHandles.add(h);
+			}
+		}
+		currHandles.add(h);
 
 		return h;
 
+	}
+
+	private static Handle find(SortedSet<VectorHandle> set, VectorHandle h) {
+		SortedSet<VectorHandle> tailSet = set.tailSet(h);
+		if (!tailSet.isEmpty()) {
+			VectorHandle ph = tailSet.first();
+			if (ph.compareTo(h) == 0)
+				return ph;
+		}
+		return null;
 	}
 
 	/**
@@ -84,7 +94,7 @@ public class VectorHandleFactory {
 	 */
 	public void clear() {
 		newHandles.clear();
-        currHandles.clear();
+		currHandles.clear();
 	}
 
 	/**
@@ -102,6 +112,6 @@ public class VectorHandleFactory {
 	 * @return
 	 */
 	public SortedSet<VectorHandle> getCurrHandles() {
-		return newHandles;
+		return currHandles;
 	}
 }
