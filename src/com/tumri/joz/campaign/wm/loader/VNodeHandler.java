@@ -231,7 +231,7 @@ public class VNodeHandler extends DefaultHandler {
 					optRules.add(recipeRuleMap.get(rid));
 				}
 			}
-			if (!requestMap.isEmpty() && !optRules.isEmpty()) {
+			if (!requestMap.isEmpty() && (!optRules.isEmpty() || !lcRules.isEmpty())) {
 				Map<VectorAttribute,  List<Integer>> idMap = explodeRequestMap(requestMap);
 				VectorHandle h = VectorHandleFactory.getInstance().getHandle(adPodId, vectorId, VectorHandle.OPTIMIZATION, idMap, true);
 				if (h != null) {
