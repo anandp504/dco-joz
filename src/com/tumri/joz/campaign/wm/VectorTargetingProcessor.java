@@ -23,255 +23,275 @@ import java.util.*;
  */
 public class VectorTargetingProcessor {
 
-    private static final Logger log = Logger.getLogger(VectorTargetingProcessor.class);
-    private static VectorTargetingProcessor processor = null;
-    private static final String PROCESS_STATS_ID = "RS";
+	private static final Logger log = Logger.getLogger(VectorTargetingProcessor.class);
+	private static VectorTargetingProcessor processor = null;
+	private static final String PROCESS_STATS_ID = "RS";
 
 
-    public static VectorTargetingProcessor getInstance() {
-        if (processor == null) {
-            synchronized (VectorTargetingProcessor.class) {
-                if (processor == null) {
-                    processor = new VectorTargetingProcessor();
-                }
-            }
-        }
-        return processor;
-    }
+	public static VectorTargetingProcessor getInstance() {
+		if (processor == null) {
+			synchronized (VectorTargetingProcessor.class) {
+				if (processor == null) {
+					processor = new VectorTargetingProcessor();
+				}
+			}
+		}
+		return processor;
+	}
 
-    /**
-     * Do the selection of recipe given the request
-     *
-     * @param request - request
-     * @return
-     */
-    public VectorTargetingResult processRequest(int adpodId, CAM cam, AdDataRequest request, Features features)
-            throws VectorSelectionException {
-        PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
-        Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, request);
-        VectorTargetingResult vtr = new VectorTargetingResult();
+	/**
+	 * Do the selection of recipe given the request
+	 *
+	 * @param request - request
+	 * @return
+	 */
+	public VectorTargetingResult processRequest(int adpodId, CAM cam, AdDataRequest request, Features features)
+			throws VectorSelectionException {
+		PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
+		Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, request);
+		VectorTargetingResult vtr = new VectorTargetingResult();
 
-        SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
-        SortedSet<Handle> matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
+		SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
+		SortedSet<Handle> matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
 
-        CreativeSelector cs = cam.getSelector();
-        CreativeSet cur = cam.getAllCreatives();
-        ArrayList<Integer> vectorIdList = new ArrayList<Integer>();
-        boolean skipRules = false;
-        ListingClause lc = null;
-        if (!matchingVectors.isEmpty()) {
-            SortedBag<Pair<CreativeSet, Double>> rules = new SortedListBag<Pair<CreativeSet, Double>>();
-            double prevScore = 0.0;
-            VectorHandle prevHandle = null;
-            for (Handle h : matchingVectors) {
-                //Get the Listing clause details
-                {
-                    SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
-                    if (clauses != null) {
-                        try {
-                            if (clauses instanceof RWLocked) {
-                                ((RWLocked) clauses).readerLock();
-                            }
-                            lc = selectClause(lc, clauses);
-                        } finally {
-                            if (clauses instanceof RWLocked) {
-                                ((RWLocked) clauses).readerUnlock();
-                            }
-                        }
-                    }
-                }
-                //Now check the creative rules
-                if (!skipRules) {
-                    VectorHandle vector = (VectorHandle) h;
-                    double currentScore = vector.getScore();
-                    if (prevScore > 0 && (prevScore != currentScore || !vector.isMatch(prevHandle)) && !rules.isEmpty()) {
-                        cur = cs.applyRules(rules, cur);
-                        rules = new SortedListBag<Pair<CreativeSet, Double>>();
-                    }
-                    if (cur.size() == 1) {
-                        skipRules = true;
-                    } else {
-                        prevScore = currentScore;
-                        prevHandle = vector;
-                        int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
-                        vectorIdList.add(dets[0]);
-                        {
-                            SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
-                            try {
-                                if (trules !=null) {
-                                    if (trules instanceof RWLocked) {
-                                        ((RWLocked) trules).readerLock();
-                                    }
-                                    //TODO: Avoid addAll since it is expensive - use BagUnion ( need a RW locked version of it )
-                                    rules.addAll(trules);
-                                } else {
-                                    log.warn("Rules not found for handle : " + h.getOid());
-                                }
+		CreativeSelector cs = cam.getSelector();
+		CreativeSet cur = cam.getAllCreatives();
+		ArrayList<Integer> vectorIdList = new ArrayList<Integer>();
+		ArrayList<Integer> vectorIdList2 = new ArrayList<Integer>();
+		boolean skipRules = false;
+		ListingClause lc = null;
+		Random r = new Random();
 
-                            } finally {
-                                if (trules instanceof RWLocked) {
-                                    ((RWLocked) trules).readerUnlock();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+		if (!matchingVectors.isEmpty()) {
+			List<SortedBag<Pair<CreativeSet, Double>>> rules = new ArrayList<SortedBag<Pair<CreativeSet, Double>>>();
+//            SortedBag<Pair<CreativeSet, Double>> rules = new SortedListBag<Pair<CreativeSet, Double>>();
+			double prevScore = 0.0;
+			VectorHandle prevHandle = null;
+			for (Handle h : matchingVectors) {
+				//Get the Listing clause details
+				{
+					SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
+					if (clauses != null) {
+						try {
+							if (clauses instanceof RWLocked) {
+								((RWLocked) clauses).readerLock();
+							}
+							lc = selectClause(lc, clauses);
+						} finally {
+							if (clauses instanceof RWLocked) {
+								((RWLocked) clauses).readerUnlock();
+							}
+						}
+					}
+				}
+				//Now check the creative rules
+				if (!skipRules) {
+					VectorHandle vector = (VectorHandle) h;
+					double currentScore = vector.getScore();
+					if (prevScore > 0 && (prevScore != currentScore) && !rules.isEmpty()) {
+						while (cur.size() > 1 && rules.size() > 0) {
+							int i = r.nextInt(rules.size());
+							SortedBag<Pair<CreativeSet, Double>> tmpBag = rules.get(i);
+							cur = cs.applyRules(tmpBag, cur);
+							rules.remove(i);
+							vectorIdList.add(vectorIdList2.get(i));
+							vectorIdList2.remove(i);
+						}
+					}
+					if (cur.size() == 1) {
+						rules.clear();
+						vectorIdList2.clear();
+						skipRules = true;
+					} else {
+						prevScore = currentScore;
+						prevHandle = vector;
+						int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
+						//vectorIdList.add(dets[0]);
+						{
+							SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
+							try {
+								if (trules != null) {
+									if (trules instanceof RWLocked) {
+										((RWLocked) trules).readerLock();
+									}
+									//TODO: Avoid addAll since it is expensive - use BagUnion ( need a RW locked version of it )
+									vectorIdList2.add(dets[0]);
+									rules.add(trules);
+								} else {
+									log.warn("Rules not found for handle : " + h.getOid());
+								}
 
-            if (rules != null && !rules.isEmpty() && !skipRules) {
-                cur = cs.applyRules(rules, cur);
-            }
-        }
-        if (!vectorIdList.isEmpty()) {
-            features.addFeatureDetail("RWM-ID", vectorIdList.toString());
-        } else {
-            log.warn("Could not select a Vector for the given request");
-        }
-        CreativeInstance ci = null;
+							} finally {
+								if (trules instanceof RWLocked) {
+									((RWLocked) trules).readerUnlock();
+								}
+							}
+						}
+					}
+				}
+			}
 
-        try {
-            ci = cs.select(cur);
-            vtr.setCi(ci);
-        } catch (Exception e) {
-            log.warn("Could not select a viable instance from the cam", e);
-        }
-        if (lc != null) {
-            vtr.setLc(lc);
-        }
-        return vtr;
-    }
+			if (rules != null && !rules.isEmpty() && !skipRules) {
+				while (cur.size() > 1 && rules.size() > 0) {
+					int i = r.nextInt(rules.size());
+					SortedBag<Pair<CreativeSet, Double>> tmpBag = rules.get(i);
+					cur = cs.applyRules(tmpBag, cur);
+					rules.remove(i);
+					vectorIdList.add(vectorIdList2.get(i));
+					vectorIdList2.remove(i);
+				}
+			}
+		}
+		if (!vectorIdList.isEmpty()) {
+			features.addFeatureDetail("RWM-ID", vectorIdList.toString());
+		} else {
+			log.warn("Could not select a Vector for the given request");
+		}
+		CreativeInstance ci = null;
 
-    @SuppressWarnings("unchecked")
-    private SortedSet<Handle> getMatchingVectors(Map<VectorAttribute, List<Integer>> contextMap) {
+		try {
+			ci = cs.select(cur);
+			vtr.setCi(ci);
+		} catch (Exception e) {
+			log.warn("Could not select a viable instance from the cam", e);
+		}
+		if (lc != null) {
+			vtr.setLc(lc);
+		}
+		return vtr;
+	}
 
-        //Add context matches
-        VectorSetIntersector intersector = new VectorSetIntersector(true);
-        if (contextMap != null) {
-            Set<VectorAttribute> keys = contextMap.keySet();
-            for (VectorAttribute attr : keys) {
+	@SuppressWarnings("unchecked")
+	private SortedSet<Handle> getMatchingVectors(Map<VectorAttribute, List<Integer>> contextMap) {
 
-                SortedSet<Handle> vectors = getVectorsFromIndex(attr, contextMap);
-                if (vectors != null && vectors.size() > 0) {
-                    //Build intersector
-                    IWeight<Handle> wt = getHandleWeight(attr, contextMap);
-                    intersector.include(vectors, wt);
-                }
+		//Add context matches
+		VectorSetIntersector intersector = new VectorSetIntersector(true);
+		if (contextMap != null) {
+			Set<VectorAttribute> keys = contextMap.keySet();
+			for (VectorAttribute attr : keys) {
 
-            }
-            //Include all other none sets
-            Set<VectorAttribute> nonAttrs = VectorUtils.findNoneAttributes(contextMap.keySet());
-            for (VectorAttribute na : nonAttrs) {
-                AbstractIndex noneidx = VectorDB.getInstance().getIndex(na);
-                SortedSet<Handle> noneRes = ((VectorDBIndex<Integer, Handle>) noneidx).get(VectorUtils.getNoneDictId(na));
-                //Build intersector
-                IWeight<Handle> wt = getHandleWeight(na, contextMap);
-                intersector.include(noneRes, wt);
-            }
-        }
-        return intersector.intersect();
-    }
+				SortedSet<Handle> vectors = getVectorsFromIndex(attr, contextMap);
+				if (vectors != null && vectors.size() > 0) {
+					//Build intersector
+					IWeight<Handle> wt = getHandleWeight(attr, contextMap);
+					intersector.include(vectors, wt);
+				}
 
-    /**
-     * Select one of the listing clause and "merge" with the existing main one.
-     */
-    private ListingClause selectClause(ListingClause mainClause, SortedBag<Pair<ListingClause, Double>> bag) {
-        if (bag != null) {
-            Random r = new Random();
-            List<ListingClause> list = new ArrayList<ListingClause>();
-            Iterator<SortedBag.Group<Pair<ListingClause, Double>>> groups = bag.groupBy(null);
-            while (groups.hasNext()) {
-                SortedBag.Group<Pair<ListingClause, Double>> group = groups.next();
-                Pair<ListingClause, Double> key = group.key();
-                double score = 0;
-                while (group.hasNext()) {
-                    score += group.next().getSecond();
-                }
-                group = bag.getGroup(key);
-                double rand = (r.nextInt(1000) * score) / 1000;
-                double wt = 0;
-                while (group.hasNext()) {
-                    Pair<ListingClause, Double> pair = group.next();
-                    wt += pair.getSecond();
-                    if (wt >= rand || !group.hasNext()) {
-                        list.add(pair.getFirst());
-                        break;
-                    }
-                }
-            }
-            if (!list.isEmpty()) {
-                for (ListingClause clause : list) {
-                    if (mainClause == null) {
-                        mainClause = new ListingClause(clause);
-                    } else {
-                        mainClause.merge(clause);
-                    }
-                }
-            }
-        }
-        return mainClause;
-    }
+			}
+			//Include all other none sets
+			Set<VectorAttribute> nonAttrs = VectorUtils.findNoneAttributes(contextMap.keySet());
+			for (VectorAttribute na : nonAttrs) {
+				AbstractIndex noneidx = VectorDB.getInstance().getIndex(na);
+				SortedSet<Handle> noneRes = ((VectorDBIndex<Integer, Handle>) noneidx).get(VectorUtils.getNoneDictId(na));
+				//Build intersector
+				IWeight<Handle> wt = getHandleWeight(na, contextMap);
+				intersector.include(noneRes, wt);
+			}
+		}
+		return intersector.intersect();
+	}
 
-    /**
-     * For a given attribute, for each value, look up the handles from the index and add it to a return SortedSet
-     *
-     * @param attr
-     * @param contextMap
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private SortedSet<Handle> getVectorsFromIndex(VectorAttribute attr, Map<VectorAttribute, List<Integer>> contextMap) {
-        MultiSortedSet<Handle> vectors = null;
-        AbstractIndex idx = VectorDB.getInstance().getIndex(attr);
-        VectorAttribute kNone = VectorUtils.getNoneAttribute(attr);
-        AbstractIndex noneidx = VectorDB.getInstance().getIndex(kNone);
+	/**
+	 * Select one of the listing clause and "merge" with the existing main one.
+	 */
+	private ListingClause selectClause(ListingClause mainClause, SortedBag<Pair<ListingClause, Double>> bag) {
+		if (bag != null) {
+			Random r = new Random();
+			List<ListingClause> list = new ArrayList<ListingClause>();
+			Iterator<SortedBag.Group<Pair<ListingClause, Double>>> groups = bag.groupBy(null);
+			while (groups.hasNext()) {
+				SortedBag.Group<Pair<ListingClause, Double>> group = groups.next();
+				Pair<ListingClause, Double> key = group.key();
+				double score = 0;
+				while (group.hasNext()) {
+					score += group.next().getSecond();
+				}
+				group = bag.getGroup(key);
+				double rand = (r.nextInt(1000) * score) / 1000;
+				double wt = 0;
+				while (group.hasNext()) {
+					Pair<ListingClause, Double> pair = group.next();
+					wt += pair.getSecond();
+					if (wt >= rand || !group.hasNext()) {
+						list.add(pair.getFirst());
+						break;
+					}
+				}
+			}
+			if (!list.isEmpty()) {
+				for (ListingClause clause : list) {
+					if (mainClause == null) {
+						mainClause = new ListingClause(clause);
+					} else {
+						mainClause.merge(clause);
+					}
+				}
+			}
+		}
+		return mainClause;
+	}
 
-        if (idx != null) {
-            List<Integer> contextVals = contextMap.get(attr);
-            for (Integer contextVal : contextVals) {
-                if (vectors == null) {
-                    vectors = new MultiSortedSet<Handle>();
-                }
-                SortedSet<Handle> fromIdx = null;
-                if (VectorUtils.getRangeAttributes().contains(attr)) {
-                    //this lookup of dict value is necessary for range queries.
-                    String ubValS = VectorUtils.getDictValue(attr, contextVal);
-                    try {
-                        Integer ubVal = Integer.parseInt(ubValS);
-                        Range<Integer> r = new Range<Integer>(ubVal, ubVal);
-                        fromIdx = idx.get(r);
-                    } catch (NumberFormatException e) {
-                        log.error("Error: Non-Number received as user-bucket: " + ubValS);
-                    }
+	/**
+	 * For a given attribute, for each value, look up the handles from the index and add it to a return SortedSet
+	 *
+	 * @param attr
+	 * @param contextMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private SortedSet<Handle> getVectorsFromIndex(VectorAttribute attr, Map<VectorAttribute, List<Integer>> contextMap) {
+		MultiSortedSet<Handle> vectors = null;
+		AbstractIndex idx = VectorDB.getInstance().getIndex(attr);
+		VectorAttribute kNone = VectorUtils.getNoneAttribute(attr);
+		AbstractIndex noneidx = VectorDB.getInstance().getIndex(kNone);
 
-                } else {
-                    fromIdx = idx.get(contextVal);
-                }
+		if (idx != null) {
+			List<Integer> contextVals = contextMap.get(attr);
+			for (Integer contextVal : contextVals) {
+				if (vectors == null) {
+					vectors = new MultiSortedSet<Handle>();
+				}
+				SortedSet<Handle> fromIdx = null;
+				if (VectorUtils.getRangeAttributes().contains(attr)) {
+					//this lookup of dict value is necessary for range queries.
+					String ubValS = VectorUtils.getDictValue(attr, contextVal);
+					try {
+						Integer ubVal = Integer.parseInt(ubValS);
+						Range<Integer> r = new Range<Integer>(ubVal, ubVal);
+						fromIdx = idx.get(r);
+					} catch (NumberFormatException e) {
+						log.error("Error: Non-Number received as user-bucket: " + ubValS);
+					}
 
-                if (fromIdx != null && !fromIdx.isEmpty()) {
-                    vectors.add(fromIdx);
-                }
-                //Include the none list as well
-                if (noneidx != null) {
-                    SortedSet<Handle> noneRes = noneidx.get(VectorUtils.getNoneDictId(kNone));
-                    vectors.add(noneRes);
-                }
-            }
-        }
-        return vectors;
-    }
+				} else {
+					fromIdx = idx.get(contextVal);
+				}
 
-    /**
-     * Because of MVF we need to construct a VectorHandle with a map that contains just the keys from the contextMap
-     *
-     * @param attr
-     * @param contextMap
-     * @return
-     */
-    private IWeight<Handle> getHandleWeight(VectorAttribute attr, Map<VectorAttribute, List<Integer>> contextMap) {
-        VectorHandle rv = new VectorHandleImpl(0, 0, VectorHandleImpl.OPTIMIZATION, contextMap, true);
-        IWeight<Handle> wt = new VectorAttributeWeights(rv, attr);
-        return wt;
-    }
+				if (fromIdx != null && !fromIdx.isEmpty()) {
+					vectors.add(fromIdx);
+				}
+				//Include the none list as well
+				if (noneidx != null) {
+					SortedSet<Handle> noneRes = noneidx.get(VectorUtils.getNoneDictId(kNone));
+					vectors.add(noneRes);
+				}
+			}
+		}
+		return vectors;
+	}
+
+	/**
+	 * Because of MVF we need to construct a VectorHandle with a map that contains just the keys from the contextMap
+	 *
+	 * @param attr
+	 * @param contextMap
+	 * @return
+	 */
+	private IWeight<Handle> getHandleWeight(VectorAttribute attr, Map<VectorAttribute, List<Integer>> contextMap) {
+		VectorHandle rv = new VectorHandleImpl(0, 0, VectorHandleImpl.OPTIMIZATION, contextMap, true);
+		IWeight<Handle> wt = new VectorAttributeWeights(rv, attr);
+		return wt;
+	}
 
 
 }
