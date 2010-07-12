@@ -57,16 +57,14 @@ public class VectorTargetingProcessor {
 		CreativeSelector cs = cam.getSelector();
 		CreativeSet cur = cam.getAllCreatives();
 		ArrayList<Integer> vectorIdList = new ArrayList<Integer>();
-		ArrayList<Integer> vectorIdList2 = new ArrayList<Integer>();
+		ArrayList<Integer> tmpVectorIdList = new ArrayList<Integer>();
 		boolean skipRules = false;
 		ListingClause lc = null;
 		Random r = new Random();
 
 		if (!matchingVectors.isEmpty()) {
 			List<SortedBag<Pair<CreativeSet, Double>>> rules = new ArrayList<SortedBag<Pair<CreativeSet, Double>>>();
-//            SortedBag<Pair<CreativeSet, Double>> rules = new SortedListBag<Pair<CreativeSet, Double>>();
 			double prevScore = 0.0;
-			VectorHandle prevHandle = null;
 			for (Handle h : matchingVectors) {
 				//Get the Listing clause details
 				{
@@ -94,19 +92,16 @@ public class VectorTargetingProcessor {
 							SortedBag<Pair<CreativeSet, Double>> tmpBag = rules.get(i);
 							cur = cs.applyRules(tmpBag, cur);
 							rules.remove(i);
-							vectorIdList.add(vectorIdList2.get(i));
-							vectorIdList2.remove(i);
+							vectorIdList.add(tmpVectorIdList.get(i));
+							tmpVectorIdList.remove(i);
 						}
 					}
 					if (cur.size() == 1) {
 						rules.clear();
-						vectorIdList2.clear();
+						tmpVectorIdList.clear();
 						skipRules = true;
 					} else {
 						prevScore = currentScore;
-						prevHandle = vector;
-						int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
-						//vectorIdList.add(dets[0]);
 						{
 							SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
 							try {
@@ -114,8 +109,8 @@ public class VectorTargetingProcessor {
 									if (trules instanceof RWLocked) {
 										((RWLocked) trules).readerLock();
 									}
-									//TODO: Avoid addAll since it is expensive - use BagUnion ( need a RW locked version of it )
-									vectorIdList2.add(dets[0]);
+                                    int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
+									tmpVectorIdList.add(dets[0]);
 									rules.add(trules);
 								} else {
 									log.warn("Rules not found for handle : " + h.getOid());
@@ -137,8 +132,8 @@ public class VectorTargetingProcessor {
 					SortedBag<Pair<CreativeSet, Double>> tmpBag = rules.get(i);
 					cur = cs.applyRules(tmpBag, cur);
 					rules.remove(i);
-					vectorIdList.add(vectorIdList2.get(i));
-					vectorIdList2.remove(i);
+					vectorIdList.add(tmpVectorIdList.get(i));
+					tmpVectorIdList.remove(i);
 				}
 			}
 		}
