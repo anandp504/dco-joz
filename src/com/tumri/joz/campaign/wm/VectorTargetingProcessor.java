@@ -56,8 +56,9 @@ public class VectorTargetingProcessor {
 
 		CreativeSelector cs = cam.getSelector();
 		CreativeSet cur = cam.getAllCreatives();
-		ArrayList<Integer> vectorIdList = new ArrayList<Integer>();
-		ArrayList<Integer> tmpVectorIdList = new ArrayList<Integer>();
+		ArrayList<Integer> vectorIdList = new ArrayList<Integer>(); //vectorids that have rules
+		ArrayList<Integer> tmpVectorIdList = new ArrayList<Integer>(); //tmp array to help build vectorIdList
+		ArrayList<Integer> lcVectorIdList = new ArrayList<Integer>(); //vectorids that have listing-clauses
 		boolean skipRules = false;
 		ListingClause lc = null;
 		Random r = new Random();
@@ -67,6 +68,7 @@ public class VectorTargetingProcessor {
 			double prevScore = 0.0;
 			for (Handle h : matchingVectors) {
 				//Get the Listing clause details
+				int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
 				{
 					SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
 					if (clauses != null) {
@@ -74,6 +76,7 @@ public class VectorTargetingProcessor {
 							if (clauses instanceof RWLocked) {
 								((RWLocked) clauses).readerLock();
 							}
+							lcVectorIdList.add(dets[0]);
 							lc = selectClause(lc, clauses);
 						} finally {
 							if (clauses instanceof RWLocked) {
@@ -104,22 +107,20 @@ public class VectorTargetingProcessor {
 						prevScore = currentScore;
 						{
 							SortedBag<Pair<CreativeSet, Double>> trules = VectorDB.getInstance().getRules(h.getOid());
-							try {
-								if (trules != null) {
+							if (trules != null && !trules.isEmpty()) {
+								try {
 									if (trules instanceof RWLocked) {
 										((RWLocked) trules).readerLock();
 									}
-                                    int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
 									tmpVectorIdList.add(dets[0]);
 									rules.add(trules);
-								} else {
-									log.warn("Rules not found for handle : " + h.getOid());
+								} finally {
+									if (trules instanceof RWLocked) {
+										((RWLocked) trules).readerUnlock();
+									}
 								}
-
-							} finally {
-								if (trules instanceof RWLocked) {
-									((RWLocked) trules).readerUnlock();
-								}
+							} else {
+								log.warn("Rules not found for handle : " + h.getOid());
 							}
 						}
 					}
@@ -141,6 +142,9 @@ public class VectorTargetingProcessor {
 			features.addFeatureDetail("RWM-ID", vectorIdList.toString());
 		} else {
 			log.warn("Could not select a Vector for the given request");
+		}
+		if (!lcVectorIdList.isEmpty()) {
+			features.addFeatureDetail("LC-WM-ID", lcVectorIdList.toString());
 		}
 		CreativeInstance ci = null;
 
@@ -257,7 +261,6 @@ public class VectorTargetingProcessor {
 					} catch (NumberFormatException e) {
 						log.error("Error: Non-Number received as user-bucket: " + ubValS);
 					}
-
 				} else {
 					fromIdx = idx.get(contextVal);
 				}
