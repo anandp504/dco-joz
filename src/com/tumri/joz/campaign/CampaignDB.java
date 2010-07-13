@@ -1,6 +1,7 @@
 package com.tumri.joz.campaign;
 
 import com.tumri.cma.domain.*;
+import com.tumri.joz.campaign.wm.VectorHandleFactory;
 import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.utils.Pair;
@@ -84,7 +85,7 @@ public abstract class CampaignDB {
 
     public abstract void loadCampaigns(Iterator<Campaign> iterator);
 
-    public abstract void loadAdPods(Iterator<AdPod> iterator);
+    public abstract void loadAdPods(Iterator<AdPod> iterator, VectorHandleFactory vhFactory);
 
     public abstract void loadExperiences(Iterator<Experience> iterator);
 

@@ -24,6 +24,7 @@ import java.io.*;
 
 // Xerces Classes
 import com.tumri.joz.campaign.wm.VectorHandle;
+import com.tumri.joz.campaign.wm.VectorHandleFactory;
 import org.xml.sax.*;
 import org.apache.xerces.parsers.*;
 import org.apache.log4j.Logger;
@@ -44,15 +45,16 @@ public class ANodeHandler extends DefaultHandler {
 	int adPodId = 0;
 	private static final Logger log = Logger.getLogger(ANodeHandler.class);
 	private Set<Integer> vectorInclList = new HashSet<Integer>();
-    private SortedSet<VectorHandle> allHandles = null;
+    private VectorHandleFactory vhFactory = null;
 
 	public ANodeHandler(int adPodId, Stack path, Map params, Attributes attributes, SAXParser parser,
-	                    DefaultHandler parent) throws SAXException {
+	                    DefaultHandler parent, VectorHandleFactory vf) throws SAXException {
 		this.adPodId = adPodId;
 		this.path = path;
 		this.params = params;
 		this.parent = parent;
 		this.parser = parser;
+        vhFactory = vf;
 		start(attributes);
 	}
 
@@ -83,7 +85,7 @@ public class ANodeHandler extends DefaultHandler {
 				throw new SAXException("Invalid Id for the vector - skipping vector node");
 			}
 			vectorInclList.add(vectorId);
-			DefaultHandler handler = new VNodeHandler(adPodId,vectorId, path, params, attributes, parser, this);
+			DefaultHandler handler = new VNodeHandler(adPodId,vectorId, path, params, attributes, parser, this, vhFactory);
 			path.push("v");
 			parser.setContentHandler(handler);
 

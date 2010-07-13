@@ -23,13 +23,13 @@ import com.tumri.joz.utils.LogUtils;
 public class WMContentPoller {
 
     protected static Logger log = Logger.getLogger(WMContentPoller.class);
-    protected int refreshWallClockTimeMins = 5; // start at 5 min after an hour
+    protected int refreshWallClockTimeMins = 10; // start at 5 min after an hour
     protected static Timer _timer = new Timer();
     protected static int repeatIntervalMins = 15; // repeat every 15 min
     private static final String CONFIG_XML_FILE_SRC_PATH = "com.tumri.campaign.file.sourceDir";
     private static final String XML_LOCK_FILE = "wm.lock";
-    private static final String CONFIG_WALL_CLOCK_MINUTES = "com.tumri.campaign.file.refresh.time.minutes";
-    private static final String CONFIG_CMA_REFRESH_INTERVAL_MINUTES = "com.tumri.campaign.file.refresh.interval.minutes";
+    private static final String CONFIG_WM_WALL_CLOCK_MINUTES = "com.tumri.wm.file.refresh.time.minutes";
+    private static final String CONFIG_WM_REFRESH_INTERVAL_MINUTES = "com.tumri.wm.file.refresh.interval.minutes";
     private static final String CONFIG_CMA_REFRESH_ENABLED = "com.tumri.campaign.file.refresh.enabled";
     private static WMContentPoller g_cmaContentPoller = null;
     private static String lockFileName = null;
@@ -127,11 +127,11 @@ public class WMContentPoller {
 
         //Register for the polling
         try {
-            int minutes = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_WALL_CLOCK_MINUTES));
+            int minutes = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_WM_WALL_CLOCK_MINUTES));
             if (minutes > 0 && minutes < 60) {
                 refreshWallClockTimeMins = minutes;
             }
-            int repeat = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_CMA_REFRESH_INTERVAL_MINUTES));
+            int repeat = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_WM_REFRESH_INTERVAL_MINUTES));
             if (repeat > 0 && minutes < 60) {
                 repeatIntervalMins = repeat;
             }

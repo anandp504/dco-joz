@@ -20,6 +20,7 @@ package com.tumri.joz.campaign.wm.loader;
 // JDK Classes
 
 import com.tumri.joz.campaign.wm.VectorHandle;
+import com.tumri.joz.campaign.wm.VectorHandleFactory;
 import org.apache.log4j.Logger;
 import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.Attributes;
@@ -43,14 +44,16 @@ public class ENodeHandler extends DefaultHandler {
 	private SAXParser parser;
 	int expId = 0;
 	private static final Logger log = Logger.getLogger(ENodeHandler.class);
+    private VectorHandleFactory vhFactory = null;
 
 	public ENodeHandler(int expId,  Stack path, Map params, Attributes attributes, SAXParser parser,
-	                    DefaultHandler parent) throws SAXException {
+	                    DefaultHandler parent, VectorHandleFactory vf ) throws SAXException {
 		this.expId = expId;
 		this.path = path;
 		this.params = params;
 		this.parent = parent;
 		this.parser = parser;
+        this.vhFactory = vf;
 		start(attributes);
 	}
 
@@ -80,7 +83,7 @@ public class ENodeHandler extends DefaultHandler {
 			} catch (NumberFormatException e) {
 				throw new SAXException("Invalid Id for the vector - skipping vector node");
 			}
-			DefaultHandler handler = new VNodeHandler(expId, vectorId, path, params, attributes, parser, this);
+			DefaultHandler handler = new VNodeHandler(expId, vectorId, path, params, attributes, parser, this, vhFactory);
 			path.push("v");
 			parser.setContentHandler(handler);
 

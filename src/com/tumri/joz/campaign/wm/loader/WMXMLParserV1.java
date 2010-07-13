@@ -61,6 +61,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
     File schemaFile = null;
     private static final Logger log = Logger.getLogger(WMXMLParserV1.class);
     private static final String XSD_FILE_NAME = "wm_1.xsd";
+    private VectorHandleFactory vhFactory = null;
 
     public WMXMLParserV1() {
         String schemaFilePath = AppProperties.getInstance().getProperty("com.tumri.campaign.wm.xmlSchemaPath");
@@ -68,6 +69,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
             schemaFilePath = "/opt/Tumri/joz/current/tomcat5/conf";
         }
         schemaFile = new File(schemaFilePath + File.separator + XSD_FILE_NAME);
+        vhFactory = new VectorHandleFactory();
 
     }
 
@@ -110,9 +112,9 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
     public void endDocument() throws SAXException {
         //Do all the post processing here
         VectorDB.getInstance().materializeRangeIndices();
-        SortedSet<VectorHandle> allHandles = VectorHandleFactory.getInstance().getCurrHandles();
+        SortedSet<VectorHandle> allHandles = vhFactory.getCurrHandles();
         VectorDB.getInstance().addOpsNewHandles(allHandles);
-        VectorHandleFactory.getInstance().clear();
+        vhFactory.clear();
         log.info("Finished processing the document");
     }
 
@@ -128,7 +130,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
             }
 
             log.info("Now processing adpod id : " + adPodId);
-            DefaultHandler handler = new ANodeHandler(adPodId,path, params, attributes, parser, this);
+            DefaultHandler handler = new ANodeHandler(adPodId,path, params, attributes, parser, this, vhFactory);
             path.push("a");
             parser.setContentHandler(handler);
         }
@@ -141,7 +143,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
             }
 
             log.info("Now processing exp id : " + expId);
-            DefaultHandler handler = new ENodeHandler(expId, path, params, attributes, parser, this);
+            DefaultHandler handler = new ENodeHandler(expId, path, params, attributes, parser, this, vhFactory);
             path.push("a");
             parser.setContentHandler(handler);
         }

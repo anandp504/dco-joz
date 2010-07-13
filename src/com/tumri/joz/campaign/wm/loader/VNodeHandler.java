@@ -53,11 +53,13 @@ public class VNodeHandler extends DefaultHandler {
 	SortedBag<Pair<CreativeSet, Double>> optRules = new SortedListBag<Pair<CreativeSet, Double>>();
 	SortedBag<Pair<ListingClause, Double>> lcRules = new SortedListBag<Pair<ListingClause, Double>>();
 	Map<String,Pair<CreativeSet, Double>> recipeRuleMap = new HashMap<String, Pair<CreativeSet, Double>>();
+    private VectorHandleFactory vhFactory = null;
 	private CAM cam;
 	private static final Logger log = Logger.getLogger(VNodeHandler.class);
 
 	public VNodeHandler(int adPodId,int vectorId, Stack path, Map params,
-	                    Attributes attributes, SAXParser parser, DefaultHandler parent) throws SAXException {
+	                    Attributes attributes, SAXParser parser, DefaultHandler parent,
+                        VectorHandleFactory vF) throws SAXException {
 		this.adPodId = adPodId;
 		this.vectorId = vectorId;
 		this.path = path;
@@ -65,6 +67,7 @@ public class VNodeHandler extends DefaultHandler {
 		this.parent = parent;
 		this.parser = parser;
 		this.cam = getCAM(adPodId);
+        this.vhFactory = vF;
 		start(attributes);
 	}
 
@@ -233,7 +236,7 @@ public class VNodeHandler extends DefaultHandler {
 			}
 			if (!requestMap.isEmpty() && (!optRules.isEmpty() || !lcRules.isEmpty())) {
 				Map<VectorAttribute,  List<Integer>> idMap = explodeRequestMap(requestMap);
-				VectorHandle h = VectorHandleFactory.getInstance().getHandle(adPodId, vectorId, VectorHandle.OPTIMIZATION, idMap, true);
+				VectorHandle h =vhFactory.getHandle(adPodId, vectorId, VectorHandle.OPTIMIZATION, idMap, true);
 				if (h != null) {
 					WMDBLoader.updateDb(adPodId, optRules, lcRules, idMap, h);
 				}

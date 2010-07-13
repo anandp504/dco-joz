@@ -34,23 +34,6 @@ public class VectorHandleFactory {
 	private SortedSet<VectorHandle> newHandles = new TreeSet<VectorHandle>();
 	private SortedSet<VectorHandle> currHandles = new TreeSet<VectorHandle>();
 
-	private static VectorHandleFactory _factory;
-
-	/**
-	 * Gets the singleton instance of this impl
-	 *
-	 * @return
-	 */
-	public static VectorHandleFactory getInstance() {
-		if (_factory == null) {
-			synchronized (VectorHandleFactory.class) {
-				if (_factory == null) {
-					_factory = new VectorHandleFactory();
-				}
-			}
-		}
-		return _factory;
-	}
 
 	/**
 	 * Get the handle if already there, else create one

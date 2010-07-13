@@ -108,7 +108,8 @@ public class CampaignDBDataLoader {
 
             campaignDB.loadUrls(urlsIterator);
             campaignDB.loadLocations(locationsIterator);
-            campaignDB.loadAdPods(adPodsIterator);
+            VectorHandleFactory vhFactory = new VectorHandleFactory();
+            campaignDB.loadAdPods(adPodsIterator, vhFactory);
             campaignDB.loadGeocodes(geocodesIterator);
             campaignDB.loadOSpecs(oSpecsIterator);
             campaignDB.loadAdPodOSpecMapping(adPodOSpecMappings);
@@ -138,9 +139,9 @@ public class CampaignDBDataLoader {
             TSpecQueryCache.getInstance().load(oSpecsIterator2);
 
             //Load the Recipe information into the VectorDB as default rules
-            SortedSet<VectorHandle> defHandles = VectorHandleFactory.getInstance().getCurrHandles();
+            SortedSet<VectorHandle> defHandles = vhFactory.getCurrHandles();
             VectorDB.getInstance().addDefNewHandles(defHandles);
-            VectorHandleFactory.getInstance().clear();
+            vhFactory.clear();
             //TODO: Also get the personalization rules
 
             //long campaignIndexEndTime = System.currentTimeMillis();

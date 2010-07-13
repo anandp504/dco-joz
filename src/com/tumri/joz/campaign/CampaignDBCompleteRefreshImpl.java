@@ -418,7 +418,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
         log.info("Campaign Size: " + campaignCount);
     }
 
-    public void loadAdPods(Iterator<AdPod> iterator) {
+    public void loadAdPods(Iterator<AdPod> iterator, VectorHandleFactory vhFactory) {
         if(iterator == null) {
             return;
         }
@@ -433,7 +433,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             while(iterator.hasNext()) {
                 AdPod adPod = iterator.next();
                 map.put(adPod.getId(), adPod);
-                CAM theCAM = loadVectorDataForAdpod(adPod);
+                CAM theCAM = loadVectorDataForAdpod(adPod, vhFactory);
                 if (theCAM!=null) {
                     camMap.put(adPod.getId(), theCAM);
                     camCount++;
@@ -452,7 +452,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
      * Load the vector data into the Weight Matrix
      * @param theAdPod
      */
-    private CAM loadVectorDataForAdpod(AdPod theAdPod){
+    private CAM loadVectorDataForAdpod(AdPod theAdPod, VectorHandleFactory vhFactory){
         List<Recipe> recipes = theAdPod.getRecipes();
         CAM theCAM = null;
         SortedBag<Pair<CreativeSet, Double>> defRules = new SortedListBag<Pair<CreativeSet, Double>>();
@@ -499,7 +499,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
             List<Integer> list = new ArrayList<Integer>();
             list.add(adPodId);
             idMap.put(VectorAttribute.kDefault, list);
-            VectorHandle h = VectorHandleFactory.getInstance().getHandle(adPodId, vectorId, VectorHandle.DEFAULT, idMap, true);
+            VectorHandle h = vhFactory.getHandle(adPodId, vectorId, VectorHandle.DEFAULT, idMap, true);
             if (h != null) {
                 WMDBLoader.updateDb(adPodId, defRules, null, idMap, h);
             }
