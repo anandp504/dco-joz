@@ -73,14 +73,6 @@ public class VectorHandleFactory {
 	}
 
 	/**
-	 * Clears out the handles already created.
-	 */
-	public void clear() {
-		newHandles.clear();
-		currHandles.clear();
-	}
-
-	/**
 	 * Returns the new handles that have been created - not yet added to vectordb.
 	 *
 	 * @return

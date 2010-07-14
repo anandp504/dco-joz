@@ -54,125 +54,124 @@ import java.util.*;
  * Time: 1:58:27 PM
  */
 public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
-    SAXParser parser = new SAXParser();
-    Stack path = new Stack();
-    Map params = new HashMap();
-    File xmlFile = null;
-    File schemaFile = null;
-    private static final Logger log = Logger.getLogger(WMXMLParserV1.class);
-    private static final String XSD_FILE_NAME = "wm_1.xsd";
-    private VectorHandleFactory vhFactory = null;
+	SAXParser parser = new SAXParser();
+	Stack path = new Stack();
+	Map params = new HashMap();
+	File xmlFile = null;
+	File schemaFile = null;
+	private static final Logger log = Logger.getLogger(WMXMLParserV1.class);
+	private static final String XSD_FILE_NAME = "wm_1.xsd";
+	private VectorHandleFactory vhFactory = null;
 
-    public WMXMLParserV1() {
-        String schemaFilePath = AppProperties.getInstance().getProperty("com.tumri.campaign.wm.xmlSchemaPath");
-        if (schemaFilePath == null) {
-            schemaFilePath = "/opt/Tumri/joz/current/tomcat5/conf";
-        }
-        schemaFile = new File(schemaFilePath + File.separator + XSD_FILE_NAME);
-        vhFactory = new VectorHandleFactory();
+	public WMXMLParserV1() {
+		String schemaFilePath = AppProperties.getInstance().getProperty("com.tumri.campaign.wm.xmlSchemaPath");
+		if (schemaFilePath == null) {
+			schemaFilePath = "/opt/Tumri/joz/current/tomcat5/conf";
+		}
+		schemaFile = new File(schemaFilePath + File.separator + XSD_FILE_NAME);
+		vhFactory = new VectorHandleFactory();
 
-    }
+	}
 
-    private void validate() throws SAXException, IOException {
-        // validate the wm file against the schema
-        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = sf.newSchema(schemaFile);
-        Validator validator = schema.newValidator();
-        validator.validate(new StreamSource(xmlFile));
-    }
+	private void validate() throws SAXException, IOException {
+		// validate the wm file against the schema
+		SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		Schema schema = sf.newSchema(schemaFile);
+		Validator validator = schema.newValidator();
+		validator.validate(new StreamSource(xmlFile));
+	}
 
-    public void process(String xmlFileStr) throws WMLoaderException {
-        xmlFile = new File(xmlFileStr);
-        process();
-    }
+	public void process(String xmlFileStr) throws WMLoaderException {
+		xmlFile = new File(xmlFileStr);
+		process();
+	}
 
-    public void finalize() {
-        try {
-            super.finalize();
-        } catch (Throwable throwable) {
-            log.error("Exception caught on finalize");
-        }
-    }
+	public void finalize() {
+		try {
+			super.finalize();
+		} catch (Throwable throwable) {
+			log.error("Exception caught on finalize");
+		}
+	}
 
-    public void process() throws WMLoaderException {
-        try {
-            validate();
-            FileInputStream fis = new FileInputStream(xmlFile);
-            parse(fis);
+	public void process() throws WMLoaderException {
+		try {
+			validate();
+			FileInputStream fis = new FileInputStream(xmlFile);
+			parse(fis);
 
-        } catch (Throwable t) {
-            throw new WMLoaderException(t);
-        }
-    }
+		} catch (Throwable t) {
+			throw new WMLoaderException(t);
+		}
+	}
 
-    public void startDocument() throws SAXException {
-        log.info("Starting processing the document");
-    }
+	public void startDocument() throws SAXException {
+		log.info("Starting processing the document");
+	}
 
-    public void endDocument() throws SAXException {
-        //Do all the post processing here
-        VectorDB.getInstance().materializeRangeIndices();
-        SortedSet<VectorHandle> allHandles = vhFactory.getCurrHandles();
-        VectorDB.getInstance().addOpsNewHandles(allHandles);
-        vhFactory.clear();
-        log.info("Finished processing the document");
-    }
+	public void endDocument() throws SAXException {
+		//Do all the post processing here
+		VectorDB.getInstance().materializeRangeIndices();
+		SortedSet<VectorHandle> allHandles = vhFactory.getCurrHandles();
+		VectorDB.getInstance().addOpsNewHandles(allHandles);
+		log.info("Finished processing the document");
+	}
 
-    @SuppressWarnings("unchecked")
-    public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
-                             Attributes attributes) throws SAXException {
-        if (qName.equals("a")) {
-            Integer adPodId = null;
-            try {
-                adPodId = Integer.parseInt(attributes.getValue("id"));
-            } catch (NumberFormatException e) {
-                throw new SAXException("Invalid Id for the adpod - skipping adpod node");
-            }
+	@SuppressWarnings("unchecked")
+	public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
+	                         Attributes attributes) throws SAXException {
+		if (qName.equals("a")) {
+			Integer adPodId = null;
+			try {
+				adPodId = Integer.parseInt(attributes.getValue("id"));
+			} catch (NumberFormatException e) {
+				throw new SAXException("Invalid Id for the adpod - skipping adpod node");
+			}
 
-            log.info("Now processing adpod id : " + adPodId);
-            DefaultHandler handler = new ANodeHandler(adPodId,path, params, attributes, parser, this, vhFactory);
-            path.push("a");
-            parser.setContentHandler(handler);
-        }
-        if (qName.equals("e")) {
-            Integer expId = null;
-            try {
-                expId = Integer.parseInt(attributes.getValue("id"));
-            } catch (NumberFormatException e) {
-                throw new SAXException("Invalid Id for the experience - skipping experience node");
-            }
+			log.info("Now processing adpod id : " + adPodId);
+			DefaultHandler handler = new ANodeHandler(adPodId, path, params, attributes, parser, this, vhFactory);
+			path.push("a");
+			parser.setContentHandler(handler);
+		}
+		if (qName.equals("e")) {
+			Integer expId = null;
+			try {
+				expId = Integer.parseInt(attributes.getValue("id"));
+			} catch (NumberFormatException e) {
+				throw new SAXException("Invalid Id for the experience - skipping experience node");
+			}
 
-            log.info("Now processing exp id : " + expId);
-            DefaultHandler handler = new ENodeHandler(expId, path, params, attributes, parser, this, vhFactory);
-            path.push("a");
-            parser.setContentHandler(handler);
-        }
+			log.info("Now processing exp id : " + expId);
+			DefaultHandler handler = new ENodeHandler(expId, path, params, attributes, parser, this, vhFactory);
+			path.push("a");
+			parser.setContentHandler(handler);
+		}
 
-    }
+	}
 
 
-    public void endElement(java.lang.String uri, java.lang.String localName, java.lang.String qName)
-            throws SAXException {
-    }
+	public void endElement(java.lang.String uri, java.lang.String localName, java.lang.String qName)
+			throws SAXException {
+	}
 
-    public Map parse(InputStream is) throws SAXException, IOException {
-        parser.setContentHandler(this);
-        parser.parse(new InputSource(is));
+	public Map parse(InputStream is) throws SAXException, IOException {
+		parser.setContentHandler(this);
+		parser.parse(new InputSource(is));
 
-        return params;
-    }
+		return params;
+	}
 
-    @Test
-    public void testParsing() {
-        try {
-            WMXMLParser parser = new WMXMLParserV1();
-            parser.process("/Users/nipun/ws/depot/Tumri/tas/joz/test/data/cof/wm-test.xml");
-            //Query the DB and make sure stuff is there
-        } catch (WMLoaderException e) {
-            e.printStackTrace();
-            Assert.fail("Something screwed up");
-        }
-    }
+	@Test
+	public void testParsing() {
+		try {
+			WMXMLParser parser = new WMXMLParserV1();
+			parser.process("/Users/nipun/ws/depot/Tumri/tas/joz/test/data/cof/wm-test.xml");
+			//Query the DB and make sure stuff is there
+		} catch (WMLoaderException e) {
+			e.printStackTrace();
+			Assert.fail("Something screwed up");
+		}
+	}
 
 }
 
