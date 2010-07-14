@@ -71,7 +71,7 @@ public class VectorTargetingProcessor {
 				int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
 				{
 					SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
-					if (clauses != null) {
+					if (clauses != null && !clauses.isEmpty()) {
 						try {
 							if (clauses instanceof RWLocked) {
 								((RWLocked) clauses).readerLock();
