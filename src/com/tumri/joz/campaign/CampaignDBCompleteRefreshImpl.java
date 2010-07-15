@@ -1075,6 +1075,17 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		return adPodAL;
 	}
 
+	public ArrayList<Experience> getExperiences() {
+		ArrayList<Experience> experienceArrayList = new ArrayList<Experience>();
+		RWLockedTreeMap<Integer, Experience> expTreeMap = expMap.get();
+		Iterator<Integer> iterator = expTreeMap.keySet().iterator();
+		while (iterator.hasNext()) {
+			Integer expId = iterator.next();
+			experienceArrayList.add(expTreeMap.get(expId));
+		}
+		return experienceArrayList;
+	}
+
 	public ArrayList<OSpec> getOSpecs() {
 		ArrayList<OSpec> oSpecArrayList = new ArrayList<OSpec>();
 		RWLockedTreeMap<Integer, OSpec> oSpecTreeMap = ospecMap.get();

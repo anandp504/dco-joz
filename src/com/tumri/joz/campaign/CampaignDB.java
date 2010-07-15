@@ -177,6 +177,8 @@ public abstract class CampaignDB {
 
     public abstract ArrayList<AdPod> getAdPods();
 
+    public abstract ArrayList<Experience> getExperiences();
+
     public abstract ArrayList<TSpec> getTSpecs();
 
     public abstract ArrayList<Recipe> getRecipes();

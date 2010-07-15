@@ -52,6 +52,14 @@
             form.submit();
         }
         ;
+        function submitExperienceForm() {
+            var obj = document.getElementById("ExpList");
+            var selTspec = document.getElementById("selExp");
+            selTspec.value = obj.options[obj.selectedIndex].value;
+            var form = document.getElementById("ExpSelForm");
+            form.submit();
+        }
+        ;
         function submitAdPodForm() {
             var obj = document.getElementById("AdPodList");
             var selTspec = document.getElementById("selAdPod");
@@ -91,6 +99,7 @@
 
 	ArrayList<AdPod> myAdPods = campaignDB.getAdPods();
 	ArrayList<Campaign> myCampaigns = campaignDB.getCampaigns();
+	ArrayList<Experience> myExperiences = campaignDB.getExperiences();
 	ArrayList<Recipe> myRecipes = campaignDB.getRecipes();
 	ArrayList<TSpec> myTSpecs = campaignDB.getTSpecs();
 
@@ -104,6 +113,17 @@
 		}
 
 	}
+
+	List<String> expNames = new ArrayList<String>();
+	HashMap expHash = new HashMap();
+	for(int i=0;i<myExperiences.size();i++) {
+        Experience tempExp = myExperiences.get(i);
+        if (tempExp!=null) {
+			expNames.add(tempExp.getName()!=null?tempExp.getName().trim() + " " + String.valueOf(tempExp.getId()):String.valueOf(tempExp.getId()));
+			expHash.put(tempExp.getName()!=null?tempExp.getName().trim() + " " + String.valueOf(tempExp.getId()):String.valueOf(tempExp.getId()), tempExp);
+        }
+    }
+
 
 	List<String> adPodNames = new ArrayList<String>();
 	HashMap adPodHash = new HashMap();
@@ -164,6 +184,23 @@
 		</select>
 		<input type="hidden"  name="selCampaign"  id="selCampaign" value=""/>
 		<input type="button" value="Get Campaign" onClick= "submitCampaignForm()"/>
+	</form>
+</div>
+<br>
+<div>
+	<form id="ExpSelForm" action="/joz/jsp/expSelection.jsp" method="post">
+		<strong>Select Experience:</strong> (<%=expNames.size()%> Experiences <i>--sorted by Experience Name or Id</i>)
+		<br>
+		&nbsp; &nbsp; &nbsp; &nbsp;
+		<select id="ExpList">
+			<%
+				for(int i=0;i<expNames.size();i++) {
+					out.print("<option value=\""+((Experience)expHash.get(expNames.get(i))).getId()+"\">"+expNames.get(i)+"</option>");
+				}
+			%>
+		</select>
+		<input type="hidden"  name="selExp"  id="selExp" value=""/>
+		<input type="button" value="Get Experience" onClick= "submitExperienceForm()"/>
 	</form>
 </div>
 <br>
