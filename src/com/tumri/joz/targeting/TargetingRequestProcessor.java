@@ -78,7 +78,7 @@ public class TargetingRequestProcessor {
                         varId = request.getVariationId();
                     }
                     CreativeInstance ci = null;
-                    if (varId>0) {
+                    if (varId>-1) {
                         //Select the creative instance for the given variation id
                         try {
                             int[] selectedDimIds = ExperienceUtils.getAttributeIds(varId);
