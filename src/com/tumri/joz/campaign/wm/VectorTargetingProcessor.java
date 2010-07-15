@@ -140,9 +140,8 @@ public class VectorTargetingProcessor {
 		}
 		if (!vectorIdList.isEmpty()) {
 			features.addFeatureDetail("RWM-ID", vectorIdList.toString());
-		} else {
-			log.warn("Could not select a Vector for the given request");
 		}
+        
 		if (!lcVectorIdList.isEmpty()) {
 			features.addFeatureDetail("LC-WM-ID", lcVectorIdList.toString());
 		}
@@ -154,6 +153,9 @@ public class VectorTargetingProcessor {
 		} catch (Exception e) {
 			log.warn("Could not select a viable instance from the cam", e);
 		}
+        if (ci==null) {
+            throw new VectorSelectionException("Vector Selection failed for this request");
+        }
 		if (lc != null) {
 			vtr.setLc(lc);
 		}

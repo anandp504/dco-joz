@@ -462,15 +462,15 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 				return null;
 			}
 
-			CAMDimensionType[] types = {CAMDimensionType.RECIPEID};
-			String[] names = {CAMDimensionType.RECIPEID.name()};
-			theCAM = new CAM(types, names);
-			CAMDimension recipeDim = theCAM.getCAMDimension(CAMDimensionType.RECIPEID);
+            CAMDimension recipeDim = new CAMDimension(CAMDimensionType.RECIPEID, CAMDimensionType.RECIPEID.name());
 			//Create the Dimensions
 			for (int i = 0; i < activeRecipes.size(); i++) {
 				recipeDim.setValue(i, Integer.toString(activeRecipes.get(i).getId()));
 
 			}
+            CAMDimension[] camList = new CAMDimension[1];
+			camList[0]=recipeDim;
+			theCAM = new CAM(camList);
 
 			//Create the rules
 			for (int i = 0; i < activeRecipes.size(); i++) {
