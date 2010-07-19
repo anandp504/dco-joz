@@ -95,8 +95,15 @@
         <%if (adPod != null) {%>
         <%=adPod.getId()%>, <a href="/joz/jsp/adPodSelection.jsp?selAdPod=<%=adPod.getId()%>"><%=adPod.getName()%>
     </a>
+        <% } else {
+            Experience exp = campaignDB.getExperience(adpodId);
+            ;
+            if (exp != null) {%>
+        <%=exp.getId()%>, <a href="/joz/jsp/expSelection.jsp?selExp=<%=exp.getId()%>"><%=exp.getName()%>
+    </a>
         <% } else { %>
-        Adpod not found in campaignDB: <%=adpodId%>
+        Adpod/Experience not found in campaignDB: <%=adpodId%>
+        <%}%>
         <%}%>
     </td>
     <td align="center">
@@ -175,8 +182,15 @@
         <%if (adPod != null) {%>
         <%=adPod.getId()%>, <a href="/joz/jsp/adPodSelection.jsp?selAdPod=<%=adPod.getId()%>"><%=adPod.getName()%>
     </a>
+        <% } else {
+            Experience exp = campaignDB.getExperience(adpodId);
+            ;
+            if (exp != null) {%>
+        <%=exp.getId()%>, <a href="/joz/jsp/expSelection.jsp?selExp=<%=exp.getId()%>"><%=exp.getName()%>
+    </a>
         <% } else { %>
-        Adpod not found in campaignDB: <%=adpodId%>
+        Adpod/Experience not found in campaignDB: <%=adpodId%>
+        <%}%>
         <%}%>
     </td>
     <td align="center">
@@ -285,8 +299,15 @@
         <%if (adPod != null) {%>
         <%=adPod.getId()%>, <a href="/joz/jsp/adPodSelection.jsp?selAdPod=<%=adPod.getId()%>"><%=adPod.getName()%>
     </a>
+        <% } else {
+            Experience exp = campaignDB.getExperience(adpodId);
+            ;
+            if (exp != null) {%>
+        <%=exp.getId()%>, <a href="/joz/jsp/expSelection.jsp?selExp=<%=exp.getId()%>"><%=exp.getName()%>
+    </a>
         <% } else { %>
-        Adpod not found in campaignDB: <%=adpodId%>
+        Adpod/Experience not found in campaignDB: <%=adpodId%>
+        <%}%>
         <%}%>
     </td>
     <td align="center">
