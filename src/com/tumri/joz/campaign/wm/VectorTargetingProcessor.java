@@ -141,7 +141,7 @@ public class VectorTargetingProcessor {
 		if (!vectorIdList.isEmpty()) {
 			features.addFeatureDetail("RWM-ID", vectorIdList.toString());
 		}
-        
+
 		if (!lcVectorIdList.isEmpty()) {
 			features.addFeatureDetail("LC-WM-ID", lcVectorIdList.toString());
 		}
@@ -153,9 +153,9 @@ public class VectorTargetingProcessor {
 		} catch (Exception e) {
 			log.warn("Could not select a viable instance from the cam", e);
 		}
-        if (ci==null) {
-            throw new VectorSelectionException("Vector Selection failed for this request");
-        }
+		if (ci == null) {
+			throw new VectorSelectionException("Vector Selection failed for this request");
+		}
 		if (lc != null) {
 			vtr.setLc(lc);
 		}
@@ -169,10 +169,12 @@ public class VectorTargetingProcessor {
 		VectorSetIntersector intersector = new VectorSetIntersector(true);
 		if (contextMap != null) {
 			Set<VectorAttribute> keys = contextMap.keySet();
+			boolean vectorsFound = false;
 			for (VectorAttribute attr : keys) {
 
 				SortedSet<Handle> vectors = getVectorsFromIndex(attr, contextMap);
 				if (vectors != null && vectors.size() > 0) {
+					vectorsFound = true;
 					//Build intersector
 					IWeight<Handle> wt = getHandleWeight(attr, contextMap);
 					intersector.include(vectors, wt);
@@ -180,13 +182,15 @@ public class VectorTargetingProcessor {
 
 			}
 			//Include all other none sets
-			Set<VectorAttribute> nonAttrs = VectorUtils.findNoneAttributes(contextMap.keySet());
-			for (VectorAttribute na : nonAttrs) {
-				AbstractIndex noneidx = VectorDB.getInstance().getIndex(na);
-				SortedSet<Handle> noneRes = ((VectorDBIndex<Integer, Handle>) noneidx).get(VectorUtils.getNoneDictId(na));
-				//Build intersector
-				IWeight<Handle> wt = getHandleWeight(na, contextMap);
-				intersector.include(noneRes, wt);
+			if (vectorsFound) { //only include 'none' vectors if we found an actual vector.
+				Set<VectorAttribute> nonAttrs = VectorUtils.findNoneAttributes(contextMap.keySet());
+				for (VectorAttribute na : nonAttrs) {
+					AbstractIndex noneidx = VectorDB.getInstance().getIndex(na);
+					SortedSet<Handle> noneRes = ((VectorDBIndex<Integer, Handle>) noneidx).get(VectorUtils.getNoneDictId(na));
+					//Build intersector
+					IWeight<Handle> wt = getHandleWeight(na, contextMap);
+					intersector.include(noneRes, wt);
+				}
 			}
 		}
 		return intersector.intersect();
