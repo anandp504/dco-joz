@@ -87,7 +87,7 @@ public abstract class CampaignDB {
 
     public abstract void loadAdPods(Iterator<AdPod> iterator, VectorHandleFactory vhFactory);
 
-    public abstract void loadExperiences(Iterator<Experience> iterator);
+    public abstract void loadExperiences(Iterator<Experience> iterator, VectorHandleFactory vhFactory);
 
     public abstract void loadRunOfNetworkAdPods(Iterator<AdPod> iterator);
 

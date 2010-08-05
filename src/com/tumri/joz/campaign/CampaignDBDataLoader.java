@@ -130,7 +130,7 @@ public class CampaignDBDataLoader {
 			campaignDB.loadAdPodCampaignMapping(adPodCampaignMappings);
 			campaignDB.loadExternalVariableAdPods(extVariablesAdPodMap);
 			campaignDB.loadNonExternalVariableAdPods(nonExtVariablesAdPodMap);
-			campaignDB.loadExperiences(expIterator);
+			campaignDB.loadExperiences(expIterator, vhFactory);
 			campaignDB.loadAgeAdPodMappings(ageMappings);
 			campaignDB.loadAgeNoneAdPods(nonAgeAdpods);
 			campaignDB.loadGenderAdPodMappings(genderMappings);

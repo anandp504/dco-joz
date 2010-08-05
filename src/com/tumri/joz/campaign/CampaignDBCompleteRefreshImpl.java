@@ -500,7 +500,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		return theCAM;
 	}
 
-	public void loadExperiences(Iterator<Experience> iterator) {
+	public void loadExperiences(Iterator<Experience> iterator, VectorHandleFactory vhFactory) {
 		if (iterator == null) {
 			return;
 		}
@@ -510,7 +510,19 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 			map = new RWLockedTreeMap<Integer, Experience>();
 			while (iterator.hasNext()) {
 				Experience experience = iterator.next();
-				map.put(experience.getId(), experience);
+                int expId = experience.getId();
+				map.put(expId, experience);
+
+                //Create the default rule for the experience
+                List<Integer> list = new ArrayList<Integer>();
+                list.add(expId);
+                Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute, List<Integer>>();
+                idMap.put(VectorAttribute.kExpId, list);
+                int vectorId = 1; // DEFAULT
+                VectorHandle h = vhFactory.getHandle(expId, vectorId, VectorHandle.DEFAULT, idMap, true);
+                if (h != null) {
+                    WMDBLoader.updateDb(expId, null, null, idMap, h);
+                }
 				expCount++;
 			}
 			expMap.compareAndSet(expMap.get(), map);
