@@ -72,7 +72,7 @@ public class TestRecipeWeightTargeting {
         jozRequest.setValue(JozAdRequest.KEY_REGION, "TX");
         jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
         AdDataRequest request = new AdDataRequest(jozRequest);
-        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(4445, request);
+        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(-1, 4445, request);
 //        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
 //        Assert.assertTrue(results!=null);
 //        for (Handle h : results) {
@@ -90,8 +90,8 @@ public class TestRecipeWeightTargeting {
         jozRequest.setValue(JozAdRequest.KEY_REGION, "WY");
         jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
         AdDataRequest request = new AdDataRequest(jozRequest);
-        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(4445, request);
-        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
+        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(-1, 4445, request);
+        SortedSet<Handle> results = null; //proc.getMatchingVectors(requestMap);
         Assert.assertTrue(results!=null);
         for (Handle h : results) {
             VectorHandle vh = (VectorHandle)h;

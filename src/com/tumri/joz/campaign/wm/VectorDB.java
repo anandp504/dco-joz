@@ -92,8 +92,6 @@ public class VectorDB {
         addIndex(VectorAttribute.kF4None, new VectorDBIndex<Integer, Handle>(VectorAttribute.kF4None));
         addIndex(VectorAttribute.kF5None, new VectorDBIndex<Integer, Handle>(VectorAttribute.kF5None));
         addIndex(VectorAttribute.kUBNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kUBNone));
-        addIndex(VectorAttribute.kDefault, new VectorDBIndex<Integer, Handle>(VectorAttribute.kDefault));
-        addIndex(VectorAttribute.kDefaultNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kDefaultNone));
         addIndex(VectorAttribute.kExpId, new VectorDBIndex<Integer, Handle>(VectorAttribute.kExpId));
     }
 

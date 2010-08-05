@@ -25,7 +25,8 @@ import java.util.List;
 /**
  * Test case for campaign data loader
  */
-public class CampaignDBDataLoaderTest {
+public class
+        CampaignDBDataLoaderTest {
     private static CampaignDBDataLoader loader;
     @BeforeClass
     public static void initialize() throws Exception {

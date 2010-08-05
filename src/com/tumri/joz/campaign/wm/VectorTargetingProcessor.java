@@ -45,10 +45,10 @@ public class VectorTargetingProcessor {
 	 * @param request - request
 	 * @return
 	 */
-	public VectorTargetingResult processRequest(int adpodId, CAM cam, AdDataRequest request, Features features)
+	public VectorTargetingResult processRequest(int adpodId, int expId, CAM cam, AdDataRequest request, Features features)
 			throws VectorSelectionException {
 		PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
-		Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, request);
+		Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, expId, request);
 		VectorTargetingResult vtr = new VectorTargetingResult();
 
 		SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
@@ -69,6 +69,10 @@ public class VectorTargetingProcessor {
 			for (Handle h : matchingVectors) {
 				//Get the Listing clause details
 				int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
+                if (dets[1] != adpodId && dets[1] != expId) {
+                    throw new VectorSelectionException("Selected handle did not match the incoming adpod or exp:"
+                            + dets[1] + ":" + adpodId + "/" +  expId);
+                }
 				{
 					SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
 					if (clauses != null && !clauses.isEmpty()) {
@@ -120,7 +124,10 @@ public class VectorTargetingProcessor {
 									}
 								}
 							} else {
-								log.warn("Rules not found for handle : " + h.getOid());
+                                if (dets[0] != 1) {
+                                    //This is not a default vector handle, and we dont have rules for it.
+								    log.warn("Rules not found for handle : " + h.getOid());
+                                }
 							}
 						}
 					}

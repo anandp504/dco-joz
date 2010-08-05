@@ -97,7 +97,7 @@ public class TargetingRequestProcessor {
                     if (ci==null) {
                         //Select the creative instance from the CAM.
                         VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
-                        VectorTargetingResult vtr = proc.processRequest(expId, theCAM, request, features);
+                        VectorTargetingResult vtr = proc.processRequest(-1, expId, theCAM, request, features);
                         ci = vtr.getCi();
                         trs.setListingClause(vtr.getLc());
                     }
@@ -329,12 +329,14 @@ public class TargetingRequestProcessor {
         CAM theCAM = null;
         Experience exp = null;
         CreativeInstance ci = null;
+        int adpodId = theAdPod.getId();
         int expId = theAdPod.getExperienceId();
 
         if (recipes!=null || expId <=0) {
             theCAM = CampaignDB.getInstance().getDefaultCAM(theAdPod.getId());
-            expId = theAdPod.getId();
+            expId = -1;
         } else {
+            adpodId = -1;
             exp = CampaignDB.getInstance().getExperience(expId);
             if (exp!=null) {
                 theCAM = exp.getCam();
@@ -345,7 +347,7 @@ public class TargetingRequestProcessor {
             throw new RuntimeException("Could not get CAM for the given request");
         }
 
-        VectorTargetingResult vtr = proc.processRequest(expId, theCAM, request, feature);
+        VectorTargetingResult vtr = proc.processRequest(adpodId, expId, theCAM, request, feature);
         ci = vtr.getCi();
 
         String[] attribValues = ci.getAttributes();

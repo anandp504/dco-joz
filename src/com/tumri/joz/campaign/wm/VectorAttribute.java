@@ -7,7 +7,6 @@ package com.tumri.joz.campaign.wm;
  * Time: 11:19:02 AM
  */
 public enum VectorAttribute {
-	kRequestVector,
 	kLineId,
 	kSiteId,
 	kBuyId,
@@ -53,6 +52,5 @@ public enum VectorAttribute {
     kF4None,
     kF5None,
     kUBNone,
-    kDefaultNone,
     kExpId,
 }

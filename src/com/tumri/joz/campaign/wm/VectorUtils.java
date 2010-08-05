@@ -320,7 +320,7 @@ public class VectorUtils {
                 noneAttr = VectorAttribute.kUBNone;
                 break;
             case kDefault:
-                noneAttr = VectorAttribute.kDefaultNone;
+                noneAttr = null;
                 break;
             case kExpId:
                 noneAttr = null;
@@ -364,14 +364,18 @@ public class VectorUtils {
      * @param request
      * @return
      */
-    public static Map<VectorAttribute, List<Integer>> getContextMap(int adpodId, AdDataRequest request) {
+    public static Map<VectorAttribute, List<Integer>> getContextMap(int adpodId, int expId,  AdDataRequest request) {
         Map<VectorAttribute, List<Integer>> contextMap = new HashMap<VectorAttribute, List<Integer>>();
         //Always add default
         {
             List<Integer> defvalues = new ArrayList<Integer>();
-            defvalues.add(adpodId);
-            contextMap.put(VectorAttribute.kDefault, defvalues);
-            contextMap.put(VectorAttribute.kExpId, defvalues);
+            if (adpodId > 0) {
+                defvalues.add(adpodId);
+                contextMap.put(VectorAttribute.kDefault, defvalues);
+            } else if (expId > 0) {
+                defvalues.add(expId);
+                contextMap.put(VectorAttribute.kExpId, defvalues);
+            }
         }
         if (request.getPageId() != null) {
             List<String> values = parseValues(request.getPageId());
@@ -520,7 +524,6 @@ public class VectorUtils {
         requestSet.add(VectorAttribute.kF4);
         requestSet.add(VectorAttribute.kF5);
         requestSet.add(VectorAttribute.kUB);
-        requestSet.add(VectorAttribute.kDefault);
     }
 
     private static Set<VectorAttribute> noneAttrSet = new HashSet<VectorAttribute>();
@@ -547,14 +550,16 @@ public class VectorUtils {
         noneAttrSet.add(VectorAttribute.kF4None);
         noneAttrSet.add(VectorAttribute.kF5None);
         noneAttrSet.add(VectorAttribute.kUBNone);
-        noneAttrSet.add(VectorAttribute.kDefaultNone);
     }
 
     public static Set<VectorAttribute> findNoneAttributes(Set<VectorAttribute> inSet) {
         Set<VectorAttribute> noneSet = new HashSet<VectorAttribute>();
         for (VectorAttribute attr: requestSet) {
             if (!inSet.contains(attr)) {
-                noneSet.add(getNoneAttribute(attr));
+                VectorAttribute nAttr = getNoneAttribute(attr);
+                if (nAttr!=null) {
+                    noneSet.add(getNoneAttribute(attr));
+                }
             }
         }
         return noneSet;
