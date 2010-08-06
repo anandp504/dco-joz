@@ -59,7 +59,7 @@ public class VectorUtils {
                     VectorAttribute.kF4,
                     VectorAttribute.kF5,
                     VectorAttribute.kUB,
-                    VectorAttribute.kDefault,
+                    VectorAttribute.kAdpodId,
                     VectorAttribute.kExpId,
             };
 
@@ -87,7 +87,7 @@ public class VectorUtils {
         attrPosMap.put(VectorAttribute.kF4,19);
         attrPosMap.put(VectorAttribute.kF5,20);
         attrPosMap.put(VectorAttribute.kUB,21);
-        attrPosMap.put(VectorAttribute.kDefault,22);
+        attrPosMap.put(VectorAttribute.kAdpodId,22);
         attrPosMap.put(VectorAttribute.kExpId,23);
     }
     public static VectorAttribute getAttribute(String type) {
@@ -139,7 +139,7 @@ public class VectorUtils {
         } else if ("ub".equals(type)) {
             attr = VectorAttribute.kUB;
         } else if ("default".equals(type)) {
-            attr = VectorAttribute.kDefault;
+            attr = VectorAttribute.kAdpodId;
         } else if ("expid".equals(type)) {
             attr = VectorAttribute.kExpId;
         }
@@ -233,7 +233,7 @@ public class VectorUtils {
             case kUB:
                 name = "ub";
                 break;
-            case kDefault:
+            case kAdpodId:
                 name = "default";
                 break;
             case kExpId:
@@ -319,7 +319,7 @@ public class VectorUtils {
             case kUB:
                 noneAttr = VectorAttribute.kUBNone;
                 break;
-            case kDefault:
+            case kAdpodId:
                 noneAttr = null;
                 break;
             case kExpId:
@@ -371,7 +371,7 @@ public class VectorUtils {
             List<Integer> defvalues = new ArrayList<Integer>();
             if (adpodId > 0) {
                 defvalues.add(adpodId);
-                contextMap.put(VectorAttribute.kDefault, defvalues);
+                contextMap.put(VectorAttribute.kAdpodId, defvalues);
             } else if (expId > 0) {
                 defvalues.add(expId);
                 contextMap.put(VectorAttribute.kExpId, defvalues);

@@ -29,7 +29,7 @@ public enum VectorAttribute {
 	kF4,
 	kF5,
     kUB,
-    kDefault,
+    kAdpodId,
     kLineIdNone,
     kSiteIdNone,
     kBuyIdNone,

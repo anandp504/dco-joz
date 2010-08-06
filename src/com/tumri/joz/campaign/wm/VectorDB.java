@@ -47,7 +47,7 @@ public class VectorDB {
             new  RWLockedTreeMap<Long, RWLockedSortedBag<Pair<ListingClause, Double>>>();
 
     public VectorDB() {
-        addIndex(VectorAttribute.kDefault, new VectorDBIndex<Integer, Handle>(VectorAttribute.kDefault));
+        addIndex(VectorAttribute.kAdpodId, new VectorDBIndex<Integer, Handle>(VectorAttribute.kAdpodId));
         addIndex(VectorAttribute.kLineId, new VectorDBIndex<Integer, Handle>(VectorAttribute.kLineId));
         addIndex(VectorAttribute.kSiteId, new VectorDBIndex<Integer, Handle>(VectorAttribute.kSiteId));
         addIndex(VectorAttribute.kCreativeId, new VectorDBIndex<Integer, Handle>(VectorAttribute.kCreativeId));

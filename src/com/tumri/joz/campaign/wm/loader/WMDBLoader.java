@@ -132,7 +132,7 @@ public class WMDBLoader {
 
     }
 
-    public static void updateDb(int expId, SortedBag<Pair<CreativeSet, Double>> optRules,
+    public static void updateDb(int expId, int adpodId, SortedBag<Pair<CreativeSet, Double>> optRules,
                                 SortedBag<Pair<ListingClause, Double>> lcRules,
                                 Map<VectorAttribute,  List<Integer>> requestMap, VectorHandle handle) {
         if (lcRules!=null){
@@ -145,8 +145,13 @@ public class WMDBLoader {
         TreeMap<Integer, ArrayList<Handle>> idmap = new TreeMap<Integer, ArrayList<Handle>>();
         ArrayList<Handle> idHandles = new ArrayList<Handle>();
         idHandles.add(handle);
-        idmap.put(expId, idHandles);
-        VectorDB.getInstance().updateIntegerIndex(VectorAttribute.kExpId, idmap);
+        if (expId > -1) {
+            idmap.put(expId, idHandles);
+            VectorDB.getInstance().updateIntegerIndex(VectorAttribute.kExpId, idmap);
+        } else if (adpodId > -1) {
+            idmap.put(adpodId, idHandles);
+            VectorDB.getInstance().updateIntegerIndex(VectorAttribute.kAdpodId, idmap);
+        }
 
         if (requestMap != null && !requestMap.isEmpty()) {
             for (VectorAttribute attr : requestMap.keySet()) {

@@ -48,6 +48,7 @@ public class VNodeHandler extends DefaultHandler {
 	private DefaultHandler parent;
 	private SAXParser parser;
 	int adPodId = 0;
+	int expId = 0;
 	int vectorId = 0;
 	Map<VectorAttribute, String> requestMap = new HashMap<VectorAttribute, String>();
 	SortedBag<Pair<CreativeSet, Double>> optRules = new SortedListBag<Pair<CreativeSet, Double>>();
@@ -82,7 +83,7 @@ public class VNodeHandler extends DefaultHandler {
 
 		if (theAdPod!=null) {
 			List<Recipe> recipes = theAdPod.getRecipes();
-			int expId = theAdPod.getExperienceId();
+		    expId = theAdPod.getExperienceId();
 			if (recipes!=null || expId <= 0) {
 				theCAM = CampaignDB.getInstance().getDefaultCAM(adPodId);
 				for (Recipe r: recipes) {
@@ -107,6 +108,7 @@ public class VNodeHandler extends DefaultHandler {
 		} else {
 			Experience exp = CampaignDB.getInstance().getExperience(adpodId);
 			if (exp!=null) {
+                expId = exp.getId();
 				theCAM = exp.getCam();
 			}
 		}
@@ -238,7 +240,11 @@ public class VNodeHandler extends DefaultHandler {
 				Map<VectorAttribute,  List<Integer>> idMap = explodeRequestMap(requestMap);
 				VectorHandle h =vhFactory.getHandle(adPodId, vectorId, VectorHandle.OPTIMIZATION, idMap, true);
 				if (h != null) {
-					WMDBLoader.updateDb(adPodId, optRules, lcRules, idMap, h);
+                    if (expId<=0){
+                        WMDBLoader.updateDb(-1, adPodId, optRules, lcRules, idMap, h);
+                    } else {
+                        WMDBLoader.updateDb(adPodId, -1, optRules, lcRules, idMap, h);
+                    }
 				}
 			} else {
 				log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);

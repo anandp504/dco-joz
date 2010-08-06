@@ -491,10 +491,10 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 			Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute, List<Integer>>();
 			List<Integer> list = new ArrayList<Integer>();
 			list.add(adPodId);
-			idMap.put(VectorAttribute.kDefault, list);
+			idMap.put(VectorAttribute.kAdpodId, list);
 			VectorHandle h = vhFactory.getHandle(adPodId, vectorId, VectorHandle.DEFAULT, idMap, true);
 			if (h != null) {
-				WMDBLoader.updateDb(adPodId, defRules, null, idMap, h);
+				WMDBLoader.updateDb(-1, adPodId, defRules, null, idMap, h);
 			}
 		}
 		return theCAM;
@@ -521,7 +521,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
                 int vectorId = 1; // DEFAULT
                 VectorHandle h = vhFactory.getHandle(expId, vectorId, VectorHandle.DEFAULT, idMap, true);
                 if (h != null) {
-                    WMDBLoader.updateDb(expId, null, null, idMap, h);
+                    WMDBLoader.updateDb(expId, -1, null, null, idMap, h);
                 }
 				expCount++;
 			}

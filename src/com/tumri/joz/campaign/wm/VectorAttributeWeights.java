@@ -183,7 +183,7 @@ public class VectorAttributeWeights implements IWeight<Handle> {
                 return kF5None;
             case kUBNone:
                 return ubNone;
-            case kDefault:
+            case kAdpodId:
                 return kDefault;
             case kExpId:
                 return kExpId;
