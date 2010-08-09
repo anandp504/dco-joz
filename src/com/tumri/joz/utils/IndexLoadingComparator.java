@@ -27,37 +27,32 @@ import java.util.regex.Pattern;
  */
 public class IndexLoadingComparator {
 	private static Logger log = Logger.getLogger(IndexLoadingComparator.class);
-	private static final String FILE_SEPERATOR="/";
+	private static final String FILE_SEPERATOR = "/";
 
 	private boolean bErrorsFound = false;
 
-	public List<String> validate(String mupDir){
+	public List<String> validate(String mupDir) {
 		bErrorsFound = false;
 		List<String> infos = new ArrayList<String>();
-		if(mupDir == null || mupDir.isEmpty()){
+		if (mupDir == null || mupDir.isEmpty()) {
 			mupDir = AppProperties.getInstance().getProperty("com.tumri.content.file.sourceDir");
 		}
-		StringBuilder dirName = new StringBuilder();
 
-		dirName.append(mupDir);
-		dirName.append(FILE_SEPERATOR);
-		dirName.append("data");
+		File f = new File(mupDir);
+		ArrayList<File> files = new ArrayList<File>();
+		FSUtils.findFiles(files, f, "US.*DEFAULT_provider-content.*");
 
-		File f = new File(dirName.toString());
-        ArrayList<File> files = new ArrayList<File>();
-        FSUtils.findFiles(files, f, "US.*DEFAULT_provider-content.*");
-
-		if(files.isEmpty()){
+		if (files.isEmpty()) {
 			infos.add("No MUP files found at dir: " + f.getAbsolutePath());
 			return infos;
 		}
 
-		for(File mupFile: files){
+		for (File mupFile : files) {
 			List<String> info = new ArrayList<String>();
-			try{
+			try {
 				String advName = getProviderFromFileName(mupFile.getName());
 				info.addAll(compareProducts(mupFile, advName));
-			} catch (Throwable t){
+			} catch (Throwable t) {
 				info.add(t.getMessage());
 			}
 			infos.addAll(info);
@@ -66,31 +61,31 @@ public class IndexLoadingComparator {
 		if (bErrorsFound) {
 			result = "FAILED";
 		}
-		infos.add(0,result);
+		infos.add(0, result);
 
 		return infos;
 
 	}
 
-    @SuppressWarnings("unchecked")
-    public boolean validateForAdvertiser(String advertiser){
+	@SuppressWarnings("unchecked")
+	public boolean validateForAdvertiser(String advertiser) {
 		bErrorsFound = false;
 		List<String> infos = new ArrayList<String>();
-        ArrayList<File> mupFiles = new ArrayList<File>();
-        String	mupDir = AppProperties.getInstance().getProperty("com.tumri.content.file.sourceDir");
-        File indexDir = new File(mupDir + "/" + advertiser.toUpperCase() + "/data");
-        FSUtils.findFiles(mupFiles, indexDir, "US.*DEFAULT_provider-content.*");
+		ArrayList<File> mupFiles = new ArrayList<File>();
+		String mupDir = AppProperties.getInstance().getProperty("com.tumri.content.file.sourceDir");
+		File indexDir = new File(mupDir + "/" + advertiser.toUpperCase() + "/data");
+		FSUtils.findFiles(mupFiles, indexDir, "US.*DEFAULT_provider-content.*");
 
-		if(mupFiles.isEmpty()){
+		if (mupFiles.isEmpty()) {
 			infos.add("No MUP files found at dir: " + indexDir.getAbsolutePath());
 			return false;
 		}
 
-		for(File mupFile: mupFiles){
+		for (File mupFile : mupFiles) {
 			List<String> info = new ArrayList<String>();
-			try{
+			try {
 				info.addAll(compareProducts(mupFile, advertiser));
-			} catch (Throwable t){
+			} catch (Throwable t) {
 				info.add(t.getMessage());
 			}
 			infos.addAll(info);
@@ -101,26 +96,26 @@ public class IndexLoadingComparator {
 
 	}
 
-    @SuppressWarnings("unchecked")
-	private List<String> compareProducts(File f, String providerName){
+	@SuppressWarnings("unchecked")
+	private List<String> compareProducts(File f, String providerName) {
 		List<String> retInfos = new ArrayList<String>();
-		if(providerName == null){
+		if (providerName == null) {
 			retInfos.add("Invalid Provider Name: " + providerName);
 			return retInfos;
 		}
 		ProductAttributeIndex<Integer, Handle> index = ProductDB.getInstance().getIndex(IProduct.Attribute.kProvider);
-		Integer keyId = DictionaryManager.getInstance().getId (IProduct.Attribute.kProvider, providerName);
-		if(index == null){
+		Integer keyId = DictionaryManager.getInstance().getId(IProduct.Attribute.kProvider, providerName);
+		if (index == null) {
 			retInfos.add("Invalid Index");
 			return retInfos;
 		}
 		SortedSet<Handle> results = index.get(keyId);
 		SortedSet<Long> pIdsFromIndex = new SortedArraySet<Long>();
-		for(Handle h: results){
+		for (Handle h : results) {
 			pIdsFromIndex.add(h.getOid());
 		}
 
-		if(!f.exists()){
+		if (!f.exists()) {
 			retInfos.add("File does not exist: " + f.getAbsoluteFile());
 			return retInfos;
 		}
@@ -131,28 +126,28 @@ public class IndexLoadingComparator {
 		SetDifference<Long> sd2 = new SetDifference<Long>(pIds, pIdsFromIndex);
 		boolean errorFound = false;
 
-		if(!sd1.isEmpty()){
+		if (!sd1.isEmpty()) {
 			errorFound = true;
 			StringBuilder retString = new StringBuilder();
 			retString.append(providerName + " Error: Product(s) found in Index but not in MUP: ");
-			for(Long s: sd1){
+			for (Long s : sd1) {
 				retString.append(s);
 				retString.append(", ");
 			}
 			retInfos.add(retString.toString());
 		}
 
-		if(!sd2.isEmpty()){
+		if (!sd2.isEmpty()) {
 			errorFound = true;
 			StringBuilder retString = new StringBuilder();
 			retString.append(providerName + " Error: Products(s) found in MUP but not in Index: ");
-			for(Long s: sd2){
+			for (Long s : sd2) {
 				retString.append(s);
 				retString.append(", ");
 			}
 			retInfos.add(retString.toString());
 		}
-		if(!errorFound){
+		if (!errorFound) {
 			retInfos.add("Index and MUP match for " + providerName);
 		} else {
 			bErrorsFound = true;
@@ -161,29 +156,29 @@ public class IndexLoadingComparator {
 
 	}
 
-	private SortedSet<Long> getPIdList(File file){
+	private SortedSet<Long> getPIdList(File file) {
 		SortedSet<Long> ss = new SortedArraySet<Long>();
-		try{
+		try {
 			FileInputStream fstream = new FileInputStream(file);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String strLine;
-			while ((strLine = br.readLine()) != null)   {
+			while ((strLine = br.readLine()) != null) {
 				String pId = getPIdFromMUPLine(strLine);
 				Long l = Long.valueOf(pId.substring(2)); //Removes leading US
 				ss.add(l);
 			}
 			in.close();
-		}catch (Exception e){
+		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 		}
 		return ss;
 	}
 
 
-	private String getPIdFromMUPLine(String line){
+	private String getPIdFromMUPLine(String line) {
 		StringTokenizer st = new StringTokenizer(line, "\t");
-		while(st.hasMoreTokens()){
+		while (st.hasMoreTokens()) {
 			return st.nextToken();
 		}
 		return null;
@@ -192,7 +187,7 @@ public class IndexLoadingComparator {
 	private class MupFilenameFilter implements FilenameFilter {
 		Pattern myPattern = null;
 
-		public MupFilenameFilter(String partialName){
+		public MupFilenameFilter(String partialName) {
 			myPattern = Pattern.compile(partialName);
 		}
 
@@ -204,14 +199,14 @@ public class IndexLoadingComparator {
 
 	private String getProviderFromFileName(String fileName) {
 		String providerName = "";
-		if (fileName!=null) {
+		if (fileName != null) {
 			String[] parts = fileName.split("_");
-			if (parts.length<7) {
+			if (parts.length < 7) {
 				return "";
 			}
-			for (int i=1; i<parts.length-5; i++) {
+			for (int i = 1; i < parts.length - 5; i++) {
 				String delim = "";
-				if (i>1) {
+				if (i > 1) {
 					delim = "_";
 				}
 				providerName = providerName + delim + parts[i];
@@ -221,8 +216,13 @@ public class IndexLoadingComparator {
 	}
 
 	@Test
-	public void test(){
-		validate(null);
+	public void test() {
+		List<String> infos = validate("/opt/Tumri/joz/data/caa/current");
+		if (infos != null) {
+			for (String s : infos) {
+				System.out.println(s);
+			}
+		}
 	}
-
 }
+
