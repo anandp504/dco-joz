@@ -48,7 +48,7 @@ public class ListingClause implements Comparable {
 	 * @param value
 	 */
 	public ListingClause(String type, String value) {
-		if (type != null && value != null) {
+		if (type != null) {
 			Integer score = clauseScoreMap.get(type);
 			if (score == null) {
 				throw new UnsupportedOperationException("This type is not supported for listing optimization : " + type);
@@ -58,7 +58,9 @@ public class ListingClause implements Comparable {
 				res = new HashSet<String>();
 				clauseTypeMap.put(type, res);
 			}
-			res.add(value);
+			if (value != null) {
+				res.add(value);
+			}
 			m_score |= score;
 		}
 	}

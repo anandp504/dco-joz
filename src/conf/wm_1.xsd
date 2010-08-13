@@ -113,7 +113,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="clause" use="required"/>
-                <xs:attribute type="xs:string" name="val" use="required"/>
+                <xs:attribute type="xs:string" name="val"/>
                 <xs:attribute type="xs:string" name="wt" use="required"/>
             </xs:extension>
         </xs:simpleContent>
