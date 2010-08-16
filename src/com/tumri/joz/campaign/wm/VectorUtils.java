@@ -138,7 +138,7 @@ public class VectorUtils {
             attr = VectorAttribute.kF5;
         } else if ("ub".equals(type)) {
             attr = VectorAttribute.kUB;
-        } else if ("default".equals(type)) {
+        } else if ("adpodid".equals(type)) {
             attr = VectorAttribute.kAdpodId;
         } else if ("expid".equals(type)) {
             attr = VectorAttribute.kExpId;
@@ -234,7 +234,7 @@ public class VectorUtils {
                 name = "ub";
                 break;
             case kAdpodId:
-                name = "default";
+                name = "adpodid";
                 break;
             case kExpId:
                 name = "expid";

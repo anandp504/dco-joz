@@ -238,7 +238,12 @@ public class VNodeHandler extends DefaultHandler {
 			}
 			if (!requestMap.isEmpty() && (!optRules.isEmpty() || !lcRules.isEmpty())) {
 				Map<VectorAttribute,  List<Integer>> idMap = explodeRequestMap(requestMap);
-				VectorHandle h =vhFactory.getHandle(adPodId, vectorId, VectorHandle.OPTIMIZATION, idMap, true);
+                int type = VectorHandle.OPTIMIZATION;
+                if (vectorId == 1 && (idMap.size()==1 && (idMap.containsKey(VectorAttribute.kExpId)) || idMap.containsKey(VectorAttribute.kAdpodId))) {
+                    //This is a default handle
+                    type = VectorHandle.DEFAULT;
+                }
+				VectorHandle h =vhFactory.getHandle(adPodId, vectorId, type, idMap, true);
 				if (h != null) {
                     if (expId<=0){
                         WMDBLoader.updateDb(-1, adPodId, optRules, lcRules, idMap, h);

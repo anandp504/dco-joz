@@ -30,7 +30,8 @@ public class VectorAttributeWeights implements IWeight<Handle> {
     private static double kF4 = 1.0;
     private static double kF5 = 1.0;
     private static double ub = 1.0;
-    private static double kExpId = 1.0;
+    private static double kExpId = 0.2;
+    private static double kAdpodId = 0.2;
     private static double kLineIdNone = 0.2;
     private static double kSiteIdNone = 0.2;
     private static double kCreativeIdNone = 0.2;
@@ -184,7 +185,7 @@ public class VectorAttributeWeights implements IWeight<Handle> {
             case kUBNone:
                 return ubNone;
             case kAdpodId:
-                return kDefault;
+                return kAdpodId;
             case kExpId:
                 return kExpId;
             default:
