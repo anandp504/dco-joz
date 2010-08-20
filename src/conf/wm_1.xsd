@@ -17,7 +17,8 @@
     <xs:complexType name="vType">
         <xs:sequence>
             <xs:element type="wm:clType" name="cl" xmlns:wm="http://www.tumri.com/wm"/>
-            <xs:element type="wm:rwlType" name="rwl" xmlns:wm="http://www.tumri.com/wm"/>
+            <xs:element type="wm:rwlType" name="rwl" xmlns:wm="http://www.tumri.com/wm" minOccurs="0"/>
+            <xs:element type="wm:lclType" name="lcl" xmlns:wm="http://www.tumri.com/wm" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="required"/>
     </xs:complexType>
@@ -120,6 +121,8 @@
     </xs:complexType>
     <xs:simpleType name="dimType" xmlns:wm="http://www.tumri.com/wm">
         <xs:restriction base="xs:string">
+            <xs:enumeration value="expid"/>
+            <xs:enumeration value="adpodid"/>
             <xs:enumeration value="lineid"/>
             <xs:enumeration value="siteid"/>
             <xs:enumeration value="buyid"/>
