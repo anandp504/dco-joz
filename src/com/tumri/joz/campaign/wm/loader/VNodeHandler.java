@@ -27,6 +27,7 @@ import com.tumri.cma.domain.*;
 import com.tumri.cma.rules.CreativeSet;
 import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.rules.ListingClauseUtils;
 import com.tumri.utils.Pair;
 import com.tumri.utils.data.SortedBag;
 import com.tumri.utils.data.SortedListBag;
@@ -236,7 +237,8 @@ public class VNodeHandler extends DefaultHandler {
 					optRules.add(recipeRuleMap.get(rid));
 				}
 			}
-			if (!requestMap.isEmpty() && (!optRules.isEmpty() || !lcRules.isEmpty())) {
+            SortedBag<Pair<ListingClause, Double>> validRules = ListingClauseUtils.validateListingClauses(lcRules);
+			if (!requestMap.isEmpty() && (!optRules.isEmpty() || !validRules.isEmpty())) {
 				Map<VectorAttribute,  List<Integer>> idMap = explodeRequestMap(requestMap);
                 int type = VectorHandle.OPTIMIZATION;
                 if (vectorId == 1 && (idMap.size()==1 && (idMap.containsKey(VectorAttribute.kExpId)) || idMap.containsKey(VectorAttribute.kAdpodId))) {
@@ -246,9 +248,9 @@ public class VNodeHandler extends DefaultHandler {
 				VectorHandle h =vhFactory.getHandle(adPodId, vectorId, type, idMap, true);
 				if (h != null) {
                     if (expId<=0){
-                        WMDBLoader.updateDb(-1, adPodId, optRules, lcRules, idMap, h);
+                        WMDBLoader.updateDb(-1, adPodId, optRules, validRules, idMap, h);
                     } else {
-                        WMDBLoader.updateDb(adPodId, -1, optRules, lcRules, idMap, h);
+                        WMDBLoader.updateDb(adPodId, -1, optRules, validRules, idMap, h);
                     }
 				}
 			} else {
