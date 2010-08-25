@@ -261,7 +261,7 @@
                         ListingClause lc = rulePair.getFirst();
                         Double wt = rulePair.getSecond();
         %>
-            <li><%=lc%> <%=wt%>
+            <li><%=lc.toString()%> <%=wt%>
             </li>
             <%
                     }

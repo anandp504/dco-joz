@@ -120,14 +120,18 @@ public class ListingClause implements Comparable {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		if (clauseScoreMap != null) {
-			for (String type : clauseScoreMap.keySet()) {
+		if (clauseTypeMap != null) {
+			for (String type : clauseTypeMap.keySet()) {
 				Set<String> vals = clauseTypeMap.get(type);
+                sb.append(type);
 				if (vals != null && vals.size() > 0) {
-					sb.append(type);
 					sb.append(": ");
-					sb.append(vals);
-				}
+                    for(String s:vals) {
+                        sb.append(s);
+                    }
+				} else {
+                    sb.append(": DEFAULT");
+                }
 			}
 		}
 		return sb.toString();
