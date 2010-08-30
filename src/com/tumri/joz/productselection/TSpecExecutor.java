@@ -858,7 +858,10 @@ public class TSpecExecutor {
 			addRequestCategoryQuery(requestCategory);
 		}
 
-		addListingClauseQueries();
+        //Add Listing Clause only if there are no backfills and there are no external keywords passed in.
+        if (!m_ExternalKeywords  && m_tspec.isEnableBackFill()){
+            addListingClauseQueries();
+        }        
 
 		ArrayList<Handle> resultAL = new ArrayList<Handle>();
 
