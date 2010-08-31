@@ -97,7 +97,7 @@
     </a>
         <% } else {
             Experience exp = campaignDB.getExperience(adpodId);
-            ;
+
             if (exp != null) {%>
         <%=exp.getId()%>, <a href="/joz/jsp/expSelection.jsp?selExp=<%=exp.getId()%>"><%=exp.getName()%>
     </a>
@@ -128,7 +128,7 @@
                     val = val + "," + VectorUtils.getDictValue(k, id);
                 }
         %>
-            <li><%=vectorId %>=<%=k.name()%>,<%=val%>
+            <li><%=vectorId %>=<%=k.name()%><%=val%>
             </li>
             <%
                 }
@@ -146,9 +146,12 @@
                 for (Pair<CreativeSet, Double> rulePair : ruleList) {
                     CreativeSet cs = rulePair.getFirst();
                     List<String> valueList = cs.getAttributes(0); //For recipe
+                    //Get the Recipe Name
+                    String recipeId = valueList.get(0);
+                    Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(recipeId));
                     Double wt = rulePair.getSecond();
         %>
-            <li><%=valueList.get(0)%> <%=wt%>
+            <li><%=recipeId%>,<a href="/joz/jsp/recipeSelection.jsp?selRecipe=<%=r.getId()%>"><%=r.getName()%></a>,<%=wt%>
             </li>
             <%
                     }
@@ -184,7 +187,7 @@
     </a>
         <% } else {
             Experience exp = campaignDB.getExperience(adpodId);
-            ;
+
             if (exp != null) {%>
         <%=exp.getId()%>, <a href="/joz/jsp/expSelection.jsp?selExp=<%=exp.getId()%>"><%=exp.getName()%>
     </a>
@@ -215,7 +218,7 @@
                     val = val + "," + VectorUtils.getDictValue(k, id);
                 }
         %>
-            <li><%=vectorId %>=<%=k.name()%>,<%=val%>
+            <li><%=vectorId%>=<%=k.name()%><%=val%>
             </li>
             <%
                 }
@@ -234,9 +237,26 @@
                     }
                     for (Pair<CreativeSet, Double> rulePair : ruleList) {
                         CreativeSet cs = rulePair.getFirst();
+                        CAM theCAM = cs.getCAM();
+                        CAMDimension[] dims = theCAM.getCamDimensions();
+                        StringBuilder sbuild = new StringBuilder();
+                        for (int i=0;i<dims.length;i++) {
+                            CAMDimension currDim = dims[i];
+                            sbuild.append(currDim.getName() + "=");
+                            List<String> values = cs.getAttributes(i);
+                            for (String s:values) {
+                                if (currDim.getName().equals("RECIPEID")) {
+                                    Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(s));
+                                    String url = "<a href=\"/joz/jsp/recipeSelection.jsp?selRecipe=" + r.getId() + "\">" + r.getName() + "</a>";
+                                    sbuild.append(s+" "+url + ",");
+                                } else {
+                                    sbuild.append(s+",");
+                                }
+                            }
+                        }
                         Double wt = rulePair.getSecond();
         %>
-            <li><%=cs%> <%=wt%>
+            <li><%=sbuild.toString()%> <%=wt%>
             </li>
             <%
                     }
@@ -279,7 +299,7 @@
     </td>
 </tr>
 <%
-    } // End of def handles loop
+    } // End of opt handles loop
 %>
 <tr class="table_column_header">
     <th>Id, Name</th>
@@ -332,7 +352,7 @@
                     val = val + "," + VectorUtils.getDictValue(k, id);
                 }
         %>
-            <li><%=vectorId %>=<%=k.name()%>,<%=val%>
+            <li><%=vectorId %>=<%=k.name()%><%=val%>
             </li>
             <%
                 }
