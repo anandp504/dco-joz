@@ -1,9 +1,12 @@
 package com.tumri.joz.campaign.wm;
 
 import com.tumri.cma.domain.CAM;
+import com.tumri.cma.domain.Campaign;
+import com.tumri.cma.domain.Experience;
 import com.tumri.cma.rules.CreativeInstance;
 import com.tumri.cma.rules.CreativeSelector;
 import com.tumri.cma.rules.CreativeSet;
+import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.index.Range;
 import com.tumri.joz.jozMain.AdDataRequest;
@@ -45,10 +48,20 @@ public class VectorTargetingProcessor {
 	 * @param request - request
 	 * @return
 	 */
-	public VectorTargetingResult processRequest(int adpodId, int expId, CAM cam, AdDataRequest request, Features features)
+	public VectorTargetingResult processRequest(int adpodId, int expId, CAM cam,AdDataRequest request, Features features)
 			throws VectorSelectionException {
 		PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
-		Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, expId, request);
+        boolean onlyDefault = false;
+        if (expId > -1) {
+            //Only for TC Campaigns
+            Experience exp = CampaignDB.getInstance().getExperience(expId);
+            if (exp!=null) {
+                Campaign camp = CampaignDB.getInstance().getCampaign(exp.getCampaignId());
+                //If optimizeCTR is ON, then we will also look for other request context to optimize
+                onlyDefault = !camp.isOptimizeCTR();
+            }
+        }
+		Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, expId, request, onlyDefault);
 		VectorTargetingResult vtr = new VectorTargetingResult();
 
 		SortedSet<Handle> resVectors = getMatchingVectors(contextMap);

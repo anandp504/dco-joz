@@ -364,7 +364,7 @@ public class VectorUtils {
      * @param request
      * @return
      */
-    public static Map<VectorAttribute, List<Integer>> getContextMap(int adpodId, int expId,  AdDataRequest request) {
+    public static Map<VectorAttribute, List<Integer>> getContextMap(int adpodId, int expId,  AdDataRequest request, boolean onlyDefault) {
         Map<VectorAttribute, List<Integer>> contextMap = new HashMap<VectorAttribute, List<Integer>>();
         //Always add default
         {
@@ -376,6 +376,9 @@ public class VectorUtils {
                 defvalues.add(expId);
                 contextMap.put(VectorAttribute.kExpId, defvalues);
             }
+        }
+        if (onlyDefault) {
+            return contextMap;
         }
         if (request.getPageId() != null) {
             List<String> values = parseValues(request.getPageId());
