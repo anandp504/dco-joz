@@ -48,24 +48,28 @@ public class VectorTargetingProcessor {
 	 * @param request - request
 	 * @return
 	 */
-	public VectorTargetingResult processRequest(int adpodId, int expId, CAM cam,AdDataRequest request, Features features)
+	public VectorTargetingResult processRequest(int adpodId, int expId, CAM cam, AdDataRequest request, Features features)
 			throws VectorSelectionException {
 		PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
-        boolean onlyDefault = false;
-        if (expId > -1) {
-            //Only for TC Campaigns
-            Experience exp = CampaignDB.getInstance().getExperience(expId);
-            if (exp!=null) {
-                Campaign camp = CampaignDB.getInstance().getCampaign(exp.getCampaignId());
-                //If optimizeCTR is ON, then we will also look for other request context to optimize
-                onlyDefault = !camp.isOptimizeCTR();
-            }
-        }
-		Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, expId, request, onlyDefault);
+		boolean onlyDefault = false;
+		/*
+		if (expId > -1) {
+			//Only for TC Campaigns
+			Experience exp = CampaignDB.getInstance().getExperience(expId);
+			if (exp!=null) {
+				Campaign camp = CampaignDB.getInstance().getCampaign(exp.getCampaignId());
+				//If optimizeCTR is ON, then we will also look for other request context to optimize
+				onlyDefault = !camp.isOptimizeCTR();
+			}
+		}
+		*/
+		SortedSet<Handle> matchingVectors = null;
 		VectorTargetingResult vtr = new VectorTargetingResult();
-
-		SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
-		SortedSet<Handle> matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
+		if (!onlyDefault) {
+			Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, expId, request);
+			SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
+			matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
+		}
 
 		CreativeSelector cs = cam.getSelector();
 		CreativeSet cur = cam.getAllCreatives();
@@ -76,16 +80,16 @@ public class VectorTargetingProcessor {
 		ListingClause lc = null;
 		Random r = new Random();
 
-		if (!matchingVectors.isEmpty()) {
+		if (matchingVectors != null && !matchingVectors.isEmpty()) {
 			List<SortedBag<Pair<CreativeSet, Double>>> rules = new ArrayList<SortedBag<Pair<CreativeSet, Double>>>();
 			double prevScore = 0.0;
 			for (Handle h : matchingVectors) {
 				//Get the Listing clause details
 				int[] dets = VectorHandleImpl.getIdDetails(h.getOid());
-                if (dets[1] != adpodId && dets[1] != expId) {
-                    throw new VectorSelectionException("Selected handle did not match the incoming adpod or exp:"
-                            + dets[1] + ":" + adpodId + "/" +  expId);
-                }
+				if (dets[1] != adpodId && dets[1] != expId) {
+					throw new VectorSelectionException("Selected handle did not match the incoming adpod or exp:"
+							+ dets[1] + ":" + adpodId + "/" + expId);
+				}
 				{
 					SortedBag<Pair<ListingClause, Double>> clauses = VectorDB.getInstance().getClauses(h.getOid());
 					if (clauses != null && !clauses.isEmpty()) {
@@ -137,10 +141,10 @@ public class VectorTargetingProcessor {
 									}
 								}
 							} else {
-                                if (dets[0] != 1) {
-                                    //This is not a default vector handle, and we dont have rules for it.
-								    log.warn("Rules not found for handle : " + h.getOid());
-                                }
+								if (dets[0] != 1) {
+									//This is not a default vector handle, and we dont have rules for it.
+									log.warn("Rules not found for handle : " + h.getOid());
+								}
 							}
 						}
 					}
