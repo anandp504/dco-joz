@@ -128,6 +128,13 @@
 
 <div>
     <%
+        out.print("<strong> Campaign: optimize CTR </strong> = " + myCampaign.isOptimizeCTR() + "<br>");
+    %>
+</div>
+<br>
+
+<div>
+    <%
         Date startDate = null;
         if ((startDate = myCampaign.getFlightStart()) != null) {
             out.print("<strong> Campaign: Flight Start Date </strong> = " + startDate.toString() + "<br>");
