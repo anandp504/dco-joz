@@ -116,7 +116,10 @@ public class ListingClauseUtils {
 						}
 
 						productId = spid.toString();
-						Handle p = ProductDB.getInstance().getHandle(new Long(productId));
+						Handle p = null;
+						if (productId != null && !productId.isEmpty()) {
+							p = ProductDB.getInstance().getHandle(new Long(productId));
+						}
 						if (p == null) {
 							log.warn("Skipping Invalid product in listing clause : " + productId);
 							return false;
