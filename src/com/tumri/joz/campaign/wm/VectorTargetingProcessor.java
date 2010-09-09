@@ -52,17 +52,15 @@ public class VectorTargetingProcessor {
 			throws VectorSelectionException {
 		PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
 		boolean onlyDefault = false;
-		/*
 		if (expId > -1) {
 			//Only for TC Campaigns
 			Experience exp = CampaignDB.getInstance().getExperience(expId);
-			if (exp!=null) {
+			if (exp != null) {
 				Campaign camp = CampaignDB.getInstance().getCampaign(exp.getCampaignId());
 				//If optimizeCTR is ON, then we will also look for other request context to optimize
 				onlyDefault = !camp.isOptimizeCTR();
 			}
 		}
-		*/
 		SortedSet<Handle> matchingVectors = null;
 		VectorTargetingResult vtr = new VectorTargetingResult();
 		if (!onlyDefault) {
