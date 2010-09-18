@@ -346,8 +346,11 @@ public class JozIndexUpdater implements IJozIndexUpdater {
 					log.error("Could not decode the value : " + val);
 					continue;
 				} catch (IllegalArgumentException e) {
-					log.error("Could not decode the value, IllegalArgumentException : " + val);
-					continue;
+					val = val.toLowerCase();
+					//the underlying issue is that LP is not encoding ut1-ut5
+					//log.error("Could not decode the value, IllegalArgumentException : " + val);
+					//we are not logging this error because most of content has passthru fields populated and joz-logs could bloat.
+					//continue;
 				}
 				TreeMap<Long, ArrayList<Handle>> mindex = new TreeMap<Long, ArrayList<Handle>>();
 				long key = IndexUtils.createLongIndexKey(idxAttr, IndexUtils.getIndexIdFromDictionary(idxAttr, val));
