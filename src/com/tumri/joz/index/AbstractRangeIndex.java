@@ -136,7 +136,7 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	 * @param key
 	 * @return
 	 */
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	private SortedSet<Range<V>> getMatchingRanges(V key) {
 		SortedSet<Range<V>> set = new SortedArraySet<Range<V>>();
 		m_set.readerLock();
@@ -357,62 +357,103 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	 * This method must be called in order for put() to take effect.
 	 */
 	public void materialize() {
-        {
-            m_map_builder.writerLock();
-            try {
-                m_map.writerLock();
-                m_map.putAll(m_map_builder);
-            } finally {
-                try {
-                    m_map_builder.clear();
-                } finally {
-                    m_map.writerUnlock();
-                    m_map_builder.writerUnlock();
-                }
-            }
-        }
+		{
+			m_map_builder.writerLock();
+			try {
+				m_map.writerLock();
+				m_map.putAll(m_map_builder);
+			} finally {
+				try {
+					m_map_builder.clear();
+				} finally {
+					m_map.writerUnlock();
+					m_map_builder.writerUnlock();
+				}
+			}
+		}
 
 		SortedSet<Range<V>> tmpSet = new SortedArraySet<Range<V>>();
+		SortedSet<RangeIndexDomainMapping<V>> consolidatedMap = new SortedArraySet<RangeIndexDomainMapping<V>>();
 		m_set_builder.writerLock();
 		try {
-			Iterator<RangeIndexDomainMapping<V>> iter = m_set_builder.iterator();
-			while (iter.hasNext()) {
-				RangeIndexDomainMapping<V> mapping = iter.next();
-
-				SetDifference<Range<V>> tmpAdds = new SetDifference<Range<V>>(mapping.getRanges(), tmpSet);
-				SortedSet<Range<V>> tmpAddsSet = new SortedArraySet<Range<V>>();
-
-				if (tmpAdds != null) {
-					Iterator<Range<V>> iter2 = tmpAdds.iterator();
-					while (iter2.hasNext()) {
-						tmpAddsSet.add(iter2.next());
+			m_set.readerLock();
+			try {
+				Iterator<RangeIndexDomainMapping<V>> iter = m_set_builder.iterator();
+				Iterator<RangeIndexDomainMapping<V>> iter2 = m_set.iterator();
+				int mCounter = 0;
+				int mBuildCounter = 0;
+				RangeIndexDomainMapping<V> current1 = null;
+				RangeIndexDomainMapping<V> current2 = null;
+				while (iter.hasNext() || iter2.hasNext() || current1 != null || current2 != null) {
+					RangeIndexDomainMapping<V> useThis = null;
+					if (iter.hasNext() && current1 == null) {
+						current1 = iter.next();
 					}
-				}
-				tmpSet.removeAll(mapping.getRanges());
-				tmpSet.addAll(tmpAddsSet);
-
-				mapping.getRanges().writerLock();
-				try {
-					mapping.getRanges().addAll(tmpSet);
-				} finally {
-					mapping.getRanges().writerUnlock();
-				}
-
-				m_set.writerLock();
-				try {
-					if (m_set.contains(mapping)) {
-						m_set.tailSet(mapping).first().getRanges().writerLock();
-						try {
-							m_set.tailSet(mapping).first().getRanges().addAll(mapping.getRanges());
-						} finally {
-							m_set.tailSet(mapping).first().getRanges().writerUnlock();
-						}
+					if (iter2.hasNext() && current2 == null) {
+						current2 = iter2.next();
+					}
+					if (current1 == null) {
+						useThis = current2;
+						current2 = null;
+					} else if (current2 == null) {
+						useThis = current1;
+						current1 = null;
 					} else {
-						m_set.add(mapping);
+						int tmp = current1.compareTo(current2);
+						if (tmp == 0) {
+							current1.getRanges().writerLock();
+							try {
+								current2.getRanges().readerLock();
+								try {
+									current1.getRanges().addAll(current2.getRanges());
+								} finally {
+									current2.getRanges().readerUnlock();
+								}
+							} finally {
+								current1.getRanges().writerUnlock();
+							}
+							useThis = current1;
+							current1 = null;
+							current2 = null;
+						} else if (tmp < 0) {
+							useThis = current1;
+							current1 = null;
+						} else {
+							useThis = current2;
+							current2 = null;
+						}
 					}
-				} finally {
-					m_set.writerUnlock();
+
+					SetDifference<Range<V>> tmpAdds = new SetDifference<Range<V>>(useThis.getRanges(), tmpSet);
+					SortedSet<Range<V>> tmpAddsSet = new SortedArraySet<Range<V>>();
+
+					if (tmpAdds != null) {
+						Iterator<Range<V>> tmpIter = tmpAdds.iterator();
+						while (tmpIter.hasNext()) {
+							tmpAddsSet.add(tmpIter.next());
+						}
+					}
+					tmpSet.removeAll(useThis.getRanges());
+					tmpSet.addAll(tmpAddsSet);
+
+					useThis.getRanges().writerLock();
+					try {
+						useThis.getRanges().addAll(tmpSet);
+					} finally {
+						useThis.getRanges().writerUnlock();
+					}
+
+					consolidatedMap.add(useThis);
 				}
+			} finally {
+				m_set.readerUnlock();
+			}
+			m_set.writerLock();
+			try {
+				m_set.clear();
+				m_set.addAll(consolidatedMap);
+			} finally {
+				m_set.writerUnlock();
 			}
 		} finally {
 			try {
