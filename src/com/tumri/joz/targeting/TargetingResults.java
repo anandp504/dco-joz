@@ -3,6 +3,7 @@ package com.tumri.joz.targeting;
 import com.tumri.cma.domain.*;
 import com.tumri.joz.rules.ListingClause;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -15,6 +16,8 @@ public class TargetingResults {
     private CAMDimensionType[] camDimensionTypes = null;
     private String[] attributeValues = null;
     private int[] attributePositions = null;
+    private HashMap<String, String> fixedDimMap = null;
+
 
     List<RecipeTSpecInfo> infoListRecipe = null;
     List<ExperienceTSpecInfo> infoListExperience = null;
@@ -91,5 +94,13 @@ public class TargetingResults {
 
     public void setExperience(Experience experience) {
         this.experience = experience;
+    }
+
+    public HashMap<String, String> getFixedDimMap() {
+        return fixedDimMap;
+    }
+
+    public void setFixedDimMap(HashMap<String, String> fixedDimMap) {
+        this.fixedDimMap = fixedDimMap;
     }
 }

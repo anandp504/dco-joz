@@ -47,6 +47,7 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: nipun
@@ -146,6 +147,7 @@ public class JozAdRequestHandler implements RequestHandler {
 
 			//Get the recipe data
 			String recipeData = null;
+            String fixedDimData = null;
 			Recipe r = prs.getTargetedRecipe();
 			int expId = features.getExpId();
 			if (r != null) {
@@ -161,9 +163,15 @@ public class JozAdRequestHandler implements RequestHandler {
 					response.addDetails(JozAdResponse.KEY_RECIPE_NAME, recipeName);
 				}
 				recipeData = getExpData(prs);
+                //Get the fixed dim data
+                fixedDimData = getFixedDimMap(prs);
+                
 			}
 
 			response.addDetails(JozAdResponse.KEY_RECIPE, recipeData);
+            if (fixedDimData!=null) {
+                response.addDetails(JozAdResponse.KEY_FIXED_DIM_DATA, fixedDimData);
+            }
 			response.addDetails(JozAdResponse.KEY_CAMPAIGN_ID, (features.getCampaignId() > 0 ? new Integer(features.getCampaignId()).toString() : ""));
 			response.addDetails(JozAdResponse.KEY_CAMPAIGN_NAME, (features.getCampaignName()));
 			response.addDetails(JozAdResponse.KEY_CAMPAIGN_CLIENT_ID, (features.getCampaignClientId() > 0 ? new Integer(features.getCampaignClientId()).toString() : ""));
@@ -214,6 +222,29 @@ public class JozAdRequestHandler implements RequestHandler {
 
 	}
 
+    /**
+     * Get the fixed dimension map
+     * @param prs
+     * @return
+     */
+    private String getFixedDimMap(ProductSelectionResults prs) {
+        Map<String, String> dimMap = prs.getFixedDimMap();
+        if (dimMap ==null) {
+            return null;
+        }
+        StringBuilder sbuild = new StringBuilder();
+        for (String name: dimMap.keySet()) {
+            String value = dimMap.get(name);
+            sbuild.append(name + "===" + value + "&&&");
+
+        }
+        String res = sbuild.toString();
+
+        if (res.endsWith("&&&")) {
+			res = res.substring(0, res.length() - 3);
+		}
+        return res;
+    }
 	/**
 	 * Builds the exp data from the experience object
 	 *

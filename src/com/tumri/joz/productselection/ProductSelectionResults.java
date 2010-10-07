@@ -24,6 +24,7 @@ public class ProductSelectionResults {
     private CAMDimensionType[] camDimensionTypes = null;
     private String[] attributeValues = null;
     private int[] attributePositions = null;
+    private HashMap<String, String> fixedDimMap = null;
 
     HashMap<Integer, ArrayList<Handle>> tspecResultsMap = null;
     HashMap<Integer, String> tspecSlotIdMap = null;
@@ -119,5 +120,13 @@ public class ProductSelectionResults {
 
     public void setTargetedExperience(Experience targetedExperience) {
         this.targetedExperience = targetedExperience;
+    }
+
+    public HashMap<String, String> getFixedDimMap() {
+        return fixedDimMap;
+    }
+
+    public void setFixedDimMap(HashMap<String, String> fixedDimMap) {
+        this.fixedDimMap = fixedDimMap;
     }
 }
