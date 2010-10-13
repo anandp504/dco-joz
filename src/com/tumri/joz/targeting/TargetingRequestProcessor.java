@@ -101,6 +101,7 @@ public class TargetingRequestProcessor {
                         ci = vtr.getCi();
                         trs.setListingClause(vtr.getLc());
                     }
+                    handleFixedDimensions(theCAM, trs);
 
                     String[] attribValues = ci.getAttributes();
                     int[] dimIdx = ci.getAttributeIds();
@@ -385,24 +386,28 @@ public class TargetingRequestProcessor {
                 feature.setExpName(exp.getName());
                 trs.setExperience(exp);
             }
-            HashMap<String, String> fixDimMap = new HashMap<String, String>();
-            List<CAMDimension> fixDimList = theCAM.getFixedDimensions();
-            if (fixDimList!=null) {
-                for (CAMDimension dim: fixDimList) {
-                    List<CAMValue> values = dim.getCamValues();
-                    if (values!=null && values.size()>0) {
-                        fixDimMap.put(dim.getName(), values.get(0).getValue());
-                    }
-                }
-            }
-            if (!fixDimMap.isEmpty()) {
-               trs.setFixedDimMap(fixDimMap);
-            }
+            handleFixedDimensions(theCAM, trs);
 
 
         }
         trs.setListingClause(vtr.getLc());
         return trs;
+    }
+
+    private void handleFixedDimensions(CAM theCAM, TargetingResults trs) {
+        HashMap<String, String> fixDimMap = new HashMap<String, String>();
+        List<CAMDimension> fixDimList = theCAM.getFixedDimensions();
+        if (fixDimList!=null) {
+            for (CAMDimension dim: fixDimList) {
+                List<CAMValue> values = dim.getCamValues();
+                if (values!=null && values.size()>0) {
+                    fixDimMap.put(dim.getName(), values.get(0).getValue());
+                }
+            }
+        }
+        if (!fixDimMap.isEmpty()) {
+           trs.setFixedDimMap(fixDimMap);
+        }
     }
 
     private AdPodHandle pickOneAdPod(SortedSet<Handle> results) {
