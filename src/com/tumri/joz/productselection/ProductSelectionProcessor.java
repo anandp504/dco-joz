@@ -117,6 +117,7 @@ public class ProductSelectionProcessor {
                     pResults.setCamDimensionNames(trs.getCamDimensionNames());
                     pResults.setCamDimensionTypes(trs.getCamDimensionTypes());
                     pResults.setTargetedExperience(trs.getExperience());
+                    pResults.setFixedDimMap(trs.getFixedDimMap());
                 }
             } else {
                 log.error("No Recipe/Creative found during targeting. Skipping product selection");
