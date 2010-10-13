@@ -766,6 +766,7 @@
             <element name="incls" type="tns:CamArrayDef"/>
             <element name="excls" type="tns:CamArrayDef"/>
             <element name="dimensions" type="tns:CamDimensionDef"/>
+            <element name="fixedDimensions" type="tns:CamDimensionDef" minOccurs="0"/>
         </choice>
     </complexType>
     <complexType name="CamArrayDef">
@@ -783,6 +784,7 @@
             <element name="typ" type="string" maxOccurs="1" minOccurs="1"/>
             <element name="nm" type="string" maxOccurs="1" minOccurs="1"/>
             <element name="vals" type="tns:CamDimensionValues"/>
+            <element name="fxd" type="boolean" maxOccurs="1" minOccurs="0"/>
         </choice>
     </complexType>
     <complexType name="CamDimensionValues">
