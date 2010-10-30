@@ -97,6 +97,7 @@ public class TargetingRequestProcessor {
                     if (ci==null) {
                         //Select the creative instance from the CAM.
                         VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
+                        theCAM = handleZeroCamDimension(theCAM);
                         VectorTargetingResult vtr = proc.processRequest(-1, expId, theCAM, request, features);
                         ci = vtr.getCi();
                         trs.setListingClause(vtr.getLc());
@@ -348,6 +349,7 @@ public class TargetingRequestProcessor {
             throw new RuntimeException("Could not get CAM for the given request");
         }
 
+        theCAM = handleZeroCamDimension(theCAM);
         VectorTargetingResult vtr = proc.processRequest(adpodId, expId, theCAM, request, feature);
         ci = vtr.getCi();
 
@@ -392,6 +394,45 @@ public class TargetingRequestProcessor {
         }
         trs.setListingClause(vtr.getLc());
         return trs;
+    }
+
+    private CAM handleZeroCamDimension(CAM theCAM) throws VectorSelectionException {
+        ArrayList<CAMDimension> fixedDimensions = theCAM.getFixedDimensions();
+        if (theCAM.getCamDimensions()==null || theCAM.getCamDimensions().length==0) {
+            if (fixedDimensions!=null&&!fixedDimensions.isEmpty())  {
+                //Make the CAM non empty
+                int max = (fixedDimensions.size()>5)?5:fixedDimensions.size();
+                CAMDimension[] camDims = new CAMDimension[max];
+                for (int i=0;i<max;i++) {
+                   CAMDimension dim = fixedDimensions.get(i);
+                    switch(i) {
+                        case 0:
+                            dim.setType("D1");
+                            break;
+                        case 1:
+                            dim.setType("D2");
+                            break;
+                        case 2:
+                            dim.setType("D3");
+                            break;
+                        case 3:
+                            dim.setType("D4");
+                            break;
+                        case 4:
+                            dim.setType("D5");
+                            break;
+                        default:
+                    }
+                    camDims[i] = dim;
+                }
+                theCAM = new CAM(camDims);
+                theCAM.setFixedDimensions(fixedDimensions);
+            } else {
+                //No dimensions - not supported.
+                throw new VectorSelectionException("CAM does not contain Fixed/Dynamic dimensions");
+            }
+        }
+        return theCAM;
     }
 
     private void handleFixedDimensions(CAM theCAM, TargetingResults trs) {
