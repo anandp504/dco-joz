@@ -3,10 +3,9 @@ package com.tumri.joz.Query;
 import com.tumri.joz.filter.IFilter;
 import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.ranks.IWeight;
-import com.tumri.utils.data.IRandom;
-import com.tumri.utils.data.RWLocked;
-import com.tumri.utils.data.SortedArraySet;
-import com.tumri.utils.data.SortedSplitSet;
+import com.tumri.joz.ranks.IWeightGradedSetWrapper;
+import com.tumri.utils.data.*;
+import com.tumri.utils.topk.NSATopKQuery;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -22,9 +21,8 @@ import java.util.*;
  * The function tries to achieve the following
  * S1 ^ S2 ^ ~S3 ^ S4 ....
  * Where ~S3 indicates exclusion set S3
- *
  */
-public abstract class SetIntersector<Value> implements SortedSet<Value> {
+public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implements SortedSet<Value> {
 	static Logger log = Logger.getLogger(SetIntersector.class);
 	public static int MAXRET = 24;
 
@@ -50,13 +48,17 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	private int m_eZeroSize = 0; // Incremented whenever exclude() sees zero size set
 	private int m_listSize = 0;
 
+	private boolean useTopK;
+
 	/**
 	 * Given a Value v and a score build the Result object.
+	 *
 	 * @param v
 	 * @param score
 	 * @return a Pair<Value,Double>
 	 */
 	public abstract Value getResult(Value v, Double score);
+
 	public abstract SetIntersector<Value> clone() throws CloneNotSupportedException;
 
 	public SetIntersector(boolean strict) {
@@ -66,6 +68,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	/**
 	 * Gets the reference point of staring the intersection, default is first()
+	 *
 	 * @return reference value
 	 */
 	public Value getReference() {
@@ -74,9 +77,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	/**
 	 * Sets the reference point of staring the intersection, default is first()
+	 *
 	 * @param aReference value
 	 */
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public void setReference(Value aReference) {
 		m_reference = aReference;
 		if (m_reference != null && m_rankedSet == null) {
@@ -85,10 +89,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 			if (!firstSet.isEmpty()) {
 				Value last = firstSet.last();
 				SortedSet<Value> tSet = firstSet.tailSet(m_reference);
-				if(tSet.isEmpty()){ //if true this means that we fell into the buckect of handles after the last handle of the first set
-					m_reference = distance(last, m_reference) == 1L ? firstSet.first() : (Value)((IRandom)firstSet).random(g_random);
-				} else if(tSet.first() == firstSet.first()){ // if true means that we fell into the bucket of handles before the first handle of the first set
-					m_reference = (Value)((IRandom)firstSet).random(g_random);
+				if (tSet.isEmpty()) { //if true this means that we fell into the buckect of handles after the last handle of the first set
+					m_reference = distance(last, m_reference) == 1L ? firstSet.first() : (Value) ((IRandom) firstSet).random(g_random);
+				} else if (tSet.first() == firstSet.first()) { // if true means that we fell into the bucket of handles before the first handle of the first set
+					m_reference = (Value) ((IRandom) firstSet).random(g_random);
 				} //else we m_reference is within the bucket of handles of the first set
 
 			}
@@ -110,11 +114,12 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	/**
 	 * Overriden in ProductSetIntersector
+	 *
 	 * @param v1
 	 * @param v2
 	 * @return
 	 */
-	protected long distance(Value v1, Value v2){
+	protected long distance(Value v1, Value v2) {
 		return -1L;
 	}
 
@@ -158,22 +163,22 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	/**
 	 * Set to be included in the conjunction
 	 *
-	 * @param set SortedSet of values to be include in the intersection
+	 * @param set    SortedSet of values to be include in the intersection
 	 * @param weight of a Value is computed using weight object
 	 */
 	public void include(SortedSet<Value> set, IWeight<Value> weight) {
-		if ((set != null && set.size() > 0) || ((set == null || set.size() ==0) && weight.mustMatch())) {
-			if (set==null) {
+		if ((set != null && set.size() > 0) || ((set == null || set.size() == 0) && weight.mustMatch())) {
+			if (set == null) {
 				set = new SortedArraySet<Value>();
 			}
 			boolean added = false;
 			for (int i = 0; i < m_includes.size(); i++) {
 				SortedSet<Value> lValues = m_includes.get(i);
-				IWeight<Value> lWeight   = m_includesWeight.get(i);
+				IWeight<Value> lWeight = m_includesWeight.get(i);
 				if ((set.size() < lValues.size() && (lWeight.mustMatch() == weight.mustMatch() || isStrict())) ||
 						(!lWeight.mustMatch() && weight.mustMatch())) { // insert in a sorted order with smallest set first
-					m_includes.add(i,set);
-					m_includesWeight.add(i,weight);
+					m_includes.add(i, set);
+					m_includesWeight.add(i, weight);
 					added = true;
 					break;
 				}
@@ -195,6 +200,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	/**
 	 * Single Rank ordered set can be included in the intersector. If the set is included then the intersector proceeds differently
+	 *
 	 * @param aRankedSet
 	 */
 	public void includeRankedSet(SortedSet<Value> aRankedSet, IWeight<Value> weight) {
@@ -206,9 +212,11 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	public boolean hasIncludes() {
 		return m_includes.size() > 0;
 	}
+
 	public boolean hasExcludes() {
 		return m_excludes.size() > 0;
 	}
+
 	public boolean hasFilters() {
 		return m_filters.size() > 0;
 	}
@@ -217,7 +225,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	/**
 	 * Complement of set to be added to conjunction
 	 *
-	 * @param set SortedSet of values to be include in the intersection
+	 * @param set    SortedSet of values to be include in the intersection
 	 * @param weight of a Value is computed using weight object
 	 */
 	public void exclude(SortedSet<Value> set, IWeight<Value> weight) {
@@ -235,7 +243,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	 * Add a filter to the conjunction, filter acts as an alternative to an index
 	 *
 	 * @param aFilter filter used for accepting matches
-	 * @param weight of a Value is computed using weight object
+	 * @param weight  of a Value is computed using weight object
 	 */
 	public void addFilter(IFilter<Value> aFilter, IWeight<Value> weight) {
 		m_filters.add(aFilter);
@@ -255,6 +263,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 				m_maxSetSize = MAXRET;
 		}
 	}
+
 	public int getMax() {
 		return m_maxSetSize;
 	}
@@ -267,7 +276,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	public SortedSet<Value> intersect() {
 		ArrayList<ArrayList<Value>> lists = createLists();
 		intersect(lists, null, m_maxSetSize, true);
-		return buildReturnSet(lists,m_maxSetSize);
+		return buildReturnSet(lists, m_maxSetSize);
 	}
 
 	protected ArrayList<ArrayList<Value>> createLists() {
@@ -283,9 +292,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	/**
 	 * Adds a set element to the correct set in returnsets.
+	 *
 	 * @param matches number of required matches met so far
 	 * @param element the element to be added
-	 * @param score the score of element match
+	 * @param score   the score of element match
 	 * @return returns true if max number of exact results have been found
 	 */
 	private boolean addResult(ArrayList<ArrayList<Value>> lists, int matches, Value element,
@@ -294,8 +304,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		// Two cases to consider:
 		// 1. Strict is set, index == 0 AND less than max results filled
 		// 2. Strict is not set AND less than max results filled
-		if ((!isStrict() || index == 0) && resultsSize(lists,index) < max)
-			lists.get(index).add(getResult(element,score));
+		if ((!isStrict() || index == 0) && resultsSize(lists, index) < max)
+			lists.get(index).add(getResult(element, score));
 		// We are done in two cases:
 		// 1. the list at m_iZeroSize has exceeded max
 		// 2. Strict was set and at least one of the included set was zero size (m_iZeroSize > 0)
@@ -324,13 +334,13 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		lock();
 		try {
 			boolean last = false;
-			for (Value v  : m_rankedSet) {
+			for (Value v : m_rankedSet) {
 				if (last) return v;
 				if (cPointer != null && !cPointer.equals(v))
 					continue;
 				cPointer = null;
 				int match = containsInt(v); // NB: match can be zero
-				if (match >= 0 && addResult(lists,match, v, m_rankedSetWeight.getWeight(v), count)) {
+				if (match >= 0 && addResult(lists, match, v, m_rankedSetWeight.getWeight(v), count)) {
 					last = true;
 				}
 			}
@@ -339,31 +349,35 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		}
 		return null;
 	}
+
 	/**
 	 * Starts walking all the sorted sets, till one of them reaches the end point
 	 * cPointer points to a set member
 	 * variable score is incremented each time a positive match happens, based on the total score the
 	 * item pointed to by cPointer is added to one of the entries in returnSet
 	 *
-	 * @param lists, the lists array is filled with results, lists should be created using createLists()
+	 * @param lists,    the lists array is filled with results, lists should be created using createLists()
 	 * @param cPointer, start point of intersection, if null is provided then end points are used
-	 * @param count, number of strict matches to be found
-	 * @param first, which end point of the set to use, starting or ending
+	 * @param count,    number of strict matches to be found
+	 * @param first,    which end point of the set to use, starting or ending
 	 */
 	protected Value intersect(ArrayList<ArrayList<Value>> lists, Value cPointer, int count, boolean first) {
+		if (useTopK) {
+			return getTopK(lists);
+		}
 		if (m_rankedSet != null) {
-			return rankedIntersect(lists,cPointer,count);
+			return rankedIntersect(lists, cPointer, count);
 		}
 		if (m_incSize == 0) {
 			return null;
 		} else if (m_incSize == 1 && first) {
-			return intersectSimple(lists,cPointer,count);
+			return intersectSimple(lists, cPointer, count);
 		}
 		try {
 			lock();
-			cPointer = locateElement(m_includes.get(0),cPointer,first);
+			cPointer = locateElement(m_includes.get(0), cPointer, first);
 			int itemVisitCount = 1, itemLookupCount = 0; // Performace indicator for how many items were visited
-			int loopcount=0;
+			int loopcount = 0;
 			while (cPointer != null) {
 				int matches = 0; // score for the cPointer matches
 				double totalWeight = 1.0;
@@ -373,7 +387,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 				Value nextPointer = null;
 				for (int i = 1; i < m_incSize && totalWeight > 0.0; i++) {
 					itemLookupCount++;
-					nextPointer = locateElement(m_includes.get(i),cPointer,first);
+					nextPointer = locateElement(m_includes.get(i), cPointer, first);
 					if (nextPointer == null || !nextPointer.equals(cPointer)) {
 						for (int j = i; j < m_incSize && totalWeight > 0.0; j++) {
 							if (m_includesWeight.get(j).mustMatch()) totalWeight = 0.0;
@@ -404,10 +418,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 					totalWeight *= w.getWeight(cPointer);
 				}
 				Value v = cPointer;
-				cPointer = ((nextPointer == null || cPointer.equals(nextPointer))?
-						adjuscentElement(m_includes.get(0), cPointer,first) :
-						locateElement(m_includes.get(0),nextPointer,first));
-				if (totalWeight > 0.0 && addResult(lists,matches, v, totalWeight, count)) {
+				cPointer = ((nextPointer == null || cPointer.equals(nextPointer)) ?
+						adjuscentElement(m_includes.get(0), cPointer, first) :
+						locateElement(m_includes.get(0), nextPointer, first));
+				if (totalWeight > 0.0 && addResult(lists, matches, v, totalWeight, count)) {
 					break;
 				}
 				itemVisitCount++;
@@ -419,15 +433,42 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		return cPointer;
 	}
 
+	public void useTopK(boolean useTopK) {
+		this.useTopK = useTopK;
+	}
+
+	private Value getTopK(ArrayList<ArrayList<Value>> lists) {
+		//todo: complete
+		clearBaseSets();
+		for (int i = 0; i < m_includes.size(); i++) {
+			SortedSet<Value> set = m_includes.get(i);
+			IWeight<Value> wt = m_includesWeight.get(i);
+			GradedSetWrapper<Value> keywordGradedSet = new IWeightGradedSetWrapper(set, wt);
+			super.include(keywordGradedSet);
+		}
+
+		//todo: need a MUCH better way to handle creating GradedSetWrapper
+		if (m_rankedSet != null) {
+			SortedSet<Value> m_rankedSet2 = new SortedArraySet<Value>();
+			m_rankedSet2.addAll(m_rankedSet);
+			GradedSetWrapper<Value> keywordGradedSet = new KeywordGradedSetWrapper(m_rankedSet2);
+			super.include(keywordGradedSet);
+		}
+//		lists = new ArrayList<ArrayList<Value>>();
+		super.setMax(m_maxSetSize);
+		lists.get(0).addAll((ArrayList<Value>) super.compute());
+		return null;
+	}
+
 	protected Value intersectSimple(ArrayList<ArrayList<Value>> lists, Value cPointer, int count) {
 		try {
 			lock();
 			int itemVisitCount = 1, itemLookupCount = 0; // Performace indicator for how many items were visited
-			int loopcount=0;
+			int loopcount = 0;
 			SortedSet<Value> single = m_includes.get(0);
 			single = (cPointer == null ? single : single.tailSet(cPointer));
 			boolean done = false;
-			for(Value value : single)  {
+			for (Value value : single) {
 				cPointer = value; // in case we are done then the next pointer is set correctly
 				if (done)
 					break;
@@ -453,7 +494,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 					matches++; //= w.match(cPointer);
 					totalWeight *= w.getWeight(cPointer);
 				}
-				if (totalWeight > 0.0 && addResult(lists,matches, cPointer, totalWeight, count)) {
+				if (totalWeight > 0.0 && addResult(lists, matches, cPointer, totalWeight, count)) {
 					done = true;
 				}
 				cPointer = null; // will be set right before exit from loop, if this is last element then it should be null
@@ -494,18 +535,19 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	/**
 	 * Builds a MultiSortedSet object
+	 *
 	 * @return sorted set
 	 */
 	private SortedSet<Value> buildReturnSet(ArrayList<ArrayList<Value>> lists, int max) {
 		SortedSet<Value> ret;
 		if (lists.size() > 0) {
 			ArrayList<Value> list = lists.get(0);
-			for (int i = 1;list.size() < max && i < lists.size(); i++) {
+			for (int i = 1; list.size() < max && i < lists.size(); i++) {
 				list.addAll(lists.get(i));
 			}
 			ret = new SortedArraySet<Value>(list);
 			if (m_reference != null) {
-				ret = new SortedSplitSet<Value>(ret,getResult(m_reference,1.0));
+				ret = new SortedSplitSet<Value>(ret, getResult(m_reference, 1.0));
 			}
 		} else {
 			ret = new SortedArraySet<Value>();
@@ -518,32 +560,35 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	}
 
 	private Value locateElement(SortedSet<Value> set, Value current, boolean first) {
-		return (first ? firstElement(set,current) : lastElement(set,current));
+		return (first ? firstElement(set, current) : lastElement(set, current));
 	}
+
 	private Value adjuscentElement(SortedSet<Value> set, Value current, boolean next) {
-		return (next ? nextElement(set,current) : prevElement(set,current));
+		return (next ? nextElement(set, current) : prevElement(set, current));
 	}
 
 	/**
 	 * Find the first Element e such that either e == current or e follows current in the set
-	 * @param set the set to use
+	 *
+	 * @param set     the set to use
 	 * @param current element, if null then the first() of the set is returned
 	 * @return element e that is either e==current or e follows current in the set,
-	 * if end of the set is encountered then null is returned
+	 *         if end of the set is encountered then null is returned
 	 */
 	private Value firstElement(SortedSet<Value> set, Value current) {
 		if (current == null)
 			return (set.isEmpty() ? null : set.first());
 		SortedSet<Value> tail = set.tailSet(current);
-		return (!tail.isEmpty() ? tail.first(): null);
+		return (!tail.isEmpty() ? tail.first() : null);
 	}
 
 	/**
 	 * Find the first Element e such that either e == current or e preceeds current in the set
-	 * @param set the set to use
+	 *
+	 * @param set     the set to use
 	 * @param current element, if null then the last() of the set is returned
 	 * @return element e that is either e==current or e preceeds current in the set,
-	 * if end of the set is encountered then null is returned
+	 *         if end of the set is encountered then null is returned
 	 */
 	private Value lastElement(SortedSet<Value> set, Value current) {
 		if (current == null)
@@ -551,12 +596,13 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		if (set.contains(current))
 			return current;
 		SortedSet<Value> head = set.headSet(current);
-		return (!head.isEmpty() ? head.last(): null);
+		return (!head.isEmpty() ? head.last() : null);
 	}
 
 	/**
 	 * Returns the Value that would follow the Value current in the set
-	 * @param set the set
+	 *
+	 * @param set     the set
 	 * @param current the Value
 	 * @return the element that would follow the Value current, returns null if current is null
 	 */
@@ -576,7 +622,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	/**
 	 * Returns the Value that would preceed the Value current in the set
-	 * @param set the set
+	 *
+	 * @param set     the set
 	 * @param current the Value
 	 * @return the element that would preceed the Value current, returns null if current is null
 	 */
@@ -641,9 +688,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		}
 		return d;
 	}
+
 	public Value first() {
 		ArrayList<ArrayList<Value>> lists = createLists();
-		intersect(lists,null,1, true);
+		intersect(lists, null, 1, true);
 		if (lists.get(0).size() > 0)
 			return lists.get(0).get(0);
 		throw new NoSuchElementException();
@@ -651,15 +699,15 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	public Value last() {
 		ArrayList<ArrayList<Value>> lists = createLists();
-		intersect(lists,null,1, false);
+		intersect(lists, null, 1, false);
 		if (lists.get(0).size() > 0)
 			return lists.get(0).get(0);
 		throw new NoSuchElementException();
 	}
 
-    @SuppressWarnings({"unchecked"})
+	@SuppressWarnings({"unchecked"})
 	public Comparator<? super Value> comparator() {
-		if(m_rankedSet!=null && !m_rankedSet.isEmpty()){
+		if (m_rankedSet != null && !m_rankedSet.isEmpty()) {
 			return new ProductHandle(1.0, 1L);
 		} else {
 			return m_includes.isEmpty() ? null : m_includes.get(0).comparator();
@@ -670,14 +718,14 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	public int size() {
 		ArrayList<ArrayList<Value>> lists = createLists();
 		int max = Math.min(m_maxSetSize, m_includes.get(0).size());
-		intersect(lists,null,max, true);
+		intersect(lists, null, max, true);
 		log.warn("Size operator called on setIntersector");
 		return lists.get(0).size();
 	}
 
 	public boolean isEmpty() {
 		ArrayList<ArrayList<Value>> lists = createLists();
-		intersect(lists,null,1, false);
+		intersect(lists, null, 1, false);
 		return (lists.get(0).size() == 0);
 	}
 
@@ -692,26 +740,27 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	}
 
 	private void setListSize() {
-		m_listSize = m_incSize + m_excSize + m_filterSize + m_iZeroSize + m_eZeroSize + ((m_rankedSet!=null)?1:0);
+		m_listSize = m_incSize + m_excSize + m_filterSize + m_iZeroSize + m_eZeroSize + ((m_rankedSet != null) ? 1 : 0);
 	}
 
 	/**
 	 * Returns the number of queries that matched the set
+	 *
 	 * @param o
 	 * @return integer value of number of matching sets/queries, returns -1 if exclusion requested
 	 */
 	@SuppressWarnings("unchecked")
 	private int containsInt(Object o) {
 		int match = 0;
-		int i=0;
+		int i = 0;
 		for (SortedSet<Value> lInclude : m_includes) {
 			if (lInclude.contains(o))
-				match ++;
+				match++;
 			else if (m_includesWeight.get(i).mustMatch())
 				return -1;
 			i++;
 		}
-		i=0;
+		i = 0;
 		for (SortedSet<Value> lExclude : m_excludes) {
 			if (!lExclude.contains(o))
 				match++;
@@ -719,7 +768,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 				return -1;
 			i++;
 		}
-		i=0;
+		i = 0;
 		for (IFilter<Value> lFilter : m_filters) {
 			if (lFilter.accept((Value) o))
 				match++;
@@ -737,7 +786,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	public Object[] toArray() {
 		ArrayList<ArrayList<Value>> lists = createLists();
 		int max = m_includes.get(0).size();
-		intersect(lists,null,max, true);
+		intersect(lists, null, max, true);
 		log.warn("toArray operator called on setIntersector");
 		return lists.get(0).toArray();
 	}
@@ -745,7 +794,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	public <T> T[] toArray(T[] aTs) {
 		ArrayList<ArrayList<Value>> lists = createLists();
 		int max = m_includes.get(0).size();
-		intersect(lists,null,max, true);
+		intersect(lists, null, max, true);
 		log.warn("toArray operator called on setIntersector");
 		return lists.get(0).toArray(aTs);
 	}
@@ -776,6 +825,32 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	public void clear() {
 		throw new UnsupportedOperationException();
+	}
+
+	protected double getBaseScore(Value v) {
+		//todo: handle excludes and filters: pass thru filters and excludes
+		double wt = 1.0;
+		int i = 0;
+		for (IFilter<Value> lFilter : m_filters) {
+			if (lFilter.accept(v)) {
+				wt *= m_filtersWeight.get(i).getWeight(v);
+			} else if (m_filtersWeight.get(i).mustMatch()) {
+				return 0.0;
+			}
+			i++;
+		}
+		i = 0;
+		for (SortedSet<Value> lExclude : m_excludes) {
+			if (lExclude.contains(v)) {
+				if (m_excludesWeight.get(i).mustMatch()) {
+					return 0.0;
+				} else {
+					wt *= m_excludesWeight.get(i).getWeight(v);
+				}
+			}
+			i++;
+		}
+		return wt;
 	}
 
 	class SetIntersectorIterator implements Iterator<Value> {
@@ -819,7 +894,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		private void fill() {
 			ArrayList<Value> firstList = m_lists.get(0);
 			firstList.clear();
-			m_ref = intersect(m_lists,m_ref, m_maxSetSize,true);
+			m_ref = intersect(m_lists, m_ref, m_maxSetSize, true);
 			// If at firsttime while filling if we get CHUNK number of products then we don't fallback ever
 			if (m_fallback && m_lists.get(0).size() >= m_maxSetSize) {
 				m_fallback = false;
@@ -835,6 +910,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 			}
 			m_iter = firstList.iterator();
 		}
+
 		private boolean done() {
 			return (m_ref == null);
 		}
