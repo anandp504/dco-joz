@@ -110,6 +110,8 @@ public class AdDataRequest {
     private String ut4 = null;
     private String ut5 = null;
 
+    private String useTopK = null;
+
 	/**
 	 * Constructor that will get the values from the request
 	 *
@@ -302,6 +304,12 @@ public class AdDataRequest {
         this.ut5 = req.getValue(JozAdRequest.KEY_RETARGETING_UT5);
         if (ut5 != null) {
             ut5 = ut5.trim();
+        }
+        this.useTopK = req.getValue(JozAdRequest.KEY_TOPK);
+        if (useTopK != null && useTopK.equalsIgnoreCase("true")) {
+            useTopK = "true";
+        } else {
+            useTopK = "false";
         }
 
 	}
@@ -612,6 +620,14 @@ public class AdDataRequest {
 		} else {
 			return -1;
 		}
+    }
+
+    public String getUseTopK() {
+        return useTopK;
+    }
+
+    public void setUseTopK(String useTopK) {
+        this.useTopK = useTopK;
     }
 
     public String toString() {

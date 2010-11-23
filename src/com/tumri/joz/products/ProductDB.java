@@ -120,6 +120,8 @@ public class ProductDB {
 
         // pdb.addIndex(IProduct.Attribute.kHHI, new HHIIndex());
         pdb.registerFilter(IProduct.Attribute.kHHI, new HHIFilter());
+        pdb.registerFilter(IProduct.Attribute.kRank, new RankFilter());
+        pdb.registerFilter(IProduct.Attribute.kDiscount, new DiscountFilter());
 
         pdb.addIndex(IProduct.Attribute.kMultiValueTextField, new TextIndexImpl(IProduct.Attribute.kMultiValueTextField));
         pdb.registerLongFilter(IProduct.Attribute.kMultiValueTextField, new TextFilterImpl(IProduct.Attribute.kMultiValueTextField));

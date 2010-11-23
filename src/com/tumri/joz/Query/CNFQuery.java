@@ -22,6 +22,7 @@ public class CNFQuery implements Query, Cloneable {
     private int m_currentPage = 0;
     private boolean bPaginate = false;
     private boolean m_tableScan = false;
+    private boolean useTopK = false;
 
     public CNFQuery() {
     }
@@ -142,6 +143,7 @@ public class CNFQuery implements Query, Cloneable {
             copyCNF.m_queries = copyQueries;
         }
         copyCNF.setCacheReference(m_cache_reference);
+        copyCNF.setUseTopK(useTopK);
         return copyCNF;
     }
 
@@ -161,6 +163,17 @@ public class CNFQuery implements Query, Cloneable {
         m_tableScan = tableScan;
         for (ConjunctQuery cjq : m_queries) {
             cjq.setScan(m_tableScan);
+        }
+    }
+
+    public boolean isUseTopK() {
+        return useTopK;
+    }
+
+    public void setUseTopK(boolean useTopK) {
+        this.useTopK = useTopK;
+        for (ConjunctQuery conjunctQuery : m_queries) {
+            conjunctQuery.setUseTopK(useTopK);
         }
     }
 }

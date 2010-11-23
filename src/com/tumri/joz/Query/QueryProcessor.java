@@ -15,5 +15,5 @@ public abstract class QueryProcessor {
   }
 
   public abstract SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict);
-  public abstract SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict);
+  public abstract SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict, boolean isTopK);
 }

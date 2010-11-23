@@ -16,6 +16,7 @@ public class ConjunctQuery implements Query, Cloneable {
   private ArrayList<SimpleQuery> m_queries = new ArrayList<SimpleQuery>();
   private boolean m_strict = false; // If true Strict match only no rel. ranking
   private boolean m_scan = false; // Forces a table scan approach
+  private boolean m_useTopK = false; // Forces a topK style set intersection
   private Handle  m_reference;
   private int m_pagesize;
   private int m_currentPage;
@@ -71,6 +72,22 @@ public class ConjunctQuery implements Query, Cloneable {
 
 
   /**
+   * @return state of topK mode as a boolean
+   */
+  public boolean isUseTopK() {
+    return m_useTopK;
+  }
+
+  /**
+   * Set the table scan mode for the query Processing
+   * @param aTopK boolean value
+   */
+  public void setUseTopK(boolean aTopK) {
+    m_useTopK = aTopK;
+  }
+
+
+  /**
    * Get the last reference handle used for computation
    * @return a Handle object if any, else returns null
    */
@@ -102,7 +119,7 @@ public class ConjunctQuery implements Query, Cloneable {
     // ??? This gets an "unchecked method invocation" warning.
     Collections.sort(m_queries);
     SetIntersector<Handle> intersector =
-    (isScan() ?  m_queryProcessor.buildTableScanner(m_queries, m_reference, isStrict()) : m_queryProcessor.buildIntersector(m_queries, m_reference, isStrict()));
+    (isScan() ?  m_queryProcessor.buildTableScanner(m_queries, m_reference, isStrict()) : m_queryProcessor.buildIntersector(m_queries, m_reference, isStrict(), isUseTopK()));
     intersector.setMax(getMax());
     return intersector;
   }
@@ -123,6 +140,7 @@ public class ConjunctQuery implements Query, Cloneable {
         }
         copyQuery.m_queries = copyQueries;
       }
+      copyQuery.setUseTopK(m_useTopK);
       return copyQuery;
   }
 

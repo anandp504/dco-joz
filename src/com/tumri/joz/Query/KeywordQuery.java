@@ -70,7 +70,7 @@ public class KeywordQuery extends MUPQuery {
 
     public SortedSet<Handle> rawResults() {
         if (m_rawResults == null) {
-            ArrayList<Handle> res = ProductIndex.getInstance().search(m_advertiser, m_keywords,0.0,2000);
+            ArrayList<Handle> res = ProductIndex.getInstance().search(m_advertiser, m_keywords,0.0,100);
             m_rawResults = new SortedArraySet<Handle>(res, true);
         }
         return m_rawResults;

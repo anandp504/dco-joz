@@ -223,6 +223,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":externalfilterquery4");
 		keys.add(":externalfilterquery5");
 		keys.add(":advertiser");
+		keys.add(":topk");
 
 		if (req == null || "".equals(req.trim())) {
 			pr.setCurrPage(0);
@@ -336,6 +337,12 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						if (!"".equals(value.trim())) {
 							pr.setAdvertiser(value.trim());
 						}
+					} else if (":topk".equalsIgnoreCase(key)) {
+						if (!"true".equals(value.trim())) {
+							pr.setUseTopK(true);
+						} else {
+                            pr.setUseTopK(false);
+                        }
 					}
 				} else {
 					if (!"".equals(value)) {
@@ -396,6 +403,8 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":excludedglobalids");
 		keys.add(":enablebackfill");
 		keys.add(":keywordSrc");
+		keys.add(":sortrank");
+		keys.add(":sortdiscount");
 
 		if (req != null && !"".equals(req.trim())) {
 			com.tumri.utils.strings.StringTokenizer reqTokenizer = new com.tumri.utils.strings.StringTokenizer(req, ' ');
@@ -636,6 +645,22 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						if (!"".equals(value.trim())) {
 							tSpec.setKeywordSource(value.trim());
 						}
+                    } else if (":sortrank".equalsIgnoreCase(key)) {
+                        if (!"".equals(value.trim())) {
+                            if ("false".equalsIgnoreCase(value.trim())) {
+                                tSpec.setSortByRank(false);
+                            } else {
+                                tSpec.setSortByRank(true);
+                            }
+                        }
+                    } else if (":sortdiscount".equalsIgnoreCase(key)) {
+                        if (!"".equals(value.trim())) {
+                            if ("false".equalsIgnoreCase(value.trim())) {
+                                tSpec.setSortByDiscount(false);
+                            } else {
+                                tSpec.setSortByDiscount(true);
+                            }
+                        }
 					}
 				} else {
 					if (!"".equals(value)) {

@@ -437,4 +437,8 @@ public class ProductWrapper implements IProduct {
     public String getUT5Str() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    public Integer getDiscount() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

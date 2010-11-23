@@ -55,10 +55,9 @@ public class ProductQueryProcessor extends QueryProcessor {
 	 * 6.          all                              + negative (add as filters)
 	 * 7.          World                                    (include: for closed world negation if no includes yet)
 	 */
-	public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict) {
+	public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict, boolean isTopK) {
 		ProductSetIntersector aIntersector = new ProductSetIntersector(isStrict);
-		//comment/uncomment below to use topK
-		// aIntersector.useTopK(true);
+		aIntersector.useTopK(isTopK);
 		if (aQueries.size() == 0) {
 			//aIntersector.include(ProductDB.getInstance().getAll(), AttributeWeights.getWeight(IProduct.Attribute.kNone)); // add our universe for negation
 		} else {

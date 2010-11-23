@@ -108,6 +108,7 @@ public class TSpecExecutor {
 
 		//Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
 		m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(tSpecId).clone();
+        m_tSpecQuery.setUseTopK(request.isUseTopK());
 		setupRequestParms();
 		return executeTSpec();
 	}
@@ -126,8 +127,10 @@ public class TSpecExecutor {
 		}
 		//Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
 		m_tSpecQuery = TSpecQueryCacheHelper.getQuery(tSpec);
+        m_tSpecQuery.setUseTopK(request.isUseTopK());
 		//Fix to allow TSpec evaluator from Joz console to backfill correctly
 		debugTSpecQuery = (CNFQuery)m_tSpecQuery.clone();
+        debugTSpecQuery.setUseTopK(request.isUseTopK());
 		setupRequestParms();
 		return executeTSpec();
 	}
@@ -825,6 +828,23 @@ public class TSpecExecutor {
 
 		return prodsAL;
 	}
+
+    /**
+     * Check if the tspec has these filters turned on, and add necessary filters to the execution
+     */
+    private void handleRankAndDiscountFilters() {
+        CNFQuery copytSpecQuery = (CNFQuery)m_tSpecQuery.clone();
+        if (m_tspec.isSortByDiscount()) {
+            SimpleQuery aQuery = new AttributeQuery (IProduct.Attribute.kDiscount, 0);
+            copytSpecQuery.addSimpleQuery(aQuery);
+        }
+        if (m_tspec.isSortByRank()) {
+            SimpleQuery aQuery = new AttributeQuery (IProduct.Attribute.kRank, 0);
+            copytSpecQuery.addSimpleQuery(aQuery);
+        }
+        m_tSpecQuery = copytSpecQuery;
+
+    }
 	/**
 	 * Perform tspec execution
 	 * @return ArrayList of product handles
@@ -872,6 +892,8 @@ public class TSpecExecutor {
 
 		addGeoFilterQuery(m_pageSize, m_currPage);
 
+        handleRankAndDiscountFilters();
+        
 		//6. Exec TSpec query
 		qResult = m_tSpecQuery.exec();
 

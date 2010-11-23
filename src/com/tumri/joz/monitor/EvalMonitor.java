@@ -70,6 +70,7 @@ public class EvalMonitor extends ComponentMonitor {
 		keys.put(":" + JozAdRequest.KEY_RETARGETING_UT5, JozAdRequest.KEY_RETARGETING_UT5);
 		keys.put(":" + JozAdRequest.KEY_MARITAL_STATUS, JozAdRequest.KEY_MARITAL_STATUS);
 		keys.put(":" + JozAdRequest.KEY_HOUSEHOLD_INCOME, JozAdRequest.KEY_HOUSEHOLD_INCOME);
+		keys.put(":" + JozAdRequest.KEY_TOPK, JozAdRequest.KEY_TOPK);
 	}
 
 	public JozAdRequest makeRequest(String requestString) {

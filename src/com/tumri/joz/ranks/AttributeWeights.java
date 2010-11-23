@@ -17,6 +17,8 @@ abstract public class AttributeWeights implements IWeight<Handle> {
   private static double kCPC = 1.2;
   private static double kCPO = 1.2;
   private static double kKeywords = 3.0;
+  private static double kRank = 1.0;
+  private static double kDiscount = 1.0;
   private static double kProductType = 1.2;
   private static double kImageHeight = 1.2;
   private static double kImageWidth = 1.2;
@@ -69,6 +71,8 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kHHI: return MultiValueTextFieldWeight.getInstance();
       case kMS: return MultiValueTextFieldWeight.getInstance();
       case kMultiValueTextField: return MultiValueTextFieldWeight.getInstance();
+      case kRank: return RankWeight.getInstance();
+      case kDiscount: return DiscountWeight.getInstance();
       case kNone:
       default: return NeutralWeight.getInstance();
     }
@@ -100,6 +104,8 @@ abstract public class AttributeWeights implements IWeight<Handle> {
       case kBT: return kBT;
       case kMS: return kMS;
       case kMultiValueTextField: return kMultiValueTextField;
+      case kDiscount: return kDiscount;
+      case kRank: return kRank;
       case kNone: return kNone;
       default:
     }

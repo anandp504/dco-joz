@@ -827,8 +827,12 @@ public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implemen
 		throw new UnsupportedOperationException();
 	}
 
+    /**
+     * Get the Score based on the filters and excludes
+     * @param v
+     * @return
+     */
 	protected double getBaseScore(Value v) {
-		//todo: handle excludes and filters: pass thru filters and excludes
 		double wt = 1.0;
 		int i = 0;
 		for (IFilter<Value> lFilter : m_filters) {

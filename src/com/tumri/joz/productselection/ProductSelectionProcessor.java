@@ -91,6 +91,12 @@ public class ProductSelectionProcessor {
                         Collections.sort(infoListExp);
                         ProductSelectionRequest pr = prepareRequest(request);
                         pr.setListingClause(trs.getListingClause());
+                        if ("false".equals(request.getUseTopK())) {
+                            //TopK has been explicitly disabled
+                            pr.setUseTopK(false);
+                        } else {
+                            pr.setUseTopK(true);
+                        }
                         //The order of tspecs are important in the case of included prods
                         for (ExperienceTSpecInfo queryInfoRecipe : infoListExp) {
                             int tspecId = queryInfoRecipe.getTspecId();
@@ -278,6 +284,10 @@ public class ProductSelectionProcessor {
 		pr.setUt3(request.getUt3());
 		pr.setUt4(request.getUt4());
 		pr.setUt5(request.getUt5());
+
+        if ("true".equals(request.getUseTopK())) {
+            pr.setUseTopK(true);
+        }
 
         return pr;
     }

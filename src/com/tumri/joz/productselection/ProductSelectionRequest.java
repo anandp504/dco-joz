@@ -73,6 +73,7 @@ public class ProductSelectionRequest {
     private String advertiser = null;
 
     private ListingClause listingClause = null;
+    private boolean useTopK = false;
 
     public boolean isBRandomize() {
         return bRandomize;
@@ -352,6 +353,14 @@ public class ProductSelectionRequest {
 
     public void setAge(String age) {
         this.age = age;
+    }
+
+    public boolean isUseTopK() {
+        return useTopK;
+    }
+
+    public void setUseTopK(boolean useTopK) {
+        this.useTopK = useTopK;
     }
 
     public String toString(){

@@ -17,8 +17,9 @@ public class AdPodQueryProcessor extends QueryProcessor {
         throw new UnsupportedOperationException("This method is not yet implemented");
     }
 
-    public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> queries, Handle reference,boolean isStrict) {
+    public SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> queries, Handle reference,boolean isStrict,boolean isTopK) {
         AdPodSetIntersector intersector = new AdPodSetIntersector(isStrict);
+        intersector.useTopK(isTopK);
         for(SimpleQuery query: queries) {
             if (query.hasIndex()) {
                 SortedSet<Handle> results = query.exec();
