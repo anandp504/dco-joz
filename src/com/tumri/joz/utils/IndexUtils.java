@@ -289,6 +289,20 @@ public class IndexUtils {
             case kUT5:
                 id = DictionaryManager.getId(Product.Attribute.kUT5, indexVal);
                 break;
+            case kRank:
+                try {
+                    id = Integer.parseInt(indexVal);
+                } catch (NumberFormatException e) {
+                    id = 0;
+                }
+                break;
+            case kDiscount:
+                try {
+                    id = Integer.parseInt(indexVal);
+                } catch (NumberFormatException e) {
+                    id = 0;
+                }
+                break;
         }
         return id;
     }
@@ -368,6 +382,10 @@ public class IndexUtils {
             id = Product.Attribute.kUT4;
         } else if (indexType.equals("ut5")) {
             id = Product.Attribute.kUT5;
+        } else if (indexType.equals("rank")) {
+            id = Product.Attribute.kRank;
+        } else if (indexType.equals("discount")) {
+            id = Product.Attribute.kDiscount;
         }
         return id;
     }

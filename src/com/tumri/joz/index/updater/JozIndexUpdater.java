@@ -301,6 +301,18 @@ public class JozIndexUpdater implements IJozIndexUpdater {
 			for (Handle h : pids) {
 				((ProductHandle) h).setMaritalStatus(val);
 			}
+		} else if (idxAttr == Product.Attribute.kRank) {
+			Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal.toUpperCase());
+			//No need to update the index for this - just update the handle
+			for (Handle h : pids) {
+				((ProductHandle) h).setRank(val);
+			}
+		} else if (idxAttr == Product.Attribute.kDiscount) {
+			Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal.toUpperCase());
+			//No need to update the index for this - just update the handle
+			for (Handle h : pids) {
+				((ProductHandle) h).setDiscount(val);
+			}
 		} else if (idxAttr == Product.Attribute.kCategory ||
 				idxAttr == Product.Attribute.kBrand ||
 				idxAttr == Product.Attribute.kSupplier ||
