@@ -5,7 +5,6 @@ import com.tumri.joz.products.ProductHandle;
 import com.tumri.joz.ranks.IWeight;
 import com.tumri.joz.ranks.IWeightGradedSetWrapper;
 import com.tumri.utils.data.*;
-import com.tumri.utils.topk.NSATopKQuery;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -22,17 +21,17 @@ import java.util.*;
  * S1 ^ S2 ^ ~S3 ^ S4 ....
  * Where ~S3 indicates exclusion set S3
  */
-public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implements SortedSet<Value> {
+public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	static Logger log = Logger.getLogger(SetIntersector.class);
 	public static int MAXRET = 24;
 
 	private boolean m_strict = false;
 	private ArrayList<SortedSet<Value>> m_includes;
 	private ArrayList<IWeight<Value>> m_includesWeight;
-	private ArrayList<IFilter<Value>> m_filters;
-	private ArrayList<IWeight<Value>> m_filtersWeight;
-	private ArrayList<SortedSet<Value>> m_excludes;
-	private ArrayList<IWeight<Value>> m_excludesWeight;
+	protected ArrayList<IFilter<Value>> m_filters;
+	protected ArrayList<IWeight<Value>> m_filtersWeight;
+	protected ArrayList<SortedSet<Value>> m_excludes;
+	protected ArrayList<IWeight<Value>> m_excludesWeight;
 	private static Random g_random = new Random(System.currentTimeMillis());
 
 	private SortedSet<Value> m_rankedSet;
@@ -61,6 +60,8 @@ public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implemen
 
 	public abstract SetIntersector<Value> clone() throws CloneNotSupportedException;
 
+	protected abstract SortedSet<Value> getTopKResults(List<SortedSet<Value>> sets, int numReqs, boolean strict);
+
 	public SetIntersector(boolean strict) {
 		this();
 		m_strict = strict;
@@ -86,6 +87,7 @@ public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implemen
 		if (m_reference != null && m_rankedSet == null) {
 			//Make sure that the starting reference is set randomly within the first set
 			SortedSet<Value> firstSet = m_includes.get(0);
+			//todo: lock firstSet
 			if (!firstSet.isEmpty()) {
 				Value last = firstSet.last();
 				SortedSet<Value> tSet = firstSet.tailSet(m_reference);
@@ -439,12 +441,12 @@ public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implemen
 
 	private Value getTopK(ArrayList<ArrayList<Value>> lists) {
 		//todo: complete
-		clearBaseSets();
+		List<SortedSet<Value>> sets = new ArrayList<SortedSet<Value>>();
 		for (int i = 0; i < m_includes.size(); i++) {
 			SortedSet<Value> set = m_includes.get(i);
 			IWeight<Value> wt = m_includesWeight.get(i);
 			GradedSetWrapper<Value> keywordGradedSet = new IWeightGradedSetWrapper(set, wt);
-			super.include(keywordGradedSet);
+			sets.add(keywordGradedSet);
 		}
 
 		//todo: need a MUCH better way to handle creating GradedSetWrapper
@@ -452,11 +454,15 @@ public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implemen
 			SortedSet<Value> m_rankedSet2 = new SortedArraySet<Value>();
 			m_rankedSet2.addAll(m_rankedSet);
 			GradedSetWrapper<Value> keywordGradedSet = new KeywordGradedSetWrapper(m_rankedSet2);
-			super.include(keywordGradedSet);
+			sets.add(keywordGradedSet);
 		}
-//		lists = new ArrayList<ArrayList<Value>>();
-		super.setMax(m_maxSetSize);
-		lists.get(0).addAll((ArrayList<Value>) super.compute());
+		lists = new ArrayList<ArrayList<Value>>();
+
+		SortedSet<Value> topKResults = getTopKResults(sets, m_maxSetSize, m_strict);
+		Iterator<Value> iter = topKResults.iterator();
+		while (iter.hasNext()) {
+			lists.get(0).add(iter.next());
+		}
 		return null;
 	}
 
@@ -506,6 +512,8 @@ public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implemen
 		}
 		return cPointer;
 	}
+
+	//todo: add method lock(SortedSet<Value> set)--do same checks
 
 	private void lock() {
 		for (SortedSet<Value> lValues : m_includes) {
@@ -825,36 +833,6 @@ public abstract class SetIntersector<Value> extends NSATopKQuery<Value> implemen
 
 	public void clear() {
 		throw new UnsupportedOperationException();
-	}
-
-    /**
-     * Get the Score based on the filters and excludes
-     * @param v
-     * @return
-     */
-	protected double getBaseScore(Value v) {
-		double wt = 1.0;
-		int i = 0;
-		for (IFilter<Value> lFilter : m_filters) {
-			if (lFilter.accept(v)) {
-				wt *= m_filtersWeight.get(i).getWeight(v);
-			} else if (m_filtersWeight.get(i).mustMatch()) {
-				return 0.0;
-			}
-			i++;
-		}
-		i = 0;
-		for (SortedSet<Value> lExclude : m_excludes) {
-			if (lExclude.contains(v)) {
-				if (m_excludesWeight.get(i).mustMatch()) {
-					return 0.0;
-				} else {
-					wt *= m_excludesWeight.get(i).getWeight(v);
-				}
-			}
-			i++;
-		}
-		return wt;
 	}
 
 	class SetIntersectorIterator implements Iterator<Value> {
