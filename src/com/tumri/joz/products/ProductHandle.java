@@ -37,7 +37,7 @@ public class ProductHandle implements Handle {
 
 	//private int m_discountPrice; //at most 100 buckets -- 7 bits
 	// 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0111 1111 -- 000000000000007F
-	// 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1000 0000 -- FFFFFFFFFFFFF080
+	// 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1000 0000 -- FFFFFFFFFFFFFF80
 
 
 	public ProductHandle(double aScore, long aOid) {
@@ -113,7 +113,7 @@ public class ProductHandle implements Handle {
 	}
     
 	public void setDiscount(Integer disc){
-		 m_bitMap = (m_bitMap & 0xFFFFFFFFFFFFF080L) | (((long) disc.intValue()));
+		 m_bitMap = (m_bitMap & 0xFFFFFFFFFFFFFF80L) | (((long) disc.intValue()));
 	}
 
 	public Integer getDiscount(){
