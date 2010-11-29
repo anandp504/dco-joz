@@ -358,6 +358,8 @@
             <element name="msF" type="boolean" maxOccurs="1" minOccurs="0"/>
             <element name="genF" type="boolean" maxOccurs="1" minOccurs="0"/>
             <element name="alwOpt" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="sRank" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="sDisc" type="boolean" maxOccurs="1" minOccurs="0"/>
         </choice>
     </complexType>
     <complexType name="ExcludedGlobalIdsDef">
