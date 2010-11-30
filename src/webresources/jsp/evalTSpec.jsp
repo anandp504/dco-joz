@@ -41,7 +41,8 @@
         <h4>Enter ProductSelectionRequest Info:</h4>
         <i>(Keys= :num_products :offertype :city :state :country :zipcode :dmacode :areacode
             :brandomize :bmineurls :bpaginate :bbackfill :requestkeywords :requestcategory :externalfilterquery1
-            :externalfilterquery2 :externalfilterquery3 :externalfilterquery4 :externalfilterquery5 :advertiser)</i>
+            :externalfilterquery2 :externalfilterquery3 :externalfilterquery4 :externalfilterquery5 :advertiser
+            :topk)</i>
         <br>
         <textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:2cm"><%
             if (psrReq != null) {
@@ -56,7 +57,7 @@
             :highprice :applygeofilter :applyurlfilter :applykeywordfilter :includedproviders
             :excludedproviders :excludedcategories :includedcategories :includedbrands :excludedbrands
             :excludedmerchants :excludedglobalids :includedmerchants :includedproducts :excludedproducts
-            :LTKExpression :producttype :includedglobalids :enablebackfill :keywordSrc)</i>
+            :LTKExpression :producttype :includedglobalids :enablebackfill :keywordSrc :sortrank :sortdiscount)</i>
         <br>
         <i>Note: Keys that can take more than one value(includedproviders, excludedproviders, etc...) can be
             followed by a comma serated list of values.</i>
