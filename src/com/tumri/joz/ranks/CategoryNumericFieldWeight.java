@@ -9,23 +9,28 @@ import com.tumri.joz.products.IProduct;
  * To change this template use File | Settings | File Templates.
  */
 public class CategoryNumericFieldWeight extends AttributeWeights {
-  private static CategoryNumericFieldWeight g_Weight;
-  public static CategoryNumericFieldWeight getInstance() {
-    if (g_Weight == null) {
-      synchronized(CategoryNumericFieldWeight.class) {
-        if (g_Weight == null) {
-          g_Weight = new CategoryNumericFieldWeight();
-        }
-      }
-    }
-    return g_Weight;
-  }
+	private static CategoryNumericFieldWeight g_Weight;
 
-  private CategoryNumericFieldWeight() {
-  }
+	public static CategoryNumericFieldWeight getInstance() {
+		if (g_Weight == null) {
+			synchronized (CategoryNumericFieldWeight.class) {
+				if (g_Weight == null) {
+					g_Weight = new CategoryNumericFieldWeight();
+				}
+			}
+		}
+		return g_Weight;
+	}
 
-  public double getWeight(Handle h) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCategoryNumericField);
-  }
+	private CategoryNumericFieldWeight() {
+	}
+
+	public double getWeight(Handle h) {
+		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCategoryNumericField);
+	}
+
+	public double getMaxWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCategoryNumericField);
+	}
 
 }

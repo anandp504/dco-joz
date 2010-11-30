@@ -55,6 +55,11 @@ public class RangeNSATopKQuery<Value> extends NSATopKQuery<Range<Value>> {
 	}
 
 	@Override
+	protected double getMaxScoreModification() {
+		return 100;
+	}
+
+	@Override
 	protected Range<Value> associateScore(Range<Value> h, Double score) {
 		return h;
 	}

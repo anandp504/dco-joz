@@ -9,23 +9,28 @@ import com.tumri.joz.products.IProduct;
  * To change this template use File | Settings | File Templates.
  */
 public class CPCWeight extends AttributeWeights {
-  private static CPCWeight g_Weight;
-  public static CPCWeight getInstance() {
-    if (g_Weight == null) {
-      synchronized(CPCWeight.class) {
-        if (g_Weight == null) {
-          g_Weight = new CPCWeight();
-        }
-      }
-    }
-    return g_Weight;
-  }
+	private static CPCWeight g_Weight;
 
-  private CPCWeight() {
-  }
+	public static CPCWeight getInstance() {
+		if (g_Weight == null) {
+			synchronized (CPCWeight.class) {
+				if (g_Weight == null) {
+					g_Weight = new CPCWeight();
+				}
+			}
+		}
+		return g_Weight;
+	}
 
-  public double getWeight(Handle h) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCPC);
-  }
+	private CPCWeight() {
+	}
+
+	public double getMaxWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCPC);
+	}
+
+	public double getWeight(Handle h) {
+		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCPC);
+	}
 
 }

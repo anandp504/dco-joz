@@ -8,24 +8,29 @@ import com.tumri.joz.products.ProductHandle;
  * User: nipun
  */
 public class RankWeight extends AttributeWeights {
-    private static RankWeight g_Weight;
-    public static RankWeight getInstance() {
-        if (g_Weight == null) {
-            synchronized(RankWeight.class) {
-                if (g_Weight == null) {
-                    g_Weight = new RankWeight();
-                }
-            }
-        }
-        return g_Weight;
-    }
+	private static RankWeight g_Weight;
 
-    private RankWeight() {
-    }
+	public static RankWeight getInstance() {
+		if (g_Weight == null) {
+			synchronized (RankWeight.class) {
+				if (g_Weight == null) {
+					g_Weight = new RankWeight();
+				}
+			}
+		}
+		return g_Weight;
+	}
 
-    public double getWeight(Handle h) {
-        //Safe to cast to product handle.
-        return ((ProductHandle)h).getRank();
-    }
+	private RankWeight() {
+	}
+
+	public double getMaxWeight() {
+		return 100.0;
+	}
+
+	public double getWeight(Handle h) {
+		//Safe to cast to product handle.
+		return ((ProductHandle) h).getRank();
+	}
 
 }

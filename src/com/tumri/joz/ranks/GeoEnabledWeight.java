@@ -9,27 +9,32 @@ import com.tumri.joz.products.IProduct;
  * To change this template use File | Settings | File Templates.
  */
 public class GeoEnabledWeight extends AttributeWeights {
-  private static GeoEnabledWeight g_Weight;
-  public static GeoEnabledWeight getInstance() {
-    if (g_Weight == null) {
-      synchronized(GeoEnabledWeight.class) {
-        if (g_Weight == null) {
-          g_Weight = new GeoEnabledWeight();
-        }
-      }
-    }
-    return g_Weight;
-  }
+	private static GeoEnabledWeight g_Weight;
 
-  private GeoEnabledWeight() {
-  }
+	public static GeoEnabledWeight getInstance() {
+		if (g_Weight == null) {
+			synchronized (GeoEnabledWeight.class) {
+				if (g_Weight == null) {
+					g_Weight = new GeoEnabledWeight();
+				}
+			}
+		}
+		return g_Weight;
+	}
 
-  public double getWeight(Handle h) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kGeoEnabledFlag);
-  }
+	private GeoEnabledWeight() {
+	}
 
-  public boolean mustMatch() {
-    return true;
-  }
+	public double getMaxWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kGeoEnabledFlag);
+	}
+
+	public double getWeight(Handle h) {
+		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kGeoEnabledFlag);
+	}
+
+	public boolean mustMatch() {
+		return true;
+	}
 
 }

@@ -9,23 +9,28 @@ import com.tumri.joz.products.IProduct;
  * To change this template use File | Settings | File Templates.
  */
 public class KeywordsWeight extends AttributeWeights {
-  private static KeywordsWeight g_Weight;
-  public static KeywordsWeight getInstance() {
-    if (g_Weight == null) {
-      synchronized(KeywordsWeight.class) {
-        if (g_Weight == null) {
-          g_Weight = new KeywordsWeight();
-        }
-      }
-    }
-    return g_Weight;
-  }
+	private static KeywordsWeight g_Weight;
 
-  private KeywordsWeight() {
-  }
+	public static KeywordsWeight getInstance() {
+		if (g_Weight == null) {
+			synchronized (KeywordsWeight.class) {
+				if (g_Weight == null) {
+					g_Weight = new KeywordsWeight();
+				}
+			}
+		}
+		return g_Weight;
+	}
 
-  public double getWeight(Handle h) {
-    return h.getScore();
-  }
+	private KeywordsWeight() {
+	}
+
+	public double getMaxWeight() {
+		return 10.0;
+	}
+
+	public double getWeight(Handle h) {
+		return h.getScore();
+	}
 
 }

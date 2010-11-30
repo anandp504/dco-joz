@@ -9,27 +9,33 @@ import com.tumri.joz.products.IProduct;
  */
 
 public class ImageHeightWeight extends AttributeWeights {
-  private static ImageHeightWeight g_Weight;
-  public static ImageHeightWeight getInstance() {
-    if (g_Weight == null) {
-      synchronized(ImageHeightWeight.class) {
-        if (g_Weight == null) {
-          g_Weight = new ImageHeightWeight();
-        }
-      }
-    }
-    return g_Weight;
-  }
+	private static ImageHeightWeight g_Weight;
 
-  private ImageHeightWeight() {
-  }
+	public static ImageHeightWeight getInstance() {
+		if (g_Weight == null) {
+			synchronized (ImageHeightWeight.class) {
+				if (g_Weight == null) {
+					g_Weight = new ImageHeightWeight();
+				}
+			}
+		}
+		return g_Weight;
+	}
 
-  public double getWeight(Handle h) {
-    return AttributeWeights.getAttributeWeight(IProduct.Attribute.kImageHeight);
-  }
+	private ImageHeightWeight() {
+	}
+
+	public double getMaxWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kImageHeight);
+	}
 
 
-  public boolean mustMatch() {
-    return true;
-  }
+	public double getWeight(Handle h) {
+		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kImageHeight);
+	}
+
+
+	public boolean mustMatch() {
+		return true;
+	}
 }

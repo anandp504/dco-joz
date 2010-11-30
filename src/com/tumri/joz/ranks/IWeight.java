@@ -6,10 +6,15 @@ package com.tumri.joz.ranks;
  * To change this template use File | Settings | File Templates.
  */
 public interface IWeight<Value> {
-  public double getWeight(Value v);
-  public int match(Value v);
-  /**
-   * @return true if the match is mandatory, false otherwise
-   */
-  public boolean mustMatch();
+	public double getWeight(Value v);
+
+	public int match(Value v);
+
+	/**
+	 * @return true if the match is mandatory, false otherwise
+	 */
+	public boolean mustMatch();
+
+	public double getMaxWeight();
+
 }

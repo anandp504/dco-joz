@@ -54,6 +54,28 @@ public class ProductNSATopKQuery extends NSATopKQuery<Handle> {
 	}
 
 	@Override
+	protected double getMaxScoreModification() {
+		double retWeight = 1.0;
+		int i = 0;
+		for (IFilter<Handle> lFilter : m_filters) {
+			double tmpWeight = retWeight * m_filtersWeight.get(i).getMaxWeight();
+			if (tmpWeight > retWeight) {
+				retWeight = tmpWeight;
+			}
+			i++;
+		}
+		i = 0;
+		for (SortedSet<Handle> lExclude : m_excludes) {
+			double tmpWeight = retWeight * m_excludesWeight.get(i).getMaxWeight();
+			if (tmpWeight > retWeight) {
+				retWeight = tmpWeight;
+			}
+			i++;
+		}
+		return retWeight;
+	}
+
+	@Override
 	protected Handle associateScore(Handle h, Double score) {
 		return h.createHandle(score);
 	}

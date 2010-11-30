@@ -1,6 +1,8 @@
 package com.tumri.joz.index;
 
 import com.tumri.joz.products.Handle;
+import com.tumri.joz.products.IProduct;
+import com.tumri.joz.ranks.AttributeWeights;
 import com.tumri.joz.ranks.IWeight;
 
 /**
@@ -20,5 +22,9 @@ public class RangeWeights implements IWeight {
 
 	public boolean mustMatch() {
 		return true;
+	}
+
+	public double getMaxWeight() {
+		return 1;
 	}
 }

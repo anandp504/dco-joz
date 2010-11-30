@@ -8,23 +8,28 @@ import com.tumri.joz.products.ProductHandle;
  * User: nipun
  */
 public class DiscountWeight extends AttributeWeights {
-  private static DiscountWeight g_Weight;
-  public static DiscountWeight getInstance() {
-    if (g_Weight == null) {
-      synchronized(DiscountWeight.class) {
-        if (g_Weight == null) {
-          g_Weight = new DiscountWeight();
-        }
-      }
-    }
-    return g_Weight;
-  }
+	private static DiscountWeight g_Weight;
 
-  private DiscountWeight() {
-  }
+	public static DiscountWeight getInstance() {
+		if (g_Weight == null) {
+			synchronized (DiscountWeight.class) {
+				if (g_Weight == null) {
+					g_Weight = new DiscountWeight();
+				}
+			}
+		}
+		return g_Weight;
+	}
 
-  public double getWeight(Handle h) {
-    return ((ProductHandle)h).getDiscount();
-  }
+	private DiscountWeight() {
+	}
+
+	public double getMaxWeight() {
+		return 100.0;
+	}
+
+	public double getWeight(Handle h) {
+		return ((ProductHandle) h).getDiscount();
+	}
 
 }
