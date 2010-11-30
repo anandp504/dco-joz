@@ -21,7 +21,7 @@ public class IWeightGradedSetWrapper<Value> extends GradedSetWrapper<Value> {
 	}
 
 	public double getMaxGrade() {
-		return 2;
+		return weight.getMaxWeight();
 	}
 
 	public boolean isMustMatch() {

@@ -440,7 +440,6 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	}
 
 	private Value getTopK(ArrayList<ArrayList<Value>> lists) {
-		//todo: complete
 		List<SortedSet<Value>> sets = new ArrayList<SortedSet<Value>>();
 		for (int i = 0; i < m_includes.size(); i++) {
 			SortedSet<Value> set = m_includes.get(i);
@@ -449,7 +448,6 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 			sets.add(keywordGradedSet);
 		}
 
-		//todo: need a MUCH better way to handle creating GradedSetWrapper
 		if (m_rankedSet != null) {
 			SortedSet<Value> m_rankedSet2 = new SortedArraySet<Value>();
 			m_rankedSet2.addAll(m_rankedSet);
