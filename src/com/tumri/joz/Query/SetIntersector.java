@@ -456,7 +456,6 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 			GradedSetWrapper<Value> keywordGradedSet = new KeywordGradedSetWrapper(m_rankedSet2);
 			sets.add(keywordGradedSet);
 		}
-		lists = new ArrayList<ArrayList<Value>>();
 
 		SortedSet<Value> topKResults = getTopKResults(sets, m_maxSetSize, m_strict);
 		Iterator<Value> iter = topKResults.iterator();

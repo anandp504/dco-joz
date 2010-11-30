@@ -338,7 +338,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 							pr.setAdvertiser(value.trim());
 						}
 					} else if (":topk".equalsIgnoreCase(key)) {
-						if (!"true".equals(value.trim())) {
+						if ("true".equals(value.trim())) {
 							pr.setUseTopK(true);
 						} else {
                             pr.setUseTopK(false);
