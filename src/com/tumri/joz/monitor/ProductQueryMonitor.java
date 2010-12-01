@@ -647,18 +647,18 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						}
                     } else if (":sortrank".equalsIgnoreCase(key)) {
                         if (!"".equals(value.trim())) {
-                            if ("false".equalsIgnoreCase(value.trim())) {
-                                tSpec.setSortByRank(false);
-                            } else {
+                            if ("true".equalsIgnoreCase(value.trim())) {
                                 tSpec.setSortByRank(true);
+                            } else {
+                                tSpec.setSortByRank(false);
                             }
                         }
                     } else if (":sortdiscount".equalsIgnoreCase(key)) {
                         if (!"".equals(value.trim())) {
-                            if ("false".equalsIgnoreCase(value.trim())) {
-                                tSpec.setSortByDiscount(false);
-                            } else {
+                            if ("true".equalsIgnoreCase(value.trim())) {
                                 tSpec.setSortByDiscount(true);
+                            } else {
+                                tSpec.setSortByDiscount(false);
                             }
                         }
 					}
