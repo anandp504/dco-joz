@@ -11,8 +11,8 @@ import java.util.SortedSet;
 public class IWeightGradedSetWrapper<Value> extends GradedSetWrapper<Value> {
 	IWeight<Value> weight = null;
 
-	public IWeightGradedSetWrapper(SortedSet<Value> pairs, IWeight<Value> iWeight) {
-		super(pairs);
+	public IWeightGradedSetWrapper(SortedSet<Value> set, IWeight<Value> iWeight) {
+		super(set);
 		weight = iWeight;
 	}
 
