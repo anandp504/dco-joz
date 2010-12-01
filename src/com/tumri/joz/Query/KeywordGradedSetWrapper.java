@@ -14,8 +14,10 @@ public class KeywordGradedSetWrapper<Value> extends GradedSetWrapper<Value> {
 
 	public KeywordGradedSetWrapper(SortedSet<Value> handles) {
 		super(handles);
-		Handle h0 = (Handle) handles.first();
-		modifier = 2.0 / h0.getScore();
+		if (!handles.isEmpty()) {
+			Handle h0 = (Handle) handles.first();
+			modifier = 2.0 / h0.getScore();
+		}
 	}
 
 	public double getGrade(Value p) {
