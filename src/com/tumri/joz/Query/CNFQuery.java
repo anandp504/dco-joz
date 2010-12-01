@@ -142,8 +142,8 @@ public class CNFQuery implements Query, Cloneable {
             }
             copyCNF.m_queries = copyQueries;
         }
-        copyCNF.setCacheReference(m_cache_reference);
-        copyCNF.setUseTopK(useTopK);
+        copyCNF.m_cache_reference = this.m_cache_reference;
+        copyCNF.useTopK = this.useTopK;
         return copyCNF;
     }
 

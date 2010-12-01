@@ -6,6 +6,7 @@ import com.tumri.cma.domain.Experience;
 import com.tumri.cma.rules.CreativeInstance;
 import com.tumri.cma.rules.CreativeSelector;
 import com.tumri.cma.rules.CreativeSet;
+import com.tumri.joz.Query.AdPodSetIntersector;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.index.Range;
@@ -188,31 +189,20 @@ public class VectorTargetingProcessor {
 	private SortedSet<Handle> getMatchingVectors(Map<VectorAttribute, List<Integer>> contextMap) {
 
 		//Add context matches
-		VectorSetIntersector intersector = new VectorSetIntersector(true);
+		AdPodSetIntersector intersector = new AdPodSetIntersector(true);
 		if (contextMap != null) {
+            //Because of MVF we need to construct a VectorHandle with a map that contains just the keys from the contextMap
+            VectorHandle rv = new VectorHandleImpl(0, 0, VectorHandleImpl.OPTIMIZATION, contextMap, true);
 			Set<VectorAttribute> keys = contextMap.keySet();
-			boolean vectorsFound = false;
 			for (VectorAttribute attr : keys) {
 
 				SortedSet<Handle> vectors = getVectorsFromIndex(attr, contextMap);
 				if (vectors != null && vectors.size() > 0) {
-					vectorsFound = true;
 					//Build intersector
-					IWeight<Handle> wt = getHandleWeight(attr, contextMap);
+                    IWeight<Handle> wt = new VectorAttributeWeights(rv, attr);
 					intersector.include(vectors, wt);
 				}
 
-			}
-			//Include all other none sets
-			if (vectorsFound) { //only include 'none' vectors if we found an actual vector.
-				Set<VectorAttribute> nonAttrs = VectorUtils.findNoneAttributes(contextMap.keySet());
-				for (VectorAttribute na : nonAttrs) {
-					AbstractIndex noneidx = VectorDB.getInstance().getIndex(na);
-					SortedSet<Handle> noneRes = ((VectorDBIndex<Integer, Handle>) noneidx).get(VectorUtils.getNoneDictId(na));
-					//Build intersector
-					IWeight<Handle> wt = getHandleWeight(na, contextMap);
-					intersector.include(noneRes, wt);
-				}
 			}
 		}
 		return intersector.intersect();
@@ -304,19 +294,6 @@ public class VectorTargetingProcessor {
 			}
 		}
 		return vectors;
-	}
-
-	/**
-	 * Because of MVF we need to construct a VectorHandle with a map that contains just the keys from the contextMap
-	 *
-	 * @param attr
-	 * @param contextMap
-	 * @return
-	 */
-	private IWeight<Handle> getHandleWeight(VectorAttribute attr, Map<VectorAttribute, List<Integer>> contextMap) {
-		VectorHandle rv = new VectorHandleImpl(0, 0, VectorHandleImpl.OPTIMIZATION, contextMap, true);
-		IWeight<Handle> wt = new VectorAttributeWeights(rv, attr);
-		return wt;
 	}
 
 
