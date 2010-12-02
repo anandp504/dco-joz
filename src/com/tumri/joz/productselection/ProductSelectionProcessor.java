@@ -91,11 +91,10 @@ public class ProductSelectionProcessor {
                         Collections.sort(infoListExp);
                         ProductSelectionRequest pr = prepareRequest(request);
                         pr.setListingClause(trs.getListingClause());
-                        if ("false".equals(request.getUseTopK())) {
-                            //TopK has been explicitly disabled
-                            pr.setUseTopK(false);
+                        if ("false".equals(pr.getTopK())) {
+                            pr.setUseTopK(false); //Conditionally turn off TopK if flag is passed in.
                         } else {
-                            pr.setUseTopK(true);
+                            pr.setUseTopK(true); //By default always turn on TopK for TC campaigns
                         }
                         //The order of tspecs are important in the case of included prods
                         for (ExperienceTSpecInfo queryInfoRecipe : infoListExp) {
@@ -285,9 +284,10 @@ public class ProductSelectionProcessor {
 		pr.setUt4(request.getUt4());
 		pr.setUt5(request.getUt5());
 
+        pr.setTopK(request.getUseTopK());
         if ("true".equals(request.getUseTopK())) {
             pr.setUseTopK(true);
-        }
+        } 
 
         return pr;
     }

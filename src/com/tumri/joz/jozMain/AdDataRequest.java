@@ -306,11 +306,10 @@ public class AdDataRequest {
             ut5 = ut5.trim();
         }
         this.useTopK = req.getValue(JozAdRequest.KEY_TOPK);
-        if (useTopK != null && useTopK.equalsIgnoreCase("true")) {
-            useTopK = "true";
-        } else {
-            useTopK = "false";
+        if (useTopK != null) {
+            useTopK = useTopK.trim();
         }
+
 
 	}
 
