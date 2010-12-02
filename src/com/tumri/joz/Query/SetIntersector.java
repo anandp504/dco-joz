@@ -284,11 +284,14 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	protected ArrayList<ArrayList<Value>> createLists() {
 		ArrayList<ArrayList<Value>> lists = new ArrayList<ArrayList<Value>>();
 		int cnt = m_listSize;
-		if (cnt == 0) // cnt can be zero if only ranked query
-			cnt = 1;
-		for (int i = 0; i < cnt; i++) {
+		if (cnt == 0 || useTopK) {
 			lists.add(new ArrayList<Value>());
+		} else {
+			for (int i = 0; i < cnt; i++) {
+				lists.add(new ArrayList<Value>());
+			}
 		}
+
 		return lists;
 	}
 
@@ -444,8 +447,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		for (int i = 0; i < m_includes.size(); i++) {
 			SortedSet<Value> set = m_includes.get(i);
 			IWeight<Value> wt = m_includesWeight.get(i);
-			GradedSetWrapper<Value> keywordGradedSet = new IWeightGradedSetWrapper(set, wt);
-			sets.add(keywordGradedSet);
+			GradedSetWrapper<Value> iWeightGS = new IWeightGradedSetWrapper(set, wt);
+			sets.add(iWeightGS);
 		}
 
 		if (m_rankedSet != null) {
@@ -457,8 +460,9 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 		SortedSet<Value> topKResults = getTopKResults(sets, m_maxSetSize, m_strict);
 		Iterator<Value> iter = topKResults.iterator();
+		ArrayList<Value> firstList = lists.get(0);
 		while (iter.hasNext()) {
-			lists.get(0).add(iter.next());
+			firstList.add(iter.next());
 		}
 		return null;
 	}
