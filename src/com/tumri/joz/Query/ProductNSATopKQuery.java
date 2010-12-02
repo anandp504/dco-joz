@@ -19,11 +19,11 @@ public class ProductNSATopKQuery extends NSATopKQuery<Handle> {
 	private ArrayList<SortedSet<Handle>> m_excludes;
 	private ArrayList<IWeight<Handle>> m_excludesWeight;
 
-	public ProductNSATopKQuery(List<SortedSet<Handle>> baseSets, int numReqs, boolean strict) {
+	ProductNSATopKQuery(List<SortedSet<Handle>> baseSets, int numReqs, boolean strict) {
 		super(baseSets, numReqs, strict);
 	}
 
-	public ProductNSATopKQuery(ProductNSATopKQuery set) {
+	ProductNSATopKQuery(ProductNSATopKQuery set) {
 		super(set);
 	}
 
@@ -85,19 +85,19 @@ public class ProductNSATopKQuery extends NSATopKQuery<Handle> {
 		return new ProductNSATopKQuery(this);
 	}
 
-	public void setM_filters(ArrayList<IFilter<Handle>> m_filters) {
+	void setM_filters(ArrayList<IFilter<Handle>> m_filters) {
 		this.m_filters = m_filters;
 	}
 
-	public void setM_filtersWeight(ArrayList<IWeight<Handle>> m_filtersWeight) {
+	void setM_filtersWeight(ArrayList<IWeight<Handle>> m_filtersWeight) {
 		this.m_filtersWeight = m_filtersWeight;
 	}
 
-	public void setM_excludes(ArrayList<SortedSet<Handle>> m_excludes) {
+	void setM_excludes(ArrayList<SortedSet<Handle>> m_excludes) {
 		this.m_excludes = m_excludes;
 	}
 
-	public void setM_excludesWeight(ArrayList<IWeight<Handle>> m_excludesWeight) {
+	void setM_excludesWeight(ArrayList<IWeight<Handle>> m_excludesWeight) {
 		this.m_excludesWeight = m_excludesWeight;
 	}
 }

@@ -20,11 +20,11 @@ public class RangeNSATopKQuery<Value> extends NSATopKQuery<Range<Value>> {
 	private ArrayList<SortedSet<Range<Value>>> m_excludes;
 	private ArrayList<IWeight<Range<Value>>> m_excludesWeight;
 
-	public RangeNSATopKQuery(List<SortedSet<Range<Value>>> baseSets, int numReqs, boolean strict) {
+	RangeNSATopKQuery(List<SortedSet<Range<Value>>> baseSets, int numReqs, boolean strict) {
 		super(baseSets, numReqs, strict);
 	}
 
-	public RangeNSATopKQuery(RangeNSATopKQuery set) {
+	RangeNSATopKQuery(RangeNSATopKQuery set) {
 		super(set);
 	}
 
@@ -69,19 +69,19 @@ public class RangeNSATopKQuery<Value> extends NSATopKQuery<Range<Value>> {
 		return new RangeNSATopKQuery(this);
 	}
 
-	public void setM_filters(ArrayList<IFilter<Range<Value>>> m_filters) {
+	void setM_filters(ArrayList<IFilter<Range<Value>>> m_filters) {
 		this.m_filters = m_filters;
 	}
 
-	public void setM_filtersWeight(ArrayList<IWeight<Range<Value>>> m_filtersWeight) {
+	void setM_filtersWeight(ArrayList<IWeight<Range<Value>>> m_filtersWeight) {
 		this.m_filtersWeight = m_filtersWeight;
 	}
 
-	public void setM_excludes(ArrayList<SortedSet<Range<Value>>> m_excludes) {
+	void setM_excludes(ArrayList<SortedSet<Range<Value>>> m_excludes) {
 		this.m_excludes = m_excludes;
 	}
 
-	public void setM_excludesWeight(ArrayList<IWeight<Range<Value>>> m_excludesWeight) {
+	void setM_excludesWeight(ArrayList<IWeight<Range<Value>>> m_excludesWeight) {
 		this.m_excludesWeight = m_excludesWeight;
 	}
 }

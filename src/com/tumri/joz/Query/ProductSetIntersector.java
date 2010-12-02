@@ -36,7 +36,7 @@ public class ProductSetIntersector extends SetIntersector<Handle> {
 	}
 
 	@Override
-	protected NSATopKQuery getTopKResults(List<SortedSet<Handle>> sortedSets, int numReqs, boolean strict) {
+	protected SortedSet<Handle> getTopKResults(List<SortedSet<Handle>> sortedSets, int numReqs, boolean strict) {
 		ProductNSATopKQuery retQuery = new ProductNSATopKQuery(sortedSets, numReqs, strict);
 		retQuery.setM_excludes(m_excludes);
 		retQuery.setM_excludesWeight(m_excludesWeight);
