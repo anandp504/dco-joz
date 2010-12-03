@@ -46,16 +46,16 @@ public class ProductQueryMonitor extends ComponentMonitor {
 	public MonitorStatus getStatus(String prS, String tSpecS, String advertiser) {
 		ProductSelectionRequest pr = generateProductSelectionRequest(prS);
 		TSpec tSpec = generateTSpec(tSpecS);
-        if (advertiser==null) {
-            advertiser = pr.getAdvertiser();
-        }
+		if (advertiser == null) {
+			advertiser = pr.getAdvertiser();
+		}
 
-        if (advertiser==null) {
-           List<ProviderInfo> info =  tSpec.getIncludedProviders();
-            if (info!=null && !info.isEmpty()) {
-                advertiser = info.get(0).getName();
-            }
-        }
+		if (advertiser == null) {
+			List<ProviderInfo> info = tSpec.getIncludedProviders();
+			if (info != null && !info.isEmpty()) {
+				advertiser = info.get(0).getName();
+			}
+		}
 		List<Map<String, String>> results;
 
 		try {
@@ -139,9 +139,9 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		if (handles == null) {
 			throw new JoZException("No products returned by the product selection");
 		}
-        if (advertiser == null) {
-            throw new JoZException("No advertiser specified in request or tspec to get the listing data");
-        }
+		if (advertiser == null) {
+			throw new JoZException("No advertiser specified in request or tspec to get the listing data");
+		}
 
 		String jsonStr = null;
 		ListingResponse response = null;
@@ -341,8 +341,8 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						if ("true".equals(value.trim())) {
 							pr.setUseTopK(true);
 						} else {
-                            pr.setUseTopK(false);
-                        }
+							pr.setUseTopK(false);
+						}
 					}
 				} else {
 					if (!"".equals(value)) {
@@ -405,6 +405,16 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":keywordSrc");
 		keys.add(":sortrank");
 		keys.add(":sortdiscount");
+		keys.add(":f1Score");
+		keys.add(":f2Score");
+		keys.add(":f3Score");
+		keys.add(":f4core");
+		keys.add(":f5Score");
+		keys.add(":ut1Score");
+		keys.add(":ut2Score");
+		keys.add(":ut3Score");
+		keys.add(":ut4Score");
+		keys.add(":ut5Score");
 
 		if (req != null && !"".equals(req.trim())) {
 			com.tumri.utils.strings.StringTokenizer reqTokenizer = new com.tumri.utils.strings.StringTokenizer(req, ' ');
@@ -641,26 +651,116 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						if (!"".equals(value.trim())) {
 							tSpec.setSpecType(value.trim());
 						}
+					} else if (":f1Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.f1, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":f2Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.f2, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":f3Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.f3, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":f4Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.f4, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":f5Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.f5, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":ut1Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.ut1, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":ut2Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.ut2, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":ut3Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.ut3, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":ut4Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.ut4, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
+					} else if (":ut5Score".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							if (map == null) {
+								map = new HashMap<TSpec.ProdAttribute, Double>();
+							}
+							map.put(TSpec.ProdAttribute.ut5, Double.valueOf(value.trim()));
+							tSpec.setProdSelWeights(map);
+						}
 					} else if (":keywordSrc".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							tSpec.setKeywordSource(value.trim());
 						}
-                    } else if (":sortrank".equalsIgnoreCase(key)) {
-                        if (!"".equals(value.trim())) {
-                            if ("true".equalsIgnoreCase(value.trim())) {
-                                tSpec.setSortByRank(true);
-                            } else {
-                                tSpec.setSortByRank(false);
-                            }
-                        }
-                    } else if (":sortdiscount".equalsIgnoreCase(key)) {
-                        if (!"".equals(value.trim())) {
-                            if ("true".equalsIgnoreCase(value.trim())) {
-                                tSpec.setSortByDiscount(true);
-                            } else {
-                                tSpec.setSortByDiscount(false);
-                            }
-                        }
+					} else if (":sortrank".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("true".equalsIgnoreCase(value.trim())) {
+								tSpec.setSortByRank(true);
+							} else {
+								tSpec.setSortByRank(false);
+							}
+						}
+					} else if (":sortdiscount".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("true".equalsIgnoreCase(value.trim())) {
+								tSpec.setSortByDiscount(true);
+							} else {
+								tSpec.setSortByDiscount(false);
+							}
+						}
 					}
 				} else {
 					if (!"".equals(value)) {
