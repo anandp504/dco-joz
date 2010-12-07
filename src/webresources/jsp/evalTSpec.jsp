@@ -40,8 +40,8 @@
     <form id="evalForm" action="/joz/console?mode=execute&option=tspec" method="post">
         <h4>Enter ProductSelectionRequest Info:</h4>
         <i>(Keys= :num_products :offertype :city :state :country :zipcode :dmacode :areacode
-            :brandomize :bmineurls :bpaginate :bbackfill :requestkeywords :requestcategory :externalfilterquery1
-            :externalfilterquery2 :externalfilterquery3 :externalfilterquery4 :externalfilterquery5 :advertiser
+            :brandomize :bmineurls :bpaginate :bbackfill :requestkeywords :requestcategory :f1
+            :f2 :f3 :f4 :f5 :age :gender :bt :ms :hhi :advertiser
             :topk)</i>
         <br>
         <textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:2cm"><%
@@ -52,8 +52,8 @@
         <br>
         <br>
         <h4>Enter TSpec Info:</h4>
-        <i>(Keys = :uselistingfilter1 :uselistingfilter2 :uselistingfilter3 :uselistingfilter4
-            :uselistingfilter5 :useradiusquery :radius :minepuburl :lowprice
+        <i>(Keys = :usef1 :usef2 :usef3 :usef4
+            :usef5 :useradiusquery :radius :minepuburl :lowprice
             :highprice :applygeofilter :applyurlfilter :applykeywordfilter :includedproviders
             :excludedproviders :excludedcategories :includedcategories :includedbrands :excludedbrands
             :excludedmerchants :excludedglobalids :includedmerchants :includedproducts :excludedproducts

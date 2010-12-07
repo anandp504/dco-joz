@@ -217,11 +217,16 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":bpaginate");
 		keys.add(":requestkeywords");
 		keys.add(":requestcategory");
-		keys.add(":externalfilterquery1");
-		keys.add(":externalfilterquery2");
-		keys.add(":externalfilterquery3");
-		keys.add(":externalfilterquery4");
-		keys.add(":externalfilterquery5");
+		keys.add(":f1");
+		keys.add(":f2");
+		keys.add(":f3");
+		keys.add(":f4");
+		keys.add(":f5");
+		keys.add(":age");
+		keys.add(":gender");
+		keys.add(":hhi");
+		keys.add(":ms");
+		keys.add(":bt");
 		keys.add(":advertiser");
 		keys.add(":topk");
 
@@ -313,25 +318,45 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						if (!"".equals(value.trim())) {
 							pr.setRequestCategory(value.trim());
 						}
-					} else if (":externalfilterquery1".equalsIgnoreCase(key)) {
+					} else if (":f1".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setExternalFilterQuery1(value.trim());
 						}
-					} else if (":externalfilterquery2".equalsIgnoreCase(key)) {
+					} else if (":f2".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setExternalFilterQuery2(value.trim());
 						}
-					} else if (":externalfilterquery3".equalsIgnoreCase(key)) {
+					} else if (":f3".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setExternalFilterQuery3(value.trim());
 						}
-					} else if (":externalfilterquery4".equalsIgnoreCase(key)) {
+					} else if (":f4".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setExternalFilterQuery4(value.trim());
 						}
-					} else if (":externalfilterquery5".equalsIgnoreCase(key)) {
+					} else if (":f5".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setExternalFilterQuery5(value.trim());
+						}
+					} else if (":age".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setAge(value.trim());
+						}
+					} else if (":gender".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setGender(value.trim());
+						}
+					} else if (":hhi".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setHhi(value.trim());
+						}
+					} else if (":ms".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setMs(value.trim());
+						}
+					} else if (":bt".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setBt(value.trim());
 						}
 					} else if (":advertiser".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
@@ -374,11 +399,16 @@ public class ProductQueryMonitor extends ComponentMonitor {
 	private static TSpec generateTSpec(String req) {
 		TSpec tSpec = new TSpec();
 		HashSet<String> keys = new HashSet<String>();
-		keys.add(":uselistingfilter1");
-		keys.add(":uselistingfilter2");
-		keys.add(":uselistingfilter3");
-		keys.add(":uselistingfilter4");
-		keys.add(":uselistingfilter5");
+		keys.add(":usef1");
+		keys.add(":usef2");
+		keys.add(":usef3");
+		keys.add(":usef4");
+		keys.add(":usef5");
+		keys.add(":useage");
+		keys.add(":usegender");
+		keys.add(":usehhi");
+		keys.add(":usems");
+		keys.add(":usebt");
 		keys.add(":useradiusquery");
 		keys.add(":radius");
 		keys.add(":minepuburl");
@@ -435,7 +465,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 					}
 				}
 				if (keys.contains(cToken)) {
-					if (":uselistingfilter1".equalsIgnoreCase(key)) {
+					if (":usef1".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							if ("false".equalsIgnoreCase(value.trim())) {
 								tSpec.setUseListingFilter1(false);
@@ -443,7 +473,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 								tSpec.setUseListingFilter1(true);
 							}
 						}
-					} else if (":uselistingfilter2".equalsIgnoreCase(key)) {
+					} else if (":usef2".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							if ("false".equalsIgnoreCase(value.trim())) {
 								tSpec.setUseListingFilter2(false);
@@ -451,7 +481,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 								tSpec.setUseListingFilter2(true);
 							}
 						}
-					} else if (":uselistingfilter3".equalsIgnoreCase(key)) {
+					} else if (":usef3".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							if ("false".equalsIgnoreCase(value.trim())) {
 								tSpec.setUseListingFilter3(false);
@@ -459,7 +489,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 								tSpec.setUseListingFilter3(true);
 							}
 						}
-					} else if (":uselistingfilter4".equalsIgnoreCase(key)) {
+					} else if (":usef4".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							if ("false".equalsIgnoreCase(value.trim())) {
 								tSpec.setUseListingFilter4(false);
@@ -467,12 +497,52 @@ public class ProductQueryMonitor extends ComponentMonitor {
 								tSpec.setUseListingFilter4(true);
 							}
 						}
-					} else if (":uselistingfilter5".equalsIgnoreCase(key)) {
+					} else if (":usef5".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							if ("false".equalsIgnoreCase(value.trim())) {
 								tSpec.setUseListingFilter5(false);
 							} else {
 								tSpec.setUseListingFilter5(true);
+							}
+						}
+					} else if (":useage".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseAgeFilter(false);
+							} else {
+								tSpec.setUseAgeFilter(true);
+							}
+						}
+					} else if (":usegender".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseGenderFilter(false);
+							} else {
+								tSpec.setUseGenderFilter(true);
+							}
+						}
+					} else if (":usehhi".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseHHIFilter(false);
+							} else {
+								tSpec.setUseHHIFilter(true);
+							}
+						}
+					} else if (":usems".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseMSFilter(false);
+							} else {
+								tSpec.setUseMSFilter(true);
+							}
+						}
+					} else if (":usebt".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseBTFilter(false);
+							} else {
+								tSpec.setUseBTFilter(true);
 							}
 						}
 					} else if (":enablebackfill".equalsIgnoreCase(key)) {
