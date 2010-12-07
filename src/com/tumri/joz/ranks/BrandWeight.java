@@ -25,13 +25,18 @@ public class BrandWeight extends AttributeWeights {
 	private BrandWeight() {
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kBrand);
 	}
 
 	public double getMaxWeight() {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kBrand);
 	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kBrand);
+	}
+
 
 	/**
 	 * This returns false by default. Therefore allowing second best match in all derived cases

@@ -29,8 +29,12 @@ public class CategoryTextFieldWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCategoryTextField);
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCategoryTextField);
+	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCategoryTextField);
 	}
 
 }

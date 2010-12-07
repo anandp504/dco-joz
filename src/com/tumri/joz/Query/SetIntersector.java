@@ -345,7 +345,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 					continue;
 				cPointer = null;
 				int match = containsInt(v); // NB: match can be zero
-				if (match >= 0 && addResult(lists, match, v, m_rankedSetWeight.getWeight(v), count)) {
+				if (match >= 0 && addResult(lists, match, v, m_rankedSetWeight.getWeight(v, 0.0), count)) {
 					last = true;
 				}
 			}
@@ -387,7 +387,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 				int matches = 0; // score for the cPointer matches
 				double totalWeight = 1.0;
 				loopcount++;
-				totalWeight *= m_includesWeight.get(0).getWeight(cPointer);
+				totalWeight *= m_includesWeight.get(0).getWeight(cPointer, 0.0);
 				// Inner loops runs as many times as the size of the sets
 				Value nextPointer = null;
 				for (int i = 1; i < m_incSize && totalWeight > 0.0; i++) {
@@ -401,7 +401,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 					}
 					IWeight<Value> w = m_includesWeight.get(i);
 					matches++; // += w.match(cPointer);
-					totalWeight *= w.getWeight(nextPointer);
+					totalWeight *= w.getWeight(nextPointer, 0.0);
 				}
 				for (int i = 0; i < m_filterSize && totalWeight > 0.0; i++) {
 					IWeight<Value> w = m_filtersWeight.get(i);
@@ -410,7 +410,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 						continue;
 					}
 					matches++; // += w.match(cPointer);
-					totalWeight *= w.getWeight(cPointer);
+					totalWeight *= w.getWeight(cPointer, 0.0);
 				}
 				for (int i = 0; i < m_excSize && totalWeight > 0.0; i++) {
 					itemLookupCount++;
@@ -420,7 +420,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 						continue;
 					}
 					matches++; //= w.match(cPointer);
-					totalWeight *= w.getWeight(cPointer);
+					totalWeight *= w.getWeight(cPointer, 0.0);
 				}
 				Value v = cPointer;
 				cPointer = ((nextPointer == null || cPointer.equals(nextPointer)) ?
@@ -480,7 +480,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 				if (done)
 					break;
 				int matches = 0; // score for the cPointer matches
-				double totalWeight = m_includesWeight.get(0).getWeight(cPointer);
+				double totalWeight = m_includesWeight.get(0).getWeight(cPointer, 0.0);
 				loopcount++;
 				for (int i = 0; i < m_filterSize && totalWeight > 0.0; i++) {
 					IWeight<Value> w = m_filtersWeight.get(i);
@@ -489,7 +489,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 						continue;
 					}
 					matches++; // += w.match(cPointer);
-					totalWeight *= w.getWeight(cPointer);
+					totalWeight *= w.getWeight(cPointer, 0.0);
 				}
 				for (int i = 0; i < m_excSize && totalWeight > 0.0; i++) {
 					itemLookupCount++;
@@ -499,7 +499,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 						continue;
 					}
 					matches++; //= w.match(cPointer);
-					totalWeight *= w.getWeight(cPointer);
+					totalWeight *= w.getWeight(cPointer, 0.0);
 				}
 				if (totalWeight > 0.0 && addResult(lists, matches, cPointer, totalWeight, count)) {
 					done = true;

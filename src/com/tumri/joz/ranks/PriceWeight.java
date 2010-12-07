@@ -29,8 +29,12 @@ public class PriceWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kPrice);
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kPrice);
+	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kPrice);
 	}
 
 }

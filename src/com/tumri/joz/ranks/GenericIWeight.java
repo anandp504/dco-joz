@@ -1,5 +1,7 @@
 package com.tumri.joz.ranks;
 
+import com.tumri.joz.products.IProduct;
+
 /**
  * Created by IntelliJ IDEA.
  * User: scbraun
@@ -15,7 +17,7 @@ public class GenericIWeight<Value> implements IWeight<Value> {
 		isMustMatch = mm;
 	}
 
-	public double getWeight(Value v) {
+	public double getWeight(Value v, double minWeight) {
 		return weight;
 	}
 
@@ -28,6 +30,10 @@ public class GenericIWeight<Value> implements IWeight<Value> {
 	}
 
 	public double getMaxWeight() {
+		return weight;
+	}
+
+	public double getMinWeight() {
 		return weight;
 	}
 }

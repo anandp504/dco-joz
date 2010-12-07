@@ -27,9 +27,14 @@ public class OptimizedWeight extends AttributeWeights {
 		return 1.2;
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return 1.2;
 	}
+
+	public double getMinWeight() {
+		return 1.2;
+	}
+
 
 	/**
 	 * This returns false by default. Therefore allowing second best match in all derived cases

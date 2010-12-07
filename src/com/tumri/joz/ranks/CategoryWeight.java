@@ -29,7 +29,11 @@ public class CategoryWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCategory);
 	}
 
-	public double getWeight(Handle h) {
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCategory);
+	}
+
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCategory);
 	}
 

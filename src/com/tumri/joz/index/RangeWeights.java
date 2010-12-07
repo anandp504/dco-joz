@@ -12,8 +12,13 @@ import com.tumri.joz.ranks.IWeight;
  * Time: 1:20:51 PM
  */
 public class RangeWeights implements IWeight {
-	public double getWeight(Object v) {
+
+	public double getWeight(Object v, double minWeight) {
 		return 1;
+	}
+
+	public double getMinWeight() {
+		return 0;
 	}
 
 	public int match(Object v) {

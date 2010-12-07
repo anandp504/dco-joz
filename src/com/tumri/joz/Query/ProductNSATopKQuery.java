@@ -28,12 +28,12 @@ public class ProductNSATopKQuery extends NSATopKQuery<Handle> {
 	}
 
 	@Override
-	protected double modifyScore(Handle h) {
+	protected double modifyScore(Handle h, double minWeight) {
 		double wt = 1.0;
 		int i = 0;
 		for (IFilter<Handle> lFilter : m_filters) {
 			if (lFilter.accept(h)) {
-				wt *= m_filtersWeight.get(i).getWeight(h);
+				wt *= m_filtersWeight.get(i).getWeight(h, minWeight);
 			} else if (m_filtersWeight.get(i).mustMatch()) {
 				return 0.0;
 			}
@@ -45,7 +45,7 @@ public class ProductNSATopKQuery extends NSATopKQuery<Handle> {
 				if (m_excludesWeight.get(i).mustMatch()) {
 					return 0.0;
 				} else {
-					wt *= m_excludesWeight.get(i).getWeight(h);
+					wt *= m_excludesWeight.get(i).getWeight(h, minWeight);
 				}
 			}
 			i++;

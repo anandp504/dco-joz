@@ -29,11 +29,15 @@ public class ImageWidthWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kImageWidth);
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kImageWidth);
 	}
 
 	public boolean mustMatch() {
 		return true;
+	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kImageWidth);
 	}
 }

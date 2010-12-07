@@ -29,12 +29,12 @@ public class RangeNSATopKQuery<Value> extends NSATopKQuery<Range<Value>> {
 	}
 
 	@Override
-	protected double modifyScore(Range<Value> h) {
+	protected double modifyScore(Range<Value> h, double minWeight) {
 		double wt = 1.0;
 		int i = 0;
 		for (IFilter<Range<Value>> lFilter : m_filters) {
 			if (lFilter.accept(h)) {
-				wt *= m_filtersWeight.get(i).getWeight(h);
+				wt *= m_filtersWeight.get(i).getWeight(h, minWeight);
 			} else if (m_filtersWeight.get(i).mustMatch()) {
 				return 0.0;
 			}
@@ -46,7 +46,7 @@ public class RangeNSATopKQuery<Value> extends NSATopKQuery<Range<Value>> {
 				if (m_excludesWeight.get(i).mustMatch()) {
 					return 0.0;
 				} else {
-					wt *= m_excludesWeight.get(i).getWeight(h);
+					wt *= m_excludesWeight.get(i).getWeight(h, minWeight);
 				}
 			}
 			i++;

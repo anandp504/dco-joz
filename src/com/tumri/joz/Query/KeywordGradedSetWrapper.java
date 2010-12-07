@@ -20,7 +20,7 @@ public class KeywordGradedSetWrapper<Value> extends GradedSetWrapper<Value> {
 		}
 	}
 
-	public double getGrade(Value p) {
+	public double getGrade(Value p, double minWeight) {
 		return modifier * ((Handle) p).getScore();
 	}
 
@@ -28,7 +28,14 @@ public class KeywordGradedSetWrapper<Value> extends GradedSetWrapper<Value> {
 		return 2.0;
 	}
 
+	@Override
+	public double getMinGrade() {
+		return 0.0;
+	}
+
 	public boolean isMustMatch() {
 		return true;
 	}
+
+
 }

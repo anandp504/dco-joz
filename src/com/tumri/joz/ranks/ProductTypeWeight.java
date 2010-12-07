@@ -29,9 +29,14 @@ public class ProductTypeWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kProductType);
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kProductType);
 	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kProductType);
+	}
+
 
 	public boolean mustMatch() {
 		return true;

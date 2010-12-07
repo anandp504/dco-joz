@@ -29,8 +29,12 @@ public class GlobalIdWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kGlobalId);
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kGlobalId);
+	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kGlobalId);
 	}
 
 	/**

@@ -26,13 +26,17 @@ public abstract class TargetingQuery extends SimpleQuery implements IFilter<Hand
 		return this;
 	}
 
-	public double getWeight(Handle v) {
+	public double getWeight(Handle v, double minWeight) {
 		return v.getScore();
 	}
 
 	//this is max in TargetingScoreHelper
 
 	public double getMaxWeight() {
+		return 1.0;
+	}
+
+	public double getMinWeight() {
 		return 1.0;
 	}
 

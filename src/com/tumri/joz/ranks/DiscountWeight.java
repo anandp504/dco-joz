@@ -25,11 +25,23 @@ public class DiscountWeight extends AttributeWeights {
 	}
 
 	public double getMaxWeight() {
-		return 100.0;
+		return 2.0;
 	}
 
-	public double getWeight(Handle h) {
-		return ((ProductHandle) h).getDiscount();
+	public double getWeight(Handle h, double minWeight) {
+		if (minWeight <= 1.0) {
+			return ((ProductHandle) h).getDiscount();
+		}
+		double tmp = minWeight - ((int) minWeight);
+		if (tmp == 0.0) {
+			tmp = 1.0;
+		}
+		tmp = tmp / 100.0;
+		return 1 + tmp * ((ProductHandle) h).getDiscount();
+	}
+
+	public double getMinWeight() {
+		return 0.0;
 	}
 
 }

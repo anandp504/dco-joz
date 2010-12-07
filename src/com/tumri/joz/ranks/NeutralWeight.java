@@ -29,8 +29,12 @@ public class NeutralWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kNone);
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kNone);
+	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kNone);
 	}
 
 	public int match(Handle v) {

@@ -29,8 +29,12 @@ public class GeoEnabledWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kGeoEnabledFlag);
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kGeoEnabledFlag);
+	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kGeoEnabledFlag);
 	}
 
 	public boolean mustMatch() {

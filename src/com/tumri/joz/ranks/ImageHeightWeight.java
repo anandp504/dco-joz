@@ -30,10 +30,13 @@ public class ImageHeightWeight extends AttributeWeights {
 	}
 
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kImageHeight);
 	}
 
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kImageHeight);
+	}
 
 	public boolean mustMatch() {
 		return true;

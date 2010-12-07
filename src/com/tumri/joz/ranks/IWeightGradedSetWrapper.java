@@ -16,8 +16,8 @@ public class IWeightGradedSetWrapper<Value> extends GradedSetWrapper<Value> {
 		weight = iWeight;
 	}
 
-	public double getGrade(Value p) {
-		return weight.getWeight(p);
+	public double getGrade(Value p, double minWeight) {
+		return weight.getWeight(p, minWeight);
 	}
 
 	public double getMaxGrade() {
@@ -27,4 +27,9 @@ public class IWeightGradedSetWrapper<Value> extends GradedSetWrapper<Value> {
 	public boolean isMustMatch() {
 		return weight.mustMatch();
 	}
+
+	public double getMinGrade() {
+		return weight.getMinWeight();
+	}
+
 }

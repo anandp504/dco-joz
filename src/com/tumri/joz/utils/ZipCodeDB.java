@@ -63,11 +63,15 @@ public class ZipCodeDB implements IWeight<Integer> {
 		return g_DB;
 	}
 
-	public double getWeight(Integer v) {
+	public double getWeight(Integer v, double minWeight) {
 		return 1;
 	}
 
 	public double getMaxWeight() {
+		return 1;
+	}
+
+	public double getMinWeight() {
 		return 1;
 	}
 

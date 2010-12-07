@@ -28,8 +28,12 @@ public class RadiusWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kRadius);
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kRadius);
+	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kRadius);
 	}
 
 	/**

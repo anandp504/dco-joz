@@ -25,11 +25,15 @@ public class CategoryNumericFieldWeight extends AttributeWeights {
 	private CategoryNumericFieldWeight() {
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCategoryNumericField);
 	}
 
 	public double getMaxWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCategoryNumericField);
+	}
+
+	public double getMinWeight() {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCategoryNumericField);
 	}
 

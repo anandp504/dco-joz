@@ -29,8 +29,12 @@ public class KeywordsWeight extends AttributeWeights {
 		return 10.0;
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return h.getScore();
+	}
+
+	public double getMinWeight() {
+		return 0.0;
 	}
 
 }

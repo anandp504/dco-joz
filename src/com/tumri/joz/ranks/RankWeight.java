@@ -25,12 +25,23 @@ public class RankWeight extends AttributeWeights {
 	}
 
 	public double getMaxWeight() {
-		return 100.0;
+		return 2.0;
 	}
 
-	public double getWeight(Handle h) {
-		//Safe to cast to product handle.
-		return ((ProductHandle) h).getRank();
+	public double getWeight(Handle h, double minWeight) {
+		if (minWeight <= 1.0) {
+			return ((ProductHandle) h).getRank();
+		}
+		double tmp = minWeight - ((int) minWeight);
+		if (tmp == 0.0) {
+			tmp = 1.0;
+		}
+		tmp = tmp / 100.0;
+		return 1 + tmp * ((ProductHandle) h).getRank();
+	}
+
+	public double getMinWeight() {
+		return 0.0;
 	}
 
 }

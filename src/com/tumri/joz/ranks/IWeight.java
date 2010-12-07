@@ -6,7 +6,9 @@ package com.tumri.joz.ranks;
  * To change this template use File | Settings | File Templates.
  */
 public interface IWeight<Value> {
-	public double getWeight(Value v);
+	public double getWeight(Value v, double minWeight);
+
+	public double getMinWeight();
 
 	public int match(Value v);
 

@@ -25,8 +25,12 @@ public class AreaCodeWeight extends AttributeWeights {
 	private AreaCodeWeight() {
 	}
 
-	public double getWeight(Handle h) {
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kArea);
+	}
+
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kArea);
 	}
 
 	public double getMaxWeight() {

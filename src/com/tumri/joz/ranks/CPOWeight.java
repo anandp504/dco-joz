@@ -29,7 +29,11 @@ public class CPOWeight extends AttributeWeights {
 		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCPO);
 	}
 
-	public double getWeight(Handle h) {
+	public double getMinWeight() {
+		return AttributeWeights.getMaxWeight(IProduct.Attribute.kCPO);
+	}
+
+	public double getWeight(Handle h, double minWeight) {
 		return AttributeWeights.getAttributeWeight(IProduct.Attribute.kCPO);
 	}
 
