@@ -110,6 +110,9 @@ public class TSpecExecutor {
 		//Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
 		m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(tSpecId).clone();
 		m_tSpecQuery.setUseTopK(request.isUseTopK());
+        if (m_feature != null) {
+			m_feature.addFeatureDetail(Features.FEATURE_TOPK, "true");
+		}
 		setupRequestParms();
 		return executeTSpec();
 	}
@@ -872,6 +875,9 @@ public class TSpecExecutor {
 			copytSpecQuery = (CNFQuery) m_tSpecQuery.clone();
 			SimpleQuery aQuery = new AttributeQuery(IProduct.Attribute.kDiscount, 0);
 			copytSpecQuery.addSimpleQuery(aQuery);
+            if (m_feature != null) {
+			    m_feature.addFeatureDetail(Features.FEATURE_DISCOUNTSORT, "true");
+		    }
 		}
 		if (m_tspec.isSortByRank()) {
 			if (!bClone) {
@@ -880,6 +886,9 @@ public class TSpecExecutor {
 			}
 			SimpleQuery aQuery = new AttributeQuery(IProduct.Attribute.kRank, 0);
 			copytSpecQuery.addSimpleQuery(aQuery);
+            if (m_feature != null) {
+                m_feature.addFeatureDetail(Features.FEATURE_RANKSORT, "true");
+            }            
 		}
 		if (bClone) {
 			m_tSpecQuery = copytSpecQuery;

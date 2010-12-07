@@ -18,6 +18,9 @@ public class Features {
     public static final String FEATURE_MINE_URL_SEARCH = "SEARCH-MINE-URL";
     public static final String FEATURE_SCRIPT_SEARCH = "SEARCH-SCRIPT_KEYWORD";
     public static final String FEATURE_SEARCH_KEYWORDS = "SEARCH-KEYWORDS";
+    public static final String FEATURE_TOPK = "TOPK";
+    public static final String FEATURE_RANKSORT = "SORT_RANK";
+    public static final String FEATURE_DISCOUNTSORT = "SOR_DISCOUNT";
 
     private static String _joz_version;
     private static String _host_name = null;
