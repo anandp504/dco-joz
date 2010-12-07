@@ -36,7 +36,7 @@ public class RankWeight extends AttributeWeights {
 		if (tmp == 0.0) {
 			tmp = 1.0;
 		}
-		tmp = tmp / 100.0;
+		tmp = tmp / 101.0;
 		return 1 + tmp * ((ProductHandle) h).getRank();
 	}
 
