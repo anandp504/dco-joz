@@ -120,6 +120,9 @@ public class ProductDB {
 
         // pdb.addIndex(IProduct.Attribute.kHHI, new HHIIndex());
         pdb.registerFilter(IProduct.Attribute.kHHI, new HHIFilter());
+        pdb.addIndex(IProduct.Attribute.kRank, new RankIndex());
+        pdb.addIndex(IProduct.Attribute.kDiscount, new DiscountIndex());
+        
         pdb.registerFilter(IProduct.Attribute.kRank, new RankFilter());
         pdb.registerFilter(IProduct.Attribute.kDiscount, new DiscountFilter());
 
