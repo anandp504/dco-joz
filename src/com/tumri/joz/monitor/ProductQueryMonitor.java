@@ -438,7 +438,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":f1Score");
 		keys.add(":f2Score");
 		keys.add(":f3Score");
-		keys.add(":f4core");
+		keys.add(":f4Score");
 		keys.add(":f5Score");
 		keys.add(":ut1Score");
 		keys.add(":ut2Score");
