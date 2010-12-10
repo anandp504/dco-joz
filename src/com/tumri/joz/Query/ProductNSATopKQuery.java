@@ -19,8 +19,8 @@ public class ProductNSATopKQuery extends NSATopKQuery<Handle> {
 	private ArrayList<SortedSet<Handle>> m_excludes;
 	private ArrayList<IWeight<Handle>> m_excludesWeight;
 
-	ProductNSATopKQuery(List<SortedSet<Handle>> baseSets, int numReqs, boolean strict) {
-		super(baseSets, numReqs, strict);
+	ProductNSATopKQuery(List<SortedSet<Handle>> baseSets, int numReqs, boolean strict, double alpha) {
+		super(baseSets, numReqs, strict, alpha);
 	}
 
 	ProductNSATopKQuery(ProductNSATopKQuery set) {

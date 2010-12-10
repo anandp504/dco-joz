@@ -445,6 +445,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":ut3Score");
 		keys.add(":ut4Score");
 		keys.add(":ut5Score");
+		keys.add(":prodSelFuzz");
 
 		if (req != null && !"".equals(req.trim())) {
 			com.tumri.utils.strings.StringTokenizer reqTokenizer = new com.tumri.utils.strings.StringTokenizer(req, ' ');
@@ -723,97 +724,101 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						}
 					} else if (":f1Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.f1, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.f1.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":f2Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.f2, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.f2.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":f3Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.f3, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.f3.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":f4Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.f4, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.f4.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":f5Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.f5, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.f5.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":ut1Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.ut1, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.ut1.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":ut2Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.ut2, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.ut2.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":ut3Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.ut3, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.ut3.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":ut4Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.ut4, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.ut4.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":ut5Score".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							Map<TSpec.ProdAttribute, Double> map = tSpec.getProdSelWeights();
+							Map<String, Double> map = tSpec.getProdSelWeights();
 							if (map == null) {
-								map = new HashMap<TSpec.ProdAttribute, Double>();
+								map = new HashMap<String, Double>();
 							}
-							map.put(TSpec.ProdAttribute.ut5, Double.valueOf(value.trim()));
+							map.put(TSpec.ProdAttribute.ut5.name(), Double.valueOf(value.trim()));
 							tSpec.setProdSelWeights(map);
 						}
 					} else if (":keywordSrc".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							tSpec.setKeywordSource(value.trim());
+						}
+					} else if (":prodSelFuzz".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							tSpec.setProdSelFuzzFactor(Double.valueOf(value.trim()));
 						}
 					} else if (":sortrank".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {

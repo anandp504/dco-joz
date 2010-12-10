@@ -11,9 +11,10 @@ import java.util.ArrayList;
  */
 public abstract class QueryProcessor {
 
-  protected QueryProcessor() {
-  }
+	protected QueryProcessor() {
+	}
 
-  public abstract SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict);
-  public abstract SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict, boolean isTopK);
+	public abstract SetIntersector<Handle> buildTableScanner(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict);
+
+	public abstract SetIntersector<Handle> buildIntersector(ArrayList<SimpleQuery> aQueries, Handle reference, boolean isStrict, boolean isTopK, double alpha);
 }

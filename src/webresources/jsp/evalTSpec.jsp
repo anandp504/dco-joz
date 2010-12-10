@@ -58,7 +58,8 @@
             :excludedproviders :excludedcategories :includedcategories :includedbrands :excludedbrands
             :excludedmerchants :excludedglobalids :includedmerchants :includedproducts :excludedproducts
             :LTKExpression :producttype :includedglobalids :enablebackfill :keywordSrc :sortrank :sortdiscount
-            :f1Score :f2Score :f3Score :f4Score :f5Score :ut1Score :ut2Score :ut3Score :ut4Score :ut5Score)</i>
+            :f1Score :f2Score :f3Score :f4Score :f5Score :ut1Score :ut2Score :ut3Score :ut4Score :ut5Score
+            :prodSelFuzz)</i>
         <br>
         <i>Note: Keys that can take more than one value(includedproviders, excludedproviders, etc...) can be
             followed by a comma serated list of values.</i>

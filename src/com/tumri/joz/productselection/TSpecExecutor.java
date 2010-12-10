@@ -67,7 +67,7 @@ public class TSpecExecutor {
 	private Features m_feature = null;
 	private boolean m_randomize = false;
 	private String m_scriptKeywords = null;
-	private static final Map<Product.Attribute, TSpec.ProdAttribute> attMap = getAttributeMap();
+	private static final Map<Product.Attribute, String> attMap = getAttributeMap();
 
 	private static Logger log = Logger.getLogger(TSpecExecutor.class);
 
@@ -109,8 +109,8 @@ public class TSpecExecutor {
 
 		//Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
 		m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(tSpecId).clone();
-		m_tSpecQuery.setUseTopK(request.isUseTopK());
-        if (m_feature != null) {
+		m_tSpecQuery.setUseTopK(request.isUseTopK(), m_tspec.getProdSelFuzzFactor());
+		if (m_feature != null) {
 			m_feature.addFeatureDetail(Features.FEATURE_TOPK, "true");
 		}
 		setupRequestParms();
@@ -132,10 +132,10 @@ public class TSpecExecutor {
 		}
 		//Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
 		m_tSpecQuery = TSpecQueryCacheHelper.getQuery(tSpec);
-		m_tSpecQuery.setUseTopK(request.isUseTopK());
+		m_tSpecQuery.setUseTopK(request.isUseTopK(), m_tspec.getProdSelFuzzFactor());
 		//Fix to allow TSpec evaluator from Joz console to backfill correctly
 		debugTSpecQuery = (CNFQuery) m_tSpecQuery.clone();
-		debugTSpecQuery.setUseTopK(request.isUseTopK());
+		debugTSpecQuery.setUseTopK(request.isUseTopK(), m_tspec.getProdSelFuzzFactor());
 		setupRequestParms();
 		return executeTSpec();
 	}
@@ -682,8 +682,8 @@ public class TSpecExecutor {
 	IWeight<Handle> findWeight(IProduct.Attribute kAttr) {
 		IWeight<Handle> wt = null;
 
-		Map<TSpec.ProdAttribute, Double> specifiedWeights = m_tspec.getProdSelWeights();
-		TSpec.ProdAttribute tAtt = attMap.get(kAttr);
+		Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+		String tAtt = attMap.get(kAttr);
 		Double score = null;
 		if (specifiedWeights != null && (score = specifiedWeights.get(tAtt)) != null) {
 			wt = new GenericIWeight<Handle>(score, false);
@@ -875,9 +875,9 @@ public class TSpecExecutor {
 			copytSpecQuery = (CNFQuery) m_tSpecQuery.clone();
 			SimpleQuery aQuery = new AttributeQuery(IProduct.Attribute.kDiscount, 0);
 			copytSpecQuery.addSimpleQuery(aQuery);
-            if (m_feature != null) {
-			    m_feature.addFeatureDetail(Features.FEATURE_DISCOUNTSORT, "true");
-		    }
+			if (m_feature != null) {
+				m_feature.addFeatureDetail(Features.FEATURE_DISCOUNTSORT, "true");
+			}
 		}
 		if (m_tspec.isSortByRank()) {
 			if (!bClone) {
@@ -886,9 +886,9 @@ public class TSpecExecutor {
 			}
 			SimpleQuery aQuery = new AttributeQuery(IProduct.Attribute.kRank, 0);
 			copytSpecQuery.addSimpleQuery(aQuery);
-            if (m_feature != null) {
-                m_feature.addFeatureDetail(Features.FEATURE_RANKSORT, "true");
-            }            
+			if (m_feature != null) {
+				m_feature.addFeatureDetail(Features.FEATURE_RANKSORT, "true");
+			}
 		}
 		if (bClone) {
 			m_tSpecQuery = copytSpecQuery;
@@ -989,18 +989,18 @@ public class TSpecExecutor {
 		return resultAL;
 	}
 
-	private static Map<Product.Attribute, TSpec.ProdAttribute> getAttributeMap() {
-		Map<Product.Attribute, TSpec.ProdAttribute> retMap = new HashMap<Product.Attribute, TSpec.ProdAttribute>();
-		retMap.put(Product.Attribute.kExternalFilterField1, TSpec.ProdAttribute.f1);
-		retMap.put(Product.Attribute.kExternalFilterField2, TSpec.ProdAttribute.f2);
-		retMap.put(Product.Attribute.kExternalFilterField3, TSpec.ProdAttribute.f3);
-		retMap.put(Product.Attribute.kExternalFilterField4, TSpec.ProdAttribute.f4);
-		retMap.put(Product.Attribute.kExternalFilterField5, TSpec.ProdAttribute.f5);
-		retMap.put(Product.Attribute.kUT1, TSpec.ProdAttribute.ut1);
-		retMap.put(Product.Attribute.kUT2, TSpec.ProdAttribute.ut2);
-		retMap.put(Product.Attribute.kUT3, TSpec.ProdAttribute.ut3);
-		retMap.put(Product.Attribute.kUT4, TSpec.ProdAttribute.ut4);
-		retMap.put(Product.Attribute.kUT5, TSpec.ProdAttribute.ut5);
+	private static Map<Product.Attribute, String> getAttributeMap() {
+		Map<Product.Attribute, String> retMap = new HashMap<Product.Attribute, String>();
+		retMap.put(Product.Attribute.kExternalFilterField1, TSpec.ProdAttribute.f1.name());
+		retMap.put(Product.Attribute.kExternalFilterField2, TSpec.ProdAttribute.f2.name());
+		retMap.put(Product.Attribute.kExternalFilterField3, TSpec.ProdAttribute.f3.name());
+		retMap.put(Product.Attribute.kExternalFilterField4, TSpec.ProdAttribute.f4.name());
+		retMap.put(Product.Attribute.kExternalFilterField5, TSpec.ProdAttribute.f5.name());
+		retMap.put(Product.Attribute.kUT1, TSpec.ProdAttribute.ut1.name());
+		retMap.put(Product.Attribute.kUT2, TSpec.ProdAttribute.ut2.name());
+		retMap.put(Product.Attribute.kUT3, TSpec.ProdAttribute.ut3.name());
+		retMap.put(Product.Attribute.kUT4, TSpec.ProdAttribute.ut4.name());
+		retMap.put(Product.Attribute.kUT5, TSpec.ProdAttribute.ut5.name());
 		return retMap;
 	}
 

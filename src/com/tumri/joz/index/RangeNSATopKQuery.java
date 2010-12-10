@@ -20,8 +20,8 @@ public class RangeNSATopKQuery<Value> extends NSATopKQuery<Range<Value>> {
 	private ArrayList<SortedSet<Range<Value>>> m_excludes;
 	private ArrayList<IWeight<Range<Value>>> m_excludesWeight;
 
-	RangeNSATopKQuery(List<SortedSet<Range<Value>>> baseSets, int numReqs, boolean strict) {
-		super(baseSets, numReqs, strict);
+	RangeNSATopKQuery(List<SortedSet<Range<Value>>> baseSets, int numReqs, boolean strict, double alpha) {
+		super(baseSets, numReqs, strict, alpha);
 	}
 
 	RangeNSATopKQuery(RangeNSATopKQuery set) {

@@ -47,6 +47,8 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 	private int m_eZeroSize = 0; // Incremented whenever exclude() sees zero size set
 	private int m_listSize = 0;
 
+	private double alpha = 1.0;
+
 	private boolean useTopK;
 
 	/**
@@ -60,7 +62,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 
 	public abstract SetIntersector<Value> clone() throws CloneNotSupportedException;
 
-	protected abstract SortedSet<Value> getTopKResults(List<SortedSet<Value>> sets, int numReqs, boolean strict);
+	protected abstract SortedSet<Value> getTopKResults(List<SortedSet<Value>> sets, int numReqs, boolean strict, double alpha);
 
 	public SetIntersector(boolean strict) {
 		this();
@@ -152,14 +154,12 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		m_listSize = other.m_listSize;
 		m_rankedSet = other.m_rankedSet;
 		m_rankedSetWeight = other.m_rankedSetWeight;
+		useTopK = other.useTopK;
+		alpha = other.alpha;
 	}
 
 	public boolean isStrict() {
 		return m_strict;
-	}
-
-	private void setStrict(boolean aStrict) {
-		m_strict = aStrict;
 	}
 
 	/**
@@ -442,6 +442,10 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		this.useTopK = useTopK;
 	}
 
+	public void setAlpha(double alpha) {
+		this.alpha = alpha;
+	}
+
 	private Value getTopK(ArrayList<ArrayList<Value>> lists) {
 		List<SortedSet<Value>> sets = new ArrayList<SortedSet<Value>>();
 		for (int i = 0; i < m_includes.size(); i++) {
@@ -458,7 +462,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 			sets.add(keywordGradedSet);
 		}
 
-		SortedSet<Value> topKResults = getTopKResults(sets, m_maxSetSize, m_strict);
+		SortedSet<Value> topKResults = getTopKResults(sets, m_maxSetSize, m_strict, alpha);
 		Iterator<Value> iter = topKResults.iterator();
 		ArrayList<Value> firstList = lists.get(0);
 		while (iter.hasNext()) {
