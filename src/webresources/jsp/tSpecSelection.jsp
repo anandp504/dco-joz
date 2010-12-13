@@ -166,7 +166,7 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
         <td>
             <div>
                 <%
-                    out.print("<strong>TSpec: Geo Enable Flag = </strong>" + myTSpec.isGeoEnabledFlag() + "<br>");
+                    out.print("<strong>TSpec: Keyword Type</strong> = " + myTSpec.getKeywordSource() + "<br>");
                 %>
             </div>
         </td>
@@ -197,7 +197,15 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
         <td>
             <div>
                 <%
-                    out.print("<strong>TSpec: Keyword Type</strong> = " + myTSpec.getKeywordSource() + "<br>");
+                    out.print("<strong>TSpec: Product Sel Attribute Weight Info = </strong><br>");
+                    Map<String, Double> prodSelMap =  myTSpec.getProdSelWeights();
+                    if (prodSelMap!=null && !prodSelMap.isEmpty()) {
+                        for(String key: prodSelMap.keySet()) {
+                            if (prodSelMap.get(key) !=null) {
+                                out.print(key + " = " + prodSelMap.get(key) + "<br>");
+                            }
+                        }
+                    }
                 %>
             </div>
         </td>
@@ -220,7 +228,7 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
         <td>
             <div>
                 <%
-                    out.print("<strong>TSpec: Publish URL Keywords within OSpec</strong> = " + myTSpec.isPublishUrlKeywordsWithinOSpec() + " ");
+                    out.print("<strong>TSpec: Sort By Rank </strong> = " + myTSpec.isSortByRank() + " ");
                 %>
             </div>
             <br>
@@ -228,14 +236,14 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
         <td>
             <div>
                 <%
-                    out.print("<strong>TSpec: Script Keywords within OSpec</strong> = " + myTSpec.isScriptKeywordsWithinOSpec() + "<br>");
+                    out.print("<strong>TSpec: Sort By Discount</strong> = " + myTSpec.isSortByDiscount() + "<br>");
                 %>
             </div>
         </td>
         <td>
             <div>
                 <%
-                    out.print("<strong>TSpec: Too Small Leaf Categories = </strong>" + myTSpec.isTooSmallLeafCategories() + "<br>");
+                    out.print("<strong>TSpec: Product Selection Fuzz Factor = </strong>" + myTSpec.getProdSelFuzzFactor() + "<br>");
                 %>
             </div>
         </td>

@@ -360,6 +360,9 @@
             <element name="alwOpt" type="boolean" maxOccurs="1" minOccurs="0"/>
             <element name="sRank" type="boolean" maxOccurs="1" minOccurs="0"/>
             <element name="sDisc" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="psff" type="double" maxOccurs="1" minOccurs="0"/>
+            <element name="psWts" type="tns:ProductAttrInfosDef"/>
+
         </choice>
     </complexType>
     <complexType name="ExcludedGlobalIdsDef">
@@ -800,4 +803,17 @@
             <element name="vlu" type="string"/>
         </choice>
     </complexType>
+     <complexType name="ProductAttrInfosDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+            <element name="psWt" type="tns:ProductAttrInfoDef"/>
+        </sequence>
+    </complexType>
+    <complexType name="ProductAttrInfoDef">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
+            <element name="wt" type="double" maxOccurs="1" minOccurs="0"/>
+        </choice>
+    </complexType>
+
 </schema>
