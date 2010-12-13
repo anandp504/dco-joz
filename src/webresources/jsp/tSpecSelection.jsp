@@ -173,7 +173,7 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
         <td>
             <div>
                 <%
-                    out.print("<strong>TSpec: Apply Geo Filter = </strong>" + myTSpec.isApplyGeoFilter() + "<br>");
+                    out.print("<strong>TSpec: Apply Geo Filter = </strong>" + (myTSpec.isApplyGeoFilter() || myTSpec.isGeoEnabledFlag()) + "<br>");
                 %>
             </div>
         </td>
