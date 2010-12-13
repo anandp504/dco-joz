@@ -30,7 +30,8 @@ public class AdPodSetIntersector extends SetIntersector<Handle> {
 	}
 
 	@Override
-	protected NSATopKQuery getTopKResults(List<SortedSet<Handle>> sortedSets, int numReqs, boolean strict, double alpha) {
+	@SuppressWarnings("unchecked")
+	protected SortedSet<Handle> getTopKResults(List<SortedSet<Handle>> sortedSets, int numReqs, boolean strict, double alpha) {
 		ProductNSATopKQuery retQuery = new ProductNSATopKQuery(sortedSets, numReqs, strict, alpha);
 		retQuery.setM_excludes(m_excludes);
 		retQuery.setM_excludesWeight(m_excludesWeight);

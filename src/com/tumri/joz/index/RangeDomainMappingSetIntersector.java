@@ -34,7 +34,8 @@ public class RangeDomainMappingSetIntersector<Value> extends SetIntersector<Rang
 	}
 
 	@Override
-	protected NSATopKQuery getTopKResults(List<SortedSet<Range<Value>>> sortedSets, int numReqs, boolean strict, double alpha) {
+	@SuppressWarnings("unchecked")
+	protected SortedSet<Range<Value>> getTopKResults(List<SortedSet<Range<Value>>> sortedSets, int numReqs, boolean strict, double alpha) {
 		RangeNSATopKQuery retQuery = new RangeNSATopKQuery(sortedSets, numReqs, strict, alpha);
 		retQuery.setM_excludes(m_excludes);
 		retQuery.setM_excludesWeight(m_excludesWeight);

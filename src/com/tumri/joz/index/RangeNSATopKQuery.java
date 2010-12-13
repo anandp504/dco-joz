@@ -24,6 +24,7 @@ public class RangeNSATopKQuery<Value> extends NSATopKQuery<Range<Value>> {
 		super(baseSets, numReqs, strict, alpha);
 	}
 
+	@SuppressWarnings("unchecked")
 	RangeNSATopKQuery(RangeNSATopKQuery set) {
 		super(set);
 	}
@@ -65,6 +66,7 @@ public class RangeNSATopKQuery<Value> extends NSATopKQuery<Range<Value>> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public NSATopKQuery<Range<Value>> clone() throws CloneNotSupportedException {
 		return new RangeNSATopKQuery(this);
 	}

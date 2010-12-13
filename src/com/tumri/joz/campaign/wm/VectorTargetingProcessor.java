@@ -43,6 +43,7 @@ public class VectorTargetingProcessor {
 		return processor;
 	}
 
+	@SuppressWarnings("unchecked")
 	/**
 	 * Do the selection of recipe given the request
 	 *
@@ -191,15 +192,15 @@ public class VectorTargetingProcessor {
 		//Add context matches
 		AdPodSetIntersector intersector = new AdPodSetIntersector(true);
 		if (contextMap != null) {
-            //Because of MVF we need to construct a VectorHandle with a map that contains just the keys from the contextMap
-            VectorHandle rv = new VectorHandleImpl(0, 0, VectorHandleImpl.OPTIMIZATION, contextMap, true);
+			//Because of MVF we need to construct a VectorHandle with a map that contains just the keys from the contextMap
+			VectorHandle rv = new VectorHandleImpl(0, 0, VectorHandleImpl.OPTIMIZATION, contextMap, true);
 			Set<VectorAttribute> keys = contextMap.keySet();
 			for (VectorAttribute attr : keys) {
 
 				SortedSet<Handle> vectors = getVectorsFromIndex(attr, contextMap);
 				if (vectors != null && vectors.size() > 0) {
 					//Build intersector
-                    IWeight<Handle> wt = new VectorAttributeWeights(rv, attr);
+					IWeight<Handle> wt = new VectorAttributeWeights(rv, attr);
 					intersector.include(vectors, wt);
 				}
 

@@ -62,6 +62,7 @@ public class VectorHandleFactory {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private static Handle find(SortedSet<VectorHandle> set, VectorHandle h) {
 		SortedSet<VectorHandle> tailSet = set.tailSet(h);
 		if (!tailSet.isEmpty()) {

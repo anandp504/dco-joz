@@ -446,6 +446,7 @@ public abstract class SetIntersector<Value> implements SortedSet<Value> {
 		this.alpha = alpha;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Value getTopK(ArrayList<ArrayList<Value>> lists) {
 		List<SortedSet<Value>> sets = new ArrayList<SortedSet<Value>>();
 		for (int i = 0; i < m_includes.size(); i++) {
