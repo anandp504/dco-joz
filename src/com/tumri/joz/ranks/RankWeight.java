@@ -37,7 +37,7 @@ public class RankWeight extends AttributeWeights {
 			tmp = 1.0;
 		}
 		tmp = tmp / 101.0;
-		return 1 + tmp * ((ProductHandle) h).getRank();
+		return Math.sqrt(1 + tmp * ((ProductHandle) h).getRank());
 	}
 
 	public double getMinWeight() {
