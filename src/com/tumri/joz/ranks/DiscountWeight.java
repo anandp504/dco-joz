@@ -37,7 +37,7 @@ public class DiscountWeight extends AttributeWeights {
 			tmp = 1.0;
 		}
 		tmp = tmp / 101.0;
-		return 1 + tmp * ((ProductHandle) h).getDiscount();
+		return Math.sqrt(1 + tmp * ((ProductHandle) h).getDiscount());
 	}
 
 	public double getMinWeight() {
