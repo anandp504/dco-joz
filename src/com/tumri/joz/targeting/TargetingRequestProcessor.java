@@ -249,63 +249,34 @@ public class TargetingRequestProcessor {
 
         }
         try {
+            SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId, adType);
+            UrlTargetingQuery urlQuery = new UrlTargetingQuery(urlName);
+            GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
+            TimeTargetingQuery timeQuery = new TimeTargetingQuery();
+            AgeTargetingQuery ageQuery = new AgeTargetingQuery(request.getAge());
+            BTTargetingQuery btQuery = new BTTargetingQuery(request.getBt());
+            MSTargetingQuery msQuery = new MSTargetingQuery(request.getMs());
+            HHITargetingQuery hhiQuery = new HHITargetingQuery(request.getHhi());
+            GenderTargetingQuery genQuery = new GenderTargetingQuery(request.getGender());
+            AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);
+
             AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
             ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
-            TimeTargetingQuery timeQuery = new TimeTargetingQuery();
-            SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId, adType);
-            AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);
+            cjQuery.setStrict(true);
             cjQuery.addQuery(siteQuery);
+            cjQuery.addQuery(geoQuery);
+            cjQuery.addQuery(urlQuery);
             cjQuery.addQuery(timeQuery);
             cjQuery.addQuery(adTypeQuery);
-            cjQuery.setStrict(true);
-
-            if (urlName!=null) {
-                UrlTargetingQuery urlQuery = new UrlTargetingQuery(urlName);
-                cjQuery.addQuery(urlQuery);
-            }
-            String country = request.getCountry();
-            String region = request.getRegion();
-            String city = request.getCity();
-            String dma = request.getDmacode();
-            String zip = request.get_zip_code();
-            String area = request.getAreacode();
-            String age = request.getAge();
-            String bt = request.getBt();
-            String hhi = request.getHhi();
-            String ms = request.getMs();
-            String gender = request.getGender();
-            if (country!=null || region!=null || city!=null || dma!=null || zip!=null || area !=null) {
-                GeoTargetingQuery geoQuery = new GeoTargetingQuery(country, region, city, dma, zip, area);
-                cjQuery.addQuery(geoQuery);
-            }
-            if (age!=null) {
-                AgeTargetingQuery ageQuery = new AgeTargetingQuery(age);
-                cjQuery.addQuery(ageQuery);
-            }
-            if (bt!=null) {
-                BTTargetingQuery btQuery = new BTTargetingQuery(bt);
-                cjQuery.addQuery(btQuery);
-            }
-            if (ms!=null) {
-                MSTargetingQuery msQuery = new MSTargetingQuery(request.getMs());
-                cjQuery.addQuery(msQuery);
-            }
-            if (hhi!=null){
-                HHITargetingQuery hhiQuery = new HHITargetingQuery(request.getHhi());
-                cjQuery.addQuery(hhiQuery);
-            }
-            if (gender!=null) {
-                GenderTargetingQuery genQuery = new GenderTargetingQuery(request.getGender());
-                cjQuery.addQuery(genQuery);
-            }
-
+            cjQuery.addQuery(ageQuery);
+            cjQuery.addQuery(btQuery);
+            cjQuery.addQuery(msQuery);
+            cjQuery.addQuery(hhiQuery);
+            cjQuery.addQuery(genQuery);
             Set<String> extVars = extVarsMap.keySet();
             for(String extVar : extVars) {
-                String val = extVarsMap.get(extVar);
-                if (val!=null &&!val.isEmpty()) {
-                    ExternalVariableTargetingQuery externalVariableQuery = new ExternalVariableTargetingQuery(extVar, val);
-                    cjQuery.addQuery(externalVariableQuery);
-                }
+                ExternalVariableTargetingQuery externalVariableQuery = new ExternalVariableTargetingQuery(extVar, extVarsMap.get(extVar));
+                cjQuery.addQuery(externalVariableQuery);
             }
             results = cjQuery.exec();
 
