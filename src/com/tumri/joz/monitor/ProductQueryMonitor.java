@@ -352,7 +352,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						}
 					} else if (":ms".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
-							pr.setMs(value.trim());
+							pr.setCC(value.trim());
 						}
 					} else if (":bt".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {

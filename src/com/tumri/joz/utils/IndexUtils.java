@@ -250,8 +250,8 @@ public class IndexUtils {
             case kHHI:
                 id = DictionaryManager.getId(Product.Attribute.kHHI, indexVal);
                 break;
-            case kMS:
-                id = DictionaryManager.getId(Product.Attribute.kMS, indexVal);
+            case kCC:
+                id = DictionaryManager.getId(Product.Attribute.kCC, indexVal);
                 break;
             case kBT:
                 id = DictionaryManager.getId(Product.Attribute.kBT, indexVal);
@@ -358,8 +358,8 @@ public class IndexUtils {
             id = Product.Attribute.kGender;
         } else if (indexType.equals("hhi")) {
             id = Product.Attribute.kHHI;
-        } else if (indexType.equals("ms")) {
-            id = Product.Attribute.kMS;
+        } else if (indexType.equals("ms") || indexType.equals("cc")) {
+            id = Product.Attribute.kCC;
         } else if (indexType.equals("bt")) {
             id = Product.Attribute.kBT;
         } else if (indexType.equals("externalfilterf1")) {
@@ -436,8 +436,8 @@ public class IndexUtils {
             name = "gender";
         } else if (id == Product.Attribute.kBT) {
             name = "bt";
-        } else if (id == Product.Attribute.kMS) {
-            name = "ms";
+        } else if (id == Product.Attribute.kCC) {
+            name = "cc";
         } else if (id == Product.Attribute.kHHI) {
             name = "hhi";
         } else if (id == Product.Attribute.kExternalFilterField1) {

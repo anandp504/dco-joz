@@ -103,11 +103,11 @@ public class ProductHandle implements Handle {
 		return (int)retVal;
 	}
 
-	public void setMaritalStatus(Integer status){
+	public void setChildCount(Integer status){
 		 m_bitMap = (m_bitMap & 0xFFFFFFFFFFFFF07FL) | (((long) status.intValue()) << 7);
 	}
 
-	public Integer getMaritalStatus(){
+	public Integer getChildCount(){
 		long retVal = (m_bitMap & 0x0000000000000F80L)>>>7;
 		return (int)retVal;
 	}

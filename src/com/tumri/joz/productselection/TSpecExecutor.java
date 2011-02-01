@@ -564,9 +564,9 @@ public class TSpecExecutor {
 			}
 		}
 		if (m_tspec.isUseMSFilter()) {
-			String msFilter = request.getMs();
+			String msFilter = request.getCc();
 			if (msFilter != null && !msFilter.equals("")) {
-				addAdditionalQuery(IProduct.Attribute.kMS, msFilter, copytSpecQuery);
+				addAdditionalQuery(IProduct.Attribute.kCC, msFilter, copytSpecQuery);
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ms", msFilter);
 				}

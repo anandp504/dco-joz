@@ -101,7 +101,7 @@ public class AdDataRequest {
     private String age=null;
     private String gender = null;
     private String hhi = null;
-    private String ms = null;
+    private String cc = null;
     private String bt = null;
 
     private String ut1 = null;
@@ -277,9 +277,14 @@ public class AdDataRequest {
         if (hhi != null) {
             hhi = hhi.trim();
         }
-        this.ms = req.getValue(JozAdRequest.KEY_MARITAL_STATUS);
-        if (ms != null) {
-            ms = ms.trim();
+        this.cc = req.getValue(JozAdRequest.KEY_CHILD_COUNT);
+        //Child count can be passed in Marital Status field
+        if (cc == null) {
+            this.cc = req.getValue(JozAdRequest.KEY_MARITAL_STATUS);
+        }
+
+        if (cc != null) {
+            cc = cc.trim();
         }
         this.bt = req.getValue(JozAdRequest.KEY_BT);
         if (bt != null) {
@@ -589,8 +594,8 @@ public class AdDataRequest {
         return bt;
     }
 
-    public String getMs() {
-        return ms;
+    public String getCc() {
+        return cc;
     }
 
     public String getHhi() {

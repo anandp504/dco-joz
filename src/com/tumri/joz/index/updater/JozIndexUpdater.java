@@ -296,11 +296,11 @@ public class JozIndexUpdater implements IJozIndexUpdater {
 			for (Handle h : pids) {
 				((ProductHandle) h).setHouseHoldIncome(val);
 			}
-		} else if (idxAttr == Product.Attribute.kMS) {
+		} else if (idxAttr == Product.Attribute.kCC) {
 			Integer val = IndexUtils.getIndexIdFromDictionary(idxAttr, indexVal.toUpperCase());
 			//No need to update the index for this - just update the handle
 			for (Handle h : pids) {
-				((ProductHandle) h).setMaritalStatus(val);
+				((ProductHandle) h).setChildCount(val);
 			}
 		} else if (idxAttr == Product.Attribute.kRank || idxAttr == Product.Attribute.kDiscount) {
 			Integer val = null;

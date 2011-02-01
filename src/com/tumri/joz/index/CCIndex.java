@@ -7,16 +7,16 @@ import com.tumri.joz.products.IProduct;
  * Created by IntelliJ IDEA.
  * User: nipun
  */
-public class MSIndex extends ProductAttributeIndex<Integer, Handle> {
-  public MSIndex() {
+public class CCIndex extends ProductAttributeIndex<Integer, Handle> {
+  public CCIndex() {
   }
 
   public IProduct.Attribute getType() {
-    return IProduct.Attribute.kMS;
+    return IProduct.Attribute.kCC;
   }
 
   public Integer getKey(IProduct p) {
-    return p.getMS();
+    return p.getCC();
   }
 
   public Handle getValue(IProduct p) {

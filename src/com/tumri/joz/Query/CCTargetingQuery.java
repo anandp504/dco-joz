@@ -12,10 +12,10 @@ import java.util.SortedSet;
  *
  * @author nipun
  */
-public class MSTargetingQuery extends TargetingQuery {
+public class CCTargetingQuery extends TargetingQuery {
     private String ms;
 
-    public MSTargetingQuery(String ms) {
+    public CCTargetingQuery(String ms) {
         this.ms = ms;
     }
 

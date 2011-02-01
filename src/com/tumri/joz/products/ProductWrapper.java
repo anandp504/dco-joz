@@ -390,11 +390,11 @@ public class ProductWrapper implements IProduct {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer getMS() {
+    public Integer getCC() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String getMSStr() {
+    public String getCCStr() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

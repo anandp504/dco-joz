@@ -255,7 +255,7 @@ public class TargetingRequestProcessor {
             TimeTargetingQuery timeQuery = new TimeTargetingQuery();
             AgeTargetingQuery ageQuery = new AgeTargetingQuery(request.getAge());
             BTTargetingQuery btQuery = new BTTargetingQuery(request.getBt());
-            MSTargetingQuery msQuery = new MSTargetingQuery(request.getMs());
+            CCTargetingQuery msQuery = new CCTargetingQuery(request.getCc());
             HHITargetingQuery hhiQuery = new HHITargetingQuery(request.getHhi());
             GenderTargetingQuery genQuery = new GenderTargetingQuery(request.getGender());
             AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);

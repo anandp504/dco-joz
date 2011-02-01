@@ -50,7 +50,7 @@ public class ProductSelectionRequest {
     private String gender = null;
     private String hhi = null;
     private String bt = null;
-    private String ms = null;
+    private String cc = null;
 
 	private String ut1 = null;
     private String ut2 = null;
@@ -276,12 +276,12 @@ public class ProductSelectionRequest {
         this.listingClause = listingClause;
     }
 
-    public String getMs() {
-        return ms;
+    public String getCc() {
+        return cc;
     }
 
-    public void setMs(String ms) {
-        this.ms = ms;
+    public void setCC(String c) {
+        this.cc = c;
     }
 
 	public String getUt1() {

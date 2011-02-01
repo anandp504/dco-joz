@@ -69,17 +69,17 @@ public class TestRecipeWeightTargeting {
         VectorTargetingProcessor proc = VectorTargetingProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "12345");
-        jozRequest.setValue(JozAdRequest.KEY_REGION, "TX");
-        jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
+        jozRequest.setValue(JozAdRequest.KEY_REGION, "CA");
+//        jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
         AdDataRequest request = new AdDataRequest(jozRequest);
-        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(-1, 4445, request);
-//        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
-//        Assert.assertTrue(results!=null);
-//        for (Handle h : results) {
-//            VectorHandle vh = (VectorHandle)h;
-//            int[] dets = VectorHandleImpl.getIdDetails(vh.getOid());
-//            System.out.println("Experience id = " + dets[1] + ". Adpod id = " + dets[0] + ". Score = " + vh.getScore());
-//        }
+        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(7476, -1, request);
+        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
+        Assert.assertTrue(results!=null);
+        for (Handle h : results) {
+            VectorHandle vh = (VectorHandle)h;
+            int[] dets = VectorHandleImpl.getIdDetails(vh.getOid());
+            System.out.println("Experience/Adpod id = " + dets[1] + ". Vector id = " + dets[0] + ". Score = " + vh.getScore());
+        }
     }
 
     @Test

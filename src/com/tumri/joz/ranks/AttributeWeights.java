@@ -83,7 +83,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 				return kHHI;
 			case kBT:
 				return kBT;
-			case kMS:
+			case kCC:
 				return kMS;
 			case kMultiValueTextField:
 				return kMultiValueTextField;
@@ -152,7 +152,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 				return MultiValueTextFieldWeight.getInstance();
 			case kHHI:
 				return MultiValueTextFieldWeight.getInstance();
-			case kMS:
+			case kCC:
 				return MultiValueTextFieldWeight.getInstance();
 			case kMultiValueTextField:
 				return MultiValueTextFieldWeight.getInstance();
@@ -212,7 +212,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 				return kHHI;
 			case kBT:
 				return kBT;
-			case kMS:
+			case kCC:
 				return kMS;
 			case kMultiValueTextField:
 				return kMultiValueTextField;

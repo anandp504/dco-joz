@@ -267,9 +267,9 @@ public class ProductSelectionProcessor {
             pr.setBt(bt);
         }
 
-        String ms = request.getCc();
-        if (ms!=null) {
-            pr.setMs(ms);
+        String cc = request.getCc();
+        if (cc!=null) {
+            pr.setCC(cc);
         }
 
         String hhi = request.getHhi();

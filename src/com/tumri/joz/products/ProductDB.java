@@ -3,7 +3,6 @@ package com.tumri.joz.products;
 import com.tumri.content.ContentProviderFactory;
 import com.tumri.content.InvalidConfigException;
 import com.tumri.content.ProductProvider;
-import com.tumri.content.data.ProductAttributeDetails;
 import com.tumri.content.data.Product;
 import com.tumri.joz.filter.*;
 import com.tumri.joz.index.*;
@@ -116,7 +115,7 @@ public class ProductDB {
         pdb.registerFilter(IProduct.Attribute.kBT, new BTFilter());
 
         // pdb.addIndex(IProduct.Attribute.kMS, new MSIndex());
-        pdb.registerFilter(IProduct.Attribute.kMS, new MSFilter());
+        pdb.registerFilter(IProduct.Attribute.kCC, new CCFilter());
 
         // pdb.addIndex(IProduct.Attribute.kHHI, new HHIIndex());
         pdb.registerFilter(IProduct.Attribute.kHHI, new HHIFilter());
@@ -605,7 +604,7 @@ public class ProductDB {
                 }
             }
             {
-                Integer k = p.getMS();
+                Integer k = p.getCC();
                 if (k!=null) {
                     ArrayList<Handle> list = mms.get(k);
                     if (list == null) {
@@ -775,7 +774,7 @@ public class ProductDB {
             updateIntegerIndex(IProduct.Attribute.kGlobalId, mglobalid);
             updateIntegerIndex(IProduct.Attribute.kHHI, mglobalid);
             updateIntegerIndex(IProduct.Attribute.kBT, mglobalid);
-            updateIntegerIndex(IProduct.Attribute.kMS, mglobalid);
+            updateIntegerIndex(IProduct.Attribute.kCC, mglobalid);
             updateLongIndex(IProduct.Attribute.kMultiValueTextField, mmultitextattr);
 
         }

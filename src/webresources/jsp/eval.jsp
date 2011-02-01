@@ -44,7 +44,7 @@
     (":" + JozAdRequest.KEY_REVERT_TO_DEFAULT_REALM)%> <%=(":" + JozAdRequest.KEY_ROW_SIZE)%> <%=(":" + JozAdRequest.KEY_SCRIPT_KEYWORDS)%> <%=(":" + JozAdRequest.KEY_STORE_ID)%> <%=
     (":" + JozAdRequest.KEY_T_SPEC)%> <%=(":" + JozAdRequest.KEY_URL)%> <%=(":" + JozAdRequest.KEY_WHICH_ROW)%> <%=(":" + JozAdRequest.KEY_ZIP_CODE)%>  <%=(":" + JozAdRequest.KEY_EXTERNAL_PAGE_ID)%> <%=
     (":" + JozAdRequest.KEY_USER_BUCKET)%> <%=(":" + JozAdRequest.KEY_AGE)%> <%=(":" + JozAdRequest.KEY_GENDER)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT1)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT2)%> <%=
-    (":" + JozAdRequest.KEY_RETARGETING_UT3)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT4)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT5)%> <%=(":" + JozAdRequest.KEY_GENDER)%> <%=(":" + JozAdRequest.KEY_MARITAL_STATUS)%> <%=
+    (":" + JozAdRequest.KEY_RETARGETING_UT3)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT4)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT5)%> <%=(":" + JozAdRequest.KEY_GENDER)%> <%=(":" + JozAdRequest.KEY_CHILD_COUNT)%> <%=
     (":" + JozAdRequest.KEY_HOUSEHOLD_INCOME)%>
         )
     </i>
