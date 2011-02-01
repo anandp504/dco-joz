@@ -187,7 +187,7 @@ public class VectorTargetingProcessor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private SortedSet<Handle> getMatchingVectors(Map<VectorAttribute, List<Integer>> contextMap) {
+	public SortedSet<Handle> getMatchingVectors(Map<VectorAttribute, List<Integer>> contextMap) {
 
 		//Add context matches
 		AdPodSetIntersector intersector = new AdPodSetIntersector(true);

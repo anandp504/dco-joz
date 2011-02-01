@@ -61,6 +61,11 @@ public class VectorUtils {
 					VectorAttribute.kUB,
 					VectorAttribute.kAdpodId,
 					VectorAttribute.kExpId,
+					VectorAttribute.kAge,
+					VectorAttribute.kGender,
+					VectorAttribute.kBT,
+					VectorAttribute.kHHI,
+					VectorAttribute.kChildCount,
 			};
 
 	private static HashMap<VectorAttribute, Integer> attrPosMap = new HashMap<VectorAttribute, Integer>();
@@ -90,6 +95,11 @@ public class VectorUtils {
 		attrPosMap.put(VectorAttribute.kUB, 21);
 		attrPosMap.put(VectorAttribute.kAdpodId, 22);
 		attrPosMap.put(VectorAttribute.kExpId, 23);
+		attrPosMap.put(VectorAttribute.kAge, 24);
+		attrPosMap.put(VectorAttribute.kGender, 25);
+		attrPosMap.put(VectorAttribute.kBT, 26);
+		attrPosMap.put(VectorAttribute.kHHI, 27);
+		attrPosMap.put(VectorAttribute.kChildCount, 28);
 	}
 
 	public static VectorAttribute getAttribute(String type) {
@@ -144,6 +154,16 @@ public class VectorUtils {
 			attr = VectorAttribute.kAdpodId;
 		} else if ("expid".equals(type)) {
 			attr = VectorAttribute.kExpId;
+		} else if ("age".equals(type)) {
+			attr = VectorAttribute.kAge;
+		} else if ("gender".equals(type)) {
+			attr = VectorAttribute.kGender;
+		} else if ("bt".equals(type)) {
+			attr = VectorAttribute.kBT;
+		} else if ("hhi".equals(type)) {
+			attr = VectorAttribute.kHHI;
+		} else if ("childcount".equals(type)) {
+			attr = VectorAttribute.kChildCount;
 		}
 		return attr;
 	}
@@ -238,6 +258,21 @@ public class VectorUtils {
 			case kAdpodId:
 				name = "adpodid";
 				break;
+			case kAge:
+				name = "age";
+				break;
+			case kGender:
+				name = "gender";
+				break;
+			case kBT:
+				name = "bt";
+				break;
+			case kHHI:
+				name = "hhi";
+				break;
+			case kChildCount:
+				name = "childcount";
+				break;
 			case kExpId:
 				name = "expid";
 				break;
@@ -321,6 +356,21 @@ public class VectorUtils {
 				break;
 			case kUB:
 				noneAttr = VectorAttribute.kUBNone;
+				break;
+			case kAge:
+				noneAttr = VectorAttribute.kAgeNone;
+				break;
+			case kBT:
+				noneAttr = VectorAttribute.kBTNone;
+				break;
+			case kGender:
+				noneAttr = VectorAttribute.kGenderNone;
+				break;
+			case kHHI:
+				noneAttr = VectorAttribute.kHHINone;
+				break;
+			case kChildCount:
+				noneAttr = VectorAttribute.kChildCountNone;
 				break;
 			case kAdpodId:
 				noneAttr = null;
@@ -444,6 +494,26 @@ public class VectorUtils {
 			List<String> values = parseValues(request.getUserBucket());
 			updateContextMap(values, contextMap, VectorAttribute.kUB);
 		}
+		if (request.getAge() != null) {
+			List<String> values = parseValues(request.getAge());
+			updateContextMap(values, contextMap, VectorAttribute.kAge);
+		}
+		if (request.getGender() != null) {
+			List<String> values = parseValues(request.getGender());
+			updateContextMap(values, contextMap, VectorAttribute.kGender);
+		}
+		if (request.getBt() != null) {
+			List<String> values = parseValues(request.getBt());
+			updateContextMap(values, contextMap, VectorAttribute.kBT);
+		}
+		if (request.getHhi() != null) {
+			List<String> values = parseValues(request.getHhi());
+			updateContextMap(values, contextMap, VectorAttribute.kHHI);
+		}
+		if (request.getCc() != null) {
+			List<String> values = parseValues(request.getCc());
+			updateContextMap(values, contextMap, VectorAttribute.kChildCount);
+		}
 		return contextMap;
 	}
 
@@ -529,6 +599,11 @@ public class VectorUtils {
 		requestSet.add(VectorAttribute.kF4);
 		requestSet.add(VectorAttribute.kF5);
 		requestSet.add(VectorAttribute.kUB);
+		requestSet.add(VectorAttribute.kAge);
+		requestSet.add(VectorAttribute.kGender);
+		requestSet.add(VectorAttribute.kBT);
+		requestSet.add(VectorAttribute.kHHI);
+		requestSet.add(VectorAttribute.kChildCount);
 	}
 
 	private static Set<VectorAttribute> noneAttrSet = new HashSet<VectorAttribute>();
@@ -556,6 +631,11 @@ public class VectorUtils {
 		noneAttrSet.add(VectorAttribute.kF4None);
 		noneAttrSet.add(VectorAttribute.kF5None);
 		noneAttrSet.add(VectorAttribute.kUBNone);
+		noneAttrSet.add(VectorAttribute.kAgeNone);
+		noneAttrSet.add(VectorAttribute.kGenderNone);
+		noneAttrSet.add(VectorAttribute.kBTNone);
+		noneAttrSet.add(VectorAttribute.kHHINone);
+		noneAttrSet.add(VectorAttribute.kChildCountNone);
 	}
 
 	public static Set<VectorAttribute> findNoneAttributes(Set<VectorAttribute> inSet) {

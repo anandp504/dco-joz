@@ -26,7 +26,6 @@ import com.tumri.joz.targeting.TargetingRequestProcessor;
 import com.tumri.joz.products.Handle;
 import com.tumri.cma.domain.Recipe;
 import com.tumri.cma.domain.RecipeTSpecInfo;
-import com.tumri.utils.sexp.SexpUtils;
 import com.tumri.utils.stats.PerformanceStats;
 
 import java.util.List;
@@ -268,7 +267,7 @@ public class ProductSelectionProcessor {
             pr.setBt(bt);
         }
 
-        String ms = request.getMs();
+        String ms = request.getCc();
         if (ms!=null) {
             pr.setMs(ms);
         }

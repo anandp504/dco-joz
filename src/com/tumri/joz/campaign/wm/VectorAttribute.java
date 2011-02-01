@@ -1,10 +1,7 @@
 package com.tumri.joz.campaign.wm;
 
 /**
- * Created by IntelliJ IDEA.
- * User: scbraun
- * Date: Feb 12, 2010
- * Time: 11:19:02 AM
+ * Enumeration to hold all the vector attribute types.
  */
 public enum VectorAttribute {
 	kLineId,
@@ -30,6 +27,11 @@ public enum VectorAttribute {
 	kF5,
     kUB,
     kAdpodId,
+    kAge,
+    kGender,
+    kBT,
+    kChildCount,
+    kHHI,
     kLineIdNone,
     kSiteIdNone,
     kBuyIdNone,
@@ -53,4 +55,9 @@ public enum VectorAttribute {
     kF5None,
     kUBNone,
     kExpId,
+    kAgeNone,
+    kGenderNone,
+    kBTNone,
+    kChildCountNone,
+    kHHINone,
 }

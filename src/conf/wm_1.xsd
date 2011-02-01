@@ -145,6 +145,11 @@
             <xs:enumeration value="f4"/>
             <xs:enumeration value="f5"/>
             <xs:enumeration value="ub"/>
+            <xs:enumeration value="age"/>
+            <xs:enumeration value="gender"/>
+            <xs:enumeration value="hhi"/>
+            <xs:enumeration value="bt"/>
+            <xs:enumeration value="childcount"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

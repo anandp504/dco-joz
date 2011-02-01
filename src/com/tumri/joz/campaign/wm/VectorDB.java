@@ -70,6 +70,11 @@ public class VectorDB {
 		addIndex(VectorAttribute.kF4, new VectorDBIndex<Integer, Handle>(VectorAttribute.kF4));
 		addIndex(VectorAttribute.kF5, new VectorDBIndex<Integer, Handle>(VectorAttribute.kF5));
 		addIndex(VectorAttribute.kUB, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kUB));
+		addIndex(VectorAttribute.kAge, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kAge));
+		addIndex(VectorAttribute.kGender, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kGender));
+		addIndex(VectorAttribute.kBT, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kBT));
+		addIndex(VectorAttribute.kHHI, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kHHI));
+		addIndex(VectorAttribute.kChildCount, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kChildCount));
 		addIndex(VectorAttribute.kLineIdNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kLineIdNone));
 		addIndex(VectorAttribute.kSiteIdNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kSiteIdNone));
 		addIndex(VectorAttribute.kCreativeIdNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kCreativeIdNone));
@@ -92,6 +97,11 @@ public class VectorDB {
 		addIndex(VectorAttribute.kF4None, new VectorDBIndex<Integer, Handle>(VectorAttribute.kF4None));
 		addIndex(VectorAttribute.kF5None, new VectorDBIndex<Integer, Handle>(VectorAttribute.kF5None));
 		addIndex(VectorAttribute.kUBNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kUBNone));
+		addIndex(VectorAttribute.kAgeNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kAgeNone));
+		addIndex(VectorAttribute.kGenderNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kGenderNone));
+		addIndex(VectorAttribute.kBTNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kBTNone));
+		addIndex(VectorAttribute.kHHINone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kHHINone));
+		addIndex(VectorAttribute.kChildCountNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kChildCountNone));
 		addIndex(VectorAttribute.kExpId, new VectorDBIndex<Integer, Handle>(VectorAttribute.kExpId));
 	}
 
