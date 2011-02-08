@@ -268,6 +268,8 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
     List<ProviderInfo> includedProviders = myTSpec.getIncludedProviders();
     List<ProductInfo> excludedProducts = myTSpec.getExcludedProducts();
     List<ProductInfo> includedProducts = myTSpec.getIncludedProducts();
+    List<GlobalIdInfo> includedGlobalIds = myTSpec.getIncludedGlobalIds();
+    List<GlobalIdInfo> excludedGlobalIds = myTSpec.getExcludedGlobalIds();
     String includedKeywords = myTSpec.getLoadTimeKeywordExpression();
     out.print("<table border = \"1\">");
 
@@ -438,7 +440,32 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
         out.print("&nbsp;&nbsp;&nbsp; Null <br><br>");
     }
     out.print("</td>");
+    out.print("<td>");
+    out.print("<strong>TSpec: Included GlobalId:</strong>");
+    out.print("<br>");
+    if (includedProviders != null) {
+        for (int i = 0; i < includedGlobalIds.size(); i++) {
+            out.print("&nbsp;&nbsp;&nbsp;" + includedGlobalIds.get(i).getName());
+            out.print("<br>");
+        }
+        out.print("<br>");
+    } else {
+        out.print("&nbsp;&nbsp;&nbsp; Null <br><br>");
+    }
+    out.print("</td>");
     out.print("</tr>");
+    if (excludedGlobalIds!=null && !excludedGlobalIds.isEmpty()) {
+        out.print("<tr>");
+        out.print("<td>");
+        out.print("<strong>TSpec: Excluded GlobalId:</strong>");
+        out.print("<br>");
+        for (int i = 0; i < excludedGlobalIds.size(); i++) {
+            out.print("&nbsp;&nbsp;&nbsp;" + excludedGlobalIds.get(i).getName());
+            out.print("<br>");
+        }
+        out.print("</td>");
+        out.print("</tr>");
+    }
     out.print("</table>");
 %>
 <br>
