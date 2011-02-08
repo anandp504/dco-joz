@@ -70,11 +70,11 @@ public class VectorDB {
 		addIndex(VectorAttribute.kF4, new VectorDBIndex<Integer, Handle>(VectorAttribute.kF4));
 		addIndex(VectorAttribute.kF5, new VectorDBIndex<Integer, Handle>(VectorAttribute.kF5));
 		addIndex(VectorAttribute.kUB, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kUB));
-		addIndex(VectorAttribute.kAge, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kAge));
-		addIndex(VectorAttribute.kGender, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kGender));
-		addIndex(VectorAttribute.kBT, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kBT));
-		addIndex(VectorAttribute.kHHI, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kHHI));
-		addIndex(VectorAttribute.kChildCount, new VectorRangeIndex<Integer, Handle>(VectorAttribute.kChildCount));
+		addIndex(VectorAttribute.kAge, new VectorDBIndex<Integer, Handle>(VectorAttribute.kAge));
+		addIndex(VectorAttribute.kGender, new VectorDBIndex<Integer, Handle>(VectorAttribute.kGender));
+		addIndex(VectorAttribute.kBT, new VectorDBIndex<Integer, Handle>(VectorAttribute.kBT));
+		addIndex(VectorAttribute.kHHI, new VectorDBIndex<Integer, Handle>(VectorAttribute.kHHI));
+		addIndex(VectorAttribute.kChildCount, new VectorDBIndex<Integer, Handle>(VectorAttribute.kChildCount));
 		addIndex(VectorAttribute.kLineIdNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kLineIdNone));
 		addIndex(VectorAttribute.kSiteIdNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kSiteIdNone));
 		addIndex(VectorAttribute.kCreativeIdNone, new VectorDBIndex<Integer, Handle>(VectorAttribute.kCreativeIdNone));

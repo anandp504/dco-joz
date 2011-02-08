@@ -62,6 +62,7 @@ public class EvalMonitor extends ComponentMonitor {
 		keys.put(":" + JozAdRequest.KEY_EXTERNAL_PAGE_ID, JozAdRequest.KEY_EXTERNAL_PAGE_ID);
 		keys.put(":" + JozAdRequest.KEY_USER_BUCKET, JozAdRequest.KEY_USER_BUCKET);
 		keys.put(":" + JozAdRequest.KEY_AGE, JozAdRequest.KEY_AGE);
+		keys.put(":" + JozAdRequest.KEY_BT, JozAdRequest.KEY_BT);
 		keys.put(":" + JozAdRequest.KEY_GENDER, JozAdRequest.KEY_GENDER);
 		keys.put(":" + JozAdRequest.KEY_RETARGETING_UT1, JozAdRequest.KEY_RETARGETING_UT1);
 		keys.put(":" + JozAdRequest.KEY_RETARGETING_UT2, JozAdRequest.KEY_RETARGETING_UT2);

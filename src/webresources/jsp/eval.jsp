@@ -38,13 +38,13 @@
     (":" + JozAdRequest.KEY_AD_OFFER_TYPE)%> <%=(":" + JozAdRequest.KEY_ALLOW_TOO_FEW_PRODUCTS)%> <%=(":" + JozAdRequest.KEY_AREACODE)%> <%=(":" + JozAdRequest.KEY_CATEGORY)%> <%=
     (":" + JozAdRequest.KEY_CITY)%> <%=(":" + JozAdRequest.KEY_COUNTRY)%> <%=(":" + JozAdRequest.KEY_DMACODE)%> <%=(":" + JozAdRequest.KEY_KEYWORDS)%> <%=
     (":" + JozAdRequest.KEY_LATITUDE)%> <%=(":" + JozAdRequest.KEY_LOCATION_ID)%> <%=(":" + JozAdRequest.KEY_LONGITUDE)%> <%=
-    (":" + JozAdRequest.KEY_MAX_PROD_DESC_LEN)%> <%=(":" + JozAdRequest.KEY_MIN_NUM_LEADGENS) + ":topk :f1 :f2 :f3 :f4 :f5 :t1 :t2 :t3 :t4 :t5"%>  
-     <%=(":" + JozAdRequest.KEY_NUM_PRODUCTS)%> <%=
+    (":" + JozAdRequest.KEY_MAX_PROD_DESC_LEN)%> <%=(":" + JozAdRequest.KEY_MIN_NUM_LEADGENS) + ":topk :f1 :f2 :f3 :f4 :f5 :t1 :t2 :t3 :t4 :t5"%>
+        <%=(":" + JozAdRequest.KEY_NUM_PRODUCTS)%> <%=
     (":" + JozAdRequest.KEY_RECIPE_ID)%> <%=(":" + JozAdRequest.KEY_REGION)%> <%=
     (":" + JozAdRequest.KEY_REVERT_TO_DEFAULT_REALM)%> <%=(":" + JozAdRequest.KEY_ROW_SIZE)%> <%=(":" + JozAdRequest.KEY_SCRIPT_KEYWORDS)%> <%=(":" + JozAdRequest.KEY_STORE_ID)%> <%=
     (":" + JozAdRequest.KEY_T_SPEC)%> <%=(":" + JozAdRequest.KEY_URL)%> <%=(":" + JozAdRequest.KEY_WHICH_ROW)%> <%=(":" + JozAdRequest.KEY_ZIP_CODE)%>  <%=(":" + JozAdRequest.KEY_EXTERNAL_PAGE_ID)%> <%=
-    (":" + JozAdRequest.KEY_USER_BUCKET)%> <%=(":" + JozAdRequest.KEY_AGE)%> <%=(":" + JozAdRequest.KEY_GENDER)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT1)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT2)%> <%=
-    (":" + JozAdRequest.KEY_RETARGETING_UT3)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT4)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT5)%> <%=(":" + JozAdRequest.KEY_GENDER)%> <%=(":" + JozAdRequest.KEY_CHILD_COUNT)%> <%=
+    (":" + JozAdRequest.KEY_USER_BUCKET)%> <%=(":" + JozAdRequest.KEY_AGE)%> <%=(":" + JozAdRequest.KEY_BT)%> <%=(":" + JozAdRequest.KEY_GENDER)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT1)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT2)%> <%=
+    (":" + JozAdRequest.KEY_RETARGETING_UT3)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT4)%> <%=(":" + JozAdRequest.KEY_RETARGETING_UT5)%> <%=(":" + JozAdRequest.KEY_CHILD_COUNT)%> <%=
     (":" + JozAdRequest.KEY_HOUSEHOLD_INCOME)%>
         )
     </i>
