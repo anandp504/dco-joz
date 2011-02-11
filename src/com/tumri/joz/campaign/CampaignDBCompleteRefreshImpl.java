@@ -181,11 +181,11 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 			for (TSpec tspec : tspecList) {
 				CampaignDB.getInstance().delTSpec(tspec.getId());
 			}
+            int id = oSpec.getId();
+            ospecMap.get().safeRemove(id);
+            ospecNameMap.get().safeRemove(oSpecName);
 		}
 
-		int id = ospecNameMap.get().safeGet(oSpecName).getId();
-		ospecMap.get().safeRemove(id);
-		ospecNameMap.get().safeRemove(oSpecName);
 	}
 
 	public Url getUrl(String urlName) {
