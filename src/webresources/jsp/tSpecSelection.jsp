@@ -198,10 +198,10 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
             <div>
                 <%
                     out.print("<strong>TSpec: Product Sel Attribute Weight Info = </strong><br>");
-                    Map<String, Double> prodSelMap =  myTSpec.getProdSelWeights();
-                    if (prodSelMap!=null && !prodSelMap.isEmpty()) {
-                        for(String key: prodSelMap.keySet()) {
-                            if (prodSelMap.get(key) !=null) {
+                    Map<String, Double> prodSelMap = myTSpec.getProdSelWeights();
+                    if (prodSelMap != null && !prodSelMap.isEmpty()) {
+                        for (String key : prodSelMap.keySet()) {
+                            if (prodSelMap.get(key) != null) {
                                 out.print(key + " = " + prodSelMap.get(key) + "<br>");
                             }
                         }
@@ -443,7 +443,7 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
     out.print("<td>");
     out.print("<strong>TSpec: Included GlobalId:</strong>");
     out.print("<br>");
-    if (includedProviders != null) {
+    if (includedGlobalIds != null) {
         for (int i = 0; i < includedGlobalIds.size(); i++) {
             out.print("&nbsp;&nbsp;&nbsp;" + includedGlobalIds.get(i).getName());
             out.print("<br>");
@@ -454,7 +454,7 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
     }
     out.print("</td>");
     out.print("</tr>");
-    if (excludedGlobalIds!=null && !excludedGlobalIds.isEmpty()) {
+    if (excludedGlobalIds != null && !excludedGlobalIds.isEmpty()) {
         out.print("<tr>");
         out.print("<td>");
         out.print("<strong>TSpec: Excluded GlobalId:</strong>");
