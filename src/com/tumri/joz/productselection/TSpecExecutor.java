@@ -110,7 +110,7 @@ public class TSpecExecutor {
 		//Get the tSpec from the cache - note the tSpec id is used as the key in the TSpecQueryCache
 		m_tSpecQuery = (CNFQuery) TSpecQueryCache.getInstance().getCNFQuery(tSpecId).clone();
 		m_tSpecQuery.setUseTopK(request.isUseTopK(), m_tspec.getProdSelFuzzFactor());
-		if (m_feature != null) {
+		if (m_feature != null && request.isUseTopK()) {
 			m_feature.addFeatureDetail(Features.FEATURE_TOPK, "true");
 		}
 		setupRequestParms();
