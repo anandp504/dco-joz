@@ -790,7 +790,7 @@ public class TSpecExecutor {
 				//For keyword queries with geo enabled or multivalue, do backfill by dropping the keyword query and
 				// doing the geo query again
 				m_ExternalKeywords = false;
-				addGeoFilterQuery(pageSize - currSize, m_currPage);
+				addGeoFilterQuery(pageSize + 1, m_currPage);
 				SortedSet<Handle> newResults = m_tSpecQuery.exec();
 				//Sort by the score
 				SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
@@ -802,7 +802,7 @@ public class TSpecExecutor {
 //				SimpleQuery geoEnabledQuery = createGeoEnabledQuery(false);
 //				m_tSpecQuery.addSimpleQuery(geoEnabledQuery);
 				//We default the pageSize to the difference we need plus 5 since we want to avoid any duplication of results
-				int tmpSize = pageSize - currSize + 5;
+				int tmpSize = pageSize + 1;
 				m_tSpecQuery.setBounds(tmpSize, 0);
 				m_tSpecQuery.setStrict(false);
 				SortedSet<Handle> newResults = m_tSpecQuery.exec();
@@ -974,11 +974,6 @@ public class TSpecExecutor {
 				}
 			}
 		}
-		//Set the cached reference for randomization
-		if (m_tSpecQuery.getReference() != null && resultAL.size() > 0) {
-			CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-			setCacheReference(resultAL, cachedQuery);
-		}
 		//Cull the result by num products
 		int numProds = request.getPageSize();
 		if ((numProds > 0) && (resultAL.size() > numProds)) {
@@ -986,6 +981,13 @@ public class TSpecExecutor {
 				resultAL.remove(resultAL.size() - 1);
 			}
 		}
+
+		//Set the cached reference for randomization
+		if (m_tSpecQuery.getReference() != null && resultAL.size() > 0) {
+			CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
+			setCacheReference(resultAL, cachedQuery);
+		}
+
 		return resultAL;
 	}
 
