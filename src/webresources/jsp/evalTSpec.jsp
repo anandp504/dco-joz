@@ -41,7 +41,7 @@
         <h4>Enter ProductSelectionRequest Info:</h4>
         <i>(Keys= :num_products :offertype :city :state :country :zipcode :dmacode :areacode
             :brandomize :bmineurls :bpaginate :bbackfill :requestkeywords :requestcategory :f1
-            :f2 :f3 :f4 :f5 :age :gender :bt :ms :hhi :advertiser
+            :f2 :f3 :f4 :f5 :ut1 :ut2 :ut3 :ut4 :ut5:age :gender :bt :ms :hhi :advertiser
             :topk)</i>
         <br>
         <textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:2cm"><%
@@ -53,7 +53,7 @@
         <br>
         <h4>Enter TSpec Info:</h4>
         <i>(Keys = :usef1 :usef2 :usef3 :usef4
-            :usef5 :useradiusquery :radius :minepuburl :lowprice
+            :usef5 :useut1 :useut2 :useut3 :useut4 :useut5 :useradiusquery :radius :minepuburl :lowprice
             :highprice :applygeofilter :applyurlfilter :applykeywordfilter :includedproviders
             :excludedproviders :excludedcategories :includedcategories :includedbrands :excludedbrands
             :excludedmerchants :excludedglobalids :includedmerchants :includedproducts :excludedproducts

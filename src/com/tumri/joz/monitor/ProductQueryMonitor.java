@@ -222,6 +222,11 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":f3");
 		keys.add(":f4");
 		keys.add(":f5");
+		keys.add(":ut1");
+		keys.add(":ut2");
+		keys.add(":ut3");
+		keys.add(":ut4");
+		keys.add(":ut5");
 		keys.add(":age");
 		keys.add(":gender");
 		keys.add(":hhi");
@@ -338,6 +343,26 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						if (!"".equals(value.trim())) {
 							pr.setExternalFilterQuery5(value.trim());
 						}
+					} else if (":ut1".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setUt1(value.trim());
+						}
+					} else if (":ut2".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setUt2(value.trim());
+						}
+					} else if (":ut3".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setUt3(value.trim());
+						}
+					} else if (":ut4".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setUt4(value.trim());
+						}
+					} else if (":ut5".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setUt5(value.trim());
+						}
 					} else if (":age".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setAge(value.trim());
@@ -404,6 +429,11 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":usef3");
 		keys.add(":usef4");
 		keys.add(":usef5");
+		keys.add(":useut1");
+		keys.add(":useut2");
+		keys.add(":useut3");
+		keys.add(":useut4");
+		keys.add(":useut5");
 		keys.add(":useage");
 		keys.add(":usegender");
 		keys.add(":usehhi");
@@ -504,6 +534,46 @@ public class ProductQueryMonitor extends ComponentMonitor {
 								tSpec.setUseListingFilter5(false);
 							} else {
 								tSpec.setUseListingFilter5(true);
+							}
+						}
+					} else if (":useut1".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseUT1(false);
+							} else {
+								tSpec.setUseUT1(true);
+							}
+						}
+					} else if (":useut2".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseUT2(false);
+							} else {
+								tSpec.setUseUT2(true);
+							}
+						}
+					} else if (":useut3".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseUT3(false);
+							} else {
+								tSpec.setUseUT3(true);
+							}
+						}
+					} else if (":useut4".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseUT4(false);
+							} else {
+								tSpec.setUseUT4(true);
+							}
+						}
+					} else if (":useut5".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							if ("false".equalsIgnoreCase(value.trim())) {
+								tSpec.setUseUT5(false);
+							} else {
+								tSpec.setUseUT5(true);
 							}
 						}
 					} else if (":useage".equalsIgnoreCase(key)) {
