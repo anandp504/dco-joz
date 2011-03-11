@@ -388,6 +388,7 @@ public class TSpecExecutor {
 
 			}
 			CNFQuery geoTSpecQuery = new CNFQuery();
+			geoTSpecQuery.setUseTopK(request.isUseTopK(), m_tspec.getProdSelFuzzFactor());
 			geoTSpecQuery.setBounds(pageSize, currPage);
 			_conjQueryAL = m_tSpecQuery.getQueries();
 			for (ConjunctQuery conjQuery : _conjQueryAL) {
@@ -778,6 +779,7 @@ public class TSpecExecutor {
 				//This is from the joz console.
 				m_tSpecQuery = debugTSpecQuery;
 			}
+			m_tSpecQuery.setUseTopK(request.isUseTopK(), m_tspec.getProdSelFuzzFactor());
 			//addProductTypeQuery(request.getOfferType());
 			//randomize
 			Handle ref = ProductDB.getInstance().genReference();
