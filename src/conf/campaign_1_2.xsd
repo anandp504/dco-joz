@@ -186,7 +186,9 @@
     <complexType name="AdPod">
         <choice maxOccurs="unbounded" minOccurs="0">
             <element name="id" type="int" maxOccurs="1" minOccurs="1"/>
-            <element name="expId" type="int" maxOccurs="1" minOccurs="1"/>
+            <!--  Support multiple Experiences to an AdPod
+                <element name="expId" type="int" maxOccurs="1" minOccurs="1"/> 
+            -->
             <element name="adgId" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="nm" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="desc" type="string" maxOccurs="1" minOccurs="0"/>
@@ -211,6 +213,7 @@
             <element name="tId" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="tp" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="oTs" type="boolean" maxOccurs="1" minOccurs="0"/>
+            <element name="AdpExps" type="tns:AdPodExpMapDef"/>
             <element name="GTs" type="tns:AdPodGeoTargetDef"/>
             <element name="UTs" type="tns:AdPodUrlTargetDef"/>
             <element name="Tests" type="tns:TestDef"/>
@@ -815,5 +818,18 @@
             <element name="wt" type="double" maxOccurs="1" minOccurs="0"/>
         </choice>
     </complexType>
+
+    <complexType name="AdPodExpMapDef">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+            <element name="aExp" type="tns:AdPodExpMapInfo"/>
+        </sequence>
+    </complexType>
+    <complexType name="AdPodExpMapInfo">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="eId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="wt" type="float" maxOccurs="1" minOccurs="0"/>
+        </choice>
+    </complexType>
+
 
 </schema>
