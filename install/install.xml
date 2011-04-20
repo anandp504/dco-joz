@@ -8,6 +8,7 @@
     <property name="merge.cmd" value="java"/>
     <property name="file.relink" value="relink"/>
     <property name="file.service.conf" value="${component.name}.conf"/>
+    <property name="file.service.conf2" value="${component.name}java.conf"/>
 
     <!-- ****************************************************************** -->
 
@@ -48,7 +49,8 @@
         <!-- Untar the lucene.tgz -->
         <echo message="${install.src.dir}/${component.product.name}/lucene.tar.gz"/>
         <gunzip src="${install.src.dir}/${component.product.name}/lucene.tar.gz"/>
-        <untar src="${install.src.dir}/${component.product.name}/lucene.tar" dest="${tumri.component.home}/tools/lucene"/>
+        <untar src="${install.src.dir}/${component.product.name}/lucene.tar"
+               dest="${tumri.component.home}/tools/lucene"/>
         <chmod perm="+rx" type="both">
             <fileset dir="${tumri.component.home}/tools/lucene">
                 <include name="*.sh"/>
@@ -65,25 +67,31 @@
         </chmod>
         <!-- Installing component artifact files -->
         <gunzip src="${install.src.dir}/${component.product.name}/${component.src1.file}"/>
-        <untar src="${install.src.dir}/${component.product.name}/${component.src1.basename}.tar" dest="${tomcat.home}"/>	<!-- /opt/Tumri/<component>/<component>-<version>/tomcat5 -->
-        <move file="${tomcat.home}/conf/${component.property.file}" todir="${tumri.component.home}" overwrite="yes" preservelastmodified="true"/>
+        <untar src="${install.src.dir}/${component.product.name}/${component.src1.basename}.tar" dest="${tomcat.home}"/>
+        <!-- /opt/Tumri/<component>/<component>-<version>/tomcat5 -->
+        <move file="${tomcat.home}/conf/${component.property.file}" todir="${tumri.component.home}" overwrite="yes"
+              preservelastmodified="true"/>
         <delete file="${install.src.dir}/${component.product.name}/${component.src1.basename}.tar"/>
         <!--  -->
 
         <gunzip src="${install.src.dir}/${component.product.name}/${component.src2.file}"/>
-        <untar src="${install.src.dir}/${component.product.name}/${component.src2.basename}.tar" dest="${tumri.component.home}"/>	<!-- /opt/Tumri/<component>/<component>-<version>/tomcat5 -->
+        <untar src="${install.src.dir}/${component.product.name}/${component.src2.basename}.tar"
+               dest="${tumri.component.home}"/>
+        <!-- /opt/Tumri/<component>/<component>-<version>/tomcat5 -->
         <delete file="${install.src.dir}/${component.product.name}/${component.src2.basename}.tar"/>
         <chmod perm="+rx" type="both">
             <fileset dir="${tumri.component.home}/bin"/>
         </chmod>
-        <move file="${tumri.component.home}/bin/${file.relink}" todir="${tomcat.home}/bin" overwrite="yes" preservelastmodified="true"/>
-        <move file="${tumri.component.home}/bin/${file.service.conf}" todir="${tomcat.home}/conf" overwrite="yes" preservelastmodified="true"/>
+        <move file="${tumri.component.home}/bin/${file.relink}" todir="${tomcat.home}/bin" overwrite="yes"
+              preservelastmodified="true"/>
 
         <!-- Copying both install.xml and install.properties of the installer. -->
         <mkdir dir="${tumri.component.home}/install/${component.product.name}"/>
-        <copy file="${install.src.dir}/${component.product.name}/install.xml" overwrite="yes" preservelastmodified="true"
+        <copy file="${install.src.dir}/${component.product.name}/install.xml" overwrite="yes"
+              preservelastmodified="true"
               todir="${tumri.component.home}/install/${component.product.name}"/>
-        <copy file="${install.src.dir}/${component.product.name}/install.properties" overwrite="yes" preservelastmodified="true"
+        <copy file="${install.src.dir}/${component.product.name}/install.properties" overwrite="yes"
+              preservelastmodified="true"
               todir="${tumri.component.home}/install/${component.product.name}"/>
 
         <!-- Creating a soft link called "current" to the latest installed product.	-->
@@ -110,6 +118,15 @@
             <arg value="${install.root.dir}/conf/local.properties"/>
             <arg value="${tomcat.home}/conf/${component.property.file}"/>
         </exec>
+
+        <exec executable="${merge.cmd}" failonerror="true">
+            <arg line="-jar ${tumri.component.home}/lib/buildtools.jar"/>
+            <arg line="-i"/>
+            <arg value="${tumri.component.home}/bin/${file.service.conf2}"/>
+            <arg value="${install.root.dir}/conf/local.properties"/>
+            <arg value="${tomcat.home}/conf/${file.service.conf}"/>
+        </exec>
+
         <delete file="${tumri.component.home}/${component.property.file}"/>
         <copy file="${tomcat.home}/conf/${component.property.file}" overwrite="yes" preservelastmodified="true"
               todir="${tumri.component.home}/tools/lucene"/>
