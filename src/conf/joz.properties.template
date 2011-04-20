@@ -89,7 +89,7 @@ com.tumri.joz.listing.provider.impl=com.tumri.lls.client.main.LlcNioListingProvi
 com.tumri.joz.listing.parser.impl=com.tumri.lls.client.response.json.LlcJSONListingDataParserImpl
 com.tumri.llc.server.host=${com.tumri.llc.server.host}
 com.tumri.llc.server.port=20444
-com.tumri.llc.socket.pool.size=50
+com.tumri.llc.socket.pool.size=${com.tumri.llc.socket.pool.size}
 com.tumri.llc.socket.numRetries=3
 com.tumri.llc.listing.cache.size=1000
 
@@ -162,7 +162,7 @@ com.tumri.joz.ziplatlong.file=/opt/Tumri/joz/current/tomcat5/conf/ziplatlong.txt
 #Delimiter for multi value queries
 com.tumri.joz.multivalue.delimiter=,
 # TCP settings
-tcpServer.poolSize=100
+tcpServer.poolSize=${com.tumri.tcpServer.poolSize}
 tcpServer.port=2544
 tcpServer.timeout=5000
 tcpServer.queryHandlers=com.tumri.joz.server.handlers.JozAdRequestHandler,\
