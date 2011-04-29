@@ -826,6 +826,7 @@
     </complexType>
     <complexType name="AdPodExpMapInfo">
         <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="lId" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="eId" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="wt" type="float" maxOccurs="1" minOccurs="0"/>
         </choice>
