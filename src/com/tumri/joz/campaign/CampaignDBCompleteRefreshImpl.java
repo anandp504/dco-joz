@@ -593,8 +593,6 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 
 			while (iterator.hasNext()) {
 				OSpec oSpec = iterator.next();
-				// debug info.. 
-				log.info("processing oSpec: \n" + oSpec);
 				map.put(oSpec.getId(), oSpec);
 				List<TSpec> tspecs = oSpec.getTspecs();
 				if (tspecs != null) {
