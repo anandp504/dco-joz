@@ -743,6 +743,8 @@
             <element name="src" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="rgn" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="des" type="string" maxOccurs="1" minOccurs="0"/>
+            <!--  adding the ListingSpec node as part of experience -->
+            <element name="LS" type="tns:ListingSpec" minOccurs="0"/> 
             <element name="expInfs" type="tns:ExperienceInfoDef"/>
             <element name="cam" type="tns:CamDef"/>
             <element name="props" type="tns:PropertyDef"/>
