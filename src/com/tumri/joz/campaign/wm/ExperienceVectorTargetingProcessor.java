@@ -78,10 +78,25 @@ public class ExperienceVectorTargetingProcessor {
 		Experience experience = null;
 		Random r = new Random();
 
-		double prevScore = 0.0;
 		Handle h = null;
 		if (matchingVectors != null && !matchingVectors.isEmpty()) {
-			h = matchingVectors.first();
+			double totalScore = 0.0;
+			Iterator<Handle> iter = matchingVectors.iterator();
+			double prevScore = 0.0;
+			List<Handle> groupedHandles = new ArrayList<Handle>();
+			boolean firstPass = true;
+			while (iter.hasNext()) {
+				Handle tmph = iter.next();
+				double currScore = tmph.getScore();
+				if (prevScore != currScore && !firstPass) {
+					break;
+				}
+				firstPass = false;
+				groupedHandles.add(tmph);
+				prevScore = currScore;
+			}
+			int index = r.nextInt(groupedHandles.size());
+			h = groupedHandles.get(index);
 		}
 		if (h != null) {
 			SortedBag<Pair<Integer, Double>> experiences = ExperienceVectorDB.getInstance().getRules(h.getOid());
