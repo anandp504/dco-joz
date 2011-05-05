@@ -23,6 +23,7 @@ import java.util.*;
 import java.io.*;
 
 // Xerces Classes
+import com.tumri.joz.campaign.wm.ExperienceVectorHandleFactory;
 import com.tumri.joz.campaign.wm.VectorHandle;
 import com.tumri.joz.campaign.wm.VectorHandleFactory;
 import org.xml.sax.*;
@@ -45,16 +46,18 @@ public class ANodeHandler extends DefaultHandler {
 	int adPodId = 0;
 	private static final Logger log = Logger.getLogger(ANodeHandler.class);
 	private Set<Integer> vectorInclList = new HashSet<Integer>();
-    private VectorHandleFactory vhFactory = null;
+	private VectorHandleFactory vhFactory = null;
+	private ExperienceVectorHandleFactory evhFactory = null;
 
 	public ANodeHandler(int adPodId, Stack path, Map params, Attributes attributes, SAXParser parser,
-	                    DefaultHandler parent, VectorHandleFactory vf) throws SAXException {
+	                    DefaultHandler parent, VectorHandleFactory vf, ExperienceVectorHandleFactory evf) throws SAXException {
 		this.adPodId = adPodId;
 		this.path = path;
 		this.params = params;
 		this.parent = parent;
 		this.parser = parser;
-        vhFactory = vf;
+		vhFactory = vf;
+		evhFactory = evf;
 		start(attributes);
 	}
 
@@ -70,8 +73,8 @@ public class ANodeHandler extends DefaultHandler {
 		return text.toString().trim();
 	}
 
-    @SuppressWarnings("unchecked")
-    public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
+	@SuppressWarnings("unchecked")
+	public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName,
 	                         Attributes attributes) throws SAXException {
 		if (qName.equals("a")) {
 			log.debug("Processing Adpod = " + attributes.getValue("id"));
@@ -85,7 +88,20 @@ public class ANodeHandler extends DefaultHandler {
 				throw new SAXException("Invalid Id for the vector - skipping vector node");
 			}
 			vectorInclList.add(vectorId);
-			DefaultHandler handler = new VNodeHandler(adPodId,vectorId, path, params, attributes, parser, this, vhFactory);
+			DefaultHandler handler = new VNodeHandler(adPodId, vectorId, path, params, attributes, parser, this, vhFactory);
+			path.push("v");
+			parser.setContentHandler(handler);
+
+		} else if (qName.equals("ev")) {
+			Integer vectorId = null;
+			try {
+				vectorId = Integer.parseInt(attributes.getValue("id"));
+				log.debug("Processing Vector id = " + vectorId);
+			} catch (NumberFormatException e) {
+				throw new SAXException("Invalid Id for the vector - skipping vector node");
+			}
+			vectorInclList.add(vectorId);
+			DefaultHandler handler = new EVNodeHandler(adPodId, vectorId, path, params, attributes, parser, this, evhFactory);
 			path.push("v");
 			parser.setContentHandler(handler);
 

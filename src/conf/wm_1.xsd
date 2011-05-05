@@ -36,6 +36,19 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="required"/>
     </xs:complexType>
+    <xs:complexType name="vlType3">
+        <xs:sequence>
+            <xs:element type="wm:vType3" name="ev" maxOccurs="unbounded" minOccurs="0"
+                        xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="vType3">
+        <xs:sequence>
+            <xs:element type="wm:clType" name="cl" xmlns:wm="http://www.tumri.com/wm"/>
+            <xs:element type="wm:ewlType" name="ewl" xmlns:wm="http://www.tumri.com/wm" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
     <xs:complexType name="rwType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -68,7 +81,10 @@
     </xs:complexType>
     <xs:complexType name="aType">
         <xs:sequence>
-            <xs:element type="wm:vlType" name="vl" xmlns:wm="http://www.tumri.com/wm"/>
+            <xs:element type="wm:vlType" name="vl" maxOccurs="unbounded" minOccurs="0"
+                        xmlns:wm="http://www.tumri.com/wm"/>
+            <xs:element type="wm:vlType3" name="evl" maxOccurs="unbounded" minOccurs="0"
+                        xmlns:wm="http://www.tumri.com/wm"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="required"/>
     </xs:complexType>
@@ -100,6 +116,20 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="rule" use="required"/>
+                <xs:attribute type="xs:string" name="wt" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="ewlType">
+        <xs:sequence>
+            <xs:element type="wm:ewType" name="ew" maxOccurs="unbounded" minOccurs="0"
+                        xmlns:wm="http://www.tumri.com/wm"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ewType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="exp" use="required"/>
                 <xs:attribute type="xs:string" name="wt" use="required"/>
             </xs:extension>
         </xs:simpleContent>

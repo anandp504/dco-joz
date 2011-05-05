@@ -19,9 +19,7 @@ package com.tumri.joz.campaign.wm.loader;
 
 // JDK Classes
 
-import com.tumri.joz.campaign.wm.VectorDB;
-import com.tumri.joz.campaign.wm.VectorHandle;
-import com.tumri.joz.campaign.wm.VectorHandleFactory;
+import com.tumri.joz.campaign.wm.*;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.data.SortedArraySet;
@@ -62,6 +60,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 	private static final Logger log = Logger.getLogger(WMXMLParserV1.class);
 	private static final String XSD_FILE_NAME = "wm_1.xsd";
 	private VectorHandleFactory vhFactory = null;
+	private ExperienceVectorHandleFactory evhFactory = null;
 
 	public WMXMLParserV1() {
 		String schemaFilePath = AppProperties.getInstance().getProperty("com.tumri.campaign.wm.xmlSchemaPath");
@@ -70,6 +69,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 		}
 		schemaFile = new File(schemaFilePath + File.separator + XSD_FILE_NAME);
 		vhFactory = new VectorHandleFactory();
+		evhFactory = new ExperienceVectorHandleFactory();
 
 	}
 
@@ -114,6 +114,9 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 		VectorDB.getInstance().materializeRangeIndices();
 		SortedSet<VectorHandle> allHandles = vhFactory.getCurrHandles();
 		VectorDB.getInstance().addOpsNewHandles(allHandles);
+		ExperienceVectorDB.getInstance().materializeRangeIndices();
+		SortedSet<VectorHandle> allHandles2 = evhFactory.getCurrHandles();
+		ExperienceVectorDB.getInstance().addOpsNewHandles(allHandles);
 		log.info("Finished processing the document");
 	}
 
@@ -129,7 +132,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 			}
 
 			log.info("Now processing adpod id : " + adPodId);
-			DefaultHandler handler = new ANodeHandler(adPodId, path, params, attributes, parser, this, vhFactory);
+			DefaultHandler handler = new ANodeHandler(adPodId, path, params, attributes, parser, this, vhFactory, evhFactory);
 			path.push("a");
 			parser.setContentHandler(handler);
 		}
@@ -148,7 +151,6 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 		}
 
 	}
-
 
 	public void endElement(java.lang.String uri, java.lang.String localName, java.lang.String qName)
 			throws SAXException {
