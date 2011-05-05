@@ -74,9 +74,6 @@ public class ExperienceVectorTargetingProcessor {
 			matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
 		}
 
-		ArrayList<Integer> vectorIdList = new ArrayList<Integer>(); //vectorids that have rules
-		ArrayList<Integer> tmpVectorIdList = new ArrayList<Integer>(); //tmp array to help build vectorIdList
-		ArrayList<Integer> lcVectorIdList = new ArrayList<Integer>(); //vectorids that have listing-clauses
 		boolean skipRules = false;
 		Experience experience = null;
 		Random r = new Random();
@@ -89,6 +86,7 @@ public class ExperienceVectorTargetingProcessor {
 		if (h != null) {
 			SortedBag<Pair<Integer, Double>> experiences = ExperienceVectorDB.getInstance().getRules(h.getOid());
 			if (experiences != null && !experiences.isEmpty()) {
+				features.addFeatureDetail("CROSS-EXP-WM-ID", VectorHandleImpl.getIdDetails(h.getOid())[0] + "");
 				try {
 					if (experiences instanceof RWLocked) {
 						((RWLocked) experiences).readerLock();
@@ -106,13 +104,7 @@ public class ExperienceVectorTargetingProcessor {
 			experience = chooseExperiences(adpod, null);
 		}
 
-		if (!vectorIdList.isEmpty()) {
-			features.addFeatureDetail("RWM-ID", vectorIdList.toString());
-		}
 
-		if (!lcVectorIdList.isEmpty()) {
-			features.addFeatureDetail("LC-WM-ID", lcVectorIdList.toString());
-		}
 		CreativeInstance ci = null;
 
 		return experience;
