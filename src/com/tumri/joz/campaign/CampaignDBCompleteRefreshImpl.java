@@ -181,9 +181,9 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 			for (TSpec tspec : tspecList) {
 				CampaignDB.getInstance().delTSpec(tspec.getId());
 			}
-            int id = oSpec.getId();
-            ospecMap.get().safeRemove(id);
-            ospecNameMap.get().safeRemove(oSpecName);
+			int id = oSpec.getId();
+			ospecMap.get().safeRemove(id);
+			ospecNameMap.get().safeRemove(oSpecName);
 		}
 
 	}
@@ -410,7 +410,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		log.info("Campaign Size: " + campaignCount);
 	}
 
-	public void loadAdPods(Iterator<AdPod> iterator, VectorHandleFactory vhFactory) {
+	public void loadAdPods(Iterator<AdPod> iterator, VectorHandleFactory vhFactory, ExperienceVectorHandleFactory evhFactory) {
 		if (iterator == null) {
 			return;
 		}
@@ -430,6 +430,7 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 					camMap.put(adPod.getId(), theCAM);
 					camCount++;
 				}
+				loadExperienceVectorDataForAdpod(adPod, evhFactory);
 				adPodCount++;
 			}
 			adPodMap.compareAndSet(adPodMap.get(), map);
@@ -462,14 +463,14 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 				return null;
 			}
 
-            CAMDimension recipeDim = new CAMDimension(CAMDimensionType.RECIPEID, CAMDimensionType.RECIPEID.name());
+			CAMDimension recipeDim = new CAMDimension(CAMDimensionType.RECIPEID, CAMDimensionType.RECIPEID.name());
 			//Create the Dimensions
 			for (int i = 0; i < activeRecipes.size(); i++) {
 				recipeDim.setValue(i, Integer.toString(activeRecipes.get(i).getId()));
 
 			}
-            CAMDimension[] camList = new CAMDimension[1];
-			camList[0]=recipeDim;
+			CAMDimension[] camList = new CAMDimension[1];
+			camList[0] = recipeDim;
 			theCAM = new CAM(camList);
 
 			//Create the rules
@@ -500,6 +501,41 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		return theCAM;
 	}
 
+	public void loadExperienceVectorDataForAdpod(AdPod theAdPod, ExperienceVectorHandleFactory evhFactory) {
+		List<AdPodExperienceLocationMapping> adpodExpMappings = theAdPod.getAdPodExperienceLocationMappings();
+		SortedBag<Pair<Integer, Double>> defRules = new SortedListBag<Pair<Integer, Double>>();
+		if (adpodExpMappings != null) {
+			List<AdPodExperienceLocationMapping> activeMappings = new ArrayList<AdPodExperienceLocationMapping>();
+			for (AdPodExperienceLocationMapping m : adpodExpMappings) {
+				if (m.getExperienceWeight() > 0.0) {
+					activeMappings.add(m);
+				}
+			}
+			//Create the rules
+			for (int i = 0; i < activeMappings.size(); i++) {
+				AdPodExperienceLocationMapping m = adpodExpMappings.get(i);
+				int rid = m.getExperienceId();
+				Pair<Integer, Double> rulePair = new Pair<Integer, Double>();
+				rulePair.setFirst(rid);
+				rulePair.setSecond(m.getExperienceWeight());
+				defRules.add(rulePair);
+			}
+
+		}
+		if (!defRules.isEmpty()) {
+			int adPodId = theAdPod.getId();
+			int vectorId = 1; // DEFAULT
+			Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute, List<Integer>>();
+			List<Integer> list = new ArrayList<Integer>();
+			list.add(adPodId);
+			idMap.put(VectorAttribute.kAdpodId, list);
+			VectorHandle h = evhFactory.getHandle(adPodId, vectorId, VectorHandle.DEFAULT, idMap, true);
+			if (h != null) {
+				WMDBLoader.updateDb(adPodId, defRules, idMap, h);
+			}
+		}
+	}
+
 	public void loadExperiences(Iterator<Experience> iterator, VectorHandleFactory vhFactory) {
 		if (iterator == null) {
 			return;
@@ -510,19 +546,19 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 			map = new RWLockedTreeMap<Integer, Experience>();
 			while (iterator.hasNext()) {
 				Experience experience = iterator.next();
-                int expId = experience.getId();
+				int expId = experience.getId();
 				map.put(expId, experience);
 
-                //Create the default rule for the experience
-                List<Integer> list = new ArrayList<Integer>();
-                list.add(expId);
-                Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute, List<Integer>>();
-                idMap.put(VectorAttribute.kExpId, list);
-                int vectorId = 1; // DEFAULT
-                VectorHandle h = vhFactory.getHandle(expId, vectorId, VectorHandle.DEFAULT, idMap, true);
-                if (h != null) {
-                    WMDBLoader.updateDb(expId, -1, null, null, idMap, h);
-                }
+				//Create the default rule for the experience
+				List<Integer> list = new ArrayList<Integer>();
+				list.add(expId);
+				Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute, List<Integer>>();
+				idMap.put(VectorAttribute.kExpId, list);
+				int vectorId = 1; // DEFAULT
+				VectorHandle h = vhFactory.getHandle(expId, vectorId, VectorHandle.DEFAULT, idMap, true);
+				if (h != null) {
+					WMDBLoader.updateDb(expId, -1, null, null, idMap, h);
+				}
 				expCount++;
 			}
 			expMap.compareAndSet(expMap.get(), map);

@@ -346,8 +346,8 @@ public class TargetingRequestProcessor {
 //            exp = CampaignDB.getInstance().getExperience(expId);
 			if (exp != null) {
 				theCAM = exp.getCam();
+				expId = exp.getId();
 			}
-			expId = exp.getId();
 			adpodId = -1;
 		}
 

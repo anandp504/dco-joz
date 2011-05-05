@@ -26,7 +26,7 @@ public class ExperienceVectorHandleFactory {
 	 * @return
 	 */
 	public VectorHandle getHandle(int expId, int vectorId, int type, Map<VectorAttribute, List<Integer>> contextMap, boolean multiple) {
-		VectorHandle h = VectorDB.getInstance().getVectorHandle(expId, vectorId, type);
+		VectorHandle h = ExperienceVectorDB.getInstance().getVectorHandle(expId, vectorId, type);
 		if (h == null) {
 			h = new VectorHandleImpl(expId, vectorId, type, contextMap, multiple);
 			Handle ph = find(newHandles, h);

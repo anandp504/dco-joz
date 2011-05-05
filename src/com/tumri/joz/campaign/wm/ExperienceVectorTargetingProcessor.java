@@ -68,7 +68,7 @@ public class ExperienceVectorTargetingProcessor {
 		}
 		SortedSet<Handle> matchingVectors = null;
 		VectorTargetingResult vtr = new VectorTargetingResult();
-		if (!onlyDefault) {
+		if (!onlyDefault && adpod != null && adpod.getAdPodExperienceLocationMappings() != null) {
 			Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, -1, request);
 			SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
 			matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
@@ -99,14 +99,13 @@ public class ExperienceVectorTargetingProcessor {
 						((RWLocked) experiences).readerUnlock();
 					}
 				}
+			} else {
+				experience = chooseExperiences(adpod, null);
 			}
 		} else {
 			experience = chooseExperiences(adpod, null);
 		}
-		//Get the Listing clause details
-		{
 
-		}
 		if (!vectorIdList.isEmpty()) {
 			features.addFeatureDetail("RWM-ID", vectorIdList.toString());
 		}
@@ -131,27 +130,31 @@ public class ExperienceVectorTargetingProcessor {
 
 		double totalScore = 0.0;
 		Map<Integer, Double> tmpMap2 = new HashMap<Integer, Double>();
-		for (AdPodExperienceLocationMapping mapping : origExperiences) {
-			int expId = mapping.getExperienceId();
-			Double score = tmpMap.get(expId);
-			if (score == null) {
-				score = mapping.getExperienceWeight();
-			}
-			tmpMap2.put(expId, score);
-			totalScore += score;
-		}
-
-		Random r = new Random();
-		double currScore = 0.0;
-		double rand = (r.nextDouble() * totalScore);
-		Set<Integer> keys = tmpMap2.keySet();
 		Integer chosenKey = null;
-		for (Integer key : keys) {
-			chosenKey = key;
-			currScore += tmpMap2.get(key);
-			if (currScore >= rand) {
-				break;
+		if (origExperiences != null) {
+			for (AdPodExperienceLocationMapping mapping : origExperiences) {
+				int expId = mapping.getExperienceId();
+				Double score = tmpMap.get(expId);
+				if (score == null) {
+					score = mapping.getExperienceWeight();
+				}
+				tmpMap2.put(expId, score);
+				totalScore += score;
 			}
+
+			Random r = new Random();
+			double currScore = 0.0;
+			double rand = (r.nextDouble() * totalScore);
+			Set<Integer> keys = tmpMap2.keySet();
+			for (Integer key : keys) {
+				chosenKey = key;
+				currScore += tmpMap2.get(key);
+				if (currScore >= rand) {
+					break;
+				}
+			}
+		} else {
+			chosenKey = adpod.getExperienceId();
 		}
 
 		Experience retExp = CampaignDB.getInstance().getExperience(chosenKey);
@@ -191,7 +194,7 @@ public class ExperienceVectorTargetingProcessor {
 		MultiSortedSet<Handle> vectors = null;
 		AbstractIndex idx = ExperienceVectorDB.getInstance().getIndex(attr);
 		VectorAttribute kNone = VectorUtils.getNoneAttribute(attr);
-		AbstractIndex noneidx = VectorDB.getInstance().getIndex(kNone);
+		AbstractIndex noneidx = ExperienceVectorDB.getInstance().getIndex(kNone);
 
 		if (idx != null) {
 			List<Integer> contextVals = contextMap.get(attr);

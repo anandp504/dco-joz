@@ -54,14 +54,14 @@ public class VNodeHandler extends DefaultHandler {
 	Map<VectorAttribute, String> requestMap = new HashMap<VectorAttribute, String>();
 	SortedBag<Pair<CreativeSet, Double>> optRules = new SortedListBag<Pair<CreativeSet, Double>>();
 	SortedBag<Pair<ListingClause, Double>> lcRules = new SortedListBag<Pair<ListingClause, Double>>();
-	Map<String,Pair<CreativeSet, Double>> recipeRuleMap = new HashMap<String, Pair<CreativeSet, Double>>();
-    private VectorHandleFactory vhFactory = null;
+	Map<String, Pair<CreativeSet, Double>> recipeRuleMap = new HashMap<String, Pair<CreativeSet, Double>>();
+	private VectorHandleFactory vhFactory = null;
 	private CAM cam;
 	private static final Logger log = Logger.getLogger(VNodeHandler.class);
 
-	public VNodeHandler(int adPodId,int vectorId, Stack path, Map params,
+	public VNodeHandler(int adPodId, int vectorId, Stack path, Map params,
 	                    Attributes attributes, SAXParser parser, DefaultHandler parent,
-                        VectorHandleFactory vF) throws SAXException {
+	                    VectorHandleFactory vF) throws SAXException {
 		this.adPodId = adPodId;
 		this.vectorId = vectorId;
 		this.path = path;
@@ -69,12 +69,13 @@ public class VNodeHandler extends DefaultHandler {
 		this.parent = parent;
 		this.parser = parser;
 		this.cam = getCAM(adPodId);
-        this.vhFactory = vF;
+		this.vhFactory = vF;
 		start(attributes);
 	}
 
 	/**
 	 * Get teh CAM object from teh CampaignsDB
+	 *
 	 * @param adpodId
 	 * @return
 	 */
@@ -82,34 +83,36 @@ public class VNodeHandler extends DefaultHandler {
 		AdPod theAdPod = CampaignDB.getInstance().getAdPod(adpodId);
 		CAM theCAM = null;
 
-		if (theAdPod!=null) {
+		if (theAdPod != null) {
 			List<Recipe> recipes = theAdPod.getRecipes();
-		    expId = theAdPod.getExperienceId();
-			if (recipes!=null || expId <= 0) {
+			expId = theAdPod.getExperienceId();
+			if (recipes != null || expId <= 0) {
 				theCAM = CampaignDB.getInstance().getDefaultCAM(adPodId);
-				for (Recipe r: recipes) {
-					if (r.getWeight() > 0.0) {
-						CreativeSet oRule = new CreativeSet(theCAM);
-						String rid = Integer.toString(r.getId());
-						oRule.add(CAMDimensionType.RECIPEID, rid);
-						Pair<CreativeSet, Double> rulePair = new Pair<CreativeSet, Double>();
-						rulePair.setFirst(oRule);
-						rulePair.setSecond(r.getWeight());
-						//optRules.add(rulePair);
-						recipeRuleMap.put(rid, rulePair);
+				if (recipes != null) {
+					for (Recipe r : recipes) {
+						if (r.getWeight() > 0.0) {
+							CreativeSet oRule = new CreativeSet(theCAM);
+							String rid = Integer.toString(r.getId());
+							oRule.add(CAMDimensionType.RECIPEID, rid);
+							Pair<CreativeSet, Double> rulePair = new Pair<CreativeSet, Double>();
+							rulePair.setFirst(oRule);
+							rulePair.setSecond(r.getWeight());
+							//optRules.add(rulePair);
+							recipeRuleMap.put(rid, rulePair);
+						}
 					}
 				}
 
 			} else {
 				Experience exp = CampaignDB.getInstance().getExperience(expId);
-				if (exp!=null) {
+				if (exp != null) {
 					theCAM = exp.getCam();
 				}
 			}
 		} else {
 			Experience exp = CampaignDB.getInstance().getExperience(adpodId);
-			if (exp!=null) {
-                expId = exp.getId();
+			if (exp != null) {
+				expId = exp.getId();
 				theCAM = exp.getCam();
 			}
 		}
@@ -170,9 +173,9 @@ public class VNodeHandler extends DefaultHandler {
 			try {
 				Integer recipeId = Integer.parseInt(attributes.getValue("id"));
 				Double wt = Double.parseDouble(attributes.getValue("wt"));
-				if (recipeId != null && wt != null && cam!=null) {
+				if (recipeId != null && wt != null && cam != null) {
 					Pair<CreativeSet, Double> rulePair = recipeRuleMap.get(recipeId.toString());
-					if (rulePair!=null) {
+					if (rulePair != null) {
 						//Merge of the default weight is being done to the recipe weights here.
 						//TODO: Need to calculate the actual weights and put that in here !! this will remove any ambiguity
 						rulePair.setSecond(wt);
@@ -192,7 +195,7 @@ public class VNodeHandler extends DefaultHandler {
 			try {
 				String rule = attributes.getValue("rule");
 				Double wt = Double.parseDouble(attributes.getValue("wt"));
-				if (rule != null && wt != null && cam!=null) {
+				if (rule != null && wt != null && cam != null) {
 					CreativeSet csSet = new CreativeSet(cam, rule);
 					Pair<CreativeSet, Double> rulePair = new Pair<CreativeSet, Double>();
 					rulePair.setFirst(csSet);
@@ -210,7 +213,7 @@ public class VNodeHandler extends DefaultHandler {
 				String clause = attributes.getValue("clause");
 				String value = attributes.getValue("val");
 				Double wt = Double.parseDouble(attributes.getValue("wt"));
-				if (clause != null && wt != null && cam!=null) {
+				if (clause != null && wt != null && cam != null) {
 					ListingClause lc = new ListingClause(clause, value);
 					Pair<ListingClause, Double> lcPair = new Pair<ListingClause, Double>();
 					lcPair.setFirst(lc);
@@ -233,25 +236,25 @@ public class VNodeHandler extends DefaultHandler {
 			if (!recipeRuleMap.isEmpty()) {
 				//Add to bag
 				optRules = new SortedListBag<Pair<CreativeSet, Double>>();
-				for (String rid: recipeRuleMap.keySet()) {
+				for (String rid : recipeRuleMap.keySet()) {
 					optRules.add(recipeRuleMap.get(rid));
 				}
 			}
-            SortedBag<Pair<ListingClause, Double>> validRules = ListingClauseUtils.validateListingClauses(lcRules);
+			SortedBag<Pair<ListingClause, Double>> validRules = ListingClauseUtils.validateListingClauses(lcRules);
 			if (!requestMap.isEmpty() && (!optRules.isEmpty() || !validRules.isEmpty())) {
-				Map<VectorAttribute,  List<Integer>> idMap = explodeRequestMap(requestMap);
-                int type = VectorHandle.OPTIMIZATION;
-                if (vectorId == 1 && (idMap.size()==1 && (idMap.containsKey(VectorAttribute.kExpId)) || idMap.containsKey(VectorAttribute.kAdpodId))) {
-                    //This is a default handle
-                    type = VectorHandle.DEFAULT;
-                }
-				VectorHandle h =vhFactory.getHandle(adPodId, vectorId, type, idMap, true);
+				Map<VectorAttribute, List<Integer>> idMap = explodeRequestMap(requestMap);
+				int type = VectorHandle.OPTIMIZATION;
+				if (vectorId == 1 && (idMap.size() == 1 && (idMap.containsKey(VectorAttribute.kExpId)) || idMap.containsKey(VectorAttribute.kAdpodId))) {
+					//This is a default handle
+					type = VectorHandle.DEFAULT;
+				}
+				VectorHandle h = vhFactory.getHandle(adPodId, vectorId, type, idMap, true);
 				if (h != null) {
-                    if (expId<=0){
-                        WMDBLoader.updateDb(-1, adPodId, optRules, validRules, idMap, h);
-                    } else {
-                        WMDBLoader.updateDb(adPodId, -1, optRules, validRules, idMap, h);
-                    }
+					if (expId <= 0) {
+						WMDBLoader.updateDb(-1, adPodId, optRules, validRules, idMap, h);
+					} else {
+						WMDBLoader.updateDb(adPodId, -1, optRules, validRules, idMap, h);
+					}
 				}
 			} else {
 				log.warn("Skipping vector info for. AdPod = " + adPodId + ". Vector = " + vectorId);
@@ -265,25 +268,25 @@ public class VNodeHandler extends DefaultHandler {
 	}
 
 
-	private Map<VectorAttribute,  List<Integer>> explodeRequestMap(Map<VectorAttribute, String> reqMap) {
+	private Map<VectorAttribute, List<Integer>> explodeRequestMap(Map<VectorAttribute, String> reqMap) {
 		//Get the map of att to list of integers
-		Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute,  List<Integer>>();
+		Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute, List<Integer>>();
 		int count = 0;
-		for (VectorAttribute attr: reqMap.keySet()) {
+		for (VectorAttribute attr : reqMap.keySet()) {
 			List<String> parsedList = VectorUtils.parseValues(reqMap.get(attr));
-			for (String val: parsedList) {
+			for (String val : parsedList) {
 				Integer id = VectorUtils.getDictId(attr, val);
 				List<Integer> idList = idMap.get(attr);
-				if (idList==null) {
+				if (idList == null) {
 					idList = new ArrayList<Integer>();
 				}
 				idList.add(id);
 				idMap.put(attr, idList);
 			}
-			if (count ==0) {
+			if (count == 0) {
 				count = parsedList.size();
 			} else {
-				count = count*parsedList.size();
+				count = count * parsedList.size();
 			}
 		}
 		return idMap;
@@ -302,6 +305,7 @@ public class VNodeHandler extends DefaultHandler {
 
 	/**
 	 * Construct a creative set from the given recipe id
+	 *
 	 * @param recipeId
 	 * @param wt
 	 * @return

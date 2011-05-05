@@ -146,7 +146,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 
 			log.info("Now processing exp id : " + expId);
 			DefaultHandler handler = new ENodeHandler(expId, path, params, attributes, parser, this, vhFactory);
-			path.push("a");
+			path.push("e");
 			parser.setContentHandler(handler);
 		}
 

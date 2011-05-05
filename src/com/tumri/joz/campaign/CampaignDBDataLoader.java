@@ -5,6 +5,7 @@ import com.tumri.cma.CMAFactory;
 import com.tumri.cma.RepositoryException;
 import com.tumri.cma.domain.*;
 import com.tumri.cma.service.CampaignDeltaProvider;
+import com.tumri.joz.campaign.wm.ExperienceVectorHandleFactory;
 import com.tumri.joz.campaign.wm.VectorDB;
 import com.tumri.joz.campaign.wm.VectorHandle;
 import com.tumri.joz.campaign.wm.VectorHandleFactory;
@@ -108,7 +109,8 @@ public class CampaignDBDataLoader {
 			//long campaignIndexStartTime = System.currentTimeMillis();
 
 			VectorHandleFactory vhFactory = new VectorHandleFactory();
-			campaignDB.loadAdPods(adPodsIterator, vhFactory);
+			ExperienceVectorHandleFactory evhFactory = new ExperienceVectorHandleFactory();
+			campaignDB.loadAdPods(adPodsIterator, vhFactory, evhFactory);
 
 			//Load the Recipe information into the VectorDB as default rules
 			SortedSet<VectorHandle> defHandles = vhFactory.getCurrHandles();

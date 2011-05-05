@@ -99,9 +99,9 @@ public class EVNodeHandler extends DefaultHandler {
 				}
 			}
 		}
-		if (qName.equals("cs")) {
+		if (qName.equals("ew")) {
 			try {
-				Integer expId = Integer.parseInt(attributes.getValue("id"));
+				Integer expId = Integer.parseInt(attributes.getValue("exp"));
 				Double wt = Double.parseDouble(attributes.getValue("wt"));
 				if (expId != null && wt != null) {
 					Pair<Integer, Double> rulePair = new Pair<Integer, Double>();
@@ -120,7 +120,7 @@ public class EVNodeHandler extends DefaultHandler {
 	}
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (qName.equals("v")) {
+		if (qName.equals("ev")) {
 			if (!requestMap.isEmpty() && !optRules.isEmpty()) {
 				Map<VectorAttribute, List<Integer>> idMap = explodeRequestMap(requestMap);
 				int type = VectorHandle.OPTIMIZATION;
