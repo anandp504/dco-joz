@@ -30,6 +30,14 @@
             form.submit();
         }
         ;
+        function submitExpForm2() {
+            var obj = document.getElementById("ExpList2");
+            var selTspec = document.getElementById("selExp");
+            selTspec.value = obj.options[obj.selectedIndex].value;
+            var form = document.getElementById("ExpSelForm2");
+            form.submit();
+        }
+        ;
         function submitExpForm(adPodId) {
             var selTspec = document.getElementById("selExp");
             selTspec.value = adPodId;
@@ -108,20 +116,57 @@
 <br>
 
 <div>
+    <%
+        int myExpId = myAdPod.getExperienceId();
+        String isExpDisabled = "";
+
+
+        if (myExpId > 0) {
+    %>
     <form id="ExpSelForm" action="/joz/jsp/expSelection.jsp" method="post">
-        <%
-            Experience myExp = campaignDB.getExperience(myAdPod.getExperienceId());
-            int myExpId = 0;
-            String isExpDisabled = "";
-            if (myExp != null) {
-                myExpId = myExp.getId();
+            <%
+                Experience myExp = campaignDB.getExperience(myExpId);
+                if (myExp != null) {
+                    myExpId = myExp.getId();
+                } else {
+                    isExpDisabled = "DISABLED";
+                }
+                            %>
+            <%
             } else {
-                isExpDisabled = "DISABLED";
+                List<AdPodExperienceLocationMapping> list = myAdPod.getAdPodExperienceLocationMappings();
+                if(list!=null){
+                 %>
+        <form id="ExpSelForm2" action="/joz/jsp/expSelection.jsp" method="post">
+            <div>
+                <strong>Select Experience</strong> (<%=list.size()%> Experience(s)):
+            </div>
+            <select id="ExpList2">
+                <%
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i) != null) {
+                            out.print("<option value=\"" + list.get(i).getExperienceId() + "\">" + list.get(i).getExperienceId() + ", " + list.get(i).getExperienceWeight() + "</option>");
+                        }
+                    }
+                %>
+            </select>
+            <%
+                    }
+                }
+            %>
+            <input type="hidden" name="selExp" id="selExp" value=""/>
+
+            <%
+                if (myExpId > 0) {
+            %> <input type="button" value="View Experience"
+                      onClick="submitExpForm('<%=myExpId%>') " <%=isExpDisabled%>> <%
+
+        } else {
+        %><input type="button" value="Get Experience" onClick="javascript:submitExpForm2()"/> <%
             }
         %>
-        <input type="hidden" name="selExp" id="selExp" value=""/>
-        <input type="button" value="View Experience" onClick="submitExpForm('<%=myExpId%>') " <%=isExpDisabled%>>
-    </form>
+        </form>
+
 </div>
 <br>
 
