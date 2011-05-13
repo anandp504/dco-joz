@@ -116,7 +116,7 @@ public class WMXMLParserV1 extends DefaultHandler implements WMXMLParser {
 		VectorDB.getInstance().addOpsNewHandles(allHandles);
 		ExperienceVectorDB.getInstance().materializeRangeIndices();
 		SortedSet<VectorHandle> allHandles2 = evhFactory.getCurrHandles();
-		ExperienceVectorDB.getInstance().addOpsNewHandles(allHandles);
+		ExperienceVectorDB.getInstance().addOpsNewHandles(allHandles2);
 		log.info("Finished processing the document");
 	}
 

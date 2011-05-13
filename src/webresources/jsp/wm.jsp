@@ -70,6 +70,9 @@
     Iterator<VectorHandle> defHandles = db.getAllDefHandles();
     Iterator<VectorHandle> persHandles = db.getAllPersHandles();
     Iterator<VectorHandle> optHandles = db.getAllOptHandles();
+
+    ExperienceVectorDB edb = ExperienceVectorDB.getInstance();
+    Iterator<VectorHandle> eOptHandles = edb.getAllOptHandles();
 %>
 <table class="table" border="1">
 <tr class="table_header">
@@ -151,7 +154,8 @@
                     Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(recipeId));
                     Double wt = rulePair.getSecond();
         %>
-            <li><%=recipeId%>,<a href="/joz/jsp/recipeSelection.jsp?selRecipe=<%=r.getId()%>"><%=r.getName()%></a>,<%=wt%>
+            <li><%=recipeId%>,<a href="/joz/jsp/recipeSelection.jsp?selRecipe=<%=r.getId()%>"><%=r.getName()%>
+            </a>,<%=wt%>
             </li>
             <%
                     }
@@ -240,17 +244,17 @@
                         CAM theCAM = cs.getCAM();
                         CAMDimension[] dims = theCAM.getCamDimensions();
                         StringBuilder sbuild = new StringBuilder();
-                        for (int i=0;i<dims.length;i++) {
+                        for (int i = 0; i < dims.length; i++) {
                             CAMDimension currDim = dims[i];
                             sbuild.append(currDim.getName() + "=");
                             List<String> values = cs.getAttributes(i);
-                            for (String s:values) {
+                            for (String s : values) {
                                 if (currDim.getName().equals("RECIPEID")) {
                                     Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(s));
                                     String url = "<a href=\"/joz/jsp/recipeSelection.jsp?selRecipe=" + r.getId() + "\">" + r.getName() + "</a>";
-                                    sbuild.append(s+" "+url + ",");
+                                    sbuild.append(s + " " + url + ",");
                                 } else {
-                                    sbuild.append(s+",");
+                                    sbuild.append(s + ",");
                                 }
                             }
                         }
@@ -388,6 +392,106 @@
 <%
     } // End of pers handles loop
 %>
+
+<tr class="table_column_header">
+    <th>ApodId, Name</th>
+    <th>Type, Value(s)</th>
+    <th>Expience (Opt), Weight</th>
+</tr>
+<%
+    while (eOptHandles.hasNext()) {
+        VectorHandleImpl handle = (VectorHandleImpl) eOptHandles.next();
+
+        int adpodId = handle.getExpId();
+        int vectorId = handle.getVectorId();
+
+        AdPod adPod = campaignDB.getAdPod(adpodId);
+%>
+
+<tr valign="middle">
+    <td align="left" rowspan="2">
+        <%if (adPod != null) {%>
+        <%=adPod.getId()%>, <a href="/joz/jsp/adPodSelection.jsp?selAdPod=<%=adPod.getId()%>"><%=adPod.getName()%>
+    </a>
+        <% } else {
+            Experience exp = campaignDB.getExperience(adpodId);
+
+            if (exp != null) {%>
+        <%=exp.getId()%>, <a href="/joz/jsp/expSelection.jsp?selExp=<%=exp.getId()%>"><%=exp.getName()%>
+    </a>
+        <% } else { %>
+        Adpod/Experience not found in campaignDB: <%=adpodId%>
+        <%}%>
+        <%}%>
+    </td>
+    <td align="center">
+        Id, Type, Value
+    </td>
+    <td align="center">
+        Id, Name, Weight
+    </td>
+</tr>
+
+<%
+    Map<VectorAttribute, List<Integer>> contextMap = handle.getContextMap();
+    Set<VectorAttribute> keys = contextMap.keySet();
+%>
+<tr>
+    <td>
+        <ul><%
+            for (VectorAttribute k : keys) {
+                List<Integer> idList = contextMap.get(k);
+                String val = "";
+                for (Integer id : idList) {
+                    val = val + "," + VectorUtils.getDictValue(k, id);
+                }
+        %>
+            <li><%=vectorId%>=<%=k.name()%><%=val%>
+            </li>
+            <%
+                }
+            %></ul>
+    </td>
+    <%
+        SortedBag<Pair<Integer, Double>> ruleList = edb.getRules(handle.getOid());
+    %>
+    <td>
+        <ul><%
+            if (ruleList != null) {
+                try {
+                    if (ruleList instanceof RWLocked) {
+                        ((RWLocked) ruleList).readerLock();
+                    }
+                    for (Pair<Integer, Double> rulePair : ruleList) {
+                        Integer expId = rulePair.getFirst();
+                        StringBuilder sbuild = new StringBuilder();
+                        Experience exp = CampaignDB.getInstance().getExperience(expId);
+                        String url = "<a href=\"/joz/jsp/expSelection.jsp?selExp=" + exp.getId() + "\">" + exp.getName() + "</a>";
+                        sbuild.append(" " + url + ",");
+
+                        Double wt = rulePair.getSecond();
+        %>
+            <li><%=sbuild.toString()%> <%=wt%>
+            </li>
+            <%
+                    }
+                } finally {
+                    if (ruleList instanceof RWLocked) {
+                        ((RWLocked) ruleList).readerUnlock();
+                    }
+                }
+            } else {
+            %>
+            No Rules Found!
+            <%
+                }
+            %></ul>
+    </td>
+</tr>
+<%
+    } // End of opt handles loop
+%>
+
 
 </table>
 
