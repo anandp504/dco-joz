@@ -59,13 +59,13 @@ public class VectorUtils {
 					VectorAttribute.kF4,
 					VectorAttribute.kF5,
 					VectorAttribute.kUB,
-					VectorAttribute.kAdpodId,
-					VectorAttribute.kExpId,
 					VectorAttribute.kAge,
 					VectorAttribute.kGender,
 					VectorAttribute.kBT,
 					VectorAttribute.kHHI,
 					VectorAttribute.kChildCount,
+					VectorAttribute.kAdpodId,
+					VectorAttribute.kExpId,
 			};
 
 	private static HashMap<VectorAttribute, Integer> attrPosMap = new HashMap<VectorAttribute, Integer>();
@@ -93,13 +93,13 @@ public class VectorUtils {
 		attrPosMap.put(VectorAttribute.kF4, 19);
 		attrPosMap.put(VectorAttribute.kF5, 20);
 		attrPosMap.put(VectorAttribute.kUB, 21);
-		attrPosMap.put(VectorAttribute.kAdpodId, 22);
-		attrPosMap.put(VectorAttribute.kExpId, 23);
-		attrPosMap.put(VectorAttribute.kAge, 24);
-		attrPosMap.put(VectorAttribute.kGender, 25);
-		attrPosMap.put(VectorAttribute.kBT, 26);
-		attrPosMap.put(VectorAttribute.kHHI, 27);
-		attrPosMap.put(VectorAttribute.kChildCount, 28);
+		attrPosMap.put(VectorAttribute.kAge, 22);
+		attrPosMap.put(VectorAttribute.kGender, 23);
+		attrPosMap.put(VectorAttribute.kBT, 24);
+		attrPosMap.put(VectorAttribute.kHHI, 25);
+		attrPosMap.put(VectorAttribute.kChildCount, 26);
+		attrPosMap.put(VectorAttribute.kAdpodId, 27);   //important to keep these as last 2
+		attrPosMap.put(VectorAttribute.kExpId, 28);     //important to keep these as last 2
 	}
 
 	public static VectorAttribute getAttribute(String type) {

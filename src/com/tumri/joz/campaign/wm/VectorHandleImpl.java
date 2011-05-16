@@ -156,7 +156,7 @@ public class VectorHandleImpl implements VectorHandle, Cloneable {
 		int[] addr1 = ph1.getContextDetails();
 		int[] addr2 = ph2.getContextDetails();
 		if (addr1 != null && addr2 != null) {
-			int diff = addr2[0] - addr1[0];   //this instead of addr2[0] - addr1[0] because of pos of attributes in VectorUtils.
+			int diff = addr1[0] - addr2[0];   //this instead of addr2[0] - addr1[0] because of pos of attributes in VectorUtils.
 			if (diff != 0) {
 				return diff;
 			}
