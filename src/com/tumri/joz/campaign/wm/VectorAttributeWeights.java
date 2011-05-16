@@ -30,6 +30,11 @@ public class VectorAttributeWeights implements IWeight<Handle> {
 	private static double kF4 = 1.0;
 	private static double kF5 = 1.0;
 	private static double ub = 1.0;
+	private static double hhi = 1.0;
+	private static double gender = 1.0;
+	private static double cc = 1.0;
+	private static double bt = 1.0;
+	private static double age = 1.0;
 	private static double kExpId = 0.2;
 	private static double kAdpodId = 0.2;
 	private static double kLineIdNone = 0.2;
@@ -146,8 +151,16 @@ public class VectorAttributeWeights implements IWeight<Handle> {
 				return kF4;
 			case kF5:
 				return kF5;
-			case kUB:
-				return ub;
+			case kGender:
+				return gender;
+			case kHHI:
+				return hhi;
+			case kChildCount:
+				return cc;
+			case kAge:
+				return age;
+			case kBT:
+				return bt;
 			case kLineIdNone:
 				return kLineIdNone;
 			case kSiteIdNone:
