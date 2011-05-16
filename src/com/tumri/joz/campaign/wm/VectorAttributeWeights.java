@@ -151,6 +151,8 @@ public class VectorAttributeWeights implements IWeight<Handle> {
 				return kF4;
 			case kF5:
 				return kF5;
+			case kUB:
+				return ub;
 			case kGender:
 				return gender;
 			case kHHI:
