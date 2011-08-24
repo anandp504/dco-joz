@@ -31,9 +31,6 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 	private static double kAreaCode = 1.05;
 	private static double kGeoEnabled = 1.0;
 	private static double kGlobalId = 1.2;
-	private static double kBT = 1.2;
-	private static double kHHI = 1.2;
-	private static double kMS = 1.2;
 	private static double kMultiValueTextField = 1.05;
 	private static double kNone = 1.0;
 
@@ -80,11 +77,10 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 			case kGlobalId:
 				return kGlobalId;
 			case kHHI:
-				return kHHI;
 			case kBT:
-				return kBT;
 			case kCC:
-				return kMS;
+			case kAge:
+			case kGender:
 			case kMultiValueTextField:
 				return kMultiValueTextField;
 			case kDiscount:
@@ -123,9 +119,9 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 			case kProductType:
 				return ProductTypeWeight.getInstance();
 			case kImageHeight:
-				return ProductTypeWeight.getInstance();
+				return ImageHeightWeight.getInstance();
 			case kImageWidth:
-				return ProductTypeWeight.getInstance();
+				return ImageWidthWeight.getInstance();
 			case kCountry:
 				return CountryWeight.getInstance();
 			case kState:
@@ -149,11 +145,10 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 			case kGlobalId:
 				return GlobalIdWeight.getInstance();
 			case kBT:
-				return MultiValueTextFieldWeight.getInstance();
 			case kHHI:
-				return MultiValueTextFieldWeight.getInstance();
 			case kCC:
-				return MultiValueTextFieldWeight.getInstance();
+			case kAge:
+			case kGender:
 			case kMultiValueTextField:
 				return MultiValueTextFieldWeight.getInstance();
 			case kRank:
@@ -209,11 +204,10 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 			case kGlobalId:
 				return kGlobalId;
 			case kHHI:
-				return kHHI;
 			case kBT:
-				return kBT;
 			case kCC:
-				return kMS;
+			case kAge:
+			case kGender:
 			case kMultiValueTextField:
 				return kMultiValueTextField;
 			case kDiscount:

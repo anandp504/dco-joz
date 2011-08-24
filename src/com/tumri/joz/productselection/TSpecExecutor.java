@@ -68,6 +68,7 @@ public class TSpecExecutor {
 	private boolean m_randomize = false;
 	private String m_scriptKeywords = null;
 	private static final Map<Product.Attribute, String> attMap = getAttributeMap();
+	private Random r = new Random();
 
 	private static Logger log = Logger.getLogger(TSpecExecutor.class);
 
@@ -209,14 +210,11 @@ public class TSpecExecutor {
 		if (m_ExternalKeywords || request.isBPaginate()
 				|| m_tspec.isMinePubUrl()) {
 			//Do not randomize
-			m_tSpecQuery.setStrict(true);
 			m_randomize = false;
 		} else {
 			//Randomize
 			if (m_tspec.isEnableBackFill()) {
 				m_tSpecQuery.setStrict(false);
-			} else {
-				m_tSpecQuery.setStrict(true);
 			}
 			m_randomize = true;
 		}
@@ -438,7 +436,6 @@ public class TSpecExecutor {
 					ConjunctQuery cloneConjQuery = (ConjunctQuery) conjQuery.clone();
 					SimpleQuery geoEnabledQuery = createGeoEnabledQuery(false);
 					cloneConjQuery.setBounds(pageSize, currPage);
-					cloneConjQuery.setStrict(m_ExternalKeywords);
 					cloneConjQuery.addQuery(geoEnabledQuery);
 					geoTSpecQuery.addQuery(cloneConjQuery);
 				}
@@ -476,7 +473,6 @@ public class TSpecExecutor {
 			cloneConjQuery.addQuery(aQuery);
 		}
 		cloneConjQuery.setBounds(m_pageSize, m_currPage);
-		cloneConjQuery.setStrict(true);
 		return cloneConjQuery;
 	}
 
@@ -816,7 +812,8 @@ public class TSpecExecutor {
 	}
 
 	private void setCacheReference(ArrayList<Handle> newResults, CNFQuery cachedQuery) {
-		Handle ph = newResults.get(newResults.size() - 1);
+		int rIndex = r.nextInt(newResults.size()); //added to force equal rotation of products: bug 5186
+		Handle ph = newResults.get(rIndex);
 		if (ph == null) {
 			cachedQuery.setCacheReference(ph);
 		} else {
