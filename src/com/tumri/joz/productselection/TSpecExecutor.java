@@ -215,6 +215,8 @@ public class TSpecExecutor {
 			//Randomize
 			if (m_tspec.isEnableBackFill()) {
 				m_tSpecQuery.setStrict(false);
+			} else {
+				m_tSpecQuery.setStrict(true);
 			}
 			m_randomize = true;
 		}

@@ -37,4 +37,8 @@ public class KeywordsWeight extends AttributeWeights {
 		return 0.0;
 	}
 
+	public boolean mustMatch() {
+		return true;
+	}
+
 }
