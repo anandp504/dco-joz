@@ -34,6 +34,7 @@ public class ExperienceVectorTargetingProcessor {
 	private static final Logger log = Logger.getLogger(VectorTargetingProcessor.class);
 	private static ExperienceVectorTargetingProcessor processor = null;
 	private static final String PROCESS_STATS_ID = "RS";
+	private static Random r = new Random();
 
 	public static ExperienceVectorTargetingProcessor getInstance() {
 		if (processor == null) {
@@ -149,7 +150,6 @@ public class ExperienceVectorTargetingProcessor {
 				totalScore += score;
 			}
 
-			Random r = new Random();
 			double currScore = 0.0;
 			double rand = (r.nextDouble() * totalScore);
 			Set<Integer> keys = tmpMap2.keySet();
