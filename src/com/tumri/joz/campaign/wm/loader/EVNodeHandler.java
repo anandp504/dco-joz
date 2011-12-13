@@ -1,11 +1,10 @@
 package com.tumri.joz.campaign.wm.loader;
 
-import com.tumri.cma.domain.*;
 import com.tumri.cma.rules.CreativeSet;
-import com.tumri.joz.campaign.CampaignDB;
-import com.tumri.joz.campaign.wm.*;
-import com.tumri.joz.rules.ListingClause;
-import com.tumri.joz.rules.ListingClauseUtils;
+import com.tumri.joz.campaign.wm.ExperienceVectorHandleFactory;
+import com.tumri.joz.campaign.wm.VectorAttribute;
+import com.tumri.joz.campaign.wm.VectorHandle;
+import com.tumri.joz.campaign.wm.VectorUtils;
 import com.tumri.utils.Pair;
 import com.tumri.utils.data.SortedBag;
 import com.tumri.utils.data.SortedListBag;
@@ -146,6 +145,9 @@ public class EVNodeHandler extends DefaultHandler {
 		for (VectorAttribute attr : reqMap.keySet()) {
 			List<String> parsedList = VectorUtils.parseValues(reqMap.get(attr));
 			for (String val : parsedList) {
+				if (val == null) {
+					continue;
+				}
 				Integer id = VectorUtils.getDictId(attr, val);
 				List<Integer> idList = idMap.get(attr);
 				if (idList == null) {

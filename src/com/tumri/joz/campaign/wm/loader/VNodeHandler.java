@@ -19,23 +19,26 @@ package com.tumri.joz.campaign.wm.loader;
 
 // JDK Classes
 
-import java.io.*;
-import java.util.*;
-
-// Xerces Classes
 import com.tumri.cma.domain.*;
 import com.tumri.cma.rules.CreativeSet;
-import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.wm.VectorAttribute;
+import com.tumri.joz.campaign.wm.VectorHandle;
+import com.tumri.joz.campaign.wm.VectorHandleFactory;
+import com.tumri.joz.campaign.wm.VectorUtils;
+import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.rules.ListingClauseUtils;
 import com.tumri.utils.Pair;
 import com.tumri.utils.data.SortedBag;
 import com.tumri.utils.data.SortedListBag;
-import org.xml.sax.*;
-import org.apache.xerces.parsers.*;
 import org.apache.log4j.Logger;
+import org.apache.xerces.parsers.SAXParser;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import com.tumri.joz.campaign.wm.*;
+
+import java.io.CharArrayWriter;
+import java.util.*;
 
 /**
  * @author: nipun
@@ -275,6 +278,9 @@ public class VNodeHandler extends DefaultHandler {
 		for (VectorAttribute attr : reqMap.keySet()) {
 			List<String> parsedList = VectorUtils.parseValues(reqMap.get(attr));
 			for (String val : parsedList) {
+				if (val == null) {
+					continue;
+				}
 				Integer id = VectorUtils.getDictId(attr, val);
 				List<Integer> idList = idMap.get(attr);
 				if (idList == null) {
