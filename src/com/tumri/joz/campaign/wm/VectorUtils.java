@@ -391,10 +391,23 @@ public class VectorUtils {
 		return getDictId(attr, val);
 	}
 
+	public static Integer lookupDictId(String type, String val) {
+		VectorAttribute attr = getAttribute(type);
+		return lookupDictId(attr, val);
+	}
+
 	public static Integer getDictId(VectorAttribute attr, String val) {
 		Integer ret = null;
 		if (attr != null && val != null && !val.isEmpty()) {
 			ret = VectorDictionaryManager.getInstance().getId(attr, val.toLowerCase());
+		}
+		return ret;
+	}
+
+	public static Integer lookupDictId(VectorAttribute attr, String val) {
+		Integer ret = null;
+		if (attr != null && val != null && !val.isEmpty()) {
+			ret = VectorDictionaryManager.getInstance().lookupId(attr, val.toLowerCase());
 		}
 		return ret;
 	}
@@ -530,8 +543,8 @@ public class VectorUtils {
 		if (values != null) {
 			for (String v : values) {
 				if (v != null && !(v = v.trim()).isEmpty()) {
-					Integer id = VectorUtils.getDictId(attr, v);
-					if (id != null) {
+					Integer id = VectorUtils.lookupDictId(attr, v);
+					if (id != null) { //if we don't include things not found, that's good--shortens query processing and doesn't change behavior.
 						if (attr != null) {
 							List<Integer> currList = contextMap.get(attr);
 							if (currList == null) {

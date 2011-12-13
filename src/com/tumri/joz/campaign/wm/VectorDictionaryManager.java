@@ -47,6 +47,16 @@ public class VectorDictionaryManager {
 		return -1;
 	}
 
+	@SuppressWarnings("unchecked")
+	public final Integer lookupId(VectorAttribute aAttribute, Object obj) {
+		IDictionary dict = getDictionary(aAttribute);
+		if (dict != null) {
+			// ??? This gets an "unchecked call" warning.
+			return dict.lookupId(obj);
+		}
+		return -1;
+	}
+
 	public final Object getValue(VectorAttribute aAttribute, int index) {
 		IDictionary dict = m_table.get(aAttribute);
 		if (dict != null) {

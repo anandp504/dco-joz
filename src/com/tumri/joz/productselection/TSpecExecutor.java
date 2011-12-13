@@ -248,7 +248,7 @@ public class TSpecExecutor {
 
 	private void addRequestCategoryQuery(String requestCategory) {
 		ArrayList<Integer> catList = new ArrayList<Integer>();
-		Integer catId = DictionaryManager.getId(IProduct.Attribute.kCategory, requestCategory);
+		Integer catId = DictionaryManager.lookupId(IProduct.Attribute.kCategory, requestCategory);
 		catList.add(catId);
 		SimpleQuery catQuery = new AttributeQuery(IProduct.Attribute.kCategory, catList);
 		CNFQuery copytSpecQuery = (CNFQuery) m_tSpecQuery.clone();
@@ -258,7 +258,7 @@ public class TSpecExecutor {
 	}
 
 	private SimpleQuery createGeoEnabledQuery(boolean bGeoEnabled) {
-		Integer geoFlagId = DictionaryManager.getId(Product.Attribute.kGeoEnabledFlag, bGeoEnabled ? "true" : "false");
+		Integer geoFlagId = DictionaryManager.lookupId(Product.Attribute.kGeoEnabledFlag, bGeoEnabled ? "true" : "false");
 		return new AttributeQuery(Product.Attribute.kGeoEnabledFlag, geoFlagId);
 	}
 
@@ -315,7 +315,7 @@ public class TSpecExecutor {
 				ArrayList<Integer> catList = new ArrayList<Integer>();
 				ArrayList<String> validValues = new ArrayList<String>();
 				for (String cat : values) {
-					Integer catId = DictionaryManager.getId(attr, cat);
+					Integer catId = DictionaryManager.lookupId(attr, cat);
 					if (catId != null) {
 						validValues.add(cat);
 						catList.add(catId);
@@ -470,7 +470,7 @@ public class TSpecExecutor {
 			cloneConjQuery.addQuery(latQuery);
 			cloneConjQuery.addQuery(longQuery);
 		} else {
-			Integer codeId = DictionaryManager.getId(kAttr, val);
+			Integer codeId = DictionaryManager.lookupId(kAttr, val);
 			AttributeQuery aQuery = new AttributeQuery(kAttr, codeId);
 			cloneConjQuery.addQuery(aQuery);
 		}
@@ -655,8 +655,11 @@ public class TSpecExecutor {
 				log.error("Skipping value that cannot be decoded : " + val);
 				continue;
 			}
-			Integer fieldId = DictionaryManager.getId(kAttr, val);
-			long key = IndexUtils.createLongIndexKey(kAttr, fieldId);
+			Integer fieldId = DictionaryManager.lookupId(kAttr, val);
+			Long key = null;
+			if (fieldId != null) {
+				key = IndexUtils.createLongIndexKey(kAttr, fieldId);
+			}
 			multiValueIdAL.add(key);
 		}
 		if (multiValueIdAL.isEmpty()) {
@@ -715,7 +718,7 @@ public class TSpecExecutor {
 				log.error("Skipping value that cannot be decoded : " + val);
 				continue;
 			}
-			Integer fieldId = DictionaryManager.getId(kAttr, val);
+			Integer fieldId = DictionaryManager.lookupId(kAttr, val);
 			multiValueIdAL.add(fieldId);
 		}
 		if (multiValueIdAL.isEmpty()) {
