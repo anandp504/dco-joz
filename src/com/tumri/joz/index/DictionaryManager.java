@@ -49,7 +49,7 @@ public class DictionaryManager {
 	@SuppressWarnings("unchecked")
 	public final Integer getId(IProduct.Attribute aAttribute, Object obj) {
 		IDictionary dict = getDictionary(aAttribute);
-		if (dict != null) {
+		if (dict != null && obj != null) {
 			// ??? This gets an "unchecked call" warning.
 			return dict.getId(obj);
 		}
@@ -59,7 +59,7 @@ public class DictionaryManager {
 	@SuppressWarnings("unchecked")
 	public final Integer lookupId(IProduct.Attribute aAttribute, Object obj) {
 		IDictionary dict = getDictionary(aAttribute);
-		if (dict != null) {
+		if (dict != null && obj != null) {
 			// ??? This gets an "unchecked call" warning.
 			return dict.lookupId(obj);
 		}
