@@ -121,7 +121,7 @@ public class EVNodeHandler extends DefaultHandler {
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if (qName.equals("ev")) {
 			if (!requestMap.isEmpty() && !optRules.isEmpty()) {
-				Map<VectorAttribute, List<Integer>> idMap = explodeRequestMap(requestMap);
+				Map<VectorAttribute, List<Integer>> idMap = VNodeHandlerUtils.explodeRequestMap(requestMap);
 				int type = VectorHandle.OPTIMIZATION;
 				VectorHandle h = vhFactory.getHandle(adPodId, vectorId, type, idMap, true);
 				if (h != null) {
@@ -135,34 +135,6 @@ public class EVNodeHandler extends DefaultHandler {
 			parser.setContentHandler(parent);
 		}
 
-	}
-
-
-	private Map<VectorAttribute, List<Integer>> explodeRequestMap(Map<VectorAttribute, String> reqMap) {
-		//Get the map of att to list of integers
-		Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute, List<Integer>>();
-		int count = 0;
-		for (VectorAttribute attr : reqMap.keySet()) {
-			List<String> parsedList = VectorUtils.parseValues(reqMap.get(attr));
-			for (String val : parsedList) {
-				if (val == null) {
-					continue;
-				}
-				Integer id = VectorUtils.getDictId(attr, val);
-				List<Integer> idList = idMap.get(attr);
-				if (idList == null) {
-					idList = new ArrayList<Integer>();
-				}
-				idList.add(id);
-				idMap.put(attr, idList);
-			}
-			if (count == 0) {
-				count = parsedList.size();
-			} else {
-				count = count * parsedList.size();
-			}
-		}
-		return idMap;
 	}
 
 	public void characters(char[] ch, int start, int length) {

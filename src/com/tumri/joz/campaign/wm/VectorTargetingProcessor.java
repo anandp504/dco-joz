@@ -273,12 +273,14 @@ public class VectorTargetingProcessor {
 				if (VectorUtils.getRangeAttributes().contains(attr)) {
 					//this lookup of dict value is necessary for range queries.
 					String ubValS = VectorUtils.getDictValue(attr, contextVal);
-					try {
-						Integer ubVal = Integer.parseInt(ubValS);
-						Range<Integer> r = new Range<Integer>(ubVal, ubVal);
-						fromIdx = idx.get(r);
-					} catch (NumberFormatException e) {
-						log.error("Error: Non-Number received as user-bucket: " + ubValS);
+					if (ubValS != null) { //if no userbucket is found within the dictionary.
+						try {
+							Integer ubVal = Integer.parseInt(ubValS);
+							Range<Integer> r = new Range<Integer>(ubVal, ubVal);
+							fromIdx = idx.get(r);
+						} catch (NumberFormatException e) {
+							log.error("Error: Non-Number received as user-bucket: " + ubValS);
+						}
 					}
 				} else {
 					fromIdx = idx.get(contextVal);

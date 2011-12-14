@@ -122,7 +122,6 @@ public class VNodeHandler extends DefaultHandler {
 		return theCAM;
 	}
 
-
 	public void start(Attributes attributes) throws SAXException {
 	}
 
@@ -245,7 +244,7 @@ public class VNodeHandler extends DefaultHandler {
 			}
 			SortedBag<Pair<ListingClause, Double>> validRules = ListingClauseUtils.validateListingClauses(lcRules);
 			if (!requestMap.isEmpty() && (!optRules.isEmpty() || !validRules.isEmpty())) {
-				Map<VectorAttribute, List<Integer>> idMap = explodeRequestMap(requestMap);
+				Map<VectorAttribute, List<Integer>> idMap = VNodeHandlerUtils.explodeRequestMap(requestMap);
 				int type = VectorHandle.OPTIMIZATION;
 				if (vectorId == 1 && (idMap.size() == 1 && (idMap.containsKey(VectorAttribute.kExpId)) || idMap.containsKey(VectorAttribute.kAdpodId))) {
 					//This is a default handle
@@ -268,34 +267,6 @@ public class VNodeHandler extends DefaultHandler {
 		}
 
 
-	}
-
-
-	private Map<VectorAttribute, List<Integer>> explodeRequestMap(Map<VectorAttribute, String> reqMap) {
-		//Get the map of att to list of integers
-		Map<VectorAttribute, List<Integer>> idMap = new HashMap<VectorAttribute, List<Integer>>();
-		int count = 0;
-		for (VectorAttribute attr : reqMap.keySet()) {
-			List<String> parsedList = VectorUtils.parseValues(reqMap.get(attr));
-			for (String val : parsedList) {
-				if (val == null) {
-					continue;
-				}
-				Integer id = VectorUtils.getDictId(attr, val);
-				List<Integer> idList = idMap.get(attr);
-				if (idList == null) {
-					idList = new ArrayList<Integer>();
-				}
-				idList.add(id);
-				idMap.put(attr, idList);
-			}
-			if (count == 0) {
-				count = parsedList.size();
-			} else {
-				count = count * parsedList.size();
-			}
-		}
-		return idMap;
 	}
 
 	public void characters(char[] ch, int start, int length) {
