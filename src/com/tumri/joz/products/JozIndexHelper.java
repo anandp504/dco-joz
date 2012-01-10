@@ -61,7 +61,7 @@ public class JozIndexHelper {
 				try {
 					readFromSerializedFile(f, debug, hotload, null, true);
 				} catch (Exception e) {
-					log.error("Exception caught on loading the index file : " + f.getAbsolutePath());
+					log.error("Exception caught on loading the index file : " + f.getAbsolutePath(), e);
 					bErrors = true;
 				}
 			}
