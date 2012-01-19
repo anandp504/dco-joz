@@ -907,53 +907,56 @@ public class TSpecExecutor {
 	 */
 	private ArrayList<Handle> executeTSpec() {
 		// Clone the query always
-		m_tSpecQuery = (CNFQuery) m_tSpecQuery.clone();
-		SortedSet<Handle> qResult;
-
-		if (m_randomize) {
-			Handle ref = ProductDB.getInstance().genReference();
-			m_tSpecQuery.setReference(ref);
-		}
-
-		if (m_scriptKeywords != null || request.isBMineUrls() || m_tspec.isMinePubUrl()) {
-			String keywords = m_scriptKeywords;
-			if (keywords == null) {
-				keywords = "";
-			}
-			if (request.isBMineUrls() || m_tspec.isMinePubUrl()) {
-				String urlSearch = doURLKeywordSearch(request.getUrl());
-				if (urlSearch != null) {
-					keywords = keywords + " " + urlSearch;
-				}
-			}
-			doKeywordSearch(keywords);
-		}
-
-		String requestCategory = request.getRequestCategory();
-		if ((requestCategory != null) && (!"".equals(requestCategory))) {
-			addRequestCategoryQuery(requestCategory);
-		}
-
-		//Add Listing Clause only if there are no backfills and there are no external keywords passed in.
-		if (!m_ExternalKeywords && m_tspec.isEnableBackFill()) {
-			addListingClauseQueries();
-		}
-
 		ArrayList<Handle> resultAL = new ArrayList<Handle>();
 
-		//5. Product Type
-		//addProductTypeQuery(request.getOfferType());
+		int numProds = request.getPageSize();
+		if (numProds > 0) {
+			m_tSpecQuery = (CNFQuery) m_tSpecQuery.clone();
+			SortedSet<Handle> qResult;
 
-		addExternalFilterRequestQueries(request);
+			if (m_randomize) {
+				Handle ref = ProductDB.getInstance().genReference();
+				m_tSpecQuery.setReference(ref);
+			}
 
-		addGeoFilterQuery(m_pageSize, m_currPage);
+			if (m_scriptKeywords != null || request.isBMineUrls() || m_tspec.isMinePubUrl()) {
+				String keywords = m_scriptKeywords;
+				if (keywords == null) {
+					keywords = "";
+				}
+				if (request.isBMineUrls() || m_tspec.isMinePubUrl()) {
+					String urlSearch = doURLKeywordSearch(request.getUrl());
+					if (urlSearch != null) {
+						keywords = keywords + " " + urlSearch;
+					}
+				}
+				doKeywordSearch(keywords);
+			}
 
-		handleRankAndDiscountFilters();
+			String requestCategory = request.getRequestCategory();
+			if ((requestCategory != null) && (!"".equals(requestCategory))) {
+				addRequestCategoryQuery(requestCategory);
+			}
 
-		//6. Exec TSpec query
-		qResult = m_tSpecQuery.exec();
+			//Add Listing Clause only if there are no backfills and there are no external keywords passed in.
+			if (!m_ExternalKeywords && m_tspec.isEnableBackFill()) {
+				addListingClauseQueries();
+			}
 
-		//If Geo Filtered, sort by score
+
+			//5. Product Type
+			//addProductTypeQuery(request.getOfferType());
+
+			addExternalFilterRequestQueries(request);
+
+			addGeoFilterQuery(m_pageSize, m_currPage);
+
+			handleRankAndDiscountFilters();
+
+			//6. Exec TSpec query
+			qResult = m_tSpecQuery.exec();
+
+			//If Geo Filtered, sort by score
 //BUG 2897 - Do not sort by score for geo enabled queries.
 //		if (m_geoFilterEnabled && !m_ExternalKeywords) {
 //			SortedSet<Handle> geoSortedResult = new SortedArraySet<Handle>(new ProductHandle(1.0, 1L));
@@ -961,37 +964,36 @@ public class TSpecExecutor {
 //			qResult = geoSortedResult;
 //		}
 
-		resultAL.addAll(qResult);
+			resultAL.addAll(qResult);
 
 
-		ArrayList<Handle> backFillProds = null;
-		//Backfill only if needed
-		if ((m_ExternalKeywords || m_ExternalFilters) && m_tspec.isEnableBackFill() && qResult != null) {
-			backFillProds = doBackFill(request.getPageSize(), qResult.size());
-		}
+			ArrayList<Handle> backFillProds = null;
+			//Backfill only if needed
+			if ((m_ExternalKeywords || m_ExternalFilters) && m_tspec.isEnableBackFill() && qResult != null) {
+				backFillProds = doBackFill(request.getPageSize(), qResult.size());
+			}
 
-		//Now add any backfill, checking for duplicates
-		if (backFillProds != null && backFillProds.size() > 0) {
-			for (Handle res : backFillProds) {
-				if (!resultAL.contains(res)) {
-					resultAL.add(res);
+			//Now add any backfill, checking for duplicates
+			if (backFillProds != null && backFillProds.size() > 0) {
+				for (Handle res : backFillProds) {
+					if (!resultAL.contains(res)) {
+						resultAL.add(res);
+					}
 				}
 			}
-		}
-		//Cull the result by num products
-		int numProds = request.getPageSize();
-		if ((numProds > 0) && (resultAL.size() > numProds)) {
-			while (resultAL.size() > numProds) {
-				resultAL.remove(resultAL.size() - 1);
+			//Cull the result by num products
+			if ((numProds > 0) && (resultAL.size() > numProds)) {
+				while (resultAL.size() > numProds) {
+					resultAL.remove(resultAL.size() - 1);
+				}
+			}
+
+			//Set the cached reference for randomization
+			if (m_tSpecQuery.getReference() != null && resultAL.size() > 0) {
+				CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
+				setCacheReference(resultAL, cachedQuery);
 			}
 		}
-
-		//Set the cached reference for randomization
-		if (m_tSpecQuery.getReference() != null && resultAL.size() > 0) {
-			CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-			setCacheReference(resultAL, cachedQuery);
-		}
-
 		return resultAL;
 	}
 

@@ -76,8 +76,6 @@ public class ProductSelectionProcessor {
 							if (numProds > 0) {
 								pr.setPageSize(numProds);
 								pr.setCurrPage(0);
-							} else {
-								continue;
 							}
 							ArrayList<Handle> prodResults = doProductSelection(tspecId, pr, features);
 							if (prodResults == null) {
@@ -109,8 +107,6 @@ public class ProductSelectionProcessor {
 							if (numProds > 0) {
 								pr.setPageSize(numProds);
 								pr.setCurrPage(0);
-							} else {
-								continue;
 							}
 							ArrayList<Handle> prodResults = doProductSelection(tspecId, pr, features);
 							if (prodResults == null) {
