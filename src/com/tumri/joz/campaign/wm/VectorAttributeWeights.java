@@ -8,33 +8,33 @@ import com.tumri.joz.ranks.IWeight;
  */
 public class VectorAttributeWeights implements IWeight<Handle> {
 
-	private static double kLineId = 1.0;
-	private static double kSiteId = 1.0;
-	private static double kCreativeId = 1.0;
-	private static double kAdId = 1.0;
-	private static double kBuyId = 1.0;
-	private static double kState = 1.0;
-	private static double kCountry = 1.0;
-	private static double kCity = 1.0;
-	private static double kArea = 1.0;
-	private static double kZip = 1.0;
-	private static double kDMA = 1.0;
-	private static double kT1 = 1.0;
-	private static double kT2 = 1.0;
-	private static double kT3 = 1.0;
-	private static double kT4 = 1.0;
-	private static double kT5 = 1.0;
-	private static double kF1 = 1.0;
-	private static double kF2 = 1.0;
-	private static double kF3 = 1.0;
-	private static double kF4 = 1.0;
-	private static double kF5 = 1.0;
-	private static double ub = 1.0;
-	private static double hhi = 1.0;
-	private static double gender = 1.0;
-	private static double cc = 1.0;
-	private static double bt = 1.0;
-	private static double age = 1.0;
+	private static double kLineId = 1.2;
+	private static double kSiteId = 1.5;
+	private static double kCreativeId = 1.2;
+	private static double kAdId = 1.2;
+	private static double kBuyId = 1.2;
+	private static double kState = 1.2;
+	private static double kCountry = 1.2;
+	private static double kCity = 1.2;
+	private static double kArea = 1.2;
+	private static double kZip = 1.2;
+	private static double kDMA = 1.2;
+	private static double kT1 = 1.2;
+	private static double kT2 = 1.2;
+	private static double kT3 = 1.2;
+	private static double kT4 = 1.2;
+	private static double kT5 = 1.2;
+	private static double kF1 = 1.2;
+	private static double kF2 = 1.2;
+	private static double kF3 = 1.2;
+	private static double kF4 = 1.2;
+	private static double kF5 = 1.2;
+	private static double ub = 1.2;
+	private static double hhi = 1.2;
+	private static double gender = 1.2;
+	private static double cc = 1.2;
+	private static double bt = 1.9;
+	private static double age = 1.2;
 	private static double kExpId = 0.2;
 	private static double kAdpodId = 0.2;
 	private static double kLineIdNone = 0.2;
@@ -100,7 +100,7 @@ public class VectorAttributeWeights implements IWeight<Handle> {
 	}
 
 	public double getMaxWeight() {
-		return 1;
+		return 1.9;
 	}
 
 	public double getMinWeight() {

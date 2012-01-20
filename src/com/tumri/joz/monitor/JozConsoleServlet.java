@@ -31,18 +31,18 @@ import java.util.ArrayList;
  * Servlet class to control the refresh of data
  */
 public class JozConsoleServlet extends HttpServlet {
-	private static Logger log = Logger.getLogger (JozConsoleServlet.class);
+	private static Logger log = Logger.getLogger(JozConsoleServlet.class);
 
-	public void doGet (HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		doService (request, response);
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		doService(request, response);
 	}
 
-	public void doPost (HttpServletRequest request, HttpServletResponse response)
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		doService (request, response);
+		doService(request, response);
 	}
 
-	protected void doService (HttpServletRequest request, HttpServletResponse response)
+	protected void doService(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		String mode = request.getParameter("mode");
 		String option = request.getParameter("option");
@@ -70,14 +70,18 @@ public class JozConsoleServlet extends HttpServlet {
 			responseJSP = "/jsp/indexDebug.jsp?indexDebug=console";
 		} else if ("productdb".equalsIgnoreCase(mode)) {
 			responseJSP = "/jsp/productDb.jsp";
+		} else if ("dictionaries".equalsIgnoreCase(mode)) {
+			responseJSP = "/jsp/dictionaries.jsp";
+		} else if ("caaDictionaries".equalsIgnoreCase(mode)) {
+			responseJSP = "/jsp/caaDictionaries.jsp";
 		} else if ("view".equalsIgnoreCase(mode)) {
-			if("latest".equalsIgnoreCase(option)) {
-				if(AdRequestMonitor.getInstance().getReqResp()!=null){
+			if ("latest".equalsIgnoreCase(option)) {
+				if (AdRequestMonitor.getInstance().getReqResp() != null) {
 					request.setAttribute("adReq", AdRequestMonitor.getInstance().getReqResp().getFirst());
 					request.setAttribute("adResp", AdRequestMonitor.getInstance().getReqResp().getSecond());
 				}
 				responseJSP = "/jsp/adRequest.jsp?mode=console";
-			} else if("eval".equalsIgnoreCase(option)){
+			} else if ("eval".equalsIgnoreCase(option)) {
 				EvalMonitor mon = new EvalMonitor();
 				JozAdRequest req = mon.makeRequest(request.getParameter("text_eval_expr"));
 				request.setAttribute("adReq", req);
@@ -91,50 +95,50 @@ public class JozConsoleServlet extends HttpServlet {
 			xstream.processAnnotations(Campaign.class);
 			xstream.registerConverter(new CampaignXMLDateConverter());
 			response.setContentType("application/download");
-			if("list".equalsIgnoreCase(option)) {
+			if ("list".equalsIgnoreCase(option)) {
 				response.setHeader("Content-Disposition", "attachment; filename=campaigns.xml");
 				ArrayList<Campaign> camps = CampaignDB.getInstance().getCampaigns();
 				output.write("<list xmlns='http://www.tumri.com/campaign' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.tumri.com/campaign campaign.xsd'>".getBytes("UTF-8"));
-				for (int i = 0; i < camps.size(); i++){
+				for (int i = 0; i < camps.size(); i++) {
 					Campaign c = camps.get(i);
 					output.write(xstream.toXML(c).toString().getBytes("UTF-8"));
 				}
 				output.write("</list>".getBytes("UTF-8"));
-			} else if("camp".equalsIgnoreCase(option)){
-				if(id != null && !"".equals(id.trim())){
+			} else if ("camp".equalsIgnoreCase(option)) {
+				if (id != null && !"".equals(id.trim())) {
 					int campId = Integer.parseInt(id);
 					Campaign camp = CampaignDB.getInstance().getCampaign(campId);
-					response.setHeader("Content-Disposition", "attachment; filename=campaign"+id.trim()+".xml");
+					response.setHeader("Content-Disposition", "attachment; filename=campaign" + id.trim() + ".xml");
 					output.write("<list xmlns='http://www.tumri.com/campaign' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.tumri.com/campaign campaign.xsd'>".getBytes("UTF-8"));
 					output.write(xstream.toXML(camp).toString().getBytes("UTF-8"));
 					output.write("</list>".getBytes("UTF-8"));
 				}
-			} else if("adpod".equalsIgnoreCase(option)){
-				if(id != null && !"".equals(id.trim())){
+			} else if ("adpod".equalsIgnoreCase(option)) {
+				if (id != null && !"".equals(id.trim())) {
 					int adPodId = Integer.parseInt(id);
 					AdPod adPod = CampaignDB.getInstance().getAdPod(adPodId);
-					response.setHeader("Content-Disposition", "attachment; filename=adpod"+id.trim()+".xml");
+					response.setHeader("Content-Disposition", "attachment; filename=adpod" + id.trim() + ".xml");
 					output.write(xstream.toXML(adPod).toString().getBytes("UTF-8"));
 				}
-			} else if("recipe".equalsIgnoreCase(option)){
-				if(id != null && !"".equals(id.trim())){
+			} else if ("recipe".equalsIgnoreCase(option)) {
+				if (id != null && !"".equals(id.trim())) {
 					int recipeId = Integer.parseInt(id);
 					Recipe recipe = CampaignDB.getInstance().getRecipe(recipeId);
-					response.setHeader("Content-Disposition", "attachment; filename=recipe"+id.trim()+".xml");
+					response.setHeader("Content-Disposition", "attachment; filename=recipe" + id.trim() + ".xml");
 					output.write(xstream.toXML(recipe).toString().getBytes("UTF-8"));
 				}
-			} else if("tspec".equalsIgnoreCase(option)){
-				if(id != null && !"".equals(id.trim())){
+			} else if ("tspec".equalsIgnoreCase(option)) {
+				if (id != null && !"".equals(id.trim())) {
 					int tSpecId = Integer.parseInt(id);
 					TSpec tSpec = CampaignDB.getInstance().getTspec(tSpecId);
-					response.setHeader("Content-Disposition", "attachment; filename=tspec"+id.trim()+".xml");
+					response.setHeader("Content-Disposition", "attachment; filename=tspec" + id.trim() + ".xml");
 					output.write(xstream.toXML(tSpec).toString().getBytes("UTF-8"));
 				}
 			} else {
 				response.setHeader("Content-Disposition", "attachment; filename=campaigns.xml");
 				ArrayList<Campaign> camps = CampaignDB.getInstance().getCampaigns();
 				output.write("<list xmlns='http://www.tumri.com/campaign' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.tumri.com/campaign campaign.xsd'>".getBytes("UTF-8"));
-				for (int i = 0; i < camps.size(); i++){
+				for (int i = 0; i < camps.size(); i++) {
 					Campaign c = camps.get(i);
 					output.write(xstream.toXML(c).toString().getBytes("UTF-8"));
 				}
@@ -143,12 +147,18 @@ public class JozConsoleServlet extends HttpServlet {
 			output.flush();
 			output.close();
 			responseJSP = "/console";
-		} else if("log".equalsIgnoreCase(mode)){
-			if(id != null && option != null && !"".equals(id) && !"".equals(option)){
+		} else if ("log".equalsIgnoreCase(mode)) {
+			if (id != null && option != null && !"".equals(id) && !"".equals(option)) {
 				LogUtils.setLogLevel(id, option);
 			}
 			responseJSP = "/jsp/log.jsp";
-		} else if("qareport".equalsIgnoreCase(mode)){
+		} else if ("gc".equalsIgnoreCase(mode)) {
+			log.info("Manual GC Start");
+			long start = System.nanoTime();
+			System.gc();
+			log.info("Manual GC End: time taken = " + (System.nanoTime() - start));
+			responseJSP = "/jsp/console.jsp";
+		} else if ("qareport".equalsIgnoreCase(mode)) {
 			JozQARequestHandler qaHandler = new JozQARequestHandler();
 			JozQARequest req = new JozQARequest();
 			JozQAResponseWrapper wrapper = new JozQAResponseWrapper();
@@ -157,7 +167,7 @@ public class JozConsoleServlet extends HttpServlet {
 
 			String advertisersString = request.getParameter("advertisers");
 
-			if(advertisersString != null){
+			if (advertisersString != null) {
 				StringTokenizer tokenizer = new StringTokenizer(advertisersString, ',');
 				advertiserNames = tokenizer.getTokens();
 			}
@@ -166,22 +176,22 @@ public class JozConsoleServlet extends HttpServlet {
 			qaHandler.doQuery(req, wrapper);
 			String xml = wrapper.getResultMap().get(JozQAResponseWrapper.KEY_QAREPORTDETAIL);
 			XStream xstream = new XStream();
-			if(xml != null){
-				qaResponse = (JozQAResponse)xstream.fromXML(xml);
+			if (xml != null) {
+				qaResponse = (JozQAResponse) xstream.fromXML(xml);
 			}
 			request.setAttribute("jozQAResp", qaResponse);
 			request.setAttribute("jozQAReq", req);
 			responseJSP = "/jsp/jozQAReport.jsp?mode=console";
 
 		} else if ("execute".equalsIgnoreCase(mode)) {
-			if("tspec".equalsIgnoreCase(option)){
+			if ("tspec".equalsIgnoreCase(option)) {
 
 				String reqPSR = request.getParameter("text_eval_expr");
 				String reqTSpec = request.getParameter("text_eval_expr2");
-				ProductQueryMonitor pqm=new ProductQueryMonitor();
-				ProductQueryMonitorStatus pqmstat=(ProductQueryMonitorStatus)pqm.getStatus(reqPSR, reqTSpec,null);
+				ProductQueryMonitor pqm = new ProductQueryMonitor();
+				ProductQueryMonitorStatus pqmstat = (ProductQueryMonitorStatus) pqm.getStatus(reqPSR, reqTSpec, null);
 				String rawData = null;
-				if(pqmstat != null){
+				if (pqmstat != null) {
 					rawData = pqmstat.getProductRawData();
 				}
 				request.setAttribute("reqPSR", reqPSR);

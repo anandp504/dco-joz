@@ -34,7 +34,7 @@ public class DictionaryManager {
 		return g_Instance;
 	}
 
-	protected final IDictionary getDictionary(IProduct.Attribute aAttribute) {
+	public final IDictionary getDictionary(IProduct.Attribute aAttribute) {
 		if (m_table.containsKey(aAttribute)) {
 			return m_table.get(aAttribute);
 		}
