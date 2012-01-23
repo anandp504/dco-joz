@@ -230,39 +230,26 @@ public class ProductIndex {
 		m_index_dir = new File(tmpDir);
 
 		if (advNames.length != 0) {
-			try {
-				for (String advertiser : advNames) {
-					advertiser = advertiser.toUpperCase();
-					log.info("Going to load the lucene index for " + advertiser);
-					List<File> advLuceneDirs = findProductIndex(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR), advertiser);
-					if (advLuceneDirs != null && !advLuceneDirs.isEmpty()) {
-						for (File lf : advLuceneDirs) {
-							if (lf.getParentFile().getName().equals(advertiser)) {
-								try {
-									IndexSearcherCache cache = new IndexSearcherCache(lf);
-									addCache(advertiser, cache);
-									ContentProviderStatus.getInstance().luceneFileNames.put(advertiser, lf.getAbsolutePath());
-								} catch (IOException e) {
-									log.error("Exception on loading the advertiser index", e);
-								}
+			for (String advertiser : advNames) {
+				advertiser = advertiser.toUpperCase();
+				log.info("Going to load the lucene index for " + advertiser);
+				List<File> advLuceneDirs = findProductIndex(AppProperties.getInstance().getProperty(FileContentConfigValues.CONFIG_SOURCE_DIR), advertiser);
+				if (advLuceneDirs != null && !advLuceneDirs.isEmpty()) {
+					for (File lf : advLuceneDirs) {
+						if (lf.getParentFile().getName().equals(advertiser)) {
+							try {
+								IndexSearcherCache cache = new IndexSearcherCache(lf);
+								addCache(advertiser, cache);
+								ContentProviderStatus.getInstance().luceneFileNames.put(advertiser, lf.getAbsolutePath());
+							} catch (IOException e) {
+								log.error("Exception on loading the advertiser index", e);
 							}
-							break;
 						}
-					} else {
-						log.error("Could not locate the lucene index for the advertiser : " + advertiser);
+						break;
 					}
-				}
-
-				m_index_dir = new File(tmpDir);
-				if (m_index_dir.exists() && m_index_dir.listFiles().length > 0) {
-					log.info("Loading keyword index from " + m_index_dir.getAbsolutePath());
-					//addCache(DEFAULT, new IndexSearcherCache(m_index_dir));
 				} else {
-					throw new RuntimeException("Merged lucene index not found, nothing to load into keyword index");
+					log.error("Could not locate the lucene index for the advertiser : " + advertiser);
 				}
-
-			} catch (Exception e) {
-				log.fatal("Failed to create a merge the prov indexes and create directory for lucene.");
 			}
 		} else {
 			log.error("No provider lucene folders found, nothing to load into keyword index");
