@@ -664,7 +664,6 @@ public class VectorUtils {
 		return noneSet;
 	}
 
-
 	/**
 	 * Constructs an id from experience id and a vector id
 	 *

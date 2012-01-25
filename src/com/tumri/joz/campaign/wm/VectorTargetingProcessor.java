@@ -7,6 +7,7 @@ import com.tumri.cma.rules.CreativeInstance;
 import com.tumri.cma.rules.CreativeSelector;
 import com.tumri.cma.rules.CreativeSet;
 import com.tumri.joz.Query.AdPodSetIntersector;
+import com.tumri.joz.Query.VectorSetIntersector;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.rules.ListingClause;
 import com.tumri.joz.index.Range;
@@ -68,7 +69,8 @@ public class VectorTargetingProcessor {
 		if (!onlyDefault) {
 			Map<VectorAttribute, List<Integer>> contextMap = VectorUtils.getContextMap(adpodId, expId, request);
 			SortedSet<Handle> resVectors = getMatchingVectors(contextMap);
-			matchingVectors = new SortedArraySet<Handle>(resVectors, new VectorHandleImpl(0L));
+			VectorHandleImpl tmpVH = new VectorHandleImpl(0L);
+			matchingVectors = new SortedArraySet<Handle>(resVectors, tmpVH.new ImmutableVectorHandle(0.0));
 		}
 
 		CreativeSelector cs = cam.getSelector();
@@ -190,7 +192,7 @@ public class VectorTargetingProcessor {
 	public SortedSet<Handle> getMatchingVectors(Map<VectorAttribute, List<Integer>> contextMap) {
 
 		//Add context matches
-		AdPodSetIntersector intersector = new AdPodSetIntersector(true);
+		VectorSetIntersector intersector = new VectorSetIntersector(true);
 		if (contextMap != null) {
 			//Because of MVF we need to construct a VectorHandle with a map that contains just the keys from the contextMap
 			VectorHandle rv = new VectorHandleImpl(0, 0, VectorHandleImpl.OPTIMIZATION, contextMap, true);
@@ -206,6 +208,7 @@ public class VectorTargetingProcessor {
 
 			}
 		}
+		intersector.useTopK(true);
 		return intersector.intersect();
 	}
 

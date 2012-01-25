@@ -383,7 +383,7 @@ public class VectorHandleImpl implements VectorHandle, Cloneable {
 
 		private double newScore = 0.0;
 
-		private ImmutableVectorHandle(double score) {
+		public ImmutableVectorHandle(double score) {
 			newScore = score;
 		}
 
@@ -401,10 +401,6 @@ public class VectorHandleImpl implements VectorHandle, Cloneable {
 
 		public Handle createHandle(double score) {
 			return VectorHandleImpl.this.createHandle(score);
-		}
-
-		public int compare(Object o, Object o1) {
-			return VectorHandleImpl.this.compare(o, o1);
 		}
 
 		public int compareTo(Object o) {
@@ -433,6 +429,37 @@ public class VectorHandleImpl implements VectorHandle, Cloneable {
 
 		public boolean isNoneHandle() {
 			return VectorHandleImpl.this.isNoneHandle();
+		}
+
+		public int compare(Object h1, Object h2) {
+			ImmutableVectorHandle ph1 = (ImmutableVectorHandle) h1;
+			ImmutableVectorHandle ph2 = (ImmutableVectorHandle) h2;
+
+			double score = ph1.getScore();
+			double phScore = ph2.getScore();
+
+			if (score > phScore) return -1;
+			if (score < phScore) return 1;
+
+			int diffSize = ph2.getSize() - ph1.getSize();
+			if (diffSize != 0) {
+				return diffSize;
+			}
+
+			int[] addr1 = ph1.getContextDetails();
+			int[] addr2 = ph2.getContextDetails();
+			if (addr1 != null && addr2 != null) {
+				int diff = addr1[0] - addr2[0];   //this instead of addr2[0] - addr1[0] because of pos of attributes in VectorUtils.
+				if (diff != 0) {
+					return diff;
+				}
+			}
+
+			long oid = ph1.getOid();
+			long phOid = ph2.getOid();
+			return (oid < phOid ? -1 :
+					oid == phOid ? 0 : 1);
+
 		}
 	}
 
