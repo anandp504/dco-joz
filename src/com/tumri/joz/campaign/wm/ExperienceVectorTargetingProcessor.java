@@ -79,7 +79,7 @@ public class ExperienceVectorTargetingProcessor {
 
 		boolean skipRules = false;
 		Experience experience = null;
-		Random r = new Random();
+		Random r = new Random();  //todo: move to top
 
 		Handle h = null;
 		if (matchingVectors != null && !matchingVectors.isEmpty()) {
@@ -91,7 +91,7 @@ public class ExperienceVectorTargetingProcessor {
 			while (iter.hasNext()) {
 				Handle tmph = iter.next();
 				double currScore = tmph.getScore();
-				if (prevScore != currScore && !firstPass) {
+				if (Math.abs(prevScore - currScore) > .0001 && !firstPass) {
 					break;
 				}
 				firstPass = false;

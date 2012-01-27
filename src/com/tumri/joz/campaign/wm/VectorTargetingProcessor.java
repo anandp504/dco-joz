@@ -112,7 +112,7 @@ public class VectorTargetingProcessor {
 				if (!skipRules) {
 					VectorHandle vector = (VectorHandle) h;
 					double currentScore = vector.getScore();
-					if (prevScore > 0 && (prevScore != currentScore) && !rules.isEmpty()) {
+					if (prevScore > 0 && (Math.abs(prevScore - currentScore) > .0001) && !rules.isEmpty()) {
 						while (cur.size() > 1 && rules.size() > 0) {
 							int i = r.nextInt(rules.size());
 							SortedBag<Pair<CreativeSet, Double>> tmpBag = rules.get(i);
