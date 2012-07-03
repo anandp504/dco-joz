@@ -1,7 +1,6 @@
 <%@ page language="java" import="java.util.*" %>
 <%@ page language="java" import="com.tumri.joz.monitor.*" %>
 <%@ page language="java" import="com.tumri.joz.campaign.*" %>
-<%@ page language="java" import="com.tumri.joz.products.JOZTaxonomy" %>
 <%@ page language="java" import="com.tumri.content.data.Category" %>
 <%@ page language="java" import="com.tumri.cma.domain.*" %>
 <%@ page language="java" import="com.tumri.joz.utils.*" %>

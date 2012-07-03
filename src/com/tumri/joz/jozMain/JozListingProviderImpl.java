@@ -1,17 +1,16 @@
 package com.tumri.joz.jozMain;
 
+import com.tumri.content.data.AdvertiserMerchantDataMapper;
+import com.tumri.content.data.AdvertiserTaxonomyMapper;
 import com.tumri.lls.client.main.ListingProvider;
 import com.tumri.lls.client.main.LLCClientException;
 import com.tumri.lls.client.response.ListingResponse;
-import com.tumri.content.data.Taxonomy;
 import com.tumri.content.data.Category;
-import com.tumri.content.MerchantDataProvider;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.products.ProductDB;
 
 import java.util.Properties;
 import java.util.List;
-import java.util.HashMap;
 
 /**
  * Implementation of the Listing Provider for Joz. This implementation depends upon the Product information to be
@@ -38,7 +37,7 @@ public class JozListingProviderImpl implements ListingProvider {
      * @param t
      * @param m
      */
-    public void init(Properties configProps, Taxonomy t, MerchantDataProvider m) {
+    public void init(Properties configProps, AdvertiserTaxonomyMapper advTaxProv, AdvertiserMerchantDataMapper m) {
         //do nothing
         return;
     }
@@ -59,14 +58,14 @@ public class JozListingProviderImpl implements ListingProvider {
             if (done1)
                 listingBuffr.append(",");
             Handle h = ProductDB.getInstance().get(pids[i]).getHandle();
-            listingBuffr.append(JozJSONResponseBuilder.getListingDetails(h, maxDescLength));
+            listingBuffr.append(JozJSONResponseBuilder.getListingDetails(advertiser, h, maxDescLength));
             done1 = true;
         }
         listingBuffr.append("]");
 
         String product_ids = JozJSONResponseBuilder.constructListingIdList(pids);
 
-        List<Category> cat_list = JozJSONResponseBuilder.constructCategoryList(pids);
+        List<Category> cat_list = JozJSONResponseBuilder.constructCategoryList(advertiser, pids);
         String categories = JozJSONResponseBuilder.getCategoryDetails(cat_list);
         String cat_names = JozJSONResponseBuilder.getCategoryNameList(cat_list);
 
@@ -78,7 +77,9 @@ public class JozListingProviderImpl implements ListingProvider {
         return result;
     }
 
-    /**
+
+
+	/**
      * Clear out any resources that were used
      */
     public void shutdown() {
@@ -92,10 +93,9 @@ public class JozListingProviderImpl implements ListingProvider {
      * @param t --> Taxonomy that has been loaded
      * @param m --> Merchant information that has been loaded
      */
-    public boolean doContentRefresh(Taxonomy t, MerchantDataProvider m) {
-        //do nothing
-        return true;
-    }
+    public boolean doContentRefresh(AdvertiserTaxonomyMapper advTaxProv, AdvertiserMerchantDataMapper m) {
+		return false;  //To change body of implemented methods use File | Settings | File Templates.
+	}
 
     public boolean doHealthCheck() throws LLCClientException {
         return true;

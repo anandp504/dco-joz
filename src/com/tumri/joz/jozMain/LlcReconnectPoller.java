@@ -17,9 +17,8 @@
  */
 package com.tumri.joz.jozMain;
 
-import com.tumri.content.data.Taxonomy;
-import com.tumri.content.MerchantDataProvider;
-import com.tumri.joz.utils.AppProperties;
+import com.tumri.content.data.AdvertiserMerchantDataMapper;
+import com.tumri.content.data.AdvertiserTaxonomyMapper;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.lls.client.main.LLCClientException;
 import com.tumri.lls.client.main.ListingProvider;
@@ -38,8 +37,8 @@ import org.apache.log4j.Logger;
 * Time: 11:25:53 AM
 */
 public class LlcReconnectPoller {
-    private Taxonomy taxonomy;
-    private MerchantDataProvider md;
+    private AdvertiserTaxonomyMapper advTaxProv;
+    private AdvertiserMerchantDataMapper md;
     private ListingProvider lp;
     
     private static Logger log = Logger.getLogger(LlcReconnectPoller.class);
@@ -52,15 +51,15 @@ public class LlcReconnectPoller {
 	 * Returns an static reference to the CMAContentPoller
 	 * @return
 	 */
-	public static LlcReconnectPoller getInstance(ListingProvider lp,Taxonomy tax, MerchantDataProvider m) {
+	public static LlcReconnectPoller getInstance(ListingProvider lp, AdvertiserTaxonomyMapper advTaxProv, AdvertiserMerchantDataMapper m) {
 		if (g_inst == null) {
-			g_inst =  new LlcReconnectPoller(lp,tax,m);
+			g_inst =  new LlcReconnectPoller(lp, advTaxProv,m);
 		}
 		return g_inst;
 	}
 
-    private LlcReconnectPoller(ListingProvider tlp, Taxonomy tax, MerchantDataProvider m) {
-        this.taxonomy = tax;
+    private LlcReconnectPoller(ListingProvider tlp, AdvertiserTaxonomyMapper advTaxProv, AdvertiserMerchantDataMapper m) {
+        this.advTaxProv = advTaxProv;
         this.md = m;
         this.lp = tlp;
     }
@@ -83,7 +82,7 @@ public class LlcReconnectPoller {
 
         try {
             log.info("Attempting to re-init the LLC listing provider");
-            bInit = lp.doContentRefresh(taxonomy,md);
+            bInit = lp.doContentRefresh(advTaxProv,md);
         } catch (LLCClientException e) {
            LogUtils.getFatalLog().fatal("Exception caught on initializing content provider");
            bInit = false;

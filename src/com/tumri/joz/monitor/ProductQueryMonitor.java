@@ -1,13 +1,13 @@
 package com.tumri.joz.monitor;
 
 import com.tumri.cma.domain.*;
+import com.tumri.content.data.impl.AdvertiserMerchantDataMapperImpl;
+import com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl;
 import com.tumri.joz.JoZException;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.jozMain.ListingProviderFactory;
-import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.productselection.ProductSelectionRequest;
 import com.tumri.joz.productselection.TSpecExecutor;
 import com.tumri.lls.client.main.ListingProvider;
@@ -153,8 +153,8 @@ public class ProductQueryMonitor extends ComponentMonitor {
 				pids[i] = handles.get(i).getOid();
 			}
 
-			ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-					MerchantDB.getInstance().getMerchantData());
+			ListingProvider _prov = ListingProviderFactory.getProviderInstance(AdvertiserTaxonomyMapperImpl.getInstance(),
+					AdvertiserMerchantDataMapperImpl.getInstance());
 			response = _prov.getListing(advertiser, pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, null);
 			if (response == null) {
 				throw new JoZException("Invalid response from Listing Provider");

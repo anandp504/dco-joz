@@ -2,7 +2,6 @@ package com.tumri.joz.utils;
 
 import com.tumri.content.data.*;
 import com.tumri.content.data.dictionary.DictionaryManager;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.IProduct;
 import org.apache.log4j.Logger;
 
@@ -51,52 +50,6 @@ public class IndexUtils {
                 break;
         }
 
-        return result;
-    }
-
-    /**
-     * Get the cat details for the given attr field.
-     * @param catId
-     * @param kAttr
-     * @return
-     */
-    public static ProductAttributeDetails getDetailsForCategoryField(int catId, Product.Attribute kAttr) {
-        ProductAttributeDetails result = null;
-        JOZTaxonomy tax = JOZTaxonomy.getInstance();
-        Taxonomy t = tax.getTaxonomy();
-        CategorySpec cs = t.getCategorySpec(catId);
-        if (cs != null) {
-            result =  cs.getAttributeDetails(kAttr);
-        } else {
-            //Get the details from the parent if available
-            Category parentCat = t.getParent(t.getCategory(catId));
-            if (parentCat!=null && !parentCat.getIdStr().equals("TUMRI_00000")){
-                return getDetailsForCategoryField(parentCat.getGlassId(), kAttr);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Get the cat details for the given category field name
-     * @param catId
-     * @param fieldName
-     * @return
-     */
-    public static ProductAttributeDetails getDetailsForCategoryFieldName(int catId, String fieldName) {
-        ProductAttributeDetails result = null;
-        JOZTaxonomy tax = JOZTaxonomy.getInstance();
-        Taxonomy t = tax.getTaxonomy();
-        CategorySpec cs = t.getCategorySpec(catId);
-        if (cs != null) {
-            result =  cs.getAttributeForColumnName(fieldName);
-        } else {
-            //Get the details from the parent if available
-            Category parentCat = t.getParent(t.getCategory(catId));
-            if (parentCat!=null && !parentCat.getIdStr().equals("TUMRI_00000")){
-                return getDetailsForCategoryFieldName(parentCat.getGlassId(), fieldName);
-            }
-        }
         return result;
     }
 

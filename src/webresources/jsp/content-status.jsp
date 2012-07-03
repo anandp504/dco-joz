@@ -3,6 +3,7 @@
 <%@ page language="java" import="java.util.*" %>
 <%@ page language="java" import="java.text.SimpleDateFormat" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -39,15 +40,17 @@
 				out.print("</td> <td>");
 				out.print(status.mupDisabled==true?"false":"true");
 				out.print("</td></tr>");
-
-				if (!status.mupDisabled && status.productProviderStatus != null) {
-					out.print("<tr><td>");
-					out.print("MUP Status:");
-					out.print("</td> <td>");
-					String s = status.productProviderStatus.toString();
-					s=s.replaceAll("\n","<BR>");
-					out.print(s);
-					out.print("</td></tr>");
+<%--change productproviderstatus to use map--%>
+				if (!status.mupDisabled && status.productProviderStatusMap != null) {
+                    for(ProductProviderStatus productProviderStatus:status.productProviderStatusMap.values()){
+                        out.print("<tr><td>");
+                        out.print("MUP Status:");
+                        out.print("</td> <td>");
+                        String s = status.productProviderStatus.toString();
+                        s=s.replaceAll("\n","<BR>");
+                        out.print(s);
+                        out.print("</td></tr>");
+                    }
 				}
 
 				out.print("<tr><td>");
@@ -56,14 +59,16 @@
 				out.print(status.taxonomyDisabled==true?"false":"true");
 				out.print("</td></tr>");
 
-				if (!status.taxonomyDisabled && status.taxonomyProviderStatus != null) {
-					out.print("<tr><td>");
-					out.print("Taxonomy Status:");
-					out.print("</td> <td>");
-					String s = status.taxonomyProviderStatus.toString();
-					s=s.replaceAll("\n","<BR>");
-					out.print(s);
-					out.print("</td></tr>");
+				if (!status.taxonomyDisabled && status.taxonomyProviderStatusMap != null) {
+                    for(TaxonomyProviderStatus taxonomyProviderStatus:status.taxonomyProviderStatusMap.values()){
+                        out.print("<tr><td>");
+                        out.print("Taxonomy Status:");
+                        out.print("</td> <td>");
+                        String s = status.taxonomyProviderStatus.toString();
+                        s=s.replaceAll("\n","<BR>");
+                        out.print(s);
+                        out.print("</td></tr>");
+                    }
 				}
 
 				out.print("<tr><td>");
@@ -72,15 +77,17 @@
 				out.print(status.merchantDataDisabled==true?"false":"true");
 				out.print("</td></tr>");
 
-				if (!status.merchantDataDisabled && status.merchantDataProviderStatus != null) {
-					out.print("<tr><td>");
-					out.print("Merchant meta data Status:");
-					out.print("</td> <td>");
-					String s = status.merchantDataProviderStatus.toString();
-					s=s.replaceAll("\n","<BR>");
-					out.print(s);
-					out.print("</td></tr>");
-				}
+				if (!status.merchantDataDisabled && status.merchantDataProviderStatusMap != null) {
+                    for(MerchantDataProviderStatus merchantDataProviderStatus:status.merchantDataProviderStatusMap.values()){
+                        out.print("<tr><td>");
+                        out.print("Merchant meta data Status:");
+                        out.print("</td> <td>");
+                        String s = status.merchantDataProviderStatus.toString();
+                        s=s.replaceAll("\n","<BR>");
+                        out.print(s);
+                        out.print("</td></tr>");
+                    }
+                }
 
 				out.print("<tr><td>");
 				out.print("Data refresh interval:");

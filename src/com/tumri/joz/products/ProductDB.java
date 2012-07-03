@@ -36,7 +36,6 @@ public class ProductDB {
     // table of all long filters associated with attributes
     private Hashtable<IProduct.Attribute, LongFilter<Handle>> m_longFilters = new Hashtable<IProduct.Attribute, LongFilter<Handle>>();
 
-    private ProductProvider m_productProvider = null;
     private static Random g_random = new Random(System.currentTimeMillis());
 
     private boolean disableJozIndexLoad = false;
@@ -327,18 +326,6 @@ public class ProductDB {
         } finally {
             m_allProducts.readerUnlock();
         }
-    }
-
-    private ProductProvider getProductProvider() {
-        try {
-            if (m_productProvider == null) {
-                ProductProvider pp = ContentProviderFactory.getInstance().getContentProvider().getContent().getProducts();
-                m_productProvider = pp;
-            }
-        } catch (InvalidConfigException e) {
-            log.error("Could not get Product Content Provider", e);
-        }
-        return m_productProvider;
     }
 
     @SuppressWarnings("unchecked")

@@ -18,10 +18,10 @@
 package com.tumri.joz.server.handlers;
 
 import com.thoughtworks.xstream.XStream;
+import com.tumri.content.TaxonomyProvider;
 import com.tumri.content.data.Category;
-import com.tumri.content.data.Taxonomy;
+import com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl;
 import com.tumri.joz.JoZException;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.server.domain.JozBrandCount;
 import com.tumri.joz.server.domain.JozCategoryCount;
 import com.tumri.joz.server.domain.JozCountRequest;
@@ -35,9 +35,8 @@ import com.tumri.utils.tcp.server.domain.QueryResponseData;
 import com.tumri.utils.tcp.server.handlers.InvalidRequestException;
 import com.tumri.utils.tcp.server.handlers.RequestHandler;
 import org.apache.log4j.Logger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * @author: nipun
@@ -143,38 +142,56 @@ public class JozCountRequestHandler implements RequestHandler {
     }
 
     private int getTotalCount(HashMap<String, CountsHelper.Counter> counts){
-    	int totalCount = -1;
-    	Category rootCat;
-        Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
-        if (t != null) {
-            rootCat = t.getRootCategory();
-            String name = rootCat.getName();
-    		CountsHelper.Counter counter = ((counts==null)?null:counts.get(name));
-    		if (counter != null) {
-    			totalCount = counter.get();
-    		}
-        }
-    	return totalCount;
-    }
-    private int getTumriCount(HashMap<String, CountsHelper.Counter> counts){
-    	int tumriCount = -1;
-    	Category rootCat;
-        Taxonomy t = JOZTaxonomy.getInstance().getTaxonomy();
-        if (t != null) {
-            rootCat = t.getRootCategory();
-            Category[] catList = rootCat.getChildren();
-            
-            for(Category cat:catList){
-            	String name = cat.getName();
-            	if(name.equalsIgnoreCase("tumri")){
-            		CountsHelper.Counter counter = ((counts==null)?null:counts.get(name));
-            		if (counter != null) {
-            			tumriCount = counter.get();
-            		}
-            	}
-            }
-        }
-    	return tumriCount;
-    }
+		int totalCount = -1;
+		Category rootCat;
+
+	    Collection<TaxonomyProvider> tpc = AdvertiserTaxonomyMapperImpl.getInstance().getAllTaxonomyProviders();
+		if(tpc!=null){
+			for(TaxonomyProvider tp: tpc){
+				if (tp != null) {
+					rootCat = tp.getTaxonomy().getRootCategory();
+					String name = rootCat.getName();
+					CountsHelper.Counter counter = ((counts==null)?null:counts.get(name));
+					if (counter != null) {
+						if(totalCount>0){
+							totalCount+=counter.get();
+						} else {
+							totalCount = counter.get();
+						}
+					}
+				}
+			}
+		}
+		return totalCount;
+	}
+	private int getTumriCount(HashMap<String, CountsHelper.Counter> counts){
+		int tumriCount = -1;
+		Category rootCat;
+
+		Collection<TaxonomyProvider> tpc = AdvertiserTaxonomyMapperImpl.getInstance().getAllTaxonomyProviders();
+		if(tpc!=null){
+			for(TaxonomyProvider tp: tpc){
+				if (tpc != null) {
+					rootCat = tp.getTaxonomy().getRootCategory();
+					Category[] catList = rootCat.getChildren();
+
+					for(Category cat:catList){
+						String name = cat.getName();
+						if(name.equalsIgnoreCase("tumri")){
+							CountsHelper.Counter counter = ((counts==null)?null:counts.get(name));
+							if (counter != null) {
+								if(tumriCount>0){
+									tumriCount+=counter.get();
+								} else {
+									tumriCount = counter.get();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return tumriCount;
+	}
     
 }

@@ -20,10 +20,10 @@ package com.tumri.joz.products;
 import com.tumri.content.*;
 import com.tumri.content.data.Content;
 import com.tumri.content.data.ContentProviderStatus;
+import com.tumri.content.data.Taxonomy;
 import com.tumri.joz.campaign.TSpecQueryCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.index.ProductAttributeIndex;
-import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.keywordServer.ProductIndex;
 import com.tumri.joz.utils.IndexUtils;
 import com.tumri.joz.utils.LogUtils;
@@ -75,14 +75,6 @@ public class ContentHelper implements ContentListener {
         try {
             ContentProviderStatus st = p.getStatus();
             Content data = p.getContent();
-
-            if (!st.merchantDataDisabled) {
-                initMerchantDataDatabase(data);
-            } 
-
-            if (!st.taxonomyDisabled) {
-                initTaxonomyDatabase(data);
-            }
 
             if (!st.mupDisabled) {
                 initProductsDatabase(data);
@@ -143,11 +135,21 @@ public class ContentHelper implements ContentListener {
         ProductIndex.init();
     }
 
+	//todo: see where this is used
     protected static void initProductsDatabase(Content p) {
         ProductDB pdb = ProductDB.getInstance();
             if (p != null &&  p.getProducts() != null) {
-                ProductProvider pp = p.getProducts();
-                List<com.tumri.content.data.Product> all = pp.getAll();
+                Map<String, ProductProvider> ppMap = p.getProducts();
+	            List<com.tumri.content.data.Product> all = new ArrayList<com.tumri.content.data.Product>();
+
+	            for(ProductProvider pp: ppMap.values()){
+		            if(pp!=null){
+			            List<com.tumri.content.data.Product> tmpList = pp.getAll();
+			            if(tmpList!=null && !tmpList.isEmpty()){
+				            all.addAll(tmpList);
+			            }
+		            }
+	            }
                 Iterator<com.tumri.content.data.Product> it = all.iterator();
                 ArrayList<IProduct> allProds = new ArrayList<IProduct>(all.size());
                 while (it.hasNext()) {
@@ -289,17 +291,7 @@ public class ContentHelper implements ContentListener {
         
         return retVal;
     }
-    
-    protected static void initTaxonomyDatabase(Content p) {
-        JOZTaxonomy tax = JOZTaxonomy.getInstance();
-        tax.setTaxonomy(p.getTaxonomy().getTaxonomy());
-    }
-    
-    protected static void initMerchantDataDatabase(Content p) {
-        MerchantDB db = MerchantDB.getInstance();
-        db.setMerchantData(p.getMerchantData());
-    }
-    
+
     protected ContentProvider provider = null;
     
     public ContentHelper(ContentProvider p) {
@@ -334,14 +326,6 @@ public class ContentHelper implements ContentListener {
                     }
                 }
 
-            }
-
-            if (!st.merchantDataDisabled) {
-                initMerchantDataDatabase(data);
-            }
-
-            if (!st.taxonomyDisabled) {
-                initTaxonomyDatabase(data);
             }
 
             if (!st.mupDisabled) {

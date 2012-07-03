@@ -1,10 +1,11 @@
 <%@ page language="java" import="java.util.*" %>
 <%@ page language="java" import="com.tumri.joz.monitor.*" %>
 <%@ page language="java" import="com.tumri.joz.campaign.*" %>
-<%@ page language="java" import="com.tumri.joz.products.JOZTaxonomy" %>
 <%@ page language="java" import="com.tumri.content.data.Category" %>
 <%@ page language="java" import="com.tumri.cma.domain.*" %>
 <%@ page language="java" import="com.tumri.joz.utils.*" %>
+<%@ page import="com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl" %>
+<%@ page import="com.tumri.content.TaxonomyProvider" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -349,6 +350,7 @@
 		}
 		out.print("<br>");
 	}
+    com.tumri.content.TaxonomyProvider taxProv = AdvertiserTaxonomyMapperImpl.getInstance().getTaxonomyProvider(advertiser);
 	if (includedCategories != null) {
 		out.print("<strong>Included Categories:</strong>");
 		out.print("<br>");
@@ -356,8 +358,10 @@
 			Category cat = null;
 			String displayName = includedCategories.get(i).getDisplayName();
 			try {
-				cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(displayName);
-				displayName = cat.getName();
+				if(taxProv!=null){
+                    cat = taxProv.getTaxonomy().getCategory(displayName);
+                    displayName = cat.getName();
+                }
 			}
 			catch (NullPointerException npe) {
 				// do nothing
@@ -374,8 +378,10 @@
 			Category cat = null;
 			String displayName = excludedCategories.get(i).getDisplayName();
 			try {
-				cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(displayName);
-				displayName = cat.getName();
+				if(taxProv!=null){
+                    cat = taxProv.getTaxonomy().getCategory(displayName);
+                    displayName = cat.getName();
+                }
 			}
 			catch (NullPointerException npe) {
 				// do nothing

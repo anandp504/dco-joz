@@ -22,14 +22,14 @@ import com.tumri.cma.domain.Experience;
 import com.tumri.cma.domain.Recipe;
 import com.tumri.cma.domain.UIProperty;
 import com.tumri.cma.util.ExperienceUtils;
+import com.tumri.content.data.impl.AdvertiserMerchantDataMapperImpl;
+import com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl;
 import com.tumri.joz.JoZException;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.jozMain.ListingProviderFactory;
-import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.monitor.AdRequestMonitor;
 import com.tumri.joz.products.Handle;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.productselection.ProductSelectionProcessor;
 import com.tumri.joz.productselection.ProductSelectionResults;
 import com.tumri.joz.server.domain.JozAdRequest;
@@ -386,8 +386,8 @@ public class JozAdRequestHandler implements RequestHandler {
             slotIdArr = slotIdAL.toArray(new String[0]);
         }
 
-        ListingProvider _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-                MerchantDB.getInstance().getMerchantData());
+        ListingProvider _prov = ListingProviderFactory.getProviderInstance(AdvertiserTaxonomyMapperImpl.getInstance(),
+                AdvertiserMerchantDataMapperImpl.getInstance());
         ListingResponse response = _prov.getListing(features.getCampaignClientName(), pids, (maxDescLength != null) ? maxDescLength.intValue() : 0, slotIdArr);
         if (response == null) {
             throw new JoZException("Invalid response from Listing Provider");

@@ -17,12 +17,12 @@
  */
 package com.tumri.joz.utils;
 
+import com.tumri.content.data.impl.AdvertiserMerchantDataMapperImpl;
+import com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.index.ProductAttributeIndex;
 import com.tumri.joz.jozMain.ListingProviderFactory;
-import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.products.IProduct;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.lls.client.main.ListingProvider;
 import org.apache.log4j.Logger;
@@ -65,8 +65,8 @@ public class HealthCheckUtils {
                  return bStatus;
              }
 
-            ListingProvider  _prov = ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-                        MerchantDB.getInstance().getMerchantData());
+            ListingProvider  _prov = ListingProviderFactory.getProviderInstance(AdvertiserTaxonomyMapperImpl.getInstance(),
+                        AdvertiserMerchantDataMapperImpl.getInstance());
 
             //Check for LLS health
             if (!_prov.doHealthCheck()) {

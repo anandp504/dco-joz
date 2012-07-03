@@ -20,8 +20,8 @@ package com.tumri.joz.server.handlers;
 import com.thoughtworks.xstream.XStream;
 import com.tumri.content.data.Category;
 import com.tumri.content.data.Taxonomy;
+import com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl;
 import com.tumri.joz.JoZException;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.server.domain.*;
 import com.tumri.utils.tcp.server.domain.QueryId;
 import com.tumri.utils.tcp.server.domain.QueryInputData;
@@ -96,16 +96,16 @@ public class JozTaxonomyRequestHandler implements RequestHandler {
             }
 
             try {
-                JOZTaxonomy tax = JOZTaxonomy.getInstance();
+                Taxonomy t = AdvertiserTaxonomyMapperImpl.getInstance().getTaxonomyProvider(inputProvId).getTaxonomy();
                 if (inputProvId!=null) {
-                    inputCatId = tax.getTaxonomy().getProviderRootCategories().get(inputProvId.toUpperCase());
+	                
+                    inputCatId = t.getProviderRootCategories().get(inputProvId.toUpperCase());
                     if (inputCatId==null) {
                         //Invalid provider
                         response.addDetails(JozTaxonomyResponse.KEY_ERROR, "Could not get the taxonomy for provider : " + inputProvId);
                         return;
                     }
                 }
-                Taxonomy t = tax.getTaxonomy();
                 HashMap<String, CountsHelper.Counter> categoryCounts = null;
                 if (fetchCounts) {
                     HashMap<String, CountsHelper.Counter>[] counts = null;

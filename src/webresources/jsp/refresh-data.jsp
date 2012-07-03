@@ -3,9 +3,9 @@
 <%@ page import="com.tumri.content.data.ContentProviderStatus" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="com.tumri.joz.jozMain.ListingProviderFactory" %>
-<%@ page import="com.tumri.joz.products.JOZTaxonomy" %>
-<%@ page import="com.tumri.joz.jozMain.MerchantDB" %>
 <%@ page import="com.tumri.joz.products.ProductDB" %>
+<%@ page import="com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl" %>
+<%@ page import="com.tumri.content.data.impl.AdvertiserMerchantDataMapperImpl" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -25,8 +25,8 @@
                  cp.refresh(null);
                  ContentProviderStatus status = cp.getStatus();
                  //Invoke the content refresh on Listings Data client
-                 ListingProviderFactory.refreshData(JOZTaxonomy.getInstance().getTaxonomy(),
-                         MerchantDB.getInstance().getMerchantData());
+                 ListingProviderFactory.refreshData(AdvertiserTaxonomyMapperImpl.getInstance(),
+                         AdvertiserMerchantDataMapperImpl.getInstance());
 
                  success = (status.lastRunStatus == true ? "successful" : "failed");
                  datetime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")).format(status.lastRefreshTime);

@@ -189,3 +189,5 @@ externalTargetingVariables=x2_t1,x2_t2,x2_t3,x2_t4,x2_t5,ut1,ut2,ut3,ut4,ut5
 com.tumri.campaign.wm.xmlFileDir=/opt/Tumri/joz/data/cma
 com.tumri.campaign.wm.xmlFileNamePattern=wm.*\.xml
 com.tumri.campaign.wm.xmlSchemaDir=/opt/Tumri/joz/current/tomcat5/conf
+
+com.tumri.joz.maxconcurrentcontentloading=10

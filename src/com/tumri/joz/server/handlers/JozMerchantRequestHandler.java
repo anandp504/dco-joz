@@ -20,8 +20,8 @@ package com.tumri.joz.server.handlers;
 import com.thoughtworks.xstream.XStream;
 import com.tumri.content.data.MerchantData;
 import com.tumri.content.MerchantDataProvider;
+import com.tumri.content.data.impl.AdvertiserMerchantDataMapperImpl;
 import com.tumri.joz.JoZException;
-import com.tumri.joz.jozMain.MerchantDB;
 import com.tumri.joz.server.domain.JozMerchant;
 import com.tumri.joz.server.domain.JozMerchantRequest;
 import com.tumri.joz.server.domain.JozMerchantResponse;
@@ -32,9 +32,8 @@ import com.tumri.utils.tcp.server.domain.QueryResponseData;
 import com.tumri.utils.tcp.server.handlers.InvalidRequestException;
 import com.tumri.utils.tcp.server.handlers.RequestHandler;
 import org.apache.log4j.Logger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+
+import java.util.*;
 
 /**
  * @author: nipun
@@ -110,8 +109,13 @@ public class JozMerchantRequestHandler implements RequestHandler {
             xstream.useAttributeFor("suppliescategory",String.class);
 
             ArrayList<JozMerchant> merchants = new ArrayList<JozMerchant>();
-            MerchantDataProvider mdp = MerchantDB.getInstance().getMerchantData();
-            List<MerchantData> mdl = mdp.getAll();
+	        Collection<MerchantDataProvider> cmdp = AdvertiserMerchantDataMapperImpl.getInstance().getAllMerchantDataProviders();
+	        List<MerchantData> mdl = new ArrayList<MerchantData>();
+	        if(cmdp != null){
+		        for(MerchantDataProvider mdp: cmdp){
+			        mdl.addAll(mdp.getAll());
+		        }
+	        }
             for (MerchantData md: mdl) {
                 JozMerchant merchant = new JozMerchant();
                 merchant.setId(md.getMerchantId()!=null?md.getMerchantId():"");

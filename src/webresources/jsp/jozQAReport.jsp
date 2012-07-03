@@ -1,6 +1,6 @@
 <%@ page import="com.tumri.joz.server.domain.*" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.HashSet" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.util.List" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -24,6 +24,7 @@
 <%
 	JozQAResponse adResp = (JozQAResponse)request.getAttribute("jozQAResp");
 	JozQARequest adReq=(JozQARequest)request.getAttribute("jozQAReq");
+    java.util.Map<String, java.util.List<String>> advToRecMap = new java.util.HashMap<String, java.util.List<String>>();
 %>
 <h2>JOZ QA REQUEST:</h2>
 <br>
@@ -67,7 +68,7 @@
 						%><td align="center" bgcolor="#FF6666"><b>False</b></td><%
 					}
 				%>
-				<td align="center"><%=adResp.getTotalNumFailedRecipes()%></td>				
+				<td align="center"><%=adResp.getTotalNumFailedRecipes()%></td>
 				<td align="center"><%=adResp.getTotalNumWarnRecipes()%></td>
 				<td align="center"><%=adResp.getTotalNumSuccessRecieps()%></td>
 			</tr>
@@ -230,6 +231,16 @@
 					<ul>
 					<%
 					for(String desc: wRecResp.getDetails()){
+                        if(desc.contains("Geo")){
+                            java.util.List<String> tempList = null;
+                            if(advToRecMap.containsKey(resp.getAdvertiserName())){
+                                tempList = advToRecMap.get(resp.getAdvertiserName());
+                            } else {
+                                tempList = new ArrayList<String>();
+                            }
+                            tempList.add(Integer.toString(wRecResp.getRecipeId()));
+                            advToRecMap.put(resp.getAdvertiserName(), tempList);
+                        }
 						%><li><%=desc%></li><%
 					}
 					%>
@@ -262,6 +273,25 @@
 <%} //close adv for%>
 </table>
 <%} //close if%>
+<%
+for(String advId: advToRecMap.keySet()){
+    %><%=advId%>: SELECT sum(impression_count) from main_hourly where advertiserid= and recipeid IN (<%
+    List<String> tmpList = advToRecMap.get(advId);
+    if(tmpList!=null){
+        boolean first = true;
+        for(String recipeId: tmpList){
+            if(first){
+                first=false;
+            } else {
+                %>,<%
+            }
+            %><%=recipeId%><%
+        }
+    }
+        %>)<br><%
+}
+    %>
+
 
 </body>
 </html>

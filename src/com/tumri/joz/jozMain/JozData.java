@@ -4,19 +4,18 @@ package com.tumri.joz.jozMain;
 
 import java.util.Properties;
 
+import com.tumri.content.data.impl.AdvertiserMerchantDataMapperImpl;
+import com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl;
 import org.apache.log4j.Logger;
 
 import com.tumri.joz.campaign.CMAContentPoller;
 import com.tumri.joz.campaign.CMAContentRefreshMonitor;
 import com.tumri.joz.campaign.wm.loader.WMContentPoller;
 import com.tumri.joz.products.ContentHelper;
-import com.tumri.joz.products.JOZTaxonomy;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.joz.utils.ZipCodeDB;
 import com.tumri.joz.JoZException;
-import com.tumri.lls.client.ListingLookupDataProviderImpl;
-import com.tumri.lls.client.main.LlcListingProviderImpl;
 
 public class JozData {
 
@@ -32,8 +31,8 @@ public class JozData {
         //Init the CMA data
         loadCampaignData();
         //Init LLC
-        ListingProviderFactory.getProviderInstance(JOZTaxonomy.getInstance().getTaxonomy(),
-                        MerchantDB.getInstance().getMerchantData());
+        ListingProviderFactory.getProviderInstance(AdvertiserTaxonomyMapperImpl.getInstance(),
+                        AdvertiserMerchantDataMapperImpl.getInstance());
 
     }
 

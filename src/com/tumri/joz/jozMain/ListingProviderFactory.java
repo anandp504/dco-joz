@@ -1,7 +1,7 @@
 package com.tumri.joz.jozMain;
 
-import com.tumri.content.MerchantDataProvider;
-import com.tumri.content.data.Taxonomy;
+import com.tumri.content.data.AdvertiserMerchantDataMapper;
+import com.tumri.content.data.AdvertiserTaxonomyMapper;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.lls.client.main.LLCClientException;
@@ -43,7 +43,7 @@ public class ListingProviderFactory {
      * @return ListingProvider Implementation
      * @throws RuntimeException
      */
-    public static ListingProvider getProviderInstance(Taxonomy tax, MerchantDataProvider m) {
+    public static ListingProvider getProviderInstance(AdvertiserTaxonomyMapper advTaxProv, AdvertiserMerchantDataMapper m) {
         if(initialized) {
             return listingProvider;
         }
@@ -54,11 +54,11 @@ public class ListingProviderFactory {
                     initialized = true;
                 }
                 try {
-                    listingProvider.init(AppProperties.getInstance().getProperties(), tax, m);
+                    listingProvider.init(AppProperties.getInstance().getProperties(), advTaxProv, m);
                 } catch (LLCClientException e) {
                    LogUtils.getFatalLog().fatal("Exception caught on initializing content provider");
 //                    //Kick off thread that will retry and re do the content refresh
-                    LlcReconnectPoller.getInstance(listingProvider,tax,m).init();
+                    LlcReconnectPoller.getInstance(listingProvider,advTaxProv,m).init();
 
                 }
             }
@@ -71,12 +71,12 @@ public class ListingProviderFactory {
      * @param tax
      * @param m
      */
-    public static void refreshData(Taxonomy tax, MerchantDataProvider m){
+    public static void refreshData(AdvertiserTaxonomyMapper advTaxProv, AdvertiserMerchantDataMapper m){
         if (!initialized) {
             throw new RuntimeException("Cannot refresh Listing Provider without initializing");
         }
         try {
-            listingProvider.doContentRefresh(tax, m);
+            listingProvider.doContentRefresh(advTaxProv, m);
         } catch(LLCClientException e) {
             log.error("Content Refresh for listing provider failed.", e);
         }

@@ -1,10 +1,11 @@
 <%@ page language="java" import="java.util.*" %>
 <%@ page language="java" import="com.tumri.joz.monitor.*" %>
 <%@ page language="java" import="com.tumri.joz.campaign.*" %>
-<%@ page language="java" import="com.tumri.joz.products.JOZTaxonomy" %>
 <%@ page language="java" import="com.tumri.content.data.Category" %>
 <%@ page language="java" import="com.tumri.cma.domain.*" %>
 <%@ page language="java" import="com.tumri.joz.utils.*" %>
+<%@ page import="com.tumri.content.TaxonomyProvider" %>
+<%@ page import="com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -340,13 +341,6 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
         for (int i = 0; i < includedCategories.size(); i++) {
             Category cat = null;
             String displayName = includedCategories.get(i).getDisplayName();
-            try {
-                cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(displayName);
-                displayName = cat.getName();
-            }
-            catch (NullPointerException npe) {
-                // do nothing
-            }
             out.print("&nbsp;&nbsp;&nbsp;" + displayName);
             out.print("<br>");
         }
@@ -362,13 +356,6 @@ No TSpec Found in Campaign DB for ID: <%=TSpecName%>
         for (int i = 0; i < excludedCategories.size(); i++) {
             Category cat = null;
             String displayName = excludedCategories.get(i).getDisplayName();
-            try {
-                cat = JOZTaxonomy.getInstance().getTaxonomy().getCategory(displayName);
-                displayName = cat.getName();
-            }
-            catch (NullPointerException npe) {
-                // do nothing
-            }
             out.print("&nbsp;&nbsp;&nbsp;" + displayName);
             out.print("<br>");
         }
