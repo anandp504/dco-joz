@@ -32,7 +32,7 @@ import java.util.*;
  */
 public class ExperienceVectorTargetingProcessor {
 
-	private static final Logger log = Logger.getLogger(VectorTargetingProcessor.class);
+	private static final Logger log = Logger.getLogger(ExperienceVectorTargetingProcessor.class);
 	private static ExperienceVectorTargetingProcessor processor = null;
 	private static final String PROCESS_STATS_ID = "RS";
 	private static Random r = new Random();
@@ -216,12 +216,14 @@ public class ExperienceVectorTargetingProcessor {
 				if (VectorUtils.getRangeAttributes().contains(attr)) {
 					//this lookup of dict value is necessary for range queries.
 					String ubValS = VectorUtils.getDictValue(attr, contextVal);
-					try {
-						Integer ubVal = Integer.parseInt(ubValS);
-						Range<Integer> r = new Range<Integer>(ubVal, ubVal);
-						fromIdx = idx.get(r);
-					} catch (NumberFormatException e) {
-						log.error("Error: Non-Number received as user-bucket: " + ubValS);
+					if (ubValS != null) { //if no userbucket is found within the dictionary.
+						try {
+							Integer ubVal = Integer.parseInt(ubValS);
+							Range<Integer> r = new Range<Integer>(ubVal, ubVal);
+							fromIdx = idx.get(r);
+						} catch (NumberFormatException e) {
+							log.error("Error: Non-Number received as user-bucket: " + ubValS);
+						}
 					}
 				} else {
 					fromIdx = idx.get(contextVal);
