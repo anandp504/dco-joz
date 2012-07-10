@@ -10,6 +10,7 @@ import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexLoadingComparator;
 import com.tumri.joz.utils.LogUtils;
 import com.tumri.utils.FSUtils;
+import com.tumri.utils.data.SortedArraySet;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -57,14 +58,12 @@ public class JozIndexHelper {
 			//Look for any Joz index files
 			List<File> indexFiles = getSortedJozIndexFileList(indexDirName);
 			boolean bErrors = false;
-			for (File f : indexFiles) {
 				try {
-					readFromSerializedFile(f, debug, hotload, null, true);
+					readFromSerializedFile(indexFiles, debug, hotload, null, true);
 				} catch (Exception e) {
-					log.error("Exception caught on loading the index file : " + f.getAbsolutePath(), e);
+					log.error("Exception caught on loading the index files : ", e);
 					bErrors = true;
 				}
-			}
 
 			if (!bErrors) {
 				log.info("Finished loading the Joz indexes");
@@ -85,6 +84,8 @@ public class JozIndexHelper {
 	public void loadJozIndex(String advertiserName, boolean debug, boolean hotload) {
 		try {
 			log.info("Starting to load the Joz indexes for advertiser :" + advertiserName);
+			//todo: possibly use List<File> indexFiles = getSortedJozIndexFileList(indexDirName + "/" + advertiserName.toUpperCase() + "/jozindex");
+
 			ArrayList<File> indexFiles = new ArrayList<File>();
 			File indexDir = new File(indexDirName + "/" + advertiserName.toUpperCase() + "/jozindex");
 			FSUtils.findFiles(indexFiles, indexDir, JOZ_INDEX_FILE_PATTERN);
@@ -92,10 +93,7 @@ public class JozIndexHelper {
 				log.error("No " + advertiserName + " joz index files found under directory: " + indexDir.getAbsolutePath());
 				return;
 			}
-			for (File f : indexFiles) {
-				readFromSerializedFile(f, debug, hotload, null, true);
-			}
-
+			readFromSerializedFile(indexFiles, debug, hotload, null, true);
 
 			log.info("Finished loading the Joz index for advertiser : " + advertiserName);
 		} catch (Exception e) {
@@ -122,9 +120,7 @@ public class JozIndexHelper {
 			}
 			if (!prevIndexFiles.isEmpty()) {
 				IJozIndexUpdater updater = new JozIndexUpdater(true);
-				for (File f : prevIndexFiles) {
-					readFromSerializedFile(f, false, true, updater, false);
-				}
+				readFromSerializedFile(prevIndexFiles, false, true, updater, false);
 				log.info("Finished deleting the Joz index for advertiser : " + advertiserName);
 				//Delete all the prev joz index files for that advertiser
 				if (!prevIndexDir.exists()) {
@@ -232,19 +228,19 @@ public class JozIndexHelper {
 		try {
 			log.info("Starting to load the specified Joz indexes.");
 			if (fileNames != null && fileNames.size() > 0) {
+				List<File> indexFiles = new ArrayList<File>();
 				for (String indexFileName : fileNames) {
 					File indexFile = new File(dirName + "/" + indexFileName);
 					if (indexFile.exists()) {
-						readFromSerializedFile(indexFile, true, false, updater, false);
+						indexFiles.add(indexFile);
 					} else {
 						log.error("Specified file does not exist - cannot load : " + indexFile);
 					}
 				}
+				readFromSerializedFile(indexFiles, true, false, updater, false);
 			} else {
 				List<File> idxFiles = getSortedJozIndexFileList(dirName);
-				for (File indexFile : idxFiles) {
-					readFromSerializedFile(indexFile, true, false, updater, false);
-				}
+				readFromSerializedFile(idxFiles, true, false, updater, false);
 			}
 			log.info("Finished loading the Joz indexes");
 		} catch (Exception e) {
@@ -257,54 +253,98 @@ public class JozIndexHelper {
 	 *
 	 * @param inFile
 	 */
-	private void readFromSerializedFile(File inFile, boolean debugMode, boolean hotLoad, IJozIndexUpdater updater,
+	private void readFromSerializedFile(List<File> inFiles, boolean debugMode, boolean hotLoad, IJozIndexUpdater updater,
 	                                    boolean copy) throws IOException, ClassNotFoundException {
-		log.info("Going to load the index from file : " + inFile.getAbsolutePath());
-		long startTime = System.currentTimeMillis();
-		FileInputStream fis = null;
-		ObjectInputStream in = null;
 		if (updater == null) {
 			updater = new JozIndexUpdater();
 		}
-		try {
-			JICProperties.init(debugMode, hotLoad, updater);
-			fis = new FileInputStream(inFile);
-			in = new ObjectInputStream(new BufferedInputStream(fis));
-			PersistantProviderIndex pProvIndex = (PersistantProviderIndex) in.readObject();
-			in.close();
-		} catch (IOException ex) {
-			log.error("Could not load index file.");
-			throw ex;
-		} catch (ClassNotFoundException ex) {
-			log.error("Deserialization failed from file. " + inFile.getAbsolutePath());
-			throw ex;
-		} catch (Throwable t) {
-			LogUtils.getFatalLog().info("Index load failed for : " + inFile.getAbsolutePath(), t);
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
+
+		Map<String, List<File>> provToFilesMap = getProvidersFromFileNames(inFiles);
+		Set<String> tmpProviderSet = provToFilesMap.keySet();
+
+		if(tmpProviderSet!=null && !tmpProviderSet.isEmpty()){
+			Set<String> providerSet = new SortedArraySet<String>(tmpProviderSet);
+			for(String providerName: providerSet){
+				if(providerName!=null){
+					List<File> provInFiles = provToFilesMap.get(providerName);
+					if(provInFiles!=null && !provInFiles.isEmpty()){
+						for(File provInFile: provInFiles){
+							log.info("Going to load the index from file : " + provInFile.getAbsolutePath());
+							long startTime = System.currentTimeMillis();
+							FileInputStream fis = null;
+							ObjectInputStream in = null;
+
+							try {
+								JICProperties.init(debugMode, hotLoad, updater);
+								fis = new FileInputStream(provInFile);
+								in = new ObjectInputStream(new BufferedInputStream(fis));
+								PersistantProviderIndex pProvIndex = (PersistantProviderIndex) in.readObject();
+								in.close();
+							} catch (IOException ex) {
+								log.error("Could not load index file: " + provInFile.getAbsolutePath());
+								throw ex;
+							} catch (ClassNotFoundException ex) {
+								log.error("Deserialization failed from file: " + provInFile.getAbsolutePath());
+								throw ex;
+							} catch (Throwable t) {
+								LogUtils.getFatalLog().info("Index load failed for: " + provInFile.getAbsolutePath(), t);
+							} finally {
+								try {
+									if (in != null) {
+										in.close();
+									}
+								} catch (Throwable t) {
+									log.error("Error in closing the file input stream", t);
+								}
+							}
+							log.info("time taken to load index file(" + provInFile.getAbsolutePath() + ") is: " + (System.currentTimeMillis() - startTime));
+						}
+
+						//Copy to the prev folder
+						if (copy) {
+
+							IndexLoadingComparator comp = new IndexLoadingComparator();
+							File prevIndexDir = new File(prevJozindexDirName + "/" + providerName.toUpperCase() + "/jozindex");
+							if (!prevIndexDir.exists()) {
+								prevIndexDir.mkdirs();
+							}
+							//this is where we compare MUP vs index to see if there are any discrepancies between the two.
+							//if there are, we want to keep all new joz-indexes in prevjozindex/ so when we do a full-load
+							//we can correctly clean out all the advertisers indexes and re-add them.
+							if (comp.validateForAdvertiser(providerName)) {
+								//GC all the older indexes
+								FSUtils.removeFiles(prevIndexDir, true);
+							}
+
+							for(File provInFile: provInFiles){
+								FSUtils.copyFile(provInFile, new File(prevIndexDir.getAbsolutePath() + "/" + provInFile.getName()));
+								ContentProviderStatus.getInstance().jozIndexFileNames.put(providerName, provInFile.getName());
+							}
+
+						}
+					}
 				}
-			} catch (Throwable t) {
-				log.error("Error in closing the file input stream", t);
 			}
 		}
-		//Copy to the prev folder
-		if (copy) {
-			String providerName = getProviderFromFileName(inFile.getName());
-			File prevIndexDir = new File(prevJozindexDirName + "/" + providerName.toUpperCase() + "/jozindex");
-			if (!prevIndexDir.exists()) {
-				prevIndexDir.mkdirs();
+
+	}
+
+	private static Map<String, List<File>> getProvidersFromFileNames(List<File> files){
+		Map<String, List<File>> retMap = new HashMap<String, List<File>>();
+		if(files!=null && !files.isEmpty()){
+			for(File f: files){
+				String provider = getProviderFromFileName(f.getName());
+				if(provider!=null && !"".equals(provider.trim())){
+					List<File> provFiles = retMap.get(provider);
+					if(provFiles == null){
+						provFiles = new ArrayList<File>();
+					}
+					provFiles.add(f);
+					retMap.put(provider, provFiles);
+				}
 			}
-			IndexLoadingComparator comp = new IndexLoadingComparator();
-			if (comp.validateForAdvertiser(providerName)) {
-				//GC all the older indexes
-				FSUtils.removeFiles(prevIndexDir, true);
-			}
-			FSUtils.copyFile(inFile, new File(prevIndexDir.getAbsolutePath() + "/" + inFile.getName()));
-			ContentProviderStatus.getInstance().jozIndexFileNames.put(providerName, inFile.getName());
 		}
-		log.info("time taken to load index file(" + inFile.getAbsolutePath() + ") is: " + (System.currentTimeMillis() - startTime));
+		return retMap;
 	}
 
 	/**
