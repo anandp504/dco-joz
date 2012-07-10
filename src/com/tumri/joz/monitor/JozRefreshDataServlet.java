@@ -146,7 +146,8 @@ public class JozRefreshDataServlet extends HttpServlet {
 	 * Helper method to refresh listing data
 	 */
 	private String doRefreshListingData(String advertiser, String revertMode) throws InvalidConfigException  {
-		log.warn("beginning refresh for advertiser: " + advertiser + " and revertMode: " + revertMode);
+		String revertModeS = revertMode != null ? "enabled" : "disabled";
+		log.warn("Attempting refresh for advertiser: " + advertiser + " with revertMode " + revertModeS);
 		String advStr = null;
 		Semaphore sAdv = null;
 		String success = "failed";
@@ -162,7 +163,7 @@ public class JozRefreshDataServlet extends HttpServlet {
 				sAdv.acquire();
 				advStr = advertiser;
 			}
-
+			log.warn("Beginning refresh for advertiser: " + advertiser + " with revertMode " + revertModeS);
 			if (revertMode != null) {
 				log.warn("Content full load starting for " + advStr);
 				if (advertiser!=null) {
@@ -182,17 +183,17 @@ public class JozRefreshDataServlet extends HttpServlet {
 			ContentProviderStatus status = cp.getStatus();
 			success = (status.lastRunStatus == true ? "success" : "failed");
 			if (revertMode!=null) {
-				log.warn("Content full load finished for " + advStr + ". Status =  " + success);
+				log.warn("Content full load finished for " + advStr + ". Status = " + success);
 			} else {
-				log.warn("Content load finished for " + advStr + ". Status =  " + success);
+				log.warn("Content load finished for " + advStr + ". Status = " + success);
 			}
 
 		} catch (InterruptedException e) {
 			success = "failed";
 			if (revertMode!=null) {
-				log.warn("Content full load finished for " + advStr + ". Status =  " + success);
+				log.warn("Content full load finished for " + advStr + ". Status = " + success);
 			} else {
-				log.warn("Content load finished for " + advStr + ". Status =  " + success);
+				log.warn("Content load finished for " + advStr + ". Status = " + success);
 			}
 			log.error(e);
 		} finally {
