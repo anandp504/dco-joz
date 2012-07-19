@@ -131,7 +131,7 @@
                     val = val + "," + VectorUtils.getDictValue(k, id);
                 }
         %>
-            <li><%=vectorId %>=<%=k.name()%><%=val%>
+            <li><%=vectorId%>=<%=k.name()%><%=val%>
             </li>
             <%
                 }
@@ -139,23 +139,37 @@
     </td>
     <%
         SortedBag<Pair<CreativeSet, Double>> ruleList = db.getRules(handle.getOid());
+        SortedBag<Pair<ListingClause, Double>> clauses = db.getClauses(handle.getOid());
     %>
     <td>
         <ul><%
-            try {
-                if (ruleList instanceof RWLocked) {
-                    ((RWLocked) ruleList).readerLock();
-                }
-                for (Pair<CreativeSet, Double> rulePair : ruleList) {
-                    CreativeSet cs = rulePair.getFirst();
-                    List<String> valueList = cs.getAttributes(0); //For recipe
-                    //Get the Recipe Name
-                    String recipeId = valueList.get(0);
-                    Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(recipeId));
-                    Double wt = rulePair.getSecond();
+            if (ruleList != null) {
+                try {
+                    if (ruleList instanceof RWLocked) {
+                        ((RWLocked) ruleList).readerLock();
+                    }
+                    for (Pair<CreativeSet, Double> rulePair : ruleList) {
+                        CreativeSet cs = rulePair.getFirst();
+                        CAM theCAM = cs.getCAM();
+                        CAMDimension[] dims = theCAM.getCamDimensions();
+                        StringBuilder sbuild = new StringBuilder();
+                        for (int i = 0; i < dims.length; i++) {
+                            CAMDimension currDim = dims[i];
+                            sbuild.append(currDim.getName() + "=");
+                            List<String> values = cs.getAttributes(i);
+                            if (currDim.getName().equals("RECIPEID")) {
+                                for (String s : values) {
+                                        Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(s));
+                                        String url = "<a href=\"/joz/jsp/recipeSelection.jsp?selRecipe=" + r.getId() + "\">" + r.getName() + "</a>";
+                                        sbuild.append(s + " " + url + ",");
+                                }
+                            } else {
+                                sbuild.append(cs + ",");
+                            }
+                        }
+                        Double wt = rulePair.getSecond();
         %>
-            <li><%=recipeId%>,<a href="/joz/jsp/recipeSelection.jsp?selRecipe=<%=r.getId()%>"><%=r.getName()%>
-            </a>,<%=wt%>
+            <li><%=sbuild.toString()%> <%=wt%>
             </li>
             <%
                     }
@@ -163,6 +177,11 @@
                     if (ruleList instanceof RWLocked) {
                         ((RWLocked) ruleList).readerUnlock();
                     }
+                }
+            } else {
+            %>
+            No Rules Found!
+            <%
                 }
             %></ul>
     </td>
@@ -248,14 +267,14 @@
                             CAMDimension currDim = dims[i];
                             sbuild.append(currDim.getName() + "=");
                             List<String> values = cs.getAttributes(i);
-                            for (String s : values) {
-                                if (currDim.getName().equals("RECIPEID")) {
-                                    Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(s));
-                                    String url = "<a href=\"/joz/jsp/recipeSelection.jsp?selRecipe=" + r.getId() + "\">" + r.getName() + "</a>";
-                                    sbuild.append(s + " " + url + ",");
-                                } else {
-                                    sbuild.append(s + ",");
+                            if (currDim.getName().equals("RECIPEID")) {
+                                for (String s : values) {
+                                        Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(s));
+                                        String url = "<a href=\"/joz/jsp/recipeSelection.jsp?selRecipe=" + r.getId() + "\">" + r.getName() + "</a>";
+                                        sbuild.append(s + " " + url + ",");
                                 }
+                            } else {
+                                sbuild.append(cs + ",");
                             }
                         }
                         Double wt = rulePair.getSecond();

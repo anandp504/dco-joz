@@ -5,10 +5,7 @@ import com.tumri.cma.CMAFactory;
 import com.tumri.cma.RepositoryException;
 import com.tumri.cma.domain.*;
 import com.tumri.cma.service.CampaignDeltaProvider;
-import com.tumri.joz.campaign.wm.ExperienceVectorHandleFactory;
-import com.tumri.joz.campaign.wm.VectorDB;
-import com.tumri.joz.campaign.wm.VectorHandle;
-import com.tumri.joz.campaign.wm.VectorHandleFactory;
+import com.tumri.joz.campaign.wm.*;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.Pair;
 import org.apache.log4j.Logger;
@@ -110,17 +107,22 @@ public class CampaignDBDataLoader {
 
 			VectorHandleFactory vhFactory = new VectorHandleFactory();
 			ExperienceVectorHandleFactory evhFactory = new ExperienceVectorHandleFactory();
+			campaignDB.loadExperiences(expIterator, vhFactory);
 			campaignDB.loadAdPods(adPodsIterator, vhFactory, evhFactory);
 
 			//Load the Recipe information into the VectorDB as default rules
 			SortedSet<VectorHandle> defHandles = vhFactory.getCurrHandles();
 			VectorDB.getInstance().addDefNewHandles(defHandles);
+			SortedSet<VectorHandle> eDefHandles = evhFactory.getCurrHandles();
+			ExperienceVectorDB.getInstance().addDefNewHandles(eDefHandles);
 
+			campaignDB.loadRecipes(recipesIterator);
+			campaignDB.loadOSpecs(oSpecsIterator);
+			
 			campaignDB.loadUrls(urlsIterator);
 			campaignDB.loadLocations(locationsIterator);
 
 			campaignDB.loadGeocodes(geocodesIterator);
-			campaignDB.loadOSpecs(oSpecsIterator);
 			campaignDB.loadAdPodOSpecMapping(adPodOSpecMappings);
 			campaignDB.loadCampaigns(campaignsIterator);
 			campaignDB.loadUrlAdPodMappings(urlsAdPodMappingIterator);
@@ -128,11 +130,9 @@ public class CampaignDBDataLoader {
 			campaignDB.loadRunOfNetworkAdPods(runOfNetworkAdPodsIterator);
 			campaignDB.loadGeoNoneAdPods(geoNoneAdPodsIterator);
 			campaignDB.loadUrlNoneAdPods(urlNoneAdPodsIterator);
-			campaignDB.loadRecipes(recipesIterator);
 			campaignDB.loadAdPodCampaignMapping(adPodCampaignMappings);
 			campaignDB.loadExternalVariableAdPods(extVariablesAdPodMap);
 			campaignDB.loadNonExternalVariableAdPods(nonExtVariablesAdPodMap);
-			campaignDB.loadExperiences(expIterator, vhFactory);
 			campaignDB.loadAgeAdPodMappings(ageMappings);
 			campaignDB.loadAgeNoneAdPods(nonAgeAdpods);
 			campaignDB.loadGenderAdPodMappings(genderMappings);
