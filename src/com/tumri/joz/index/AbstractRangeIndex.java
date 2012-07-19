@@ -251,23 +251,55 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 			ArrayList<Value> list = map.get(k);
 			if (list != null) {
 				RWLockedSortedSet<Value> set = null;
-				m_map.readerLock();
+				m_map.writerLock();
 				try {
 					set = m_map.get(k);
 					if (set == null) {
+						removeWithoutMapLock(k);
 						continue;
 					}
+					set.writerLock();
+					try {
+						set.removeAll(list);
+						if (set.isEmpty()) {
+							removeWithoutMapLock(k);
+						}
+					} finally {
+						set.writerUnlock();
+					}
 				} finally {
-					m_map.readerUnlock();
+					m_map.writerUnlock();
 				}
-				set.writerLock();
+			}
+		}
+	}
+
+	private void removeWithoutMapLock(Range<V> key){
+		m_set.writerLock();
+		try {
+			removeWithoutLocks(key);
+		} finally {
+			m_set.writerUnlock();
+		}
+	}
+
+	private void removeWithoutLocks(Range<V> key){
+		m_map.remove(key);
+		Iterator<RangeIndexDomainMapping<V>> i = m_set.iterator();
+		while (i.hasNext()) {
+			RangeIndexDomainMapping<V> tmpElement = i.next();
+			if (tmpElement != null) {
+				RWLockedSortedSet<Range<V>> ranges = tmpElement.getRanges();
+				ranges.writerLock();
 				try {
-					set.removeAll(list);
+					if (ranges != null && ranges.contains(key)) {
+						ranges.remove(key);
+					}
+					if (ranges == null || ranges.isEmpty()) {
+						m_set.remove(tmpElement);
+					}
 				} finally {
-					set.writerUnlock();
-				}
-				if (set.isEmpty()) {
-					remove(k);
+					ranges.writerUnlock();
 				}
 			}
 		}
@@ -281,48 +313,11 @@ public abstract class AbstractRangeIndex<attr, V, Value> extends AbstractIndex<V
 	public void remove(Range<V> key) {
 		m_map.writerLock();
 		try {
-			m_map.remove(key);
+			removeWithoutMapLock(key);
 		} finally {
 			m_map.writerUnlock();
 		}
 
-		m_set.readerLock();
-		List<RangeIndexDomainMapping<V>> deleteList = new ArrayList<RangeIndexDomainMapping<V>>();
-		try {
-			Iterator<RangeIndexDomainMapping<V>> i = m_set.iterator();
-			while (i.hasNext()) {
-				RangeIndexDomainMapping<V> tmpElement = i.next();
-				if (tmpElement != null) {
-					RWLockedSortedSet<Range<V>> ranges = tmpElement.getRanges();
-					ranges.writerLock();
-					try {
-						if (ranges != null && ranges.contains(key)) {
-							ranges.remove(key);
-						}
-					} finally {
-						ranges.writerUnlock();
-					}
-					ranges.readerLock();
-					try {
-						if (ranges == null || ranges.isEmpty()) {
-							deleteList.add(tmpElement);
-						}
-					} finally {
-						ranges.readerUnlock();
-					}
-				}
-			}
-		} finally {
-			m_set.readerUnlock();
-		}
-		if (!deleteList.isEmpty()) {
-			m_set.writerLock();
-			try {
-				m_set.removeAll(deleteList);
-			} finally {
-				m_set.writerUnlock();
-			}
-		}
 	}
 
 	/**
