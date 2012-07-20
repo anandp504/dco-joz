@@ -104,7 +104,7 @@ public class VectorAttributeWeights implements IWeight<Handle> {
 	}
 
 	public double getMinWeight() {
-		return .2;
+		return 1.0;
 	}
 
 	public static double getDefaultAttributeWeight(VectorAttribute attr) {
@@ -213,6 +213,6 @@ public class VectorAttributeWeights implements IWeight<Handle> {
 				return kExpId;
 			default:
 		}
-		return 0.2;
+		return kDefault;
 	}
 }
