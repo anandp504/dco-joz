@@ -107,22 +107,17 @@ public class CampaignDBDataLoader {
 
 			VectorHandleFactory vhFactory = new VectorHandleFactory();
 			ExperienceVectorHandleFactory evhFactory = new ExperienceVectorHandleFactory();
-			campaignDB.loadExperiences(expIterator, vhFactory);
 			campaignDB.loadAdPods(adPodsIterator, vhFactory, evhFactory);
 
 			//Load the Recipe information into the VectorDB as default rules
 			SortedSet<VectorHandle> defHandles = vhFactory.getCurrHandles();
 			VectorDB.getInstance().addDefNewHandles(defHandles);
-			SortedSet<VectorHandle> eDefHandles = evhFactory.getCurrHandles();
-			ExperienceVectorDB.getInstance().addDefNewHandles(eDefHandles);
 
-			campaignDB.loadRecipes(recipesIterator);
-			campaignDB.loadOSpecs(oSpecsIterator);
-			
 			campaignDB.loadUrls(urlsIterator);
 			campaignDB.loadLocations(locationsIterator);
 
 			campaignDB.loadGeocodes(geocodesIterator);
+			campaignDB.loadOSpecs(oSpecsIterator);
 			campaignDB.loadAdPodOSpecMapping(adPodOSpecMappings);
 			campaignDB.loadCampaigns(campaignsIterator);
 			campaignDB.loadUrlAdPodMappings(urlsAdPodMappingIterator);
@@ -130,9 +125,11 @@ public class CampaignDBDataLoader {
 			campaignDB.loadRunOfNetworkAdPods(runOfNetworkAdPodsIterator);
 			campaignDB.loadGeoNoneAdPods(geoNoneAdPodsIterator);
 			campaignDB.loadUrlNoneAdPods(urlNoneAdPodsIterator);
+			campaignDB.loadRecipes(recipesIterator);
 			campaignDB.loadAdPodCampaignMapping(adPodCampaignMappings);
 			campaignDB.loadExternalVariableAdPods(extVariablesAdPodMap);
 			campaignDB.loadNonExternalVariableAdPods(nonExtVariablesAdPodMap);
+			campaignDB.loadExperiences(expIterator, vhFactory);
 			campaignDB.loadAgeAdPodMappings(ageMappings);
 			campaignDB.loadAgeNoneAdPods(nonAgeAdpods);
 			campaignDB.loadGenderAdPodMappings(genderMappings);
