@@ -280,8 +280,8 @@
 		}
 	}
 
-	/* Code to display all the product attributes coming from joz server.
-	// Enable only for debug
+	// Code to display all the product attributes coming from joz server.
+	/* Enable only for debug
 	Map<String,String> p=products.get(0);
 	Set keySet=p.keySet();
 	Iterator i2=keySet.iterator();
@@ -289,7 +289,7 @@
 		String key=(String)i2.next();
 		String value=(String)p.get(key);
 		out.print(key+":"+value+"<br />");
-	}*/
+	}   */
 %>
 <table>
 <tr style="text-align: center">
@@ -467,15 +467,19 @@
 				String sp=(String)product.get("ship_promo");
 				String provider=(String)product.get("provider");
 				String name=(String)product.get("name");
+
 				name=name.replaceAll("&#39;", "\\\\\'");
 				name=name.replaceAll("\"","\\\\\"");
 				name=name.replaceAll("\'","\\\\\'");
 
 				String temp=(String)product.get("thumbnailraw");
-				StringTokenizer attrToken=new StringTokenizer(temp,"|");
-				attrToken.nextToken(); //Remove first integer.
-				attrToken.nextToken(); //Remove second integer.
-				String thumbnailraw=attrToken.nextToken(); //Thumbnail Image url
+                StringTokenizer attrToken=new StringTokenizer(temp,"|");
+
+                // Extracting Thumbnail Image url
+                String thumbnailraw="";
+                while(attrToken.hasMoreTokens()){
+                    thumbnailraw=attrToken.nextToken();
+                }
 
 				if (0==count) out.println("<tr>");
 				else if(count%4==0) out.println("</tr><tr>");
