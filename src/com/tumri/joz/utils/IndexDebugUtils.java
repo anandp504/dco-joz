@@ -127,7 +127,7 @@ public class IndexDebugUtils {
                 }
                 result = JozIndexHelper.getInstance().loadIndexForDebug(binLoc, binFiles, prodIds);
             } else {
-                result = JozIndexHelper.getInstance().loadIndexForDebug("/opt/Tumri/joz/data/caa/current/jozindex", binFiles, prodIds);
+                result = JozIndexHelper.getInstance().loadIndexForDebug("/opt/Tumri/joz/data/caa/current", binFiles, prodIds);
             }
         } finally {
             resetDebugMode();
