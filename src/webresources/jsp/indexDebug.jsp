@@ -70,7 +70,7 @@ Index Debuging Util: <i>View Product Listings Accross *.bin Files<i>
 
 				&nbsp; &nbsp; &nbsp; &nbsp; If you omit any field a Default value will be assigned as follows:
 				<br>
-				&nbsp; &nbsp; &nbsp; &nbsp; If no bin directory is given via <strong>-binLoc</strong>, the default directory will be <strong>/opt/Tumri/joz/data/caa/current/jozindex</strong>
+				&nbsp; &nbsp; &nbsp; &nbsp; If no bin directory is given via <strong>-binLoc</strong>, the default directory will be <strong>/opt/Tumri/joz/data/caa/current</strong>
 				<br>
 				&nbsp; &nbsp; &nbsp; &nbsp; If no bin Files are specified via <strong>-binFile</strong>, data will be collected across all *.bin files located in <strong>binLoc</strong>
 				<br>
