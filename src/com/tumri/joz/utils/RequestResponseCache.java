@@ -5,6 +5,7 @@ import com.tumri.joz.server.domain.JozAdResponse;
 import com.tumri.utils.Pair;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,8 +20,8 @@ public class RequestResponseCache {
     private static RequestResponseCache requestResponseCache;
 
     private RequestResponseCache() {
-        cacheForAdvertiser = Collections.synchronizedMap(new HashMap<String, Pair<JozAdRequest, JozAdResponse>>());
-        cacheForCampaign = Collections.synchronizedMap(new HashMap<String, Pair<JozAdRequest, JozAdResponse>>());
+        cacheForAdvertiser = new ConcurrentHashMap<String, Pair<JozAdRequest, JozAdResponse>>();
+        cacheForCampaign = new ConcurrentHashMap<String, Pair<JozAdRequest, JozAdResponse>>();
     }
 
     static {

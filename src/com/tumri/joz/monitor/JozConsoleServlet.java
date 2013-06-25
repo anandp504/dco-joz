@@ -86,19 +86,8 @@ public class JozConsoleServlet extends HttpServlet {
                 request.setAttribute("adReq", req);
                 JozAdResponse adResp = mon.getResponse(req);
                 request.setAttribute("adResp", adResp);
-
-                Map<String, String> resultMap = adResp.getResultMap();
-                String advertiser = resultMap.get("CAMPAIGN-CLIENT-NAME");
-
                 RequestResponseCache requestResponseCache = RequestResponseCache.getRequestResponseCacheInstance();
-                requestResponseCache.addReqResForAdvertiser(req, adResp, advertiser);
                 request.getSession().setAttribute("reqRespMap", requestResponseCache);
-                //for campaign
-                String campaignId = resultMap.get("CAMPAIGN-ID");
-                String campaignName = resultMap.get("CAMPAIGN-NAME");
-                String campaignKey = campaignName + " " + campaignId;
-                requestResponseCache.addReqResForCampaign(req, adResp, campaignKey);
-
                 responseJSP = "/jsp/adRequest.jsp?mode=console";
             }
         } else if ("dl".equalsIgnoreCase(mode)) {
