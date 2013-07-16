@@ -58,7 +58,7 @@ public class AdDataRequest {
 	private Integer _ad_height = null;
 
 	// one of :product-only, :leadgen-only, or product-leadgen
-	private AdOfferType _ad_offer_type = null;
+	//private AdOfferType _ad_offer_type = null;
 
 	private Integer _max_prod_desc_len = null;
 
@@ -155,7 +155,7 @@ public class AdDataRequest {
 			this._ad_height = null;
 		}
 
-		this._ad_offer_type = "LEADGEN".equals(req.getValue(JozAdRequest.KEY_AD_OFFER_TYPE)) ? AdDataRequest.AdOfferType.LEADGEN_ONLY : AdDataRequest.AdOfferType.PRODUCT_LEADGEN;
+		//this._ad_offer_type = "LEADGEN".equals(req.getValue(JozAdRequest.KEY_AD_OFFER_TYPE)) ? AdDataRequest.AdOfferType.LEADGEN_ONLY : AdDataRequest.AdOfferType.PRODUCT_LEADGEN;
 
 		try {
 			this._max_prod_desc_len = Integer.parseInt(req.getValue(JozAdRequest.KEY_MAX_PROD_DESC_LEN));
@@ -395,9 +395,9 @@ public class AdDataRequest {
 		return _ad_height;
 	}
 
-	public AdOfferType get_ad_offer_type() {
+	/*public AdOfferType get_ad_offer_type() {
 		return _ad_offer_type;
-	}
+	}*/
 
 	public Integer get_max_prod_desc_len() {
 		return _max_prod_desc_len;
@@ -672,8 +672,8 @@ public class AdDataRequest {
 				b.append(" :ad-width ").append(_ad_width);
 			if (_ad_height != null)
 				b.append(" :ad-height ").append(_ad_height);
-			if (_ad_offer_type != null)
-				b.append(" :ad-offer-type ").append(_ad_offer_type);
+			/*if (_ad_offer_type != null)
+				b.append(" :ad-offer-type ").append(_ad_offer_type);*/
 			if (adType != null)
 				b.append(" :ad-type ").append(adType);
 			if (recipeId != null)

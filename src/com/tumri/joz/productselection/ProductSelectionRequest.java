@@ -28,6 +28,8 @@ import com.tumri.joz.jozMain.AdDataRequest;
  */
 public class ProductSelectionRequest {
 
+    //Todo: to remove advertiser from ProductSelectionRequest
+
     private boolean bRandomize = false;
     private boolean bMineUrls = false;
     private boolean bSearchWithinTSpec = true;
@@ -39,7 +41,7 @@ public class ProductSelectionRequest {
 
     private String requestKeyWords = "";
     private String requestCategory = null;
-    private AdDataRequest.AdOfferType offerType = null;
+    //private AdDataRequest.AdOfferType offerType = null;
     private String externalFilterQuery1 = null;
     private String externalFilterQuery2 = null;
     private String externalFilterQuery3 = null;
@@ -60,7 +62,6 @@ public class ProductSelectionRequest {
 
     private int adWidth = -1;
     private int adHeight = -1;
-
     
     //Geo
     private String countryCode = null;
@@ -70,7 +71,7 @@ public class ProductSelectionRequest {
     private String areaCode = null;
     private String dmaCode = null;
 
-    private String advertiser = null;
+    //private String advertiser = null;
 
     private ListingClause listingClause = null;
     private boolean useTopK = false;
@@ -116,13 +117,13 @@ public class ProductSelectionRequest {
         this.requestCategory = requestCategory;
     }
 
-    public AdDataRequest.AdOfferType getOfferType() {
+    /*public AdDataRequest.AdOfferType getOfferType() {
         return offerType;
     }
 
     public void setOfferType(AdDataRequest.AdOfferType offerType) {
         this.offerType = offerType;
-    }
+    }*/
 
     public String getCountryCode() {
         return countryCode;
@@ -260,13 +261,13 @@ public class ProductSelectionRequest {
         this.externalFilterQuery5 = externalFilterQuery5;
     }
 
-    public String getAdvertiser() {
+    /*public String getAdvertiser() {
         return advertiser;
     }
 
     public void setAdvertiser(String advertiser) {
         this.advertiser = advertiser;
-    }
+    }*/
 
     public ListingClause getListingClause() {
         return listingClause;
@@ -384,7 +385,7 @@ public class ProductSelectionRequest {
 		sb.append("bPaginate = ".toUpperCase() + bPaginate + " ");
 		sb.append("requestKeyWords = ".toUpperCase() + requestKeyWords + " ");
 		sb.append("requestCategory = ".toUpperCase() + requestCategory + " ");
-		sb.append("offerType = ".toUpperCase() + offerType + " ");
+		//sb.append("offerType = ".toUpperCase() + offerType + " ");
 		sb.append("externalFilterQuery1 = ".toUpperCase() + externalFilterQuery1 + " ");
 		sb.append("externalFilterQuery2 = ".toUpperCase() + externalFilterQuery2 + " ");
 		sb.append("externalFilterQuery3 = ".toUpperCase() + externalFilterQuery3 + " ");
@@ -401,7 +402,7 @@ public class ProductSelectionRequest {
 		sb.append("areaCode = ".toUpperCase() + areaCode + " ");
 		sb.append("dmaCode = ".toUpperCase() + dmaCode + " ");
 
-        sb.append("advertiser = ".toUpperCase() + advertiser + " ");
+        //sb.append("advertiser = ".toUpperCase() + advertiser + " ");
 
 		return sb.toString();
 	}
