@@ -46,9 +46,9 @@ public class ProductQueryMonitor extends ComponentMonitor {
 	public MonitorStatus getStatus(String prS, String tSpecS, String advertiser) {
 		ProductSelectionRequest pr = generateProductSelectionRequest(prS);
 		TSpec tSpec = generateTSpec(tSpecS);
-		if (advertiser == null) {
+		/*if (advertiser == null) {
 			advertiser = pr.getAdvertiser();
-		}
+		}*/
 
 		if (advertiser == null) {
 			List<ProviderInfo> info = tSpec.getIncludedProviders();
@@ -87,7 +87,7 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		ProductSelectionRequest pr = new ProductSelectionRequest();
 		pr.setPageSize(100);
 		pr.setCurrPage(0);
-		pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
+		//pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
 		pr.setBPaginate(true);
 		pr.setBRandomize(false);
 		pr.setRequestKeyWords(null);
@@ -140,7 +140,8 @@ public class ProductQueryMonitor extends ComponentMonitor {
 			throw new JoZException("No products returned by the product selection");
 		}
 		if (advertiser == null) {
-			throw new JoZException("No advertiser specified in request or tspec to get the listing data");
+			//throw new JoZException("No advertiser specified in request or tspec to get the listing data");
+            throw new JoZException("No advertiser specified in tspec to get the listing data");
 		}
 
 		String jsonStr = null;
@@ -161,16 +162,16 @@ public class ProductQueryMonitor extends ComponentMonitor {
 			}
 
 			jsonStr = response.getListingDetails();
-
 		}
+        //String token="[]"; || token.equals(jsonStr)
 		if (jsonStr == null || "".equals(jsonStr)) {
 			throw new JozMonitorException("Products not found.");
 		}
 		StringBuffer rawData = new StringBuffer();
 		rawData.append("[PRODUCTS = " + jsonStr + "] ");
-		rawData.append("[PROD-IDS = " + response.getProductIdList() + "] ");
-		rawData.append("[CATEGORIES = " + response.getCatDetails() + "] ");
-		rawData.append("[CAT-NAMES = " + response.getCatIdList() + "] ");
+        rawData.append("[PROD-IDS = " + response.getProductIdList() + "] ");
+        rawData.append("[CATEGORIES = " + response.getCatDetails() + "] ");
+        rawData.append("[CAT-NAMES = " + response.getCatIdList() + "] ");
 
 		((ProductQueryMonitorStatus) status.getStatus()).setProductRawData(rawData.toString());
 
@@ -232,12 +233,12 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":hhi");
 		keys.add(":ms");
 		keys.add(":bt");
-		keys.add(":advertiser");
+		//keys.add(":advertiser");
 		keys.add(":topk");
 
 		if (req == null || "".equals(req.trim())) {
 			pr.setCurrPage(0);
-			pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
+			//pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
 			pr.setBPaginate(true);
 			pr.setBRandomize(false);
 			pr.setRequestKeyWords(null);
@@ -383,11 +384,13 @@ public class ProductQueryMonitor extends ComponentMonitor {
 						if (!"".equals(value.trim())) {
 							pr.setBt(value.trim());
 						}
-					} else if (":advertiser".equalsIgnoreCase(key)) {
+					}
+					/* else if (":advertiser".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setAdvertiser(value.trim());
 						}
-					} else if (":topk".equalsIgnoreCase(key)) {
+					}*/
+                    else if (":topk".equalsIgnoreCase(key)) {
 						if ("true".equals(value.trim())) {
 							pr.setUseTopK(true);
 						} else {
