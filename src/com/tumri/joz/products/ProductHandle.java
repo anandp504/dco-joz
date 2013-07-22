@@ -149,8 +149,12 @@ public class ProductHandle implements Handle {
 	public int compare(Object h1, Object h2) {
 		ProductHandle handle1 = (ProductHandle)h1;
 		ProductHandle handle2 = (ProductHandle)h2;
-		if (handle1.m_score > handle2.m_score) return -1;
-		if (handle1.m_score < handle2.m_score) return 1;
+		double diff = handle1.m_score - handle2.m_score;
+		if(diff > .00001) {
+			return -1;
+		} else if (diff < -.00001){
+			return 1;
+		}
 		if (handle1.m_oid < handle2.m_oid) return -1;
 		if (handle1.m_oid > handle2.m_oid) return 1;
 		return 0;

@@ -214,7 +214,7 @@ public class JozQARequestHandler implements RequestHandler {
 
 			boolean geoEnabledTSpec = false;
 			//Geo-Enabled check
-			if (eTSpec.isGeoEnabledFlag() || eTSpec.isApplyGeoFilter()) {
+			if (eTSpec.isApplyGeoFilter()) {
 				geoEnabledTSpec = true;
 				geoEnabled = true;
 				error.addDetail("TSpec is geo enabled and was not processed.");

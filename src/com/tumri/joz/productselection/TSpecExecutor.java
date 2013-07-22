@@ -192,7 +192,7 @@ public class TSpecExecutor {
 			m_ExternalKeywords = true;
 		}
 
-		m_geoFilterEnabled = m_tspec.isGeoEnabledFlag() || m_tspec.isApplyGeoFilter();
+		m_geoFilterEnabled = m_tspec.isApplyGeoFilter();
 
 
 		//Set defaults the current Page and page Size if they have not been specified
@@ -816,13 +816,11 @@ public class TSpecExecutor {
 		return backFillProds;
 	}
 
-	private void setCacheReference(ArrayList<Handle> newResults, CNFQuery cachedQuery) {
-		int rIndex = r.nextInt(newResults.size()); //added to force equal rotation of products: bug 5186
-		Handle ph = newResults.get(rIndex);
-		if (ph == null) {
-			cachedQuery.setCacheReference(ph);
+	private void setCacheReference(Handle handle, CNFQuery cachedQuery) {
+		if (handle == null) {
+			cachedQuery.setCacheReference(handle);
 		} else {
-			cachedQuery.setCacheReference(new ProductHandle(1.0, (ph.getOid() + 1L)));
+			cachedQuery.setCacheReference(new ProductHandle(1.0, (handle.getOid() + 1L)));
 		}
 	}
 
@@ -907,8 +905,7 @@ public class TSpecExecutor {
 	 */
 	private ArrayList<Handle> executeTSpec() {
 		// Clone the query always
-		ArrayList<Handle> resultAL = new ArrayList<Handle>();
-
+		ArrayList<Handle> finalResultList = new ArrayList<Handle>();
 		int numProds = request.getPageSize();
 		if (numProds > 0) {
 			m_tSpecQuery = (CNFQuery) m_tSpecQuery.clone();
@@ -964,9 +961,11 @@ public class TSpecExecutor {
 //			qResult = geoSortedResult;
 //		}
 
+			ArrayList<Handle> resultAL = new ArrayList<Handle>();
 			resultAL.addAll(qResult);
 
 
+			//todo: get rid of backfill
 			ArrayList<Handle> backFillProds = null;
 			//Backfill only if needed
 			if ((m_ExternalKeywords || m_ExternalFilters) && m_tspec.isEnableBackFill() && qResult != null) {
@@ -981,20 +980,49 @@ public class TSpecExecutor {
 					}
 				}
 			}
+
 			//Cull the result by num products
-			if ((numProds > 0) && (resultAL.size() > numProds)) {
-				while (resultAL.size() > numProds) {
-					resultAL.remove(resultAL.size() - 1);
+			for(int i = (resultAL.size() - 1); i >= numProds; i--){
+				resultAL.remove(i);
+			}
+
+			// need to 'group' by score...only randomize within groups of equal scores,
+			// keeping overall order of scores in order
+			ArrayList<Integer> newScoreEndIndexes = new ArrayList<Integer>();
+			Double prevScore = resultAL.get(0).getScore();
+			for(int i = 0; i < resultAL.size(); i++){
+				Double currentScore = resultAL.get(i).getScore();
+				double diff = currentScore - prevScore;
+				if(diff > .00001 || diff < -.00001){
+					newScoreEndIndexes.add(i);
+				}
+				prevScore = currentScore;
+			}
+			newScoreEndIndexes.add(resultAL.size());
+
+			Handle cacheReferenceHandle = null;
+			long highestPHID = -1L;
+			for(int j = 0; j < newScoreEndIndexes.size(); j++){
+				int prevEndIndex = j==0 ? 0 : newScoreEndIndexes.get(j-1);
+				int diff = newScoreEndIndexes.get(j) - prevEndIndex;
+				for(int i = diff; i > 0; i--){
+					int randomIndex = r.nextInt(i);
+					finalResultList.add(resultAL.get(randomIndex));
+					Handle h = resultAL.remove(randomIndex);
+					if(h.getOid() > highestPHID){
+						highestPHID = h.getOid();
+						cacheReferenceHandle = h;
+					}
 				}
 			}
 
-			//Set the cached reference for randomization
-			if (m_tSpecQuery.getReference() != null && resultAL.size() > 0) {
+			//Set the cached reference for 'randomization'
+			if (cacheReferenceHandle != null) {
 				CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-				setCacheReference(resultAL, cachedQuery);
+				setCacheReference(cacheReferenceHandle, cachedQuery);
 			}
 		}
-		return resultAL;
+		return finalResultList;
 	}
 
 	private static Map<Product.Attribute, String> getAttributeMap() {
