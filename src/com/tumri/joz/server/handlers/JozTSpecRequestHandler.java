@@ -250,7 +250,7 @@ public class JozTSpecRequestHandler implements RequestHandler {
 		pr.setPageSize(pageSize);
 		pr.setCurrPage(pageNum);
 		pr.setBPaginate(true);
-		pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_ONLY);
+		//pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_ONLY);
 		pr.setBRandomize(false);
 		pr.setRequestKeyWords(null);
 		pr.setBMineUrls(false);

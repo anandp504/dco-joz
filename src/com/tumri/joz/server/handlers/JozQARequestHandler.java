@@ -280,7 +280,7 @@ public class JozQARequestHandler implements RequestHandler {
 
 		pr.setPageSize(numProds);
 		pr.setCurrPage(0);
-		pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
+		//pr.setOfferType(AdDataRequest.AdOfferType.PRODUCT_LEADGEN);
 		pr.setBPaginate(true);
 		pr.setBRandomize(false);
 		pr.setRequestKeyWords(null);
