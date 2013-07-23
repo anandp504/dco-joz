@@ -302,13 +302,24 @@ public class JozIndexHelper {
 
 						//Copy to the prev folder
 						if (copy) {
+                            AppProperties appPropertiesInstance = AppProperties.getInstance();
+                            IndexLoadingComparator comp = new IndexLoadingComparator();
+                            File prevIndexDir = new File(prevJozindexDirName + "/" + providerName.toUpperCase() + "/jozindex");
+                            if (!prevIndexDir.exists()) {
+                                prevIndexDir.mkdirs();
+                            }
+                            //this is where we compare MUP vs index to see if there are any discrepancies between the two.
+                            //if there are, we want to keep all new joz-indexes in prevjozindex/ so when we do a full-load
+                            //we can correctly clean out all the advertisers indexes and re-add them.
+                            if(appPropertiesInstance.isIndexValidEnabled()){
+                                if (comp.validateForAdvertiser(providerName)) {
+                                    //GC all the older indexes
+                                    FSUtils.removeFiles(prevIndexDir, true);
+                                }else{
+                                    log.info("Index verification failed for: " +providerName);
 
-							File prevIndexDir = new File(prevJozindexDirName + "/" + providerName.toUpperCase() + "/jozindex");
-							if (!prevIndexDir.exists()) {
-								prevIndexDir.mkdirs();
-							}
-							//GC all the older indexes
-							FSUtils.removeFiles(prevIndexDir, true);
+                                }
+                            }
 
 							for(File provInFile: provInFiles){
 								FSUtils.copyFile(provInFile, new File(prevIndexDir.getAbsolutePath() + "/" + provInFile.getName()));
