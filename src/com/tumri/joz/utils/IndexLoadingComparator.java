@@ -64,7 +64,6 @@ public class IndexLoadingComparator {
 		infos.add(0, result);
 
 		return infos;
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,11 +88,8 @@ public class IndexLoadingComparator {
 				info.add(t.getMessage());
 			}
 			infos.addAll(info);
-		}
-
-
+        }
 		return !bErrorsFound;
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -119,7 +115,7 @@ public class IndexLoadingComparator {
 			retInfos.add("File does not exist: " + f.getAbsoluteFile());
 			return retInfos;
 		}
-
+        // get pids from MUP file
 		SortedSet<Long> pIds = getPIdList(f);
 
 		SetDifference<Long> sd1 = new SetDifference<Long>(pIdsFromIndex, pIds);
@@ -135,6 +131,7 @@ public class IndexLoadingComparator {
 				retString.append(", ");
 			}
 			retInfos.add(retString.toString());
+            log.info(retString);
 		}
 
 		if (!sd2.isEmpty()) {
@@ -146,6 +143,7 @@ public class IndexLoadingComparator {
 				retString.append(", ");
 			}
 			retInfos.add(retString.toString());
+            log.info(retString);
 		}
 		if (!errorFound) {
 			retInfos.add("Index and MUP match for " + providerName);
@@ -153,7 +151,6 @@ public class IndexLoadingComparator {
 			bErrorsFound = true;
 		}
 		return retInfos;
-
 	}
 
 	private SortedSet<Long> getPIdList(File file) {

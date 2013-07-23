@@ -31,7 +31,8 @@ public class AppProperties {
   private static final String CONFIG_JOZ_CODE_LABEL_PROPERTY_NAME= "com.tumri.joz.code.label.property";
   private static final String CONFIG_JOZ_MULTI_VALUE_DELIMITER = "com.tumri.joz.multivalue.delimiter";
   private static final String CONFIG_JOZ_SERVER_NIO_MODE = "com.tumri.joz.server.nio.mode";
-	private static final String CONFIG_JOZ_MAX_CONCURRENT_CONTENT_LOAD = "com.tumri.joz.maxconcurrentcontentloading";
+  private static final String CONFIG_JOZ_MAX_CONCURRENT_CONTENT_LOAD = "com.tumri.joz.maxconcurrentcontentloading";
+  private static final String JOZ_INDEX_VALIDATION_MODE = "com.tumri.joz.indexValidation.mode";
 
   private static AppProperties g_properties;
   private Properties m_jozVersionProperties;
@@ -122,6 +123,9 @@ public class AppProperties {
 
   public boolean isNioEnabled(){
       return "true".equals(getProperty(CONFIG_JOZ_SERVER_NIO_MODE));
+  }
+  public boolean isIndexValidEnabled(){
+      return "true".equals(getProperty(JOZ_INDEX_VALIDATION_MODE));
   }
     
   /**
