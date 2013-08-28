@@ -214,6 +214,8 @@ public abstract class CampaignDB {
 
 	public abstract AtomicAdpodIndex<String, Handle> getAdpodHHINoneIndex();
 
+	public abstract AtomicAdpodIndex<String, Handle> getAdpodENVIndex();
+
 	public abstract void loadAgeAdPodMappings(Iterator<AgeAdPodMapping> iterator);
 
 	public abstract void loadGenderAdPodMappings(Iterator<GenderAdPodMapping> iterator);
@@ -234,5 +236,6 @@ public abstract class CampaignDB {
 
 	public abstract void loadGenderNoneAdPods(Iterator<AdPod> iterator);
 
+	public abstract void loadENVAdPodMappings(Iterator<EnvAdPodMapping> iterator);
 
 }

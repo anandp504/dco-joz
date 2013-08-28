@@ -39,6 +39,8 @@ public class TargetingScoreHelper {
     private double msscore = 1.0;
     private double msnonescore = 0.2;
 
+	private double envscore = 1.0;
+
     private double runOfNetworkScore = 0.2;
     private int runOfNetworkWeight   = 1;
     private double geoNoneScore      = 0.2;
@@ -306,4 +308,8 @@ public class TargetingScoreHelper {
     public double getMsnonescore() {
         return msnonescore;
     }
+
+	public double getENVscore() {
+     return envscore;
+ }
 }

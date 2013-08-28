@@ -100,6 +100,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 	private AtomicAdpodIndex<String, Handle> adpodMSIndex = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kMS));
 	private AtomicAdpodIndex<String, Handle> adpodMSNoneIndex = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kMSNone));
 
+	private AtomicAdpodIndex<String, Handle> adpodENVIndex = new AtomicAdpodIndex<String, Handle>(new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kENV));
+
 	private AtomicReference<RWLockedTreeMap<String, AtomicAdpodIndex<String, Handle>>> adPodExtVarMappingIndexMap =
 			new AtomicReference<RWLockedTreeMap<String, AtomicAdpodIndex<String, Handle>>>(new RWLockedTreeMap<String, AtomicAdpodIndex<String, Handle>>());
 	private AtomicReference<RWLockedTreeMap<String, AtomicAdpodIndex<String, Handle>>> adPodNonExtVarMappingIndexMap =
@@ -1306,6 +1308,12 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 	}
 
 	@Override
+	public AtomicAdpodIndex<String, Handle> getAdpodENVIndex(){
+		return adpodENVIndex;
+	}
+
+
+	@Override
 	public void loadAgeAdPodMappings(Iterator<AgeAdPodMapping> iterator) {
 		AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kAge);
 		while (iterator.hasNext()) {
@@ -1464,4 +1472,22 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 		}
 		adpodGenderNoneIndex.set(index);
 	}
+
+	@Override
+	public void loadENVAdPodMappings(Iterator<EnvAdPodMapping> iterator) {
+		AdpodIndex<String, Handle> index = new AdpodIndex<String, Handle>(AdpodIndex.Attribute.kENV);
+		while (iterator.hasNext()) {
+			EnvAdPodMapping m = iterator.next();
+			AdPod adPod;
+			adPod = adPodMap.get().safeGet(m.getAdPodId());
+			if (adPod != null) {
+				int oid = adPod.getId();
+				index.put(m.getValue(), new AdPodHandle(oid, TargetingScoreHelper.getInstance().getENVscore()));
+			} else {
+				log.error("The Adpod was not found in the ENV adpod mapping");
+			}
+		}
+		adpodENVIndex.set(index);
+	}
+
 }

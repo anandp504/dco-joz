@@ -22,11 +22,9 @@ import java.util.Iterator;
  */
 public class SiteTargetingQuery extends TargetingQuery {
     private int locationId;
-    private String adType;
 
-    public SiteTargetingQuery(int locationId, String adType) {
+    public SiteTargetingQuery(int locationId) {
         this.locationId = locationId;
-        this.adType = adType;
     }
 
     public Type getType() {                                                                   
@@ -35,16 +33,11 @@ public class SiteTargetingQuery extends TargetingQuery {
 
     public SortedSet<Handle> exec() {
         SortedSet<Handle> locationResults      = execLocationQuery();
-        //SortedSet<Handle> runOfNetworksResults = execRunOfNetworkQuery();
-
 
         MultiSortedSet<Handle> results = new MultiSortedSet<Handle>();
         if(locationResults != null) {
             results.add(locationResults);
         }
-//        if(runOfNetworksResults != null) {
-//            results.add(runOfNetworksResults);
-//        }
 
         return results;
     }
@@ -59,15 +52,12 @@ public class SiteTargetingQuery extends TargetingQuery {
         return results;
     }
 
-
-//    private SortedSet<Handle> execRunOfNetworkQuery() {
-//        SortedSet<Handle> results;
-//        AtomicAdpodIndex index = CampaignDB.getInstance().getRunOfNetworkAdPodIndex();
-//        results = index.get(AdpodIndex.RUN_OF_NETWORK);
-//        return results;
-//    }
-
     public boolean accept(Handle v) {
         return false;
     }
+
+	@Override
+	public boolean mustMatch(){
+		return true;
+	}
 }

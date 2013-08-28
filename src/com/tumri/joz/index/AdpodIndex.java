@@ -66,5 +66,6 @@ public class AdpodIndex<Key, Value> extends AbstractIndex<AdPod, AdpodIndex.Attr
         kBTNone,
         kMS,
         kMSNone,
+	    kENV,
     }
 }

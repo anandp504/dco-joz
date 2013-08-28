@@ -97,6 +97,7 @@ public class CampaignDBDataLoader {
 			Iterator<AdPod> nonBTAdpods = deltaProvider.getNonBTAdpods(region);
 			Iterator<AdPod> nonMSAdpods = deltaProvider.getNonMSAdpods(region);
 			Iterator<AdPod> nonHHIAdpods = deltaProvider.getNonHHIAdpods(region);
+			Iterator<EnvAdPodMapping> envMappings = deltaProvider.getAllEnvAdPodMappings(region);
 			//long lispDataReadEndTime = System.currentTimeMillis();
 			//System.out.println("Data Retrieval from Lisp Provider API: " + (lispDataReadEndTime - lispDataReadStartTime) + " ms");
 
@@ -140,6 +141,8 @@ public class CampaignDBDataLoader {
 			campaignDB.loadMSNoneAdPods(nonMSAdpods);
 			campaignDB.loadHHIAdPodMappings(hhiMappings);
 			campaignDB.loadHHINoneAdPods(nonHHIAdpods);
+			campaignDB.loadENVAdPodMappings(envMappings);
+
 			TransientDataManager.getInstance().reloadInCampaignDB();
 
 			TSpecQueryCache.getInstance().load(oSpecsIterator2);

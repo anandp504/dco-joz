@@ -250,32 +250,24 @@ public class TargetingRequestProcessor {
 
 		}
 		try {
-			SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId, adType);
-			UrlTargetingQuery urlQuery = new UrlTargetingQuery(urlName);
-			GeoTargetingQuery geoQuery = new GeoTargetingQuery(request.getCountry(), request.getRegion(), request.getCity(), request.getDmacode(), request.get_zip_code(), request.getAreacode());
-			TimeTargetingQuery timeQuery = new TimeTargetingQuery();
-			AgeTargetingQuery ageQuery = new AgeTargetingQuery(request.getAge());
-			BTTargetingQuery btQuery = new BTTargetingQuery(request.getBt());
-			CCTargetingQuery msQuery = new CCTargetingQuery(request.getCc());
-			HHITargetingQuery hhiQuery = new HHITargetingQuery(request.getHhi());
-			GenderTargetingQuery genQuery = new GenderTargetingQuery(request.getGender());
+			SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId);
 			AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);
+			EnvFlashTargetingQuery envFlashTargetingQuery = new EnvFlashTargetingQuery();
+			EnvHTML5TargetingQuery envHTML5TargetingQuery = new EnvHTML5TargetingQuery();
 
 			AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
 			ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
-			cjQuery.setStrict(true);
+			cjQuery.setUseTopK(true);
+			cjQuery.setStrict(false);
 			cjQuery.addQuery(siteQuery);
-			cjQuery.addQuery(geoQuery);
-			cjQuery.addQuery(urlQuery);
-			cjQuery.addQuery(timeQuery);
-			cjQuery.addQuery(adTypeQuery);
-			cjQuery.addQuery(ageQuery);
-			cjQuery.addQuery(btQuery);
-			cjQuery.addQuery(msQuery);
-			cjQuery.addQuery(hhiQuery);
-			cjQuery.addQuery(genQuery);
+			cjQuery.addQuery(adTypeQuery); //this isn't going to be a set within top-k, rather it's a 'filter'
+			//todo: add if statements around the next two queries to check the requests env variable
+			//todo: add env variable to request chain.
+			cjQuery.addQuery(envFlashTargetingQuery);
+			cjQuery.addQuery(envHTML5TargetingQuery);
+
 			Set<String> extVars = extVarsMap.keySet();
-			for (String extVar : extVars) {
+			for (String extVar : extVars) {   //todo: change into multivalued field (not immediate)
 				ExternalVariableTargetingQuery externalVariableQuery = new ExternalVariableTargetingQuery(extVar, extVarsMap.get(extVar));
 				cjQuery.addQuery(externalVariableQuery);
 			}

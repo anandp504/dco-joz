@@ -225,6 +225,7 @@
             <element name="BtTs" type="tns:AdPodBTTargetDef"/>
             <element name="MsTs" type="tns:AdPodMSTargetDef"/>
             <element name="HhTs" type="tns:AdPodHHITargetDef"/>
+            <element name="ENV" type="tns:AdPodEnvTarget" maxOccurs="1" minOccurs="0"/>
         </choice>
     </complexType>
     <complexType name="LocationDef">
@@ -592,6 +593,13 @@
             <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="hhi" type="string" maxOccurs="1" minOccurs="0"/>
+        </choice>
+    </complexType>
+    <complexType name="AdPodEnvTarget">
+        <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="id" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="adPodId" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="value" type="string" maxOccurs="1" minOccurs="0"/>
         </choice>
     </complexType>
     <complexType name="TestDef">
