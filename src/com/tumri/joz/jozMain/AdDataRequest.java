@@ -103,6 +103,7 @@ public class AdDataRequest {
     private String hhi = null;
     private String cc = null;
     private String bt = null;
+    private String env = null;
 
     private String ut1 = null;
     private String ut2 = null;
@@ -289,6 +290,10 @@ public class AdDataRequest {
         this.bt = req.getValue(JozAdRequest.KEY_BT);
         if (bt != null) {
             bt = bt.trim();
+        }
+        this.env = req.getValue(JozAdRequest.KEY_ENV);
+        if (env != null) {
+            env = env.trim();
         }
         this.ut1 = req.getValue(JozAdRequest.KEY_RETARGETING_UT1);
         if (ut1 != null) {
@@ -592,6 +597,10 @@ public class AdDataRequest {
 
     public String getBt() {
         return bt;
+    }
+
+    public String getEnv() {
+        return env;
     }
 
     public String getCc() {
