@@ -74,6 +74,7 @@ public class EvalMonitor extends ComponentMonitor {
 		keys.put(":" + JozAdRequest.KEY_TOPK, JozAdRequest.KEY_TOPK);
 		keys.put(":" + JozAdRequest.KEY_USER_AGENT, JozAdRequest.KEY_USER_AGENT);
 		keys.put(":" + JozAdRequest.KEY_USER_BUCKET, JozAdRequest.KEY_USER_BUCKET);
+		keys.put(":" + JozAdRequest.KEY_ENV, JozAdRequest.KEY_ENV);
 	}
 
 	public JozAdRequest makeRequest(String requestString) {

@@ -16,6 +16,7 @@ import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
 import com.tumri.utils.data.SortedArraySet;
 import com.tumri.utils.stats.PerformanceStats;
+import com.tumri.utils.strings.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -30,6 +31,9 @@ public class TargetingRequestProcessor {
 
 	private static TargetingRequestProcessor processor = null;
 	public static final String PROCESS_STATS_ID = "TG";
+
+	public static final String ENV_TADA = "TADA";
+	public static final String ENV_HTML5 = "HTML5";
 
 	private TargetingRequestProcessor() {
 	}
@@ -252,8 +256,6 @@ public class TargetingRequestProcessor {
 		try {
 			SiteTargetingQuery siteQuery = new SiteTargetingQuery(locationId);
 			AdTypeTargetingQuery adTypeQuery = new AdTypeTargetingQuery(adType);
-			EnvFlashTargetingQuery envFlashTargetingQuery = new EnvFlashTargetingQuery();
-			EnvHTML5TargetingQuery envHTML5TargetingQuery = new EnvHTML5TargetingQuery();
 
 			AdPodQueryProcessor adPodQueryProcessor = new AdPodQueryProcessor();
 			ConjunctQuery cjQuery = new ConjunctQuery(adPodQueryProcessor);
@@ -261,15 +263,32 @@ public class TargetingRequestProcessor {
 			cjQuery.setStrict(false);
 			cjQuery.addQuery(siteQuery);
 			cjQuery.addQuery(adTypeQuery); //this isn't going to be a set within top-k, rather it's a 'filter'
-			//todo: add if statements around the next two queries to check the requests env variable
-			//todo: add env variable to request chain.
-			cjQuery.addQuery(envFlashTargetingQuery);
-			cjQuery.addQuery(envHTML5TargetingQuery);
+			//todo: perhaps change use of global variables ENV_TADA and ENV_HTML5 to some other methodology
+			String reqEnvString = request.getEnv();
+			if(reqEnvString != null && !reqEnvString.isEmpty()){
+				StringTokenizer st = new StringTokenizer(reqEnvString, ',');
+				ArrayList<String> envList = st.getTokens();
+				boolean tadaFound = false;
+				boolean html5Found = false;
+				for(String env: envList){
+					if(ENV_TADA.equalsIgnoreCase(env) && !tadaFound){
+						EnvFlashTargetingQuery envFlashTargetingQuery = new EnvFlashTargetingQuery();
+						cjQuery.addQuery(envFlashTargetingQuery);
+						tadaFound = true;
+					} else if(ENV_HTML5.equalsIgnoreCase(env) && !html5Found) {
+						EnvHTML5TargetingQuery envHTML5TargetingQuery = new EnvHTML5TargetingQuery();
+						cjQuery.addQuery(envHTML5TargetingQuery);
+						html5Found = true;
+					}
+				}
+			}
 
 			Set<String> extVars = extVarsMap.keySet();
 			for (String extVar : extVars) {   //todo: change into multivalued field (not immediate)
-				ExternalVariableTargetingQuery externalVariableQuery = new ExternalVariableTargetingQuery(extVar, extVarsMap.get(extVar));
-				cjQuery.addQuery(externalVariableQuery);
+//				if(extVar != null && !extVar.isEmpty()){
+					ExternalVariableTargetingQuery externalVariableQuery = new ExternalVariableTargetingQuery(extVar, extVarsMap.get(extVar));
+					cjQuery.addQuery(externalVariableQuery);
+//				}
 			}
 			results = cjQuery.exec();
 

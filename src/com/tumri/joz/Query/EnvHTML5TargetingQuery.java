@@ -55,19 +55,19 @@ public class EnvHTML5TargetingQuery extends TargetingQuery {
 
 	@Override
 	public double getWeight(Handle v, double minWeight) {
-		return 1.6;
+		return 1.3;
 	}
 
 	//this is max in TargetingScoreHelper
 
 	@Override
 	public double getMaxWeight() {
-		return 1.6;
+		return 1.3;
 	}
 
 	@Override
 	public double getMinWeight() {
-		return 1.6;
+		return 1.3;
 	}
 
 

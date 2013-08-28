@@ -34,17 +34,13 @@ public class ExternalVariableTargetingQuery extends TargetingQuery {
     }
 
     public SortedSet<Handle> exec() {
+	    SortedSet<Handle> results = new SortedArraySet<Handle>();
+
         SortedSet<Handle> externalVariableTargetResults    = execExternalVariableQuery();
-        SortedSet<Handle> nonExternalVariableTargetResults = execNonExternalVariableQuery();
 
-
-        MultiSortedSet<Handle> results = new MultiSortedSet<Handle>();
-        if(externalVariableTargetResults != null) {
-            results.add(externalVariableTargetResults);
-        }
-        if(nonExternalVariableTargetResults != null) {
-            results.add(nonExternalVariableTargetResults);
-        }
+	    if(externalVariableTargetResults != null){
+		    results = externalVariableTargetResults;
+	    }
 
         return results;
     }
@@ -65,10 +61,6 @@ public class ExternalVariableTargetingQuery extends TargetingQuery {
             }
         }
         return results;
-    }
-
-    private SortedSet<Handle> execNonExternalVariableQuery() {
-        return CampaignDB.getInstance().getNonExternalVariableAdPodMappingIndex(extVarName).get(AdpodIndex.EXTERNAL_VARIABLE_NONE);
     }
 
     public boolean accept(Handle v) {
