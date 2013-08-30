@@ -7,6 +7,7 @@ import com.tumri.cma.util.ExperienceUtils;
 import com.tumri.joz.Query.*;
 import com.tumri.joz.campaign.AdPodHandle;
 import com.tumri.joz.campaign.CampaignDB;
+import com.tumri.joz.campaign.CampaignDataLoadingException;
 import com.tumri.joz.campaign.wm.ExperienceVectorTargetingProcessor;
 import com.tumri.joz.campaign.wm.VectorSelectionException;
 import com.tumri.joz.campaign.wm.VectorTargetingProcessor;
@@ -14,6 +15,7 @@ import com.tumri.joz.campaign.wm.VectorTargetingResult;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.products.Handle;
+import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.data.SortedArraySet;
 import com.tumri.utils.stats.PerformanceStats;
 import com.tumri.utils.strings.StringTokenizer;
@@ -32,10 +34,10 @@ public class TargetingRequestProcessor {
 	private static TargetingRequestProcessor processor = null;
 	public static final String PROCESS_STATS_ID = "TG";
 
-	public static final String ENV_TADA = "TADA";
-	public static final String ENV_HTML5 = "HTML5";
+    public static final String ENV_HTML5 = TargetingRequestProcessor.getInstance().getEnvForHtml();
+    public static final String ENV_TADA = TargetingRequestProcessor.getInstance().getEnvForTada();
 
-	private TargetingRequestProcessor() {
+    private TargetingRequestProcessor() {
 	}
 
 	public static TargetingRequestProcessor getInstance() {
@@ -51,7 +53,22 @@ public class TargetingRequestProcessor {
 
 	private static Logger log = Logger.getLogger(TargetingRequestProcessor.class);
 
-	public TargetingResults processRequest(AdDataRequest request, Features features) {
+    public String getEnvForHtml() {
+        String htmlenv = AppProperties.getInstance().getProperty("com.tumri.joz.targeting.htmlenv");
+        if (htmlenv!= null) {
+            htmlenv = htmlenv.trim();
+        }
+        return htmlenv;
+    }
+    public String getEnvForTada() {
+        String flashenv = AppProperties.getInstance().getProperty("com.tumri.joz.targeting.flashenv");
+        if (flashenv!= null) {
+            flashenv = flashenv.trim();
+        }
+        return flashenv;
+    }
+
+    public TargetingResults processRequest(AdDataRequest request, Features features) {
 		PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
 		TargetingResults trs = null;
 		OSpec oSpec;
