@@ -244,8 +244,8 @@ public class TargetingRequestProcessor {
 		String locationIdStr = request.get_store_id();
 		String adType = request.getAdType();
 		HashMap<String, String> extVarsMap = request.getExtTargetFields();
-        String ENV_HTML5 = AppProperties.getInstance().getTargetingHTMLEnv();
-        String ENV_TADA = AppProperties.getInstance().getTargetingFlashEnv();
+        String env_html5 = AppProperties.getInstance().getTargetingHTMLEnv();
+        String env_tada = AppProperties.getInstance().getTargetingFlashEnv();
 
 		SortedSet<Handle> results = null;
 
@@ -271,11 +271,11 @@ public class TargetingRequestProcessor {
 				boolean tadaFound = false;
 				boolean html5Found = false;
 				for(String env: envList){
-					if(ENV_TADA.equalsIgnoreCase(env) && !tadaFound){
+					if(env_tada.equalsIgnoreCase(env) && !tadaFound){
 						EnvFlashTargetingQuery envFlashTargetingQuery = new EnvFlashTargetingQuery();
 						cjQuery.addQuery(envFlashTargetingQuery);
 						tadaFound = true;
-					} else if(ENV_HTML5.equalsIgnoreCase(env) && !html5Found) {
+					} else if(env_html5.equalsIgnoreCase(env) && !html5Found) {
 						EnvHTML5TargetingQuery envHTML5TargetingQuery = new EnvHTML5TargetingQuery();
 						cjQuery.addQuery(envHTML5TargetingQuery);
 						html5Found = true;
