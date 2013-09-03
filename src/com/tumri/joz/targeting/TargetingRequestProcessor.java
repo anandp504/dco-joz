@@ -34,9 +34,6 @@ public class TargetingRequestProcessor {
 	private static TargetingRequestProcessor processor = null;
 	public static final String PROCESS_STATS_ID = "TG";
 
-    public static final String ENV_HTML5 = TargetingRequestProcessor.getInstance().getEnvForHtml();
-    public static final String ENV_TADA = TargetingRequestProcessor.getInstance().getEnvForTada();
-
     private TargetingRequestProcessor() {
 	}
 
@@ -52,21 +49,6 @@ public class TargetingRequestProcessor {
 	}
 
 	private static Logger log = Logger.getLogger(TargetingRequestProcessor.class);
-
-    public String getEnvForHtml() {
-        String htmlenv = AppProperties.getInstance().getProperty("com.tumri.joz.targeting.htmlenv");
-        if (htmlenv!= null) {
-            htmlenv = htmlenv.trim();
-        }
-        return htmlenv;
-    }
-    public String getEnvForTada() {
-        String flashenv = AppProperties.getInstance().getProperty("com.tumri.joz.targeting.flashenv");
-        if (flashenv!= null) {
-            flashenv = flashenv.trim();
-        }
-        return flashenv;
-    }
 
     public TargetingResults processRequest(AdDataRequest request, Features features) {
 		PerformanceStats.getInstance().registerStartEvent(PROCESS_STATS_ID);
@@ -260,9 +242,10 @@ public class TargetingRequestProcessor {
 		int locationId = 0;
 
 		String locationIdStr = request.get_store_id();
-		String urlName = request.get_url();
 		String adType = request.getAdType();
 		HashMap<String, String> extVarsMap = request.getExtTargetFields();
+        String ENV_HTML5 = AppProperties.getInstance().getTargetingHTMLEnv();
+        String ENV_TADA = AppProperties.getInstance().getTargetingFlashEnv();
 
 		SortedSet<Handle> results = null;
 
@@ -280,7 +263,7 @@ public class TargetingRequestProcessor {
 			cjQuery.setStrict(false);
 			cjQuery.addQuery(siteQuery);
 			cjQuery.addQuery(adTypeQuery); //this isn't going to be a set within top-k, rather it's a 'filter'
-			//todo: perhaps change use of global variables ENV_TADA and ENV_HTML5 to some other methodology
+
 			String reqEnvString = request.getEnv();
 			if(reqEnvString != null && !reqEnvString.isEmpty()){
 				StringTokenizer st = new StringTokenizer(reqEnvString, ',');

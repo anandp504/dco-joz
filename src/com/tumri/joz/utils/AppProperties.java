@@ -24,6 +24,8 @@ public class AppProperties {
   private static final String CONFIG_PROPERTY_JOZ_BUILD_VERSION = "build_version";
   private static final String CONFIG_PROPERTY_JOZ_CODE_LABEL = "code_label";
   private static final String CONFIG_PROPERTY_JOZ_RELEASE_VERSION = "release_version";
+  private static final String CONFIG_PROPERTY_JOZ_ENV_HTML5 = "com.tumri.joz.targeting.htmlenv";
+  private static final String CONFIG_PROPERTY_JOZ_ENV_FLASH = "com.tumri.joz.targeting.flashenv";
 
   private static final String CONFIG_JOZ_VERSION_PROPERTIES_FILE_NAME = "com.tumri.joz.version.file.name";
   private static final String CONFIG_JOZ_BUILD_VERSION_PROPERTY_NAME = "com.tumri.joz.build.version.property";
@@ -121,6 +123,20 @@ public class AppProperties {
       return retVal;
   }
 
+  public String getTargetingHTMLEnv() {
+      String htmlenv = getProperty(CONFIG_PROPERTY_JOZ_ENV_HTML5);
+      if (htmlenv!= null) {
+          htmlenv = htmlenv.trim();
+      }
+      return htmlenv;
+  }
+  public String getTargetingFlashEnv() {
+      String flashenv = getProperty(CONFIG_PROPERTY_JOZ_ENV_FLASH);
+      if (flashenv!= null) {
+          flashenv = flashenv.trim();
+      }
+      return flashenv;
+  }
   public boolean isNioEnabled(){
       return "true".equals(getProperty(CONFIG_JOZ_SERVER_NIO_MODE));
   }
