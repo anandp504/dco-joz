@@ -97,22 +97,32 @@ public class IndexLoadingComparator {
 		List<String> retInfos = new ArrayList<String>();
 		if (providerName == null) {
 			retInfos.add("Invalid Provider Name: " + providerName);
+			bErrorsFound = true;
 			return retInfos;
 		}
 		ProductAttributeIndex<Integer, Handle> index = ProductDB.getInstance().getIndex(IProduct.Attribute.kProvider);
 		Integer keyId = DictionaryManager.getInstance().getId(IProduct.Attribute.kProvider, providerName);
 		if (index == null) {
 			retInfos.add("Invalid Index");
+			bErrorsFound = true;
 			return retInfos;
 		}
 		SortedSet<Handle> results = index.get(keyId);
+		if(results == null){
+			retInfos.add("Empty Index");
+			bErrorsFound = true;
+			return retInfos;
+		}
 		SortedSet<Long> pIdsFromIndex = new SortedArraySet<Long>();
-		for (Handle h : results) {
-			pIdsFromIndex.add(h.getOid());
+		if(results != null){
+			for (Handle h : results) {
+				pIdsFromIndex.add(h.getOid());
+			}
 		}
 
 		if (!f.exists()) {
 			retInfos.add("File does not exist: " + f.getAbsoluteFile());
+			bErrorsFound = true;
 			return retInfos;
 		}
         // get pids from MUP file

@@ -21,6 +21,7 @@ import com.tumri.content.*;
 import com.tumri.content.data.Content;
 import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.content.data.Taxonomy;
+import com.tumri.joz.JoZException;
 import com.tumri.joz.campaign.TSpecQueryCache;
 import com.tumri.joz.index.DictionaryManager;
 import com.tumri.joz.index.ProductAttributeIndex;
@@ -187,7 +188,7 @@ public class ContentHelper implements ContentListener {
     }
 
 
-    private static void updateAdvertiserIndex(String advertiserName, boolean bColdStart) {
+    private static void updateAdvertiserIndex(String advertiserName, boolean bColdStart) throws InvalidConfigException {
         if (bColdStart) {
             //Delete all the prev joz index files
             String prevJozindexDirName = AppProperties.getInstance().getProperty("com.tumri.content.prevjozindexDir");
@@ -300,12 +301,11 @@ public class ContentHelper implements ContentListener {
     }
 
     @SuppressWarnings({"unchecked"})
-    public void contentUpdated(String advertiser) {
+    public void contentUpdated(String advertiser) throws InvalidConfigException {
         
         if (provider == null) {
             return;
         }
-        try {
             Content data = provider.getContent();
             ContentProviderStatus st = provider.getStatus();
             boolean bColdStart = false;
@@ -343,9 +343,5 @@ public class ContentHelper implements ContentListener {
                updateAdvertiserIndex(advertiser, bColdStart);
             }
 
-        } catch (InvalidConfigException e) {
-            log.error("Error while updating content",e);
-            LogUtils.getFatalLog().error("Error while updating content",e);
-        }
     }
 }

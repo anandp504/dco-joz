@@ -1,10 +1,12 @@
 package com.tumri.joz.products;
 
+import com.tumri.content.InvalidConfigException;
 import com.tumri.content.data.ContentProviderStatus;
 import com.tumri.jic.IndexCreationException;
 import com.tumri.jic.JICProperties;
 import com.tumri.jic.joz.IJozIndexUpdater;
 import com.tumri.jic.joz.PersistantProviderIndex;
+import com.tumri.joz.JoZException;
 import com.tumri.joz.index.updater.JozIndexUpdater;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexLoadingComparator;
@@ -81,7 +83,7 @@ public class JozIndexHelper {
 	 *
 	 * @param advertiserName
 	 */
-	public void loadJozIndex(String advertiserName, boolean debug, boolean hotload) {
+	public void loadJozIndex(String advertiserName, boolean debug, boolean hotload) throws InvalidConfigException {
 		try {
 			log.info("Starting to load the Joz indexes for advertiser :" + advertiserName);
 			//todo: possibly use List<File> indexFiles = getSortedJozIndexFileList(indexDirName + "/" + advertiserName.toUpperCase() + "/jozindex");
@@ -98,6 +100,7 @@ public class JozIndexHelper {
 			log.info("Finished loading the Joz index for advertiser : " + advertiserName);
 		} catch (Exception e) {
 			log.error("Joz index load failed.", e);
+			throw new InvalidConfigException(e);
 		}
 	}
 
@@ -254,7 +257,7 @@ public class JozIndexHelper {
 	 * @param inFile
 	 */
 	private void readFromSerializedFile(List<File> inFiles, boolean debugMode, boolean hotLoad, IJozIndexUpdater updater,
-	                                    boolean copy) throws IOException, ClassNotFoundException {
+	                                    boolean copy) throws IOException, ClassNotFoundException, InvalidConfigException {
 		if (updater == null) {
 			updater = new JozIndexUpdater();
 		}
@@ -268,12 +271,13 @@ public class JozIndexHelper {
 				if(providerName!=null){
 					List<File> provInFiles = provToFilesMap.get(providerName);
 					if(provInFiles!=null && !provInFiles.isEmpty()){
+						boolean error = false;
+						Throwable e = null;
 						for(File provInFile: provInFiles){
 							log.info("Going to load the index from file : " + provInFile.getAbsolutePath());
 							long startTime = System.currentTimeMillis();
 							FileInputStream fis = null;
 							ObjectInputStream in = null;
-
 							try {
 								JICProperties.init(debugMode, hotLoad, updater);
 								fis = new FileInputStream(provInFile);
@@ -281,23 +285,33 @@ public class JozIndexHelper {
 								PersistantProviderIndex pProvIndex = (PersistantProviderIndex) in.readObject();
 								in.close();
 							} catch (IOException ex) {
+								error = true;
+								e = ex;
 								log.error("Could not load index file: " + provInFile.getAbsolutePath());
-								throw ex;
 							} catch (ClassNotFoundException ex) {
+								error = true;
+								e = ex;
 								log.error("Deserialization failed from file: " + provInFile.getAbsolutePath());
-								throw ex;
 							} catch (Throwable t) {
-								LogUtils.getFatalLog().info("Index load failed for: " + provInFile.getAbsolutePath(), t);
+								error = true;
+								e = t;
+								LogUtils.getFatalLog().error("Index load failed for: " + provInFile.getAbsolutePath(), t);
 							} finally {
 								try {
 									if (in != null) {
 										in.close();
 									}
 								} catch (Throwable t) {
+									error = true;
+									e = t;
 									log.error("Error in closing the file input stream", t);
 								}
 							}
 							log.info("time taken to load index file(" + provInFile.getAbsolutePath() + ") is: " + (System.currentTimeMillis() - startTime));
+						}
+
+						if(error){
+							throw new InvalidConfigException(e);
 						}
 
 						//Copy to the prev folder
@@ -311,19 +325,22 @@ public class JozIndexHelper {
                             //this is where we compare MUP vs index to see if there are any discrepancies between the two.
                             //if there are, we want to keep all new joz-indexes in prevjozindex/ so when we do a full-load
                             //we can correctly clean out all the advertisers indexes and re-add them.
-                            if(appPropertiesInstance.isIndexValidEnabled()){
-                                if (comp.validateForAdvertiser(providerName)) {
-                                    //GC all the older indexes
-                                    FSUtils.removeFiles(prevIndexDir, true);
-                                }else{
-                                    log.info("Index verification failed for: " +providerName);
-
-                                }
-                            }
+							boolean invalidIndex = false;
+                            if((appPropertiesInstance.isIndexValidEnabled() && !comp.validateForAdvertiser(providerName))){
+	                            log.error("Index verification failed for: " +providerName);
+	                    		invalidIndex = true;
+							}else{
+	                          	//GC all the older indexes
+	                            FSUtils.removeFiles(prevIndexDir, true);
+							}
 
 							for(File provInFile: provInFiles){
 								FSUtils.copyFile(provInFile, new File(prevIndexDir.getAbsolutePath() + "/" + provInFile.getName()));
 								ContentProviderStatus.getInstance().jozIndexFileNames.put(providerName, provInFile.getName());
+							}
+
+							if(invalidIndex){
+								throw new InvalidConfigException("Index Validation Failed for: "+providerName );
 							}
 
 						}
@@ -334,6 +351,9 @@ public class JozIndexHelper {
 
 	}
 
+	//todo: we need to sort each provFiles array so that we load the files in numerical order, not alphabetic order.
+	//todo: for example we want 1, 2, 3, 4, ...10, 11, ..., 20
+	//todo: we don't want: 1, 11,..., 2, 20, 21, ..., 3,...
 	private static Map<String, List<File>> getProvidersFromFileNames(List<File> files){
 		Map<String, List<File>> retMap = new HashMap<String, List<File>>();
 		if(files!=null && !files.isEmpty()){
