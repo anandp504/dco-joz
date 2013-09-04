@@ -130,9 +130,10 @@ public class IndexLoadingComparator {
 		SetDifference<Long> sd1 = new SetDifference<Long>(pIdsFromIndex, pIds);
 		boolean errorFound = false;
 
-		StringBuilder retString = new StringBuilder();
+		StringBuilder retString = null;
 		boolean first = true;
 		for (Long s : sd1) {
+			retString = new StringBuilder();
 			if(first){
 				first = false;
 				errorFound = true;
@@ -143,14 +144,16 @@ public class IndexLoadingComparator {
 				retString.append(", ");
 			}
 		}
-		retInfos.add(retString.toString());
-		log.info(retString);
+		if(retString != null){
+			retInfos.add(retString.toString());
+			log.info(retString);
+		}
 
 		SetDifference<Long> sd2 = new SetDifference<Long>(pIds, pIdsFromIndex);
 		first = true;
-		retString = new StringBuilder();
+		retString = null;
 		for (Long s : sd2) {
-			if(first){
+			retString = new StringBuilder();if(first){
 				first = false;
 				errorFound = true;
 				retString.append(providerName + " Error: Products(s) found in MUP but not in Index: ");
@@ -160,8 +163,10 @@ public class IndexLoadingComparator {
 				retString.append(", ");
 			}
 		}
-		retInfos.add(retString.toString());
-		log.info(retString);
+		if(retString != null){
+			retInfos.add(retString.toString());
+			log.info(retString);
+		}
 
 		if (!errorFound) {
 			retInfos.add("Index and MUP match for " + providerName);
