@@ -31,6 +31,7 @@ public class IndexLoadingComparator {
 
 	private boolean bErrorsFound = false;
 
+	//used by console
 	public List<String> validate(String mupDir) {
 		bErrorsFound = false;
 		List<String> infos = new ArrayList<String>();
@@ -51,7 +52,7 @@ public class IndexLoadingComparator {
 			List<String> info = new ArrayList<String>();
 			try {
 				String advName = getProviderFromFileName(mupFile.getName());
-				info.addAll(compareProducts(mupFile, advName));
+				info.addAll(compareProducts(mupFile, advName, true));
 			} catch (Throwable t) {
 				info.add(t.getMessage());
 			}
@@ -83,17 +84,17 @@ public class IndexLoadingComparator {
 		for (File mupFile : mupFiles) {
 			List<String> info = new ArrayList<String>();
 			try {
-				info.addAll(compareProducts(mupFile, advertiser));
+				info.addAll(compareProducts(mupFile, advertiser, false));
 			} catch (Throwable t) {
 				info.add(t.getMessage());
 			}
 			infos.addAll(info);
-        }
+		}
 		return !bErrorsFound;
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<String> compareProducts(File f, String providerName) {
+	private List<String> compareProducts(File f, String providerName, boolean generateMismatch) {
 		List<String> retInfos = new ArrayList<String>();
 		if (providerName == null) {
 			retInfos.add("Invalid Provider Name: " + providerName);
@@ -109,9 +110,7 @@ public class IndexLoadingComparator {
 		}
 		SortedSet<Handle> results = index.get(keyId);
 		if(results == null){
-			retInfos.add("Empty Index");
-			bErrorsFound = true;
-			return retInfos;
+			results = new SortedArraySet<Handle>();
 		}
 		SortedSet<Long> pIdsFromIndex = new SortedArraySet<Long>();
 		if(results != null){
@@ -125,36 +124,45 @@ public class IndexLoadingComparator {
 			bErrorsFound = true;
 			return retInfos;
 		}
-        // get pids from MUP file
+		// get pids from MUP file
 		SortedSet<Long> pIds = getPIdList(f);
 
 		SetDifference<Long> sd1 = new SetDifference<Long>(pIdsFromIndex, pIds);
-		SetDifference<Long> sd2 = new SetDifference<Long>(pIds, pIdsFromIndex);
 		boolean errorFound = false;
 
-		if (!sd1.isEmpty()) {
-			errorFound = true;
-			StringBuilder retString = new StringBuilder();
-			retString.append(providerName + " Error: Product(s) found in Index but not in MUP: ");
-			for (Long s : sd1) {
+		StringBuilder retString = new StringBuilder();
+		boolean first = true;
+		for (Long s : sd1) {
+			if(first){
+				first = false;
+				errorFound = true;
+				retString.append(providerName + " Error: Product(s) found in Index but not in MUP: ");
+			}
+			if(generateMismatch){
 				retString.append(s);
 				retString.append(", ");
 			}
-			retInfos.add(retString.toString());
-            log.info(retString);
 		}
+		retInfos.add(retString.toString());
+		log.info(retString);
 
-		if (!sd2.isEmpty()) {
-			errorFound = true;
-			StringBuilder retString = new StringBuilder();
-			retString.append(providerName + " Error: Products(s) found in MUP but not in Index: ");
-			for (Long s : sd2) {
+		SetDifference<Long> sd2 = new SetDifference<Long>(pIds, pIdsFromIndex);
+		first = true;
+		retString = new StringBuilder();
+		for (Long s : sd2) {
+			if(first){
+				first = false;
+				errorFound = true;
+				retString.append(providerName + " Error: Products(s) found in MUP but not in Index: ");
+			}
+			if(generateMismatch){
 				retString.append(s);
 				retString.append(", ");
 			}
-			retInfos.add(retString.toString());
-            log.info(retString);
 		}
+		retInfos.add(retString.toString());
+		log.info(retString);
+
 		if (!errorFound) {
 			retInfos.add("Index and MUP match for " + providerName);
 		} else {
@@ -164,7 +172,7 @@ public class IndexLoadingComparator {
 	}
 
 	private SortedSet<Long> getPIdList(File file) {
-		SortedSet<Long> ss = new SortedArraySet<Long>();
+		List<Long> setBuildingList = new ArrayList<Long>(1000);
 		try {
 			FileInputStream fstream = new FileInputStream(file);
 			DataInputStream in = new DataInputStream(fstream);
@@ -173,20 +181,22 @@ public class IndexLoadingComparator {
 			while ((strLine = br.readLine()) != null) {
 				String pId = getPIdFromMUPLine(strLine);
 				Long l = Long.valueOf(pId.substring(2)); //Removes leading US
-				ss.add(l);
+				setBuildingList.add(l);
 			}
 			in.close();
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 		}
+		SortedSet<Long> ss = new SortedArraySet<Long>(setBuildingList);
+
 		return ss;
 	}
 
 
 	private String getPIdFromMUPLine(String line) {
-		StringTokenizer st = new StringTokenizer(line, "\t");
-		while (st.hasMoreTokens()) {
-			return st.nextToken();
+		int index = line.indexOf('\t');
+		if(index > 0){
+			return line.substring(0, index);
 		}
 		return null;
 	}
