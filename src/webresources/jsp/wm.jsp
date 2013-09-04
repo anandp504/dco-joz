@@ -258,27 +258,28 @@
                     if (ruleList instanceof RWLocked) {
                         ((RWLocked) ruleList).readerLock();
                     }
+                    boolean first = true;
                     for (Pair<CreativeSet, Double> rulePair : ruleList) {
                         CreativeSet cs = rulePair.getFirst();
                         CAM theCAM = cs.getCAM();
                         CAMDimension[] dims = theCAM.getCamDimensions();
                         StringBuilder sbuild = new StringBuilder();
-                        for (int i = 0; i < dims.length; i++) {
-                            CAMDimension currDim = dims[i];
-                            sbuild.append(currDim.getName() + "=");
-                            List<String> values = cs.getAttributes(i);
-                            if (currDim.getName().equals("RECIPEID")) {
-                                for (String s : values) {
-                                        Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(s));
-                                        String url = "<a href=\"/joz/jsp/recipeSelection.jsp?selRecipe=" + r.getId() + "\">" + r.getName() + "</a>";
-                                        sbuild.append(s + " " + url + ",");
-                                }
-                            } else {
-                                sbuild.append(cs + ",");
+                        StringBuilder headerBuilder = null;
+                        if(first){
+                            headerBuilder = new StringBuilder();
+                            for (int i = 0; i < dims.length; i++) {
+                                CAMDimension currDim = dims[i];
+                                headerBuilder.append(currDim.getName() + ";");
                             }
+                            first = false;
                         }
                         Double wt = rulePair.getSecond();
+                        sbuild.append(wt + " : ");
+                        sbuild.append(cs);
+         if(headerBuilder != null){
         %>
+            <li><%=headerBuilder.toString()%></li>
+            <%}%>
             <li><%=sbuild.toString()%> <%=wt%>
             </li>
             <%
@@ -485,7 +486,7 @@
                         Integer expId = rulePair.getFirst();
                         StringBuilder sbuild = new StringBuilder();
                         Experience exp = CampaignDB.getInstance().getExperience(expId);
-                        String url = "<a href=\"/joz/jsp/expSelection.jsp?selExp=" + exp.getId() + "\">" + exp.getName() + "</a>";
+                        String url = "<a href=\"/joz/jsp/expSelection.jsp?selExp=" + (exp!=null?exp.getId():expId) + "\">" + exp!=null?exp.getName():"Experience Not Found" + "</a>";
                         sbuild.append(" " + url + ",");
 
                         Double wt = rulePair.getSecond();
