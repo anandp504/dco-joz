@@ -1482,7 +1482,8 @@ public class CampaignDBCompleteRefreshImpl extends CampaignDB {
 			adPod = adPodMap.get().safeGet(m.getAdPodId());
 			if (adPod != null) {
 				int oid = adPod.getId();
-				index.put(m.getValue(), new AdPodHandle(oid, TargetingScoreHelper.getInstance().getENVscore()));
+				String val = m.getValue();
+				index.put(val == null ? null : val.toLowerCase(), new AdPodHandle(oid, TargetingScoreHelper.getInstance().getENVscore()));
 			} else {
 				log.error("The Adpod was not found in the ENV adpod mapping");
 			}

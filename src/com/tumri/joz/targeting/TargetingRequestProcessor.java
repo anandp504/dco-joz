@@ -271,6 +271,9 @@ public class TargetingRequestProcessor {
 				boolean tadaFound = false;
 				boolean html5Found = false;
 				for(String env: envList){
+					if(env != null){
+						env = env.toLowerCase();
+					}
 					if(env_tada.equalsIgnoreCase(env) && !tadaFound){
 						EnvFlashTargetingQuery envFlashTargetingQuery = new EnvFlashTargetingQuery();
 						cjQuery.addQuery(envFlashTargetingQuery);
