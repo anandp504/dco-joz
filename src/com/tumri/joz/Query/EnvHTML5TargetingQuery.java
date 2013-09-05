@@ -4,6 +4,7 @@ import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.index.AtomicAdpodIndex;
 import com.tumri.joz.products.Handle;
 import com.tumri.joz.ranks.IWeight;
+import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.data.SortedArraySet;
 
 import java.util.SortedSet;
@@ -13,7 +14,6 @@ import java.util.SortedSet;
  * Date: 8/27/13
  */
 public class EnvHTML5TargetingQuery extends TargetingQuery {
-	private String env = "HTML5";
 
 	public EnvHTML5TargetingQuery() {
 	}
@@ -35,7 +35,7 @@ public class EnvHTML5TargetingQuery extends TargetingQuery {
 	@SuppressWarnings({"unchecked"})
 	private SortedSet<Handle> execEnvFlashQuery() {
 		AtomicAdpodIndex index = CampaignDB.getInstance().getAdpodENVIndex();
-		SortedSet<Handle> results = index.get(env);
+		SortedSet<Handle> results = index.get(AppProperties.getInstance().getTargetingHTMLEnv());
 		return results;
 	}
 
