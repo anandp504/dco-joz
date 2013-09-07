@@ -2,8 +2,8 @@
 <%@ page import="com.tumri.joz.server.domain.JozAdResponse" %>
 <%@ page import="com.tumri.cma.domain.Advertiser" %>
 <%@ page import="com.tumri.utils.Pair" %>
-<%@ page import="com.tumri.joz.utils.RequestResponseCache" %>
 <%@ page import="java.util.*" %>
+<%@ page import="com.tumri.joz.monitor.AdRequestMonitor" %>
 <%@ page language="java" %>
 <%@ page language="java" %>
 <%@ page language="java" %>
@@ -100,9 +100,9 @@
                onclick="javascript:displayAdvertisers()">Advertiser<br>
 
         <select id="AdvertiserList" name="advertiser" style="display: none">
-            <option value="Select" selected>- -Select - -</option>
+            <option value="advertiser" selected>- -Select - -</option>
             <%
-                List<String> advertisers = RequestResponseCache.getRequestResponseCacheInstance().getAllAdvertiser();
+                List<String> advertisers = AdRequestMonitor.getInstance().getAllAdvertiser();
 
                 for (int i = 0; i < advertisers.size(); i++) {
                     if (advertisers.get(i) != null) {
@@ -119,9 +119,9 @@
         <div>
         <input type="radio" name="advertiserorcampaign" value="campaign" onclick="javascript:displayCampaigns()">Campaign<br>
         <select id="CampaignList" name="campaign" style="display: none">
-            <option value="Select" selected>- -Select - -</option>
+            <option value="campaign" selected>- -Select - -</option>
             <%
-                List<String> campaigns = RequestResponseCache.getRequestResponseCacheInstance().getAllCampaign();
+                List<String> campaigns = AdRequestMonitor.getInstance().getAllCampaign();
 
                 for (int i = 0; i < campaigns.size(); i++) {
                     if (campaigns.get(i) != null) {
@@ -140,28 +140,40 @@
     JozAdRequest adReq = null;
     JozAdResponse adResp = null;
 
-    String adv = (String) request.getParameter("selAdvertiser");
-    String cam = (String) request.getParameter("selCampaign");
-    String requestType = (String) request.getParameter("requestType");
+    String adv = request.getParameter("selAdvertiser");
+    String cam = request.getParameter("selCampaign");
+    String requestType = request.getParameter("requestType");
     if (requestType == null) {
         requestType = "";
     }
-    RequestResponseCache requestResponseCache = (RequestResponseCache) session.getAttribute("reqRespMap");
+    AdRequestMonitor requestResponseCache = (AdRequestMonitor) session.getAttribute("reqRespMap");
 
-    if ((requestType.equals("Advertiser")) && (adv != null)) {
-        //out.print("Latest RequestResponse for advertiser :"+adv);
-        Pair<JozAdRequest, JozAdResponse> reqResPair = requestResponseCache.getRequestResponsePairForAdvertiser(adv);
-        adReq = (JozAdRequest) reqResPair.getFirst();
-        adResp = (JozAdResponse) reqResPair.getSecond();
-    } else if ((requestType.equals("Campaign")) && (cam != null)) {
-        //out.print("Latest RequestResponse for campaign :"+cam);
-        Pair<JozAdRequest, JozAdResponse> reqResPair = requestResponseCache.getRequestResponsePairForCampaign(cam);
-        adReq = (JozAdRequest) reqResPair.getFirst();
-        adResp = (JozAdResponse) reqResPair.getSecond();
-    } else {
-        //out.print("Latest RequestResponse:");
-        adReq = (JozAdRequest) request.getAttribute("adReq");
-        adResp = (JozAdResponse) request.getAttribute("adResp");
+    if ((requestType.equals("Advertiser")) && (requestResponseCache!=null)) {
+
+            if(adv.equals("advertiser")){
+                out.println("<p><font color=red> Advertiser not selected, please do it !</font></p>");
+            }else{
+            //System.out.println("Latest RequestResponse for advertiser :"+adv);
+            Pair<JozAdRequest, JozAdResponse> reqResPair = requestResponseCache.getRequestResponsePairForAdvertiser(adv);
+            adReq = reqResPair.getFirst();
+            adResp = reqResPair.getSecond();
+            }
+    }else if ((requestType.equals("Campaign")) && (requestResponseCache!=null)) {
+
+        if(cam.equals("campaign")){
+            out.println("<p><font color=red> Campaign not selected, please do it !</font></p>");
+        }else{
+            //System.out.println("Latest RequestResponse for campaign :"+cam);
+            Pair<JozAdRequest, JozAdResponse> reqResPair = requestResponseCache.getRequestResponsePairForCampaign(cam);
+            adReq = reqResPair.getFirst();
+            adResp = reqResPair.getSecond();
+        }
+    }else{
+        if(requestResponseCache==null){
+            out.println("<p><font color=red> RequestResponse cache is empty !</font></p>");
+        }
+     adReq = (JozAdRequest) request.getAttribute("adReq");
+     adResp = (JozAdResponse) request.getAttribute("adResp");
     }
 %>
 
