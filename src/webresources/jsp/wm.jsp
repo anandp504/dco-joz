@@ -159,9 +159,9 @@
                             List<String> values = cs.getAttributes(i);
                             if (currDim.getName().equals("RECIPEID")) {
                                 for (String s : values) {
-                                        Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(s));
-                                        String url = "<a href=\"/joz/jsp/recipeSelection.jsp?selRecipe=" + r.getId() + "\">" + r.getName() + "</a>";
-                                        sbuild.append(s + " " + url + ",");
+                                    Recipe r = CampaignDB.getInstance().getRecipe(Long.parseLong(s));
+                                    String url = "<a href=\"/joz/jsp/recipeSelection.jsp?selRecipe=" + r.getId() + "\">" + r.getName() + "</a>";
+                                    sbuild.append(s + " " + url + ",");
                                 }
                             } else {
                                 sbuild.append(cs + ",");
@@ -276,7 +276,7 @@
                         Double wt = rulePair.getSecond();
                         sbuild.append(wt + " : ");
                         sbuild.append(cs);
-         if(headerBuilder != null){
+                        if(headerBuilder != null){
         %>
             <li><%=headerBuilder.toString()%></li>
             <%}%>
@@ -416,7 +416,7 @@
 <tr class="table_column_header">
     <th>ApodId, Name</th>
     <th>Type, Value(s)</th>
-    <th>Expience (Opt), Weight</th>
+    <th>Experience (Opt), Weight</th>
 </tr>
 <%
     while (eOptHandles.hasNext()) {
@@ -460,11 +460,11 @@
     <td>
         <ul><%
             for (VectorAttribute k : keys) {
-                List<Integer> idList = contextMap.get(k);
-                String val = "";
-                for (Integer id : idList) {
-                    val = val + "," + VectorUtils.getDictValue(k, id);
-                }
+            List<Integer> idList = contextMap.get(k);
+            String val = "";
+            for (Integer id : idList) {
+                val = val + "," + VectorUtils.getDictValue(k, id);
+            }
         %>
             <li><%=vectorId%>=<%=k.name()%><%=val%>
             </li>
@@ -485,15 +485,15 @@
                     for (Pair<Integer, Double> rulePair : ruleList) {
                         Integer expId = rulePair.getFirst();
                         StringBuilder sbuild = new StringBuilder();
-                        Experience exp = CampaignDB.getInstance().getExperience(expId);
-                        String url = "<a href=\"/joz/jsp/expSelection.jsp?selExp=" + (exp!=null?exp.getId():expId) + "\">" + exp!=null?exp.getName():"Experience Not Found" + "</a>";
-                        sbuild.append(" " + url + ",");
+						Experience exp = CampaignDB.getInstance().getExperience(expId);
+               			String url = exp!=null? ("<a href=\"/joz/jsp/expSelection.jsp?selExp=" + exp.getId() + "\">" + exp.getName()+ "</a>") :"Experience Not Found" ;
+                		sbuild.append(" " + url + ",");
 
-                        Double wt = rulePair.getSecond();
-        %>
-            <li><%=sbuild.toString()%> <%=wt%>
-            </li>
-            <%
+                		Double wt = rulePair.getSecond();
+						%>
+						<li><%=sbuild.toString()%> <%=wt%>
+						</li>
+						<%
                     }
                 } finally {
                     if (ruleList instanceof RWLocked) {
