@@ -10,7 +10,6 @@ import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.server.domain.*;
 import com.tumri.joz.server.handlers.JozQARequestHandler;
 import com.tumri.joz.utils.LogUtils;
-import com.tumri.joz.utils.RequestResponseCache;
 import com.tumri.utils.strings.StringTokenizer;
 import com.tumri.content.InvalidConfigException;
 import com.tumri.content.ContentProviderFactory;
@@ -86,7 +85,7 @@ public class JozConsoleServlet extends HttpServlet {
                 request.setAttribute("adReq", req);
                 JozAdResponse adResp = mon.getResponse(req);
                 request.setAttribute("adResp", adResp);
-                RequestResponseCache requestResponseCache = RequestResponseCache.getRequestResponseCacheInstance();
+                AdRequestMonitor requestResponseCache = AdRequestMonitor.getInstance();
                 request.getSession().setAttribute("reqRespMap", requestResponseCache);
                 responseJSP = "/jsp/adRequest.jsp?mode=console";
             }
