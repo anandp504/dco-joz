@@ -116,6 +116,13 @@
 
 <div>
     <%
+        out.print("<strong>AdPod: Env</strong> = " + (myAdPod.getEnvAdPodMapping()==null?"null":myAdPod.getEnvAdPodMapping().getValue()) + "<br>");
+    %>
+</div>
+<br>
+
+<div>
+    <%
         int myExpId = myAdPod.getExperienceId();
         String isExpDisabled = "";
 
