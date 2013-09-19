@@ -71,6 +71,9 @@
 <%
 	CampaignDB campaignDB=CampaignDB.getInstance();
 	ArrayList<AdPod> adPodList = campaignDB.getAdPods();
+    EnvAdPodMapping envAdPodMapping = null;
+    String env = "";
+
 %>
 <table class="table" border="1">
 	<tr class="table_header">
@@ -81,7 +84,7 @@
 		<th>AdPod-ExternalTargetingVariable Mapping</th>
 	</tr>
 	<tr class="table_column_header">
-		<th>Id, Name</th>
+		<th>Id, Name, Type</th>
 		<th>Id, Name</th>
 		<th>Type, Value(s)</th>
 		<th>Url</th>
@@ -89,8 +92,12 @@
 	</tr>
 	<%
 		for(AdPod adPod: adPodList) {
+            if (null==adPod) continue;
 
-			if (null==adPod) continue;
+            envAdPodMapping = adPod.getEnvAdPodMapping();
+            if(envAdPodMapping !=null){
+                env = envAdPodMapping.getValue();
+            }
 
 			//Now print the data into html.
 	%>
@@ -104,6 +111,9 @@
 					<td align="right">
 						<%=adPod.getId()%>
 					</td>
+                    <td align="right">
+                        <%=env%>
+                    </td>
 				</tr>
 			</table>
 		</td>
