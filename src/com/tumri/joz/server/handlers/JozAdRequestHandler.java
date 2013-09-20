@@ -34,7 +34,6 @@ import com.tumri.joz.productselection.ProductSelectionProcessor;
 import com.tumri.joz.productselection.ProductSelectionResults;
 import com.tumri.joz.server.domain.JozAdRequest;
 import com.tumri.joz.server.domain.JozAdResponse;
-import com.tumri.joz.utils.RequestResponseCache;
 import com.tumri.lls.client.main.ListingProvider;
 import com.tumri.lls.client.response.ListingResponse;
 import com.tumri.utils.stats.PerformanceStats;
@@ -194,12 +193,20 @@ public class JozAdRequestHandler implements RequestHandler {
         Map<String, String> resultMap = response.getResultMap();
         String advertiser = resultMap.get("CAMPAIGN-CLIENT-NAME");
 
-        RequestResponseCache requestResponseCache = RequestResponseCache.getRequestResponseCacheInstance();
-        requestResponseCache.addReqResForAdvertiser(query, response, advertiser);
+        AdRequestMonitor adRequestMonitor = AdRequestMonitor.getInstance();
+	    if(advertiser != null){
+		    adRequestMonitor.addReqResForAdvertiser(query, response, advertiser);
+	    } else {
+		    adRequestMonitor.addReqResForAdvertiser(query, response, "NULL");
+	    }
         String campaignId = resultMap.get("CAMPAIGN-ID");
         String campaignName = resultMap.get("CAMPAIGN-NAME");
         String campaignKey = campaignName + " " + campaignId;
-        requestResponseCache.addReqResForCampaign(query, response, campaignKey);
+	    if(campaignKey != null){
+		    adRequestMonitor.addReqResForCampaign(query, response, campaignKey);
+	    } else {
+		    adRequestMonitor.addReqResForCampaign(query, response, "NULL");
+	    }
 
         return response;
     }
