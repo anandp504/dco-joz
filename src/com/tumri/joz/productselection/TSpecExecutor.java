@@ -986,40 +986,44 @@ public class TSpecExecutor {
 				resultAL.remove(i);
 			}
 
-			// need to 'group' by score...only randomize within groups of equal scores,
-			// keeping overall order of scores in order
-			ArrayList<Integer> newScoreEndIndexes = new ArrayList<Integer>();
-			Double prevScore = resultAL.get(0).getScore();
-			for(int i = 0; i < resultAL.size(); i++){
-				Double currentScore = resultAL.get(i).getScore();
-				double diff = currentScore - prevScore;
-				if(diff > .00001 || diff < -.00001){
-					newScoreEndIndexes.add(i);
+			if(resultAL.size() > 0){
+				// need to 'group' by score...only randomize within groups of equal scores,
+				// keeping overall order of scores in order
+				ArrayList<Integer> newScoreEndIndexes = new ArrayList<Integer>();
+				Double prevScore = resultAL.get(0).getScore();
+				for(int i = 0; i < resultAL.size(); i++){
+					Double currentScore = resultAL.get(i).getScore();
+					double diff = currentScore - prevScore;
+					if(diff > .00001 || diff < -.00001){
+						newScoreEndIndexes.add(i);
+					}
+					prevScore = currentScore;
 				}
-				prevScore = currentScore;
-			}
-			newScoreEndIndexes.add(resultAL.size());
+				newScoreEndIndexes.add(resultAL.size());
 
-			Handle cacheReferenceHandle = null;
-			long highestPHID = -1L;
-			for(int j = 0; j < newScoreEndIndexes.size(); j++){
-				int prevEndIndex = j==0 ? 0 : newScoreEndIndexes.get(j-1);
-				int diff = newScoreEndIndexes.get(j) - prevEndIndex;
-				for(int i = diff; i > 0; i--){
-					int randomIndex = r.nextInt(i);
-					finalResultList.add(resultAL.get(randomIndex));
-					Handle h = resultAL.remove(randomIndex);
-					if(h.getOid() > highestPHID){
-						highestPHID = h.getOid();
-						cacheReferenceHandle = h;
+				Handle cacheReferenceHandle = null;
+				long highestPHID = -1L;
+				for(int j = 0; j < newScoreEndIndexes.size(); j++){
+					int prevEndIndex = j==0 ? 0 : newScoreEndIndexes.get(j-1);
+					int diff = newScoreEndIndexes.get(j) - prevEndIndex;
+					for(int i = diff; i > 0; i--){
+						int randomIndex = r.nextInt(i);
+						finalResultList.add(resultAL.get(randomIndex));
+						Handle h = resultAL.remove(randomIndex);
+						if(h.getOid() > highestPHID){
+							highestPHID = h.getOid();
+							cacheReferenceHandle = h;
+						}
 					}
 				}
-			}
 
-			//Set the cached reference for 'randomization'
-			if (cacheReferenceHandle != null) {
-				CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
-				setCacheReference(cacheReferenceHandle, cachedQuery);
+				//Set the cached reference for 'randomization'
+				if (cacheReferenceHandle != null) {
+					CNFQuery cachedQuery = TSpecQueryCache.getInstance().getCNFQuery(m_tspecId);
+					if(cachedQuery != null){
+						setCacheReference(cacheReferenceHandle, cachedQuery);
+					}
+				}
 			}
 		}
 		return finalResultList;
