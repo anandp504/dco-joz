@@ -148,30 +148,30 @@
     }
     AdRequestMonitor requestResponseCache = AdRequestMonitor.getInstance();
 
-    if ((requestType.equals("Advertiser")) && (requestResponseCache!=null)) {
+    if ((requestType.equals("Advertiser")) && (!requestResponseCache.isRequestResponseCacheEmpty())) {
 
             if(adv.equals("advertiser")){
                 out.println("<p><font color=red> Advertiser not selected, please do it !</font></p>");
             }else{
-            //System.out.println("Latest RequestResponse for advertiser :"+adv);
+            //Latest RequestResponse for advertiser :adv
             Pair<JozAdRequest, JozAdResponse> reqResPair = requestResponseCache.getRequestResponsePairForAdvertiser(adv);
             adReq = reqResPair.getFirst();
             adResp = reqResPair.getSecond();
             }
-    }else if ((requestType.equals("Campaign")) && (requestResponseCache!=null)) {
+    }else if ((requestType.equals("Campaign")) && (!requestResponseCache.isRequestResponseCacheEmpty())) {
 
         if(cam.equals("campaign")){
             out.println("<p><font color=red> Campaign not selected, please do it !</font></p>");
         }else{
-            //System.out.println("Latest RequestResponse for campaign :"+cam);
+            //Latest RequestResponse for campaign :cam
             Pair<JozAdRequest, JozAdResponse> reqResPair = requestResponseCache.getRequestResponsePairForCampaign(cam);
             adReq = reqResPair.getFirst();
             adResp = reqResPair.getSecond();
         }
     }else{
-        if(requestResponseCache==null){
+           if(requestResponseCache.isRequestResponseCacheEmpty())
             out.println("<p><font color=red> RequestResponse cache is empty !</font></p>");
-        }
+
      adReq = (JozAdRequest) request.getAttribute("adReq");
      adResp = (JozAdResponse) request.getAttribute("adResp");
     }

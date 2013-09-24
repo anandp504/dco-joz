@@ -45,16 +45,6 @@ public class AdRequestMonitor {
 		return (Pair)reqRespPair.get();
 	}
 
-    public Pair<JozAdRequest, JozAdResponse> getReqResCacheForAdvertiser(String advertiser) {
-
-        return cacheForAdvertiser.get(advertiser);
-    }
-
-    public Pair<JozAdRequest, JozAdResponse> getReqResCacheForCampaign(String campaign) {
-
-        return cacheForCampaign.get(campaign);
-    }
-
     public void addReqResForAdvertiser(JozAdRequest req, JozAdResponse res, String advertiser) {
 
         cacheForAdvertiser.put(advertiser, new Pair<JozAdRequest, JozAdResponse>(req, res));
@@ -77,20 +67,25 @@ public class AdRequestMonitor {
         return campaigns;
     }
 
-    public Map<String, Pair<JozAdRequest, JozAdResponse>> getAdvertiserCacheMap() {
-        return cacheForAdvertiser;
-    }
-
-    public Map<String, Pair<JozAdRequest, JozAdResponse>> getCampaignCacheMap() {
-        return cacheForCampaign;
-    }
-
     public Pair<JozAdRequest, JozAdResponse> getRequestResponsePairForAdvertiser(String advertiser) {
+        if(cacheForAdvertiser.containsKey(advertiser)){
         return this.cacheForAdvertiser.get(advertiser);
+        }else{
+            return null;
+        }
     }
 
     public Pair<JozAdRequest, JozAdResponse> getRequestResponsePairForCampaign(String campaign) {
-        return this.cacheForCampaign.get(campaign);
+        if(cacheForCampaign.containsKey(campaign)){
+           return this.cacheForCampaign.get(campaign);
+        } else {
+            return null;
+        }
+
+    }
+    public boolean isRequestResponseCacheEmpty(){
+
+        return (reqRespPair.get()==null);
     }
 
 }
