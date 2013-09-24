@@ -86,7 +86,6 @@ public class JozConsoleServlet extends HttpServlet {
                 JozAdResponse adResp = mon.getResponse(req);
                 request.setAttribute("adResp", adResp);
                 AdRequestMonitor requestResponseCache = AdRequestMonitor.getInstance();
-                request.getSession().setAttribute("reqRespMap", requestResponseCache);
                 responseJSP = "/jsp/adRequest.jsp?mode=console";
             }
         } else if ("dl".equalsIgnoreCase(mode)) {

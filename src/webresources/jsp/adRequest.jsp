@@ -146,7 +146,7 @@
     if (requestType == null) {
         requestType = "";
     }
-    AdRequestMonitor requestResponseCache = (AdRequestMonitor) session.getAttribute("reqRespMap");
+    AdRequestMonitor requestResponseCache = AdRequestMonitor.getInstance();
 
     if ((requestType.equals("Advertiser")) && (requestResponseCache!=null)) {
 
@@ -240,4 +240,3 @@
 </textarea>
 </body>
 </html>
-
