@@ -11,6 +11,7 @@
 <%@ page language="java" %>
 <%@ page language="java" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -25,8 +26,9 @@
             height: 300px;
         }
     </style>
-
+    <%AdRequestMonitor requestResponseCache = AdRequestMonitor.getInstance();%>
     <script type="text/javascript">
+
         function displayAdvertisers() {
             if (document.ReqResForm.advertiserorcampaign[0].checked) {
                 var advertiserVal = document.ReqResForm.advertiserorcampaign[0].value;
@@ -42,10 +44,8 @@
                     document.getElementById("camButton").disabled = true;
                     document.getElementById("camButton").style.visibility = "hidden";
                     document.getElementById("CampaignList").style.visibility = "hidden";
-
                 }
             }
-
         }
         ;
         function displayCampaigns() {
@@ -85,19 +85,80 @@
             form.submit();
         }
         ;
+        function controlStart(){
+            document.getElementById("startCapture").checked=true;
+            document.getElementById("stopCapture").enabled=true;
+            var form = document.getElementById("ReqResForm");
+            form.submit();
+        };
+        function controlStop(){
+            document.getElementById("stopCapture").checked=true;
+            document.getElementById("startCapture").enabled=true;
+            var form = document.getElementById("ReqResForm");
+            form.submit();
+        };
+        function controlCleaner(){
+            document.getElementById("clean").value = true;
+            var form = document.getElementById("ReqResForm");
+            form.submit();
+        };
+        function init(){
+            var clean = "<%=request.getParameter("clean")%>" ;
+            var ss = "<%=request.getParameter("startstop")%>" ;
+            var isCapture = "<%=requestResponseCache.isCapture()%>";
 
+            if(ss==="null"){
+                if(isCapture ==="true")
+                  ss = "start-capture";
+                else
+                  ss = "stop-capture";
+            }
+            if(ss==="stop-capture"){
+                document.getElementById("stopCapture").checked=true;
+                document.getElementById("startCapture").enabled=true;
+
+            } else {
+                document.getElementById("startCapture").checked=true;
+                document.getElementById("stopCapture").enabled=true;
+            }
+            if(clean==="true"){
+                document.getElementById("clean").value = true;
+            }else{
+                document.getElementById("clean").enabled = true;
+            }
+        };
     </script>
 </head>
-<body>
+<body onload="init(); ">
+<%
+    String isClean = request.getParameter("clean");
+
+    if(isClean!=null && isClean.equals("true")){
+        requestResponseCache.cleanReqRespCaches();
+    }
+%>
+
 <jsp:include page="header.jsp"/>
 <div id="links" style="text-align: right">
     <a href="/joz/console">home</a>
 </div>
+
 <div>
     <form id="ReqResForm" name="ReqResForm" action="/joz/jsp/adRequest.jsp" method="get">
-     <div>
+        <div style="float: right">
+        <tr>
+            <input type="radio" name="startstop" id="startCapture" onclick="javascript:controlStart()" value="start-capture">start-capture
+
+            <input type="radio" name="startstop" id="stopCapture" onclick="javascript:controlStop()" value="stop-capture">stop-capture
+            <input type="hidden" name="selStartStopType" id="selStartStopType"  value=""/>
+
+             <input type="button" value="clear-cache" onclick="javascript:controlCleaner()">
+             <input type="hidden" name="clean" id="clean" value="">
+        </div>
+        <td align="left">
+        <div style="Text-align:left;float:left;">
         <input type="radio" name="advertiserorcampaign" value="advertiser"
-               onclick="javascript:displayAdvertisers()">Advertiser<br>
+               onclick="javascript:displayAdvertisers()">Advertiser
 
         <select id="AdvertiserList" name="advertiser" style="display: none">
             <option value="advertiser" selected>- -Select - -</option>
@@ -115,8 +176,10 @@
         <input type="hidden" name="selAdvertiser" id="selAdvertiser" value=""/>
         <input type="button" value="Get AdRequestResponse" id="advButton" style="visibility: hidden"
                onClick="javascript:displayRequestResponseForAdvertiser()">
-     </div>
-        <div>
+       </div></td>
+
+      <td align="left">
+       <div style="Text-align:left;float:left;">
         <input type="radio" name="advertiserorcampaign" value="campaign" onclick="javascript:displayCampaigns()">Campaign<br>
         <select id="CampaignList" name="campaign" style="display: none">
             <option value="campaign" selected>- -Select - -</option>
@@ -133,7 +196,7 @@
         <input type="hidden" name="selCampaign" id="selCampaign" value=""/>
         <input type="button" value="Get CamRequestResponse" id="camButton" style="visibility: hidden;"
                onClick="javascript:displayRequestResponseForCampaign()">
-        </div>
+       </div></td></tr>
     </form>
 </div>
 <%
@@ -143,20 +206,30 @@
     String adv = request.getParameter("selAdvertiser");
     String cam = request.getParameter("selCampaign");
     String requestType = request.getParameter("requestType");
+    String isCaptureReq = request.getParameter("startstop");
+
     if (requestType == null) {
         requestType = "";
     }
-    AdRequestMonitor requestResponseCache = AdRequestMonitor.getInstance();
-
+    if(isCaptureReq!=null){
+        if(isCaptureReq.equals("stop-capture")){
+            requestResponseCache.setCapture(false);
+        }
+        else{
+            requestResponseCache.setCapture(true);
+        }
+    }
     if ((requestType.equals("Advertiser")) && (!requestResponseCache.isRequestResponseCacheEmpty())) {
 
             if(adv.equals("advertiser")){
-                out.println("<p><font color=red> Advertiser not selected, please do it !</font></p>");
+                out.println("<p><font color=red> Advertiser not selected, please do it !</font><p>");
             }else{
             //Latest RequestResponse for advertiser :adv
             Pair<JozAdRequest, JozAdResponse> reqResPair = requestResponseCache.getRequestResponsePairForAdvertiser(adv);
+                if(reqResPair!=null){
             adReq = reqResPair.getFirst();
             adResp = reqResPair.getSecond();
+                }
             }
     }else if ((requestType.equals("Campaign")) && (!requestResponseCache.isRequestResponseCacheEmpty())) {
 
@@ -165,19 +238,20 @@
         }else{
             //Latest RequestResponse for campaign :cam
             Pair<JozAdRequest, JozAdResponse> reqResPair = requestResponseCache.getRequestResponsePairForCampaign(cam);
+           if(reqResPair!=null){
             adReq = reqResPair.getFirst();
             adResp = reqResPair.getSecond();
+            }
         }
     }else{
            if(requestResponseCache.isRequestResponseCacheEmpty())
             out.println("<p><font color=red> RequestResponse cache is empty !</font></p>");
 
-     adReq = (JozAdRequest) request.getAttribute("adReq");
-     adResp = (JozAdResponse) request.getAttribute("adResp");
+            adReq = (JozAdRequest) request.getAttribute("adReq");
+            adResp = (JozAdResponse) request.getAttribute("adResp");
     }
 %>
-
-<br>
+<br><br><br><br>
 <b>JOZ AD REQUEST:</b>
 <br>
 <textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:5cm"><%
@@ -214,7 +288,6 @@
             }//end if
         }//end while
     }//end if
-
 %>
 </textarea>
 <br>
@@ -223,7 +296,6 @@
 <br>
 <textarea id="text_eval_expr" name="text_eval_expr" style="width:100%;height:17cm">
     <%
-
         if (adResp != null) {
             HashMap<String, String> resultMap = adResp.getResultMap();
             Iterator<String> resultIter = resultMap.keySet().iterator();
@@ -236,7 +308,6 @@
             }//end while
         }//end if
     %>
-
 </textarea>
 </body>
 </html>

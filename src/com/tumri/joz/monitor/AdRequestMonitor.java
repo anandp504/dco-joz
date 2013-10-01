@@ -20,6 +20,17 @@ public class AdRequestMonitor {
     private Map<String, Pair<JozAdRequest, JozAdResponse>> cacheForCampaign;
 	private static AdRequestMonitor instance=null;
 
+    private volatile boolean isCapture = true;
+
+
+    public boolean isCapture() {
+        return isCapture;
+    }
+
+    public void setCapture(boolean capture) {
+        isCapture = capture;
+    }
+
     private AdRequestMonitor() {
         cacheForAdvertiser = new ConcurrentHashMap<String, Pair<JozAdRequest, JozAdResponse>>();
         cacheForCampaign = new ConcurrentHashMap<String, Pair<JozAdRequest, JozAdResponse>>();
@@ -68,7 +79,7 @@ public class AdRequestMonitor {
     }
 
     public Pair<JozAdRequest, JozAdResponse> getRequestResponsePairForAdvertiser(String advertiser) {
-        if(cacheForAdvertiser.containsKey(advertiser)){
+        if(cacheForAdvertiser.containsKey(advertiser) && cacheForAdvertiser.get(advertiser)!=null){
         return this.cacheForAdvertiser.get(advertiser);
         }else{
             return null;
@@ -76,7 +87,7 @@ public class AdRequestMonitor {
     }
 
     public Pair<JozAdRequest, JozAdResponse> getRequestResponsePairForCampaign(String campaign) {
-        if(cacheForCampaign.containsKey(campaign)){
+        if(cacheForCampaign.containsKey(campaign) && cacheForCampaign.get(campaign)!=null){
            return this.cacheForCampaign.get(campaign);
         } else {
             return null;
@@ -86,6 +97,21 @@ public class AdRequestMonitor {
     public boolean isRequestResponseCacheEmpty(){
 
         return (reqRespPair.get()==null);
+    }
+    public void cleanReqRespCaches(){
+        if(cacheForAdvertiser!=null){
+          Set<String> advertiserSet = cacheForAdvertiser.keySet();
+          for(String key:advertiserSet){
+              cacheForAdvertiser.remove(key);
+          }
+        }
+
+        if(cacheForCampaign!=null){
+            Set<String> campaignSet = cacheForCampaign.keySet();
+            for(String key:campaignSet){
+               cacheForCampaign.remove(key);
+            }
+        }
     }
 
 }

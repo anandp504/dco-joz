@@ -194,6 +194,7 @@ public class JozAdRequestHandler implements RequestHandler {
         String advertiser = resultMap.get("CAMPAIGN-CLIENT-NAME");
 
         AdRequestMonitor adRequestMonitor = AdRequestMonitor.getInstance();
+        if(adRequestMonitor.isCapture()){
 	    if(advertiser != null){
 		    adRequestMonitor.addReqResForAdvertiser(query, response, advertiser);
 	    } else {
@@ -207,10 +208,10 @@ public class JozAdRequestHandler implements RequestHandler {
 	    } else {
 		    adRequestMonitor.addReqResForCampaign(query, response, "NULL");
 	    }
+        }
 
         return response;
     }
-
     private String getRecipeData(Recipe r) {
         StringBuilder sbuild = new StringBuilder();
         List<UIProperty> props = r.getProperties();
