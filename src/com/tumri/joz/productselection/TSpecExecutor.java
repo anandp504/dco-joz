@@ -655,9 +655,9 @@ public class TSpecExecutor {
 				log.error("Skipping value that cannot be decoded : " + val);
 				continue;
 			}
-			Integer fieldId = DictionaryManager.lookupId(kAttr, val);
+			Integer fieldId = DictionaryManager.lookupId(kAttr, val); //todo: perhaps use same dictionary for F1/ut1/tspecf1/tspecut1
 			Long key = null;
-			if (fieldId != null) {
+			if (fieldId != null) { //KEY!!  this is done to prevent f1 from impacting f2 from f3...ut5
 				key = IndexUtils.createLongIndexKey(kAttr, fieldId);
 			}
 			multiValueIdAL.add(key);
@@ -905,7 +905,7 @@ public class TSpecExecutor {
 	 */
 	private ArrayList<Handle> executeTSpec() {
 		// Clone the query always
-		ArrayList<Handle> finalResultList = new ArrayList<Handle>();
+		ArrayList<Handle> resultAL = new ArrayList<Handle>();
 		int numProds = request.getPageSize();
 		if (numProds > 0) {
 			m_tSpecQuery = (CNFQuery) m_tSpecQuery.clone();
@@ -961,7 +961,6 @@ public class TSpecExecutor {
 //			qResult = geoSortedResult;
 //		}
 
-			ArrayList<Handle> resultAL = new ArrayList<Handle>();
 			resultAL.addAll(qResult);
 
 
@@ -1001,18 +1000,21 @@ public class TSpecExecutor {
 				}
 				newScoreEndIndexes.add(resultAL.size());
 
+				// this code results in a total number of iterations = resultAL.size() as well as no new array construction
+				// as well as no array shifting
 				Handle cacheReferenceHandle = null;
 				long highestPHID = -1L;
 				for(int j = 0; j < newScoreEndIndexes.size(); j++){
 					int prevEndIndex = j==0 ? 0 : newScoreEndIndexes.get(j-1);
 					int diff = newScoreEndIndexes.get(j) - prevEndIndex;
-					for(int i = diff; i > 0; i--){
-						int randomIndex = r.nextInt(i);
-						finalResultList.add(resultAL.get(randomIndex));
-						Handle h = resultAL.remove(randomIndex);
-						if(h.getOid() > highestPHID){
-							highestPHID = h.getOid();
-							cacheReferenceHandle = h;
+					for(int i = diff, k=0; i > 0; i--, k++){
+						int randomIndex = r.nextInt(i) + prevEndIndex; //generate random index within group of same scores
+						Handle swapHandle = resultAL.get(randomIndex);  //save handle residing at random index
+						resultAL.set(randomIndex, resultAL.get(k+prevEndIndex)); //move element from the first 'available' spot in the group to the random index
+						resultAL.set(k+prevEndIndex, swapHandle); //put swapHandle which was at random index in now 'free' first available spot within the group
+						if(swapHandle.getOid() > highestPHID){
+							highestPHID = swapHandle.getOid();
+							cacheReferenceHandle = swapHandle; //todo: think about when to set cache reference..
 						}
 					}
 				}
@@ -1026,7 +1028,7 @@ public class TSpecExecutor {
 				}
 			}
 		}
-		return finalResultList;
+		return resultAL;
 	}
 
 	private static Map<Product.Attribute, String> getAttributeMap() {
