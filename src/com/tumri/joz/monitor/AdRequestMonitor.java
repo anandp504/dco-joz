@@ -20,7 +20,7 @@ public class AdRequestMonitor {
     private Map<String, Pair<JozAdRequest, JozAdResponse>> cacheForCampaign;
 	private static AdRequestMonitor instance=null;
 
-    private volatile boolean isCapture = true;
+    private volatile boolean isCapture = false;
 
 
     public boolean isCapture() {
@@ -100,17 +100,13 @@ public class AdRequestMonitor {
     }
     public void cleanReqRespCaches(){
         if(cacheForAdvertiser!=null){
-          Set<String> advertiserSet = cacheForAdvertiser.keySet();
-          for(String key:advertiserSet){
-              cacheForAdvertiser.remove(key);
-          }
+            cacheForAdvertiser.clear();
+            cacheForAdvertiser = new ConcurrentHashMap<String, Pair<JozAdRequest, JozAdResponse>>();
         }
 
         if(cacheForCampaign!=null){
-            Set<String> campaignSet = cacheForCampaign.keySet();
-            for(String key:campaignSet){
-               cacheForCampaign.remove(key);
-            }
+            cacheForCampaign.clear();
+            cacheForCampaign = new ConcurrentHashMap<String, Pair<JozAdRequest, JozAdResponse>>();
         }
     }
 
