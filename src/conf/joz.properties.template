@@ -185,6 +185,7 @@ com.tumri.joz.indexValidation.mode=${com.tumri.indexValidation.mode}
 #Environment Settings for html5 and flash ads
 com.tumri.joz.targeting.flashenv = flash
 com.tumri.joz.targeting.htmlenv = edge
+com.tumri.joz.targeting.mraid = mraid
 
 #Image URL
 ProductImagesHostUrl=http://images.tumri.net/iCornerStore

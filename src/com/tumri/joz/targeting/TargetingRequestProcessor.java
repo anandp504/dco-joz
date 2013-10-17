@@ -246,6 +246,7 @@ public class TargetingRequestProcessor {
 		HashMap<String, String> extVarsMap = request.getExtTargetFields();
         String env_html5 = AppProperties.getInstance().getTargetingHTMLEnv();
         String env_tada = AppProperties.getInstance().getTargetingFlashEnv();
+        String env_mRaid = AppProperties.getInstance().getTargetingMRaidEnv();
 
 		SortedSet<Handle> results = null;
 
@@ -270,6 +271,7 @@ public class TargetingRequestProcessor {
 				ArrayList<String> envList = st.getTokens();
 				boolean tadaFound = false;
 				boolean html5Found = false;
+				boolean mRaidFound = false;
 				for(String env: envList){
 					if(env != null){
 						env = env.toLowerCase();
@@ -282,6 +284,10 @@ public class TargetingRequestProcessor {
 						EnvHTML5TargetingQuery envHTML5TargetingQuery = new EnvHTML5TargetingQuery();
 						cjQuery.addQuery(envHTML5TargetingQuery);
 						html5Found = true;
+					} else if(env_mRaid.equalsIgnoreCase(env) && !mRaidFound) {  //this should never appear with flash/html5
+						EnvMRaidTargetingQuery envMRaidTargetingQuery = new EnvMRaidTargetingQuery();
+						cjQuery.addQuery(envMRaidTargetingQuery);
+						mRaidFound = true;
 					}
 				}
 			}
