@@ -23,7 +23,7 @@ public class EnvMRaidTargetingQuery extends TargetingQuery {
 	}
 
 	public SortedSet<Handle> exec() {
-		SortedSet<Handle> envFlashResults      = execEnvFlashQuery();
+		SortedSet<Handle> envFlashResults      = execEnvMRaidQuery();
 
 		SortedSet<Handle> results = new SortedArraySet<Handle>();
 		if(envFlashResults != null) {
@@ -33,7 +33,7 @@ public class EnvMRaidTargetingQuery extends TargetingQuery {
 	}
 
 	@SuppressWarnings({"unchecked"})
-	private SortedSet<Handle> execEnvFlashQuery() {
+	private SortedSet<Handle> execEnvMRaidQuery() {
 		AtomicAdpodIndex index = CampaignDB.getInstance().getAdpodENVIndex();
 		SortedSet<Handle> results = index.get(AppProperties.getInstance().getTargetingMRaidEnv());
 		return results;
