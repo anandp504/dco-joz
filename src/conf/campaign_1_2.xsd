@@ -31,6 +31,7 @@
             <element name="cId" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="clNm" type="string" maxOccurs="1" minOccurs="0"/>
             <element name="rowVersion" type="int" maxOccurs="1" minOccurs="0"/>
+            <element name="optLists" type="boolean" maxOccurs="1" minOccurs="0"/>
             <element name="AdPs" type="tns:adpodsDef"/>
             <element name="AdGps" type="tns:adGroupsDef" maxOccurs="1" minOccurs="0"/>
             <element name="roiTargetsList" type="tns:roiTargetsListDef" maxOccurs="1" minOccurs="0"/>
@@ -754,6 +755,7 @@
             <!--  adding the ListingSpec node as part of experience -->
             <element name="LS" type="tns:ListingSpec" minOccurs="0"/>
             <element name="expInfs" type="tns:ExperienceInfoDef"/>
+            <element name="listOptPer" type="int" maxOccurs="1" minOccurs="0"/>
             <element name="cam" type="tns:CamDef"/>
             <element name="props" type="tns:PropertyDef"/>
         </choice>
