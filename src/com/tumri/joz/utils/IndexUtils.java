@@ -256,6 +256,19 @@ public class IndexUtils {
                     id = 0;
                 }
                 break;
+	        case kExperienceId:
+	        case kExperienceIdF1:
+	        case kExperienceIdF2:
+	        case kExperienceIdF3:
+	        case kExperienceIdF4:
+	        case kExperienceIdF5:
+	        case kExperienceIdUT1:
+	        case kExperienceIdUT2:
+	        case kExperienceIdUT3:
+	        case kExperienceIdUT4:
+	        case kExperienceIdUT5:
+             id = DictionaryManager.getId(attr, indexVal);
+             break;
         }
         return id;
     }
@@ -315,30 +328,52 @@ public class IndexUtils {
             id = Product.Attribute.kCC;
         } else if (indexType.equals("bt")) {
             id = Product.Attribute.kBT;
-        } else if (indexType.equals("externalfilterf1")) {
+        } else if (indexType.equals("externalfilterf1") || indexType.equalsIgnoreCase("f1")) {
             id = Product.Attribute.kExternalFilterField1;
-        } else if (indexType.equals("externalfilterf2")) {
+        } else if (indexType.equals("externalfilterf2") || indexType.equalsIgnoreCase("f2")) {
             id = Product.Attribute.kExternalFilterField2;
-        } else if (indexType.equals("externalfilterf3")) {
+        } else if (indexType.equals("externalfilterf3") || indexType.equalsIgnoreCase("f3")) {
             id = Product.Attribute.kExternalFilterField3;
-        } else if (indexType.equals("externalfilterf4")) {
+        } else if (indexType.equals("externalfilterf4") || indexType.equalsIgnoreCase("f4")) {
             id = Product.Attribute.kExternalFilterField4;
-        } else if (indexType.equals("externalfilterf5")) {
+        } else if (indexType.equals("externalfilterf5") || indexType.equalsIgnoreCase("f5")) {
             id = Product.Attribute.kExternalFilterField5;
-        } else if (indexType.equals("ut1")) {
+        } else if (indexType.equalsIgnoreCase("ut1")) {
             id = Product.Attribute.kUT1;
-        } else if (indexType.equals("ut2")) {
+        } else if (indexType.equalsIgnoreCase("ut2")) {
             id = Product.Attribute.kUT2;
-        } else if (indexType.equals("ut3")) {
+        } else if (indexType.equalsIgnoreCase("ut3")) {
             id = Product.Attribute.kUT3;
-        } else if (indexType.equals("ut4")) {
+        } else if (indexType.equalsIgnoreCase("ut4")) {
             id = Product.Attribute.kUT4;
-        } else if (indexType.equals("ut5")) {
+        } else if (indexType.equalsIgnoreCase("ut5")) {
             id = Product.Attribute.kUT5;
         } else if (indexType.equals("rank")) {
             id = Product.Attribute.kRank;
         } else if (indexType.equals("discount")) {
             id = Product.Attribute.kDiscount;
+        } else if (indexType.equals("optExperienceId")){
+	        id = Product.Attribute.kExperienceId;
+        } else if (indexType.equals("optF1")){
+	        id = Product.Attribute.kExperienceIdF1;
+        } else if (indexType.equals("optF2")){
+	        id = Product.Attribute.kExperienceIdF2;
+        } else if (indexType.equals("optF3")){
+	        id = Product.Attribute.kExperienceIdF3;
+        } else if (indexType.equals("optF4")){
+	        id = Product.Attribute.kExperienceIdF4;
+        } else if (indexType.equals("optF5")){
+	        id = Product.Attribute.kExperienceIdF5;
+        } else if (indexType.equals("optUT1")){
+	        id = Product.Attribute.kExperienceIdUT1;
+        } else if (indexType.equals("optUT2")){
+	        id = Product.Attribute.kExperienceIdUT2;
+        } else if (indexType.equals("optUT3")){
+	        id = Product.Attribute.kExperienceIdUT3;
+        } else if (indexType.equals("optUT4")){
+	        id = Product.Attribute.kExperienceIdUT4;
+        } else if (indexType.equals("optUT5")){
+	        id = Product.Attribute.kExperienceIdUT5;
         }
         return id;
     }
@@ -413,6 +448,28 @@ public class IndexUtils {
             name = "ut4";
         } else if (id == Product.Attribute.kUT5) {
             name = "ut5";
+        } else if (id == Product.Attribute.kExperienceId){
+	        name = "optExperienceId";
+        } else if (id == Product.Attribute.kExperienceIdF1){
+	        name = "optF1";
+        } else if (id == Product.Attribute.kExperienceIdF2){
+	        name = "optF2";
+        } else if (id == Product.Attribute.kExperienceIdF3){
+	        name = "optF3";
+        } else if (id == Product.Attribute.kExperienceIdF4){
+	        name = "optF4";
+        } else if (id == Product.Attribute.kExperienceIdF5){
+	        name = "optF5";
+        } else if (id == Product.Attribute.kExperienceIdUT1){
+	        name = "optUT1";
+        } else if (id == Product.Attribute.kExperienceIdUT2){
+	        name = "optUT2";
+        } else if (id == Product.Attribute.kExperienceIdUT3){
+	        name = "optUT3";
+        } else if (id == Product.Attribute.kExperienceIdUT4){
+	        name = "optUT4";
+        } else if (id == Product.Attribute.kExperienceIdUT5){
+	        name = "optUT5";
         }
 
         return name;

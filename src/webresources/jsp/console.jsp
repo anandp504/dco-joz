@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+d<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -31,6 +31,11 @@
 
 <div>
     <a href="/joz/console?mode=wmstatus">WM Content status</a>
+</div>
+<br>
+
+<div>
+    <a href="/joz/console?mode=optContentStatus">Opt Content status</a>
 </div>
 <br>
 

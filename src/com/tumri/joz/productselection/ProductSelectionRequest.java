@@ -77,6 +77,11 @@ public class ProductSelectionRequest {
     private boolean useTopK = false;
     private String topK = "";
 
+	private int experienceId;
+	private boolean doProdOpt = true; //todo: change to false
+
+	private int userbucket = -1;
+
     public boolean isBRandomize() {
         return bRandomize;
     }
@@ -373,7 +378,31 @@ public class ProductSelectionRequest {
         this.topK = topK;
     }
 
-    public String toString(){
+	public int getExperienceId() {
+		return experienceId;
+	}
+
+	public void setExperienceId(int experienceId) {
+		this.experienceId = experienceId;
+	}
+
+	public int getUserbucket() {
+		return userbucket;
+	}
+
+	public void setUserbucket(int userbucket) {
+		this.userbucket = userbucket;
+	}
+
+	public boolean isDoProdOpt() {
+		return doProdOpt;
+	}
+
+	public void setDoProdOpt(boolean doProdOpt) {
+		this.doProdOpt = doProdOpt;
+	}
+
+	public String toString(){
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("bRandomize = ".toUpperCase() + bRandomize + " ");

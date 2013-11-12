@@ -32,6 +32,7 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 	private static double kGeoEnabled = 1.0;
 	private static double kGlobalId = 1.2;
 	private static double kMultiValueTextField = 1.05;
+	private static double kOpt = 1.001;
 	private static double kNone = 1.0;
 
 	protected static double getMaxWeight(IProduct.Attribute attr) {
@@ -87,6 +88,18 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 				return kDiscount;
 			case kRank:
 				return kRank;
+			case kExperienceId:
+			case kExperienceIdF1:
+			case kExperienceIdF2:
+			case kExperienceIdF3:
+			case kExperienceIdF4:
+			case kExperienceIdF5:
+			case kExperienceIdUT1:
+			case kExperienceIdUT2:
+			case kExperienceIdUT3:
+			case kExperienceIdUT4:
+			case kExperienceIdUT5:
+				return kOpt;
 			case kNone:
 				return kNone;
 			default:
@@ -155,6 +168,18 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 				return RankWeight.getInstance();
 			case kDiscount:
 				return DiscountWeight.getInstance();
+			case kExperienceId:
+			case kExperienceIdF1:
+			case kExperienceIdF2:
+			case kExperienceIdF3:
+			case kExperienceIdF4:
+			case kExperienceIdF5:
+			case kExperienceIdUT1:
+			case kExperienceIdUT2:
+			case kExperienceIdUT3:
+			case kExperienceIdUT4:
+			case kExperienceIdUT5:
+				return OptTextFieldWeight.getInstance();
 			case kNone:
 			default:
 				return NeutralWeight.getInstance();
@@ -214,6 +239,18 @@ abstract public class AttributeWeights implements IWeight<Handle> {
 				return kDiscount;
 			case kRank:
 				return kRank;
+			case kExperienceId:
+			case kExperienceIdF1:
+			case kExperienceIdF2:
+			case kExperienceIdF3:
+			case kExperienceIdF4:
+			case kExperienceIdF5:
+			case kExperienceIdUT1:
+			case kExperienceIdUT2:
+			case kExperienceIdUT3:
+			case kExperienceIdUT4:
+			case kExperienceIdUT5:
+				return kOpt;
 			case kNone:
 				return kNone;
 			default:

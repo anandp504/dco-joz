@@ -69,6 +69,12 @@ public class ProductSelectionProcessor {
 							pr.setUseTopK(true); //By default always turn on TopK for TC campaigns
 						}
 						//The order of tspecs are important in the case of included prods
+						pr.setExperienceId(trs.getExperience().getId());
+						try{
+							pr.setUserbucket(Integer.parseInt(request.getUserBucket()));
+						}catch (NumberFormatException e){
+							log.error("Invalid UserBucket: " + request.getUserBucket());
+						}
 						for (RecipeTSpecInfo queryInfoRecipe : infoListRecipe) {
 							int tspecId = queryInfoRecipe.getTspecId();
 							int numProds = queryInfoRecipe.getNumProducts();
@@ -93,6 +99,11 @@ public class ProductSelectionProcessor {
 					if (infoListExp != null) {
 						Collections.sort(infoListExp);
 						ProductSelectionRequest pr = prepareRequest(request);
+						try{
+							pr.setUserbucket(Integer.parseInt(request.getUserBucket()));
+						}catch (NumberFormatException e){
+							log.error("Invalid UserBucket: " + request.getUserBucket());
+						}
 						pr.setListingClause(trs.getListingClause());
 						if ("false".equals(pr.getTopK())) {
 							pr.setUseTopK(false); //Conditionally turn off TopK if flag is passed in.
@@ -104,6 +115,7 @@ public class ProductSelectionProcessor {
 							int tspecId = queryInfoRecipe.getTspecId();
 							int numProds = queryInfoRecipe.getNumProducts();
 							String slotId = queryInfoRecipe.getSlotId();
+							pr.setExperienceId(trs.getExperience().getId());
 							if (numProds > 0) {
 								pr.setPageSize(numProds);
 								pr.setCurrPage(0);

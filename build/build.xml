@@ -29,6 +29,7 @@
     <path id="project.class.path">
         <fileset dir="${ext.lib.dir}">
             <include name="*.jar"/>
+            <exclude name="jic*.jar"/>
         </fileset>
 	<fileset dir="${utils.lib.dir}">
             <include name="${utils.lib.file}"/>

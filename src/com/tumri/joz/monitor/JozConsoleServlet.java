@@ -54,6 +54,8 @@ public class JozConsoleServlet extends HttpServlet {
             responseJSP = "/jsp/cma-content-status.jsp";
         } else if ("wmstatus".equalsIgnoreCase(mode)) {
             responseJSP = "/jsp/wm-content-status.jsp";
+        }  else if ("optContentStatus".equalsIgnoreCase(mode)) {
+            responseJSP = "/jsp/opt-content-status.jsp";
         } else if ("perf".equalsIgnoreCase(mode)) {
             responseJSP = "/jsp/performance-stat.jsp";
         } else if ("eval".equalsIgnoreCase(mode)) {

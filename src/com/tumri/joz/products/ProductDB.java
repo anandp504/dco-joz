@@ -33,6 +33,8 @@ public class ProductDB {
 	// table of all filters associated with attributes
 	private Hashtable<IProduct.Attribute, Filter<Handle>> m_filters = new Hashtable<IProduct.Attribute, Filter<Handle>>();
 
+	private Hashtable<Integer, Hashtable<IProduct.Attribute, ProductAttributeIndex<?, Handle>>> m_opt_indices = new Hashtable<Integer, Hashtable<IProduct.Attribute, ProductAttributeIndex<?, Handle>>>();
+
 	// table of all long filters associated with attributes
 	private Hashtable<IProduct.Attribute, LongFilter<Handle>> m_longFilters = new Hashtable<IProduct.Attribute, LongFilter<Handle>>();
 
@@ -214,7 +216,7 @@ public class ProductDB {
 	 * @param products
 	 * @return
 	 */
-	public ArrayList<Handle> deleteProduct(ArrayList<IProduct> products) {
+	public ArrayList<Handle> deleteProduct(ArrayList<IProduct> products) {  //todo: do we need to add removal of product from opt_indexes?
 		ArrayList<Handle> handles = new ArrayList<Handle>();
 		if (!disableJozIndexLoad) {
 			return handles;
@@ -286,6 +288,10 @@ public class ProductDB {
 	}
 
 	public void addIndex(IProduct.Attribute aAttribute, ProductAttributeIndex<?, Handle> index) {
+		m_indices.put(aAttribute, index);
+	}
+
+	public void addOptIndex(IProduct.Attribute aAttribute, ProductAttributeIndex<?, Handle> index) {
 		m_indices.put(aAttribute, index);
 	}
 
@@ -797,6 +803,44 @@ public class ProductDB {
 		((ProductAttributeIndex<Long, Handle>) m_indices.get(type)).delete(mindex);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void overwriteOptIndex(IProduct.Attribute type, Integer experienceId, TreeMap<Integer, ArrayList<Handle>> mindex){
+		Hashtable<Product.Attribute, ProductAttributeIndex<?, Handle>> subIndex = m_opt_indices.get(experienceId);
+		if(subIndex == null){
+			subIndex = new Hashtable<Product.Attribute, ProductAttributeIndex<?, Handle>>();
+		}
+		ProductAttributeIndex<?, Handle> index = subIndex.get(type);
+		if(index == null){
+			index = new OptTextIndexImpl(type);
+		}
+
+		((ProductAttributeIndex<Integer, Handle>) index).overwrite(mindex);
+
+		subIndex.put(type, index);
+
+		m_opt_indices.put(experienceId, subIndex);
+	}
+
+	public void cleanOptIndex(SortedSet<Integer> experiences){
+		Set<Integer> keys = m_opt_indices.keySet();
+		for(Integer key: keys){
+			if(!experiences.contains(key)){
+				m_opt_indices.remove(key);
+			}
+		}
+	}
+
+	public void deleteAllOptIndexesForExperience(Integer experienceId){
+		m_opt_indices.remove(experienceId);
+	}
+
+	public ProductAttributeIndex getOptIndex(IProduct.Attribute type, Integer experienceId){
+		Hashtable<Product.Attribute, ProductAttributeIndex<?, Handle>> subIndex = m_opt_indices.get(experienceId);
+		if(subIndex != null){
+			return subIndex.get(type);
+		}
+		return null;
+	}
 
 	/**
 	 * Return a handle given a product id.
@@ -869,7 +913,7 @@ public class ProductDB {
 	/**
 	 * Clears the indices and the maps
 	 */
-	public void clearProductDB() {
+	public void clearProductDB() { //todo: do we need to add cleanup of opt indexes?
 		for (ProductAttributeIndex<?, Handle> lIndex : m_indices.values()) {
 			lIndex.clear();
 		}

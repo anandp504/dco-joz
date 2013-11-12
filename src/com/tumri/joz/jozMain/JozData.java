@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import com.tumri.content.data.impl.AdvertiserMerchantDataMapperImpl;
 import com.tumri.content.data.impl.AdvertiserTaxonomyMapperImpl;
+import com.tumri.joz.products.ListingOptContentPoller;
 import org.apache.log4j.Logger;
 
 import com.tumri.joz.campaign.CMAContentPoller;
@@ -33,6 +34,8 @@ public class JozData {
         //Init LLC
         ListingProviderFactory.getProviderInstance(AdvertiserTaxonomyMapperImpl.getInstance(),
                         AdvertiserMerchantDataMapperImpl.getInstance());
+
+	    ListingOptContentPoller.getInstance().init(); //add poller for opt prod indexes
 
     }
 

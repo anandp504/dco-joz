@@ -69,16 +69,36 @@ public class TSpecExecutor {
 	private String m_scriptKeywords = null;
 	private static final Map<Product.Attribute, String> attMap = getAttributeMap();
 	private Random r = new Random();
+	private boolean doListingOpt = true;
 
 	private static Logger log = Logger.getLogger(TSpecExecutor.class);
 
 	public TSpecExecutor(ProductSelectionRequest req) {
 		this.request = req;
+		if(req.isDoProdOpt()){
+			Experience e = CampaignDB.getInstance().getExperience(req.getExperienceId());
+
+			if(req.getUserbucket() > e.getListingOptPercent()){
+				doListingOpt = false;
+			}
+		} else {
+			doListingOpt = false;
+		}
 	}
 
 	public TSpecExecutor(ProductSelectionRequest req, Features f) {
 		this.request = req;
 		this.m_feature = f;
+
+		if(req.isDoProdOpt()){
+			Experience e = CampaignDB.getInstance().getExperience(req.getExperienceId());
+
+			if(req.getUserbucket() > e.getListingOptPercent()){
+				doListingOpt = false;
+			}
+		} else {
+			doListingOpt = false;
+		}
 	}
 
 	/**
@@ -492,8 +512,10 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ExternalFilterField1", externalFilterField1);
 				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdF1, externalFilterField1, copytSpecQuery);
+				}
 			}
-
 		}
 		if (m_tspec.isUseListingFilter2()) {
 			String externalFilterField2 = request.getExternalFilterQuery2();
@@ -501,6 +523,9 @@ public class TSpecExecutor {
 				addExternalFilterFieldQuery(IProduct.Attribute.kExternalFilterField2, externalFilterField2, copytSpecQuery);
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ExternalFilterField2", externalFilterField2);
+				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdF2, externalFilterField2, copytSpecQuery);
 				}
 			}
 		}
@@ -511,6 +536,9 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ExternalFilterField3", externalFilterField3);
 				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdF3, externalFilterField3, copytSpecQuery);
+				}
 			}
 		}
 		if (m_tspec.isUseListingFilter4()) {
@@ -520,6 +548,9 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ExternalFilterField4", externalFilterField4);
 				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdF4, externalFilterField4, copytSpecQuery);
+				}
 			}
 		}
 		if (m_tspec.isUseListingFilter5()) {
@@ -528,6 +559,9 @@ public class TSpecExecutor {
 				addExternalFilterFieldQuery(IProduct.Attribute.kExternalFilterField5, externalFilterField5, copytSpecQuery);
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ExternalFilterField5", externalFilterField5);
+				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdF5, externalFilterField5, copytSpecQuery);
 				}
 
 			}
@@ -539,7 +573,6 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("age", ageFilter);
 				}
-
 			}
 		}
 		if (m_tspec.isUseGenderFilter()) {
@@ -549,7 +582,6 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("gender", genderFilter);
 				}
-
 			}
 		}
 		if (m_tspec.isUseBTFilter()) {
@@ -559,7 +591,6 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("bt", btFilter);
 				}
-
 			}
 		}
 		if (m_tspec.isUseMSFilter()) {
@@ -569,7 +600,6 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ms", msFilter);
 				}
-
 			}
 		}
 		if (m_tspec.isUseHHIFilter()) {
@@ -579,7 +609,6 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("hhi", hhiFilter);
 				}
-
 			}
 		}
 		if (m_tspec.isUseUT1()) {
@@ -588,6 +617,9 @@ public class TSpecExecutor {
 				addExternalFilterFieldQuery(IProduct.Attribute.kUT1, ut1Filter, copytSpecQuery);
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ut1", ut1Filter);
+				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdUT1, ut1Filter, copytSpecQuery);
 				}
 			}
 		}
@@ -598,6 +630,9 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ut2", ut2Filter);
 				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdUT2, ut2Filter, copytSpecQuery);
+				}
 			}
 		}
 		if (m_tspec.isUseUT3()) {
@@ -606,6 +641,9 @@ public class TSpecExecutor {
 				addExternalFilterFieldQuery(IProduct.Attribute.kUT3, ut3Filter, copytSpecQuery);
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ut3", ut3Filter);
+				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdUT3, ut3Filter, copytSpecQuery);
 				}
 			}
 		}
@@ -616,6 +654,9 @@ public class TSpecExecutor {
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ut4", ut4Filter);
 				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdUT4, ut4Filter, copytSpecQuery);
+				}
 			}
 		}
 		if (m_tspec.isUseUT5()) {
@@ -624,6 +665,9 @@ public class TSpecExecutor {
 				addExternalFilterFieldQuery(IProduct.Attribute.kUT5, ut5Filter, copytSpecQuery);
 				if (m_feature != null) {
 					m_feature.addFeatureDetail("ut5", ut5Filter);
+				}
+				if(doListingOpt){
+					addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceIdUT5, ut5Filter, copytSpecQuery);
 				}
 			}
 		}
@@ -681,6 +725,73 @@ public class TSpecExecutor {
 		m_tSpecQuery = copytSpecQuery;
 	}
 
+	/**
+	 * Adds a multi value field query to the current tspec being executed
+	 *
+	 * @param kAttr               - Product Attribute
+	 * @param externalFilterField - The multi value field passed from iCS
+	 */
+	private void addOptimizedExternalFilterFieldQuery(int experienceId, IProduct.Attribute kAttr, String externalFilterField, CNFQuery copytSpecQuery) {
+		StringTokenizer st = new StringTokenizer(externalFilterField, MULTI_VALUE_DELIM);
+		ArrayList<String> multiValueAL = st.getTokens();
+		ArrayList<Integer> multiValueIdAL = new ArrayList<Integer>();
+		for (String val : multiValueAL) {
+			//Url decode
+			if (val == null) {
+				continue;
+			}
+			try {
+				val = URLDecoder.decode(val, "utf-8");
+				val = val.toLowerCase();
+			} catch (UnsupportedEncodingException e) {
+				log.error("Could not decode the value : " + val);
+				continue;
+			} catch (IllegalArgumentException ilegalArgEx) {
+				log.error("Skipping value that cannot be decoded : " + val);
+				continue;
+			}
+			Integer fieldId = DictionaryManager.lookupId(kAttr, val); //todo: perhaps use same dictionary for F1/ut1/tspecf1/tspecut1
+			multiValueIdAL.add(fieldId);
+		}
+		if (multiValueIdAL.isEmpty()) {
+			return;
+		}
+
+		OptTextQuery aQuery = new OptTextQuery(kAttr, experienceId,multiValueIdAL);
+
+		IWeight<Handle> wt = findOptWeight(kAttr);
+		if (wt != null) {
+			aQuery.setWeight(wt);
+		}
+		if (copytSpecQuery == null) {
+			copytSpecQuery = (CNFQuery) m_tSpecQuery.clone();
+		}
+		ArrayList<ConjunctQuery> cnjQueries = copytSpecQuery.getQueries();
+		for (ConjunctQuery conjunctQuery : cnjQueries) {
+			conjunctQuery.addQuery(aQuery);
+		}
+		m_tSpecQuery = copytSpecQuery;
+	}
+
+	IWeight<Handle> findOptWeight(IProduct.Attribute kAttr){
+		IWeight<Handle> wt = null;
+		if(kAttr == IProduct.Attribute.kExperienceId){
+			wt = new GenericIWeight<Handle>(1.001, false);
+		} else if(kAttr == IProduct.Attribute.kExperienceIdF1 ||
+				kAttr == IProduct.Attribute.kExperienceIdF2 ||
+				kAttr == IProduct.Attribute.kExperienceIdF3 ||
+				kAttr == IProduct.Attribute.kExperienceIdF4 ||
+				kAttr == IProduct.Attribute.kExperienceIdF5 ||
+				kAttr == IProduct.Attribute.kExperienceIdUT1 ||
+				kAttr == IProduct.Attribute.kExperienceIdUT2 ||
+				kAttr == IProduct.Attribute.kExperienceIdUT3 ||
+				kAttr == IProduct.Attribute.kExperienceIdUT4 ||
+				kAttr == IProduct.Attribute.kExperienceIdUT5){
+			wt = new GenericIWeight<Handle>(1.002, false);
+		}
+		return wt;
+	}
+
 	IWeight<Handle> findWeight(IProduct.Attribute kAttr) {
 		IWeight<Handle> wt = null;
 
@@ -690,6 +801,7 @@ public class TSpecExecutor {
 		if (specifiedWeights != null && (score = specifiedWeights.get(tAtt)) != null) {
 			wt = new GenericIWeight<Handle>(score, false);
 		}
+
 		return wt;
 	}
 
@@ -993,7 +1105,7 @@ public class TSpecExecutor {
 				for(int i = 0; i < resultAL.size(); i++){
 					Double currentScore = resultAL.get(i).getScore();
 					double diff = currentScore - prevScore;
-					if(diff > .00001 || diff < -.00001){
+					if(diff > 0.000000000001 || diff < -0.000000000001){
 						newScoreEndIndexes.add(i);
 					}
 					prevScore = currentScore;
