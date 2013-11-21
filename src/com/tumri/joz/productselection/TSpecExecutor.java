@@ -75,16 +75,18 @@ public class TSpecExecutor {
 
 	public TSpecExecutor(ProductSelectionRequest req) {
 		this.request = req;
-		if(req.isDoProdOpt()){
-			Experience e = CampaignDB.getInstance().getExperience(req.getExperienceId());
-
-			if(req.getUserbucket() > e.getListingOptPercent()){
-				doListingOpt = false;
-			}
-		} else {
-			doListingOpt = false;
-		}
-	}
+        if(req.isDoProdOpt()){
+            Experience e = CampaignDB.getInstance().getExperience(req.getExperienceId());
+            if(e!=null){
+                if(req.getUserbucket() > e.getListingOptPercent()){
+                    doListingOpt = false;
+                }
+                else {
+                    doListingOpt = false;
+                }
+            }
+        }
+    }
 
 	public TSpecExecutor(ProductSelectionRequest req, Features f) {
 		this.request = req;
@@ -92,13 +94,15 @@ public class TSpecExecutor {
 
 		if(req.isDoProdOpt()){
 			Experience e = CampaignDB.getInstance().getExperience(req.getExperienceId());
-
-			if(req.getUserbucket() > e.getListingOptPercent()){
-				doListingOpt = false;
-			}
-		} else {
-			doListingOpt = false;
-		}
+            if(e!=null){
+                if(req.getUserbucket() > e.getListingOptPercent()){
+                    doListingOpt = false;
+                }
+                else {
+                doListingOpt = false;
+                }
+            }
+        }
 	}
 
 	/**
