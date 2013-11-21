@@ -29,19 +29,16 @@ public class DiscountWeight extends AttributeWeights {
 	}
 
 	public double getWeight(Handle h, double minWeight) {
-		if (minWeight <= 1.0) {
-			return ((ProductHandle) h).getDiscount();
-		}
-		double tmp = minWeight - ((int) minWeight);
+		double tmp = 0.004 - 0.001;
 		if (tmp == 0.0) {
 			tmp = 1.0;
 		}
 		tmp = tmp / 101.0;
-		return Math.sqrt(1 + tmp * ((ProductHandle) h).getDiscount());
+		return 1 + tmp * ((ProductHandle) h).getDiscount();   //todo: verify discount, not currently used in prod, is dis > 1 or < 1?
 	}
 
 	public double getMinWeight() {
-		return 0.0;
+		return 1.0;
 	}
 
 }

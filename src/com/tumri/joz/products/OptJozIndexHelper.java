@@ -191,7 +191,7 @@ public class OptJozIndexHelper {
 										JICProperties.init(debugMode, false, updater);
 										fis = new FileInputStream(provInFile);
 										in = new ObjectInputStream(new BufferedInputStream(fis));
-										PersistantProviderIndex pProvIndex = (PersistantProviderIndex) in.readObject();
+										in.readObject(); //readObject uses JICProperties updater rather than reconstructing serialized object
 										in.close();
 									} catch (IOException ex) {
 										error = true;

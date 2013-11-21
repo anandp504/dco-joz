@@ -233,8 +233,10 @@ public class ProductQueryMonitor extends ComponentMonitor {
 		keys.add(":hhi");
 		keys.add(":ms");
 		keys.add(":bt");
+		keys.add(":expId");
 		//keys.add(":advertiser");
 		keys.add(":topk");
+		keys.add(":doOpt");
 
 		if (req == null || "".equals(req.trim())) {
 			pr.setCurrPage(0);
@@ -383,6 +385,14 @@ public class ProductQueryMonitor extends ComponentMonitor {
 					} else if (":bt".equalsIgnoreCase(key)) {
 						if (!"".equals(value.trim())) {
 							pr.setBt(value.trim());
+						}
+					} else if (":expId".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setExperienceId(Integer.parseInt(value.trim()));
+						}
+					} else if (":doOpt".equalsIgnoreCase(key)) {
+						if (!"".equals(value.trim())) {
+							pr.setDoProdOpt(Boolean.parseBoolean(value.trim()));
 						}
 					}
 					/* else if (":advertiser".equalsIgnoreCase(key)) {
