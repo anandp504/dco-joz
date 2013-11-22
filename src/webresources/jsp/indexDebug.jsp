@@ -64,7 +64,7 @@ Index Debuging Util: <i>View Product Listings Accross *.bin Files<i>
 				<strong>Input should follow the syntax below:</strong>
 
 				<br>
-				&nbsp; &nbsp; <i>Example:</i> "<strong>-saveDir</strong> /tmp/tmp2 <strong>-saveFile</strong> tmp.txt <strong>-binFile</strong> hello.bin <strong>-binFile</strong> bye.bin <strong>-binLoc</strong> /bin/bin2 <strong>-prodId</strong> 123456 <strong>-prodId</strong> 654321"
+				&nbsp; &nbsp; <i>Example:</i> "<strong>-saveDir</strong> /tmp/tmp2 <strong>-saveFile</strong> tmp.txt <strong>-binFile</strong> hello.bin <strong>-binFile</strong> bye.bin <strong>-binLoc</strong> /bin/bin2 <strong>-prodId</strong> 123456 <strong>-prodId</strong> 654321 <strong>-opt</strong>"
 			</div>
 			<div style="font-size:85%">
 
@@ -81,6 +81,8 @@ Index Debuging Util: <i>View Product Listings Accross *.bin Files<i>
 				&nbsp; &nbsp; &nbsp; &nbsp; If only a Save Directory, <strong>-saveDir</strong>, and no save File, <strong>-saveFile</strong>, is specified, data will be saved to <strong>jozIndexDebugFile.txt</strong>
 				<br>
 				&nbsp; &nbsp; &nbsp; &nbsp; If no Save File and no Save Directory are specified, data will be written <strong>Below</strong> to this <strong>Console</strong>
+				<br>
+				&nbsp; &nbsp; &nbsp; &nbsp; -opt indicates we are attempting to debug an optization index. <strong>Below</strong> to this <strong>Console</strong>
 				<br>
 			</div>
 		</form>

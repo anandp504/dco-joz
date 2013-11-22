@@ -1,6 +1,7 @@
 package com.tumri.joz.utils;
 
 import com.tumri.joz.products.JozIndexHelper;
+import com.tumri.joz.products.OptJozIndexHelper;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -75,11 +76,13 @@ public class IndexDebugUtils {
 		 *  in our data collection process.
 		 */
 		ArrayList<String> myBinFiles = new ArrayList<String>();
+		boolean isOpt = false;
 		String saveDirFlag = "-saveDir";
 		String saveFileFlag = "-saveFile";
 		String binFilesFlag = "-binFile";
 		String binLocationFlag = "-binLoc";
 		String prodIdsFlag = "-prodId";
+		String optFlag = "-opt";
         boolean bWrite = false;
 		for(int i = 0; i < args.length; i++){
 			if(saveDirFlag.equals(args[i])){
@@ -94,12 +97,14 @@ public class IndexDebugUtils {
 				binLoc = args[++i];
 			} else if(prodIdsFlag.equals(args[i])){
 				myPids.add(new Long(args[++i]));
+			}  else if(optFlag.equals(args[i])){
+				isOpt = true;
 			} else {
-				return new StringBuffer("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321");
+				return new StringBuffer("-saveDir /tmp/tmp2 -saveFile tmp.txt -binFile hello.bin -binFile bye.bin -binLoc /bin/bin2 -prodId 123456 -prodId 654321 [-opt]");
 			}
 		}
 
-        StringBuffer myDebugBuff = getBuffer(binLoc, myBinFiles, myPids);
+        StringBuffer myDebugBuff = getBuffer(binLoc, myBinFiles, myPids, isOpt);
         if (bWrite) {
             saveToFileandDir(myDebugBuff, writeDir, writeFile);
         }
@@ -118,16 +123,24 @@ public class IndexDebugUtils {
      * @param prodIds  - Specifc product ids that need to be inspected
      * @return  - result string
      */
-    private StringBuffer getBuffer(String binLoc, ArrayList<String> binFiles, ArrayList<Long> prodIds) {
+    private StringBuffer getBuffer(String binLoc, ArrayList<String> binFiles, ArrayList<Long> prodIds, boolean opt) {
         StringBuffer result = null;
         try {
             if(binLoc!= null && !"".equals(binLoc)){
                 if (!new File(binLoc).exists()) {
                     return new StringBuffer("Specified binLoc does not exist : " + binLoc);
                 }
-                result = JozIndexHelper.getInstance().loadIndexForDebug(binLoc, binFiles, prodIds);
+	            if(opt){
+		            result = OptJozIndexHelper.getInstance().loadIndexForDebug(binLoc, binFiles, prodIds);
+	            } else {
+		            result = JozIndexHelper.getInstance().loadIndexForDebug(binLoc, binFiles, prodIds);
+	            }
             } else {
-                result = JozIndexHelper.getInstance().loadIndexForDebug("/opt/Tumri/joz/data/caa/current", binFiles, prodIds);
+	            if(opt){
+		            result = OptJozIndexHelper.getInstance().loadIndexForDebug("/opt/Tumri/joz/data/caa/current", binFiles, prodIds);
+	            } else {
+		            result = JozIndexHelper.getInstance().loadIndexForDebug("/opt/Tumri/joz/data/caa/current", binFiles, prodIds);
+	            }
             }
         } finally {
             resetDebugMode();
