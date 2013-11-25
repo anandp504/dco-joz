@@ -773,23 +773,133 @@ public class TSpecExecutor {
 		m_tSpecQuery = copytSpecQuery;
 	}
 
-	IWeight<Handle> findOptWeight(IProduct.Attribute kAttr){
+	private IWeight<Handle> findOptWeight(IProduct.Attribute kAttr){
 		IWeight<Handle> wt = null;
-		if(kAttr == IProduct.Attribute.kExperienceId){
-			wt = new GenericIWeight<Handle>(1.001, false);
-		} else if(kAttr == IProduct.Attribute.kExperienceIdF1 ||
-				kAttr == IProduct.Attribute.kExperienceIdF2 ||
-				kAttr == IProduct.Attribute.kExperienceIdF3 ||
-				kAttr == IProduct.Attribute.kExperienceIdF4 ||
-				kAttr == IProduct.Attribute.kExperienceIdF5 ||
-				kAttr == IProduct.Attribute.kExperienceIdUT1 ||
-				kAttr == IProduct.Attribute.kExperienceIdUT2 ||
-				kAttr == IProduct.Attribute.kExperienceIdUT3 ||
-				kAttr == IProduct.Attribute.kExperienceIdUT4 ||
-				kAttr == IProduct.Attribute.kExperienceIdUT5){
-			wt = new GenericIWeight<Handle>(1.002, false);
+		double finalScore = 1.00001;
+		if(kAttr == IProduct.Attribute.kExperienceId){    //should be lowest in priority order
+			finalScore = 1.000001;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdF1){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kExternalFilterField1))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdF2){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kExternalFilterField2))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdF3){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kExternalFilterField3))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdF4){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kExternalFilterField4))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdF5){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kExternalFilterField5))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdUT1){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kUT1))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdUT2){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kUT2))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdUT3){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kUT3))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdUT4){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kUT4))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
+		} else if(kAttr == IProduct.Attribute.kExperienceIdUT5){
+			Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
+			Double score = null;
+			if (specifiedWeights != null && (score = specifiedWeights.get(attMap.get(IProduct.Attribute.kUT5))) != null) {
+				double newScore = score - (score.intValue());
+				newScore = newScore/10000;
+				newScore += 1;
+				score = newScore;
+			} else {
+				score = 1.00002;
+			}
+			finalScore = score;
 		}
-		return wt;
+		return new GenericIWeight<Handle>(finalScore, false);
 	}
 
 	IWeight<Handle> findWeight(IProduct.Attribute kAttr) {
