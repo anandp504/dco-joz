@@ -304,7 +304,7 @@ public class OptJozIndexHelper {
 	private void init() {
 		//todo: fill out with correct properties
 //		JOZ_INDEX_FILE_PATTERN = AppProperties.getInstance().getProperty("com.tumri.joz.index.reader.indexFileNamePattern");
-//		indexDirName = AppProperties.getInstance().getProperty("com.tumri.opt.content.file.sourceDir");
-		indexDirName = "/opt/Tumri/joz/data/caa/opt/current";
+		indexDirName = AppProperties.getInstance().getProperty("com.tumri.opt.content.file.sourceDir");
+//		indexDirName = "/opt/Tumri/joz/data/caa/opt/current";
 	}
 }
