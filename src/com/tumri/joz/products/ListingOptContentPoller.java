@@ -56,14 +56,15 @@ public class ListingOptContentPoller {
 		log.info("Going to refresh optimization listing data.");
 		long startTime = System.currentTimeMillis();
 
-		OptJozIndexHelper.getInstance().loadJozIndex(false);
+		boolean successFailFlag= OptJozIndexHelper.getInstance().loadJozIndex(false);
 
 		ListingOptContentProviderStatus.getInstance().lastSuccessfulRefreshTime = startTime;
-		ListingOptContentProviderStatus.getInstance().lastRunStatus = true;
-		ListingOptContentProviderStatus.getInstance().addRunHistory(startTime, true, "Refresh successful." +
+		ListingOptContentProviderStatus.getInstance().lastRunStatus = successFailFlag;
+        String message = (successFailFlag == true ?  "Refresh Successful" : "Refresh Fail");
+		ListingOptContentProviderStatus.getInstance().addRunHistory(startTime, successFailFlag, message +
 				" Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
 		ListingOptContentProviderStatus.getInstance().lastRefreshTime = startTime;
-		log.info("WM data refreshed successfully. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
+		log.info("Listing opt data refreshed. Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
 
 	}
 

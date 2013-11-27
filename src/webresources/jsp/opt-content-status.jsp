@@ -74,13 +74,13 @@
          <% } %>
         <br>
         <p class="label">
-            <a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/jsp/opt-content-status.jsp?reload" onclick="return confirm('This will force a wm data refresh. Do you want to continue?');">Click to force Reload</a>
+            <a href="http://<%=request.getServerName()%>:<%=request.getServerPort()%>/joz/jsp/opt-content-status.jsp?reload" onclick="return confirm('This will force a Opt Listing data refresh. Do you want to continue?');">Click to force Reload</a>
         </p>
         <br>
         <% if (status.runHistory != null && status.runHistory.size() > 0) { %>
          <table class="table">
           <tr class="table_header">
-            <td colspan=3>WM Data Refresh History</td>
+            <td colspan=3>Opt Listing Data Refresh History</td>
           </tr>
           <tr class="table_column_header">
               <td>Refresh Time</td>

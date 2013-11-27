@@ -49,7 +49,7 @@ public class OptJozIndexHelper {
 	 * Load the Joz index from the default dir that is set in the joz.properties
 	 * This will load all the joz index files for all advertisers
 	 */
-	public synchronized void loadJozIndex(boolean debug) {
+	public synchronized boolean loadJozIndex(boolean debug) {
 		try {
 			log.info("Starting to load the Joz indexes for all advertisers.");
 			Date start = new Date();
@@ -69,8 +69,10 @@ public class OptJozIndexHelper {
 				log.info("Finished loading the Joz indexes, with errors");
 			}
 			log.info(((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes");
+            return true;
 		} catch (Exception e) {
 			log.error("Joz index load failed.", e);
+            return false;
 		}
 	}
 	/**
@@ -130,12 +132,13 @@ public class OptJozIndexHelper {
 	 *
 	 * @return
 	 */
-	private List<File> getSortedOptJozIndexFileList(String dirName) {
+	private List<File> getSortedOptJozIndexFileList(String dirName) throws  InvalidConfigException{
 
 		List<File> indexFiles = new ArrayList<File>();
 		File indexDir = new File(dirName);
 		if (!indexDir.exists()) {
 			log.error("Directory does not exist : " + dirName);
+            throw  new InvalidConfigException(" ");
 		}
 
 		FSUtils.findFiles(indexFiles, indexDir, JOZ_INDEX_FILE_PATTERN);
