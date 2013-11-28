@@ -51,7 +51,7 @@ public class OptJozIndexHelper {
 	 */
 	public synchronized boolean loadJozIndex(boolean debug) {
 		try {
-			log.info("Starting to load the Joz indexes for all advertisers.");
+			log.info("Starting to load the Listing opt Joz indexes for all advertisers.");
 			Date start = new Date();
 			//Look for any Joz index files
 			List<File> indexFiles = getSortedOptJozIndexFileList(indexDirName);
@@ -65,13 +65,16 @@ public class OptJozIndexHelper {
 
 			if (!bErrors) {
 				log.info("Finished loading the Joz indexes");
+                ListingOptContentProviderStatus.getInstance().lastSuccessfulRefreshTime = System.currentTimeMillis();
 			} else {
 				log.info("Finished loading the Joz indexes, with errors");
+                ListingOptContentProviderStatus.getInstance().lastErrorRunTime = System.currentTimeMillis();
 			}
 			log.info(((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes");
             return true;
 		} catch (Exception e) {
 			log.error("Joz index load failed.", e);
+            ListingOptContentProviderStatus.getInstance().lastErrorRunTime = System.currentTimeMillis();
             return false;
 		}
 	}
@@ -138,12 +141,13 @@ public class OptJozIndexHelper {
 		File indexDir = new File(dirName);
 		if (!indexDir.exists()) {
 			log.error("Directory does not exist : " + dirName);
-            throw  new InvalidConfigException(" ");
+            throw  new InvalidConfigException("Directory not available: "+dirName);
 		}
 
 		FSUtils.findFiles(indexFiles, indexDir, JOZ_INDEX_FILE_PATTERN);
 		if (indexFiles.size() == 0) {
 			log.error("No joz index files found in directory: " + indexDir.getAbsolutePath());
+            throw new InvalidConfigException("Directory " +dirName +" is empty");
 		}
 
 		return indexFiles;

@@ -58,9 +58,9 @@ public class ListingOptContentPoller {
 
 		boolean successFailFlag= OptJozIndexHelper.getInstance().loadJozIndex(false);
 
-		ListingOptContentProviderStatus.getInstance().lastSuccessfulRefreshTime = startTime;
+		//ListingOptContentProviderStatus.getInstance().lastSuccessfulRefreshTime = startTime;
 		ListingOptContentProviderStatus.getInstance().lastRunStatus = successFailFlag;
-        String message = (successFailFlag == true ?  "Refresh Successful" : "Refresh Fail");
+        String message = (successFailFlag == true ?  "Refresh Successful" : "Refresh Failed");
 		ListingOptContentProviderStatus.getInstance().addRunHistory(startTime, successFailFlag, message +
 				" Time Taken = " + (System.currentTimeMillis() - startTime) + " millis.");
 		ListingOptContentProviderStatus.getInstance().lastRefreshTime = startTime;
