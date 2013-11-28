@@ -6,6 +6,7 @@ import com.tumri.jic.IndexCreationException;
 import com.tumri.jic.JICProperties;
 import com.tumri.jic.joz.IJozIndexUpdater;
 import com.tumri.jic.joz.PersistantProviderIndex;
+import com.tumri.joz.campaign.wm.loader.WMLoaderException;
 import com.tumri.joz.index.updater.OptJozIndexUpdater;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexLoadingComparator;
@@ -17,6 +18,7 @@ import org.apache.log4j.Logger;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.Semaphore;
+import com.tumri.joz.OptListingLoaderException;
 
 /**
  * User: scbraun
@@ -50,6 +52,7 @@ public class OptJozIndexHelper {
 	 * This will load all the joz index files for all advertisers
 	 */
 	public synchronized boolean loadJozIndex(boolean debug) {
+        Throwable th=null;
 		try {
 			log.info("Starting to load the Listing opt Joz indexes for all advertisers.");
 			Date start = new Date();
@@ -72,11 +75,13 @@ public class OptJozIndexHelper {
 			}
 			log.info(((new Date()).getTime() - start.getTime()) * 1E-3 / 60.0 + " total minutes");
             return true;
-		} catch (Exception e) {
-			log.error("Joz index load failed.", e);
+		} catch (Throwable t) {
+            th = t;
+            log.error("Joz index load failed.", th);
             ListingOptContentProviderStatus.getInstance().lastErrorRunTime = System.currentTimeMillis();
+            ListingOptContentProviderStatus.getInstance().lastError = th;
             return false;
-		}
+        }
 	}
 	/**
 	 * Load the index for a given set of Bin files. This is used by the console utlity
@@ -135,19 +140,19 @@ public class OptJozIndexHelper {
 	 *
 	 * @return
 	 */
-	private List<File> getSortedOptJozIndexFileList(String dirName) throws  InvalidConfigException{
+	private List<File> getSortedOptJozIndexFileList(String dirName) throws  OptListingLoaderException{
 
 		List<File> indexFiles = new ArrayList<File>();
 		File indexDir = new File(dirName);
 		if (!indexDir.exists()) {
 			log.error("Directory does not exist : " + dirName);
-            throw  new InvalidConfigException("Directory not available: "+dirName);
+            throw  new OptListingLoaderException("Directory not available: "+dirName);
 		}
-
+        Throwable t=null;
 		FSUtils.findFiles(indexFiles, indexDir, JOZ_INDEX_FILE_PATTERN);
 		if (indexFiles.size() == 0) {
 			log.error("No joz index files found in directory: " + indexDir.getAbsolutePath());
-            throw new InvalidConfigException("Directory " +dirName +" is empty");
+            throw new OptListingLoaderException("No opt index files found to load");
 		}
 
 		return indexFiles;
