@@ -232,12 +232,13 @@ public class TSpecExecutor {
 			//Do not randomize
 			m_randomize = false;
 		} else {
+			m_tSpecQuery.setStrict(false);
 			//Randomize
-			if (m_tspec.isEnableBackFill()) {
-				m_tSpecQuery.setStrict(false);
-			} else {
-				m_tSpecQuery.setStrict(true);
-			}
+//			if (m_tspec.isEnableBackFill()) {
+//				m_tSpecQuery.setStrict(false);
+//			} else {
+//				m_tSpecQuery.setStrict(true);
+//			}
 			m_randomize = true;
 		}
 
@@ -908,8 +909,9 @@ public class TSpecExecutor {
 		Map<String, Double> specifiedWeights = m_tspec.getProdSelWeights();
 		String tAtt = attMap.get(kAttr);
 		Double score = null;
+		boolean isStrict = !m_tspec.isEnableBackFill();
 		if (specifiedWeights != null && (score = specifiedWeights.get(tAtt)) != null) {
-			wt = new GenericIWeight<Handle>(score, false);
+			wt = new GenericIWeight<Handle>(score, isStrict);
 		}
 
 		return wt;
