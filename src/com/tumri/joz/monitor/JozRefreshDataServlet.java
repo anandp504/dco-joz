@@ -12,6 +12,8 @@ import com.tumri.joz.campaign.wm.loader.WMContentProviderStatus;
 import com.tumri.joz.campaign.wm.loader.WMDBLoader;
 import com.tumri.joz.jozMain.ListingProviderFactory;
 import com.tumri.joz.products.JozIndexHelper;
+import com.tumri.joz.products.ListingOptContentPoller;
+import com.tumri.joz.products.ListingOptContentProviderStatus;
 import com.tumri.joz.products.ProductDB;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.joz.utils.IndexLoadingComparator;
@@ -126,7 +128,15 @@ public class JozRefreshDataServlet extends HttpServlet {
 			} catch (Exception e) {
 				result = "failed";
 			}
-		} else {
+		} else if("listingOpt".equalsIgnoreCase(dataType)){
+            try {
+                result = doRefreshListingOptData();
+            } catch (Exception e) {
+                result = "failed";
+            }
+            responseJSP = "/jsp/opt-content-status.jsp";
+
+        }else {
 			//Default send to console
 			jspMode = "true";
 			responseJSP = "/jsp/console.jsp";
@@ -241,6 +251,15 @@ public class JozRefreshDataServlet extends HttpServlet {
 		String success = (status.lastRunStatus == true? "success" : "failed");
 		return success;
 	}
+    /**
+     * Helper method to refresh Listing Optimization data
+     */
+    private synchronized String doRefreshListingOptData(){
+        ListingOptContentPoller.getInstance().performTask();
+        ListingOptContentProviderStatus status = ListingOptContentProviderStatus.getInstance();
+        String result = (status.lastRunStatus == true? "success" : "failed");
+        return result;
+    }
 
 	/**
 	 * Helper method to refresh socket data
