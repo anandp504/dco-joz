@@ -1167,6 +1167,9 @@ public class TSpecExecutor {
 
 			//5. Product Type
 			//addProductTypeQuery(request.getOfferType());
+			if(doListingOpt){
+				addOptimizedExternalFilterFieldQuery(request.getExperienceId(), IProduct.Attribute.kExperienceId, request.getExperienceId()+"", null);
+			}
 
 			addExternalFilterRequestQueries(request);
 

@@ -352,7 +352,7 @@ public class IndexUtils {
             id = Product.Attribute.kRank;
         } else if (indexType.equals("discount")) {
             id = Product.Attribute.kDiscount;
-        } else if (indexType.equals("optExperienceId")){
+        } else if (indexType.equals("optExp")){
 	        id = Product.Attribute.kExperienceId;
         } else if (indexType.equals("optF1")){
 	        id = Product.Attribute.kExperienceIdF1;
