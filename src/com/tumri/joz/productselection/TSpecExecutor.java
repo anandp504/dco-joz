@@ -1213,6 +1213,13 @@ public class TSpecExecutor {
 			}
 
 			if(resultAL.size() > 0){
+				/*
+				 setting the cachereference using a random element from the resultAL prevents the same
+				 cycle of products from being selected indefinitely.
+				 */
+				int cacheRefIndex = r.nextInt(resultAL.size());
+				Handle cacheReferenceHandle = resultAL.get(cacheRefIndex);
+
 				// need to 'group' by score...only randomize within groups of equal scores,
 				// keeping overall order of scores in order
 				ArrayList<Integer> newScoreEndIndexes = new ArrayList<Integer>();
@@ -1229,22 +1236,17 @@ public class TSpecExecutor {
 
 				// this code results in a total number of iterations = resultAL.size() as well as no new array construction
 				// as well as no array shifting
-				Handle cacheReferenceHandle = null;
-				long highestPHID = -1L;
 				for(int j = 0; j < newScoreEndIndexes.size(); j++){
 					int prevEndIndex = j==0 ? 0 : newScoreEndIndexes.get(j-1);
 					int diff = newScoreEndIndexes.get(j) - prevEndIndex;
 					for(int i = diff, k=0; i > 0; i--, k++){
-						int randomIndex = r.nextInt(i) + prevEndIndex; //generate random index within group of same scores
+						int randomIndex = r.nextInt(i) + (prevEndIndex + k); //generate random index within group of same scores
 						Handle swapHandle = resultAL.get(randomIndex);  //save handle residing at random index
 						resultAL.set(randomIndex, resultAL.get(k+prevEndIndex)); //move element from the first 'available' spot in the group to the random index
 						resultAL.set(k+prevEndIndex, swapHandle); //put swapHandle which was at random index in now 'free' first available spot within the group
-						if(swapHandle.getOid() > highestPHID){
-							highestPHID = swapHandle.getOid();
-							cacheReferenceHandle = swapHandle; //todo: think about when to set cache reference..
-						}
 					}
 				}
+
 
 				//Set the cached reference for 'randomization'
 				if (cacheReferenceHandle != null) {
