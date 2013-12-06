@@ -139,7 +139,7 @@ public class ExperienceVectorTargetingProcessor {
 		}
 
 		double totalScore = 0.0;
-		Map<Integer, Double> tmpMap2 = new HashMap<Integer, Double>();
+		Map<Integer, Double> tmpMap2 = new TreeMap<Integer, Double>();
 		Integer chosenKey = null;
 		if (origExperiences != null) {
 			for (AdPodExperienceLocationMapping mapping : origExperiences) {
