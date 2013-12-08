@@ -188,7 +188,9 @@ public class OptJozIndexHelper {
 						Collections.sort(expIdList);
 						validExperienceIdList.addAll(expIdList);
 						for(Integer experienceId: expIdList){
-							ProductDB.getInstance().deleteAllOptIndexesForExperience(experienceId); //delete all indexes for this experience before loading latest
+							if(!debugMode){
+								ProductDB.getInstance().deleteAllOptIndexesForExperience(experienceId); //delete all indexes for this experience before loading latest
+							}
 							List<File> provInFiles = experienceIdToFiles.get(experienceId);
 							if(provInFiles!=null && !provInFiles.isEmpty()){
 								boolean error = false;
@@ -238,8 +240,10 @@ public class OptJozIndexHelper {
 					}
 				}
 			}
-			SortedSet<Integer> sortedExperienceIdSet = new SortedArraySet<Integer>(validExperienceIdList);
-			ProductDB.getInstance().cleanOptIndex(sortedExperienceIdSet);
+			if(!debugMode){
+				SortedSet<Integer> sortedExperienceIdSet = new SortedArraySet<Integer>(validExperienceIdList);
+				ProductDB.getInstance().cleanOptIndex(sortedExperienceIdSet);
+			}
 		}
 
 	}

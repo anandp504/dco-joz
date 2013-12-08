@@ -1,11 +1,14 @@
 package com.tumri.joz.products;
 
 import com.tumri.joz.utils.AppProperties;
+import com.tumri.utils.data.RWLocked;
 import org.apache.log4j.Logger;
 
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * User: scbraun
@@ -21,11 +24,12 @@ public class ListingOptContentPoller {
 	protected int refreshWallClockTimeMins = 8; // start at 8 min after an hour
 	protected static Timer _timer = new Timer();
 	protected static int repeatIntervalMins = 90; // repeat every 90 min
+	private static Lock lock = new ReentrantLock(true);
 
 	//todo: add new properties to local.properties
-	private static final String CONFIG_WM_WALL_CLOCK_MINUTES = "com.tumri.wm.file.refresh.time.minutes";
-	private static final String CONFIG_WM_REFRESH_INTERVAL_MINUTES = "com.tumri.wm.file.refresh.interval.minutes";
-	private static final String CONFIG_CMA_REFRESH_ENABLED = "com.tumri.campaign.file.refresh.enabled";
+	private static final String CONFIG_WM_WALL_CLOCK_MINUTES = "com.tumri.opt.file.refresh.time.minutes";
+	private static final String CONFIG_WM_REFRESH_INTERVAL_MINUTES = "com.tumri.opt.file.refresh.interval.minutes";
+	private static final String CONFIG_CMA_REFRESH_ENABLED = "com.tumri.opt.file.refresh.enabled";
 
 	private ListingOptContentPoller() {
 		super();
@@ -44,7 +48,14 @@ public class ListingOptContentPoller {
 	 * Implementation that will invoke the CMA loading.
 	 */
 	public void performTask() {
-		loadListingOptData();
+		//todo: use lock so only one load can happen at a time
+		lock.lock();
+		try{
+			loadListingOptData();
+		} finally {
+			lock.unlock();
+		}
+
 	}
 
 	/**

@@ -33,7 +33,7 @@ public class ProductDB {
 	// table of all filters associated with attributes
 	private Hashtable<IProduct.Attribute, Filter<Handle>> m_filters = new Hashtable<IProduct.Attribute, Filter<Handle>>();
 
-	private Hashtable<Integer, Hashtable<IProduct.Attribute, ProductAttributeIndex<?, Handle>>> m_opt_indices = new Hashtable<Integer, Hashtable<IProduct.Attribute, ProductAttributeIndex<?, Handle>>>();
+	private RWLockedTreeMap<Integer, Hashtable<IProduct.Attribute, ProductAttributeIndex<?, Handle>>> m_opt_indices = new RWLockedTreeMap<Integer, Hashtable<IProduct.Attribute, ProductAttributeIndex<?, Handle>>>();
 
 	// table of all long filters associated with attributes
 	private Hashtable<IProduct.Attribute, LongFilter<Handle>> m_longFilters = new Hashtable<IProduct.Attribute, LongFilter<Handle>>();
@@ -805,7 +805,9 @@ public class ProductDB {
 
 	@SuppressWarnings("unchecked")
 	public void overwriteOptIndex(IProduct.Attribute type, Integer experienceId, TreeMap<Integer, ArrayList<Handle>> mindex){
+		m_opt_indices.readerLock();
 		Hashtable<Product.Attribute, ProductAttributeIndex<?, Handle>> subIndex = m_opt_indices.get(experienceId);
+		m_opt_indices.readerUnlock();
 		if(subIndex == null){
 			subIndex = new Hashtable<Product.Attribute, ProductAttributeIndex<?, Handle>>();
 		}
@@ -818,24 +820,38 @@ public class ProductDB {
 
 		subIndex.put(type, index);
 
+		m_opt_indices.writerLock();
 		m_opt_indices.put(experienceId, subIndex);
+		m_opt_indices.writerUnlock();
 	}
 
-	public void cleanOptIndex(SortedSet<Integer> experiences){
+	public synchronized void cleanOptIndex(SortedSet<Integer> experiences){
+		List<Integer> keysToRemove = new ArrayList<Integer>(experiences.size());
+		m_opt_indices.readerLock();
 		Set<Integer> keys = m_opt_indices.keySet();
 		for(Integer key: keys){
 			if(!experiences.contains(key)){
-				m_opt_indices.remove(key);
+				keysToRemove.add(key);
 			}
+		}
+		m_opt_indices.readerUnlock();
+		for(Integer keyToRemove: keysToRemove){
+			m_opt_indices.writerLock();
+			m_opt_indices.remove(keyToRemove);
+			m_opt_indices.writerUnlock();
 		}
 	}
 
 	public void deleteAllOptIndexesForExperience(Integer experienceId){
+		m_opt_indices.writerLock();
 		m_opt_indices.remove(experienceId);
+		m_opt_indices.writerUnlock();
 	}
 
 	public ProductAttributeIndex getOptIndex(IProduct.Attribute type, Integer experienceId){
+		m_opt_indices.readerLock();
 		Hashtable<Product.Attribute, ProductAttributeIndex<?, Handle>> subIndex = m_opt_indices.get(experienceId);
+		m_opt_indices.readerUnlock();
 		if(subIndex != null){
 			return subIndex.get(type);
 		}
