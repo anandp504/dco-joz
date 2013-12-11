@@ -130,6 +130,15 @@
         <delete file="${tumri.component.home}/${component.property.file}"/>
         <copy file="${tomcat.home}/conf/${component.property.file}" overwrite="yes" preservelastmodified="true"
               todir="${tumri.component.home}/tools/lucene"/>
+
+        <mkdir dir="${tumri.component.root}/data/caa/opt/current"/>
+        <chmod perm="+w" type="dir">
+            <fileset dir="${tumri.component.root}/data/caa/opt/current"/>
+        </chmod>
+        <mkdir dir="${tumri.component.root}/data/cma"/>
+        <chmod perm="+w" type="dir">
+            <fileset dir="${tumri.component.root}/data/cma"/>
+        </chmod>
     </target>
 
     <!-- ****************************************************************** -->
