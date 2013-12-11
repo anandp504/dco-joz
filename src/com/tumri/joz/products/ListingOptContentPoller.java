@@ -27,9 +27,9 @@ public class ListingOptContentPoller {
 	private static Lock lock = new ReentrantLock(true);
 
 	//todo: add new properties to local.properties
-	private static final String CONFIG_WM_WALL_CLOCK_MINUTES = "com.tumri.opt.file.refresh.time.minutes";
-	private static final String CONFIG_WM_REFRESH_INTERVAL_MINUTES = "com.tumri.opt.file.refresh.interval.minutes";
-	private static final String CONFIG_CMA_REFRESH_ENABLED = "com.tumri.opt.file.refresh.enabled";
+	private static final String CONFIG_OPT_WALL_CLOCK_MINUTES = "com.tumri.opt.file.refresh.time.minutes";
+	private static final String CONFIG_OPT_REFRESH_INTERVAL_MINUTES = "com.tumri.opt.file.refresh.interval.minutes";
+	private static final String CONFIG_OPT_REFRESH_ENABLED = "com.tumri.opt.file.refresh.enabled";
 
 	private ListingOptContentPoller() {
 		super();
@@ -92,19 +92,19 @@ public class ListingOptContentPoller {
 
 		//Register for the polling
 		try {
-			int minutes = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_WM_WALL_CLOCK_MINUTES));
+			int minutes = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_OPT_WALL_CLOCK_MINUTES));
 			if (minutes > 0 && minutes < 60) {
 				refreshWallClockTimeMins = minutes;
 			}
-			int repeat = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_WM_REFRESH_INTERVAL_MINUTES));
+			int repeat = Integer.parseInt(AppProperties.getInstance().getProperty(CONFIG_OPT_REFRESH_INTERVAL_MINUTES));
 			if (repeat > 0 && minutes < 60) {
 				repeatIntervalMins = repeat;
 			}
 			ListingOptContentProviderStatus.getInstance().refreshInterval = repeatIntervalMins;
 		} catch(NumberFormatException e) {
-			log.error("Error when parsing either: " + CONFIG_WM_WALL_CLOCK_MINUTES +" or " + CONFIG_WM_REFRESH_INTERVAL_MINUTES);
+			log.error("Error when parsing either: " + CONFIG_OPT_WALL_CLOCK_MINUTES +" or " + CONFIG_OPT_REFRESH_INTERVAL_MINUTES);
 		}
-		String refreshEnabled = AppProperties.getInstance().getProperty(CONFIG_CMA_REFRESH_ENABLED);
+		String refreshEnabled = AppProperties.getInstance().getProperty(CONFIG_OPT_REFRESH_ENABLED);
 		if (!"false".equalsIgnoreCase(refreshEnabled)) {
 			startTimer();
 		}
