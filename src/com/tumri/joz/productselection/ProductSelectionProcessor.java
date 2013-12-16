@@ -69,7 +69,9 @@ public class ProductSelectionProcessor {
 							pr.setUseTopK(true); //By default always turn on TopK for TC campaigns
 						}
 						//The order of tspecs are important in the case of included prods
+                        if(trs.getExperience()!=null){
 						pr.setExperienceId(trs.getExperience().getId());
+                        }
 						try{
 							pr.setUserbucket(Integer.parseInt(request.getUserBucket()));
 						}catch (NumberFormatException e){
@@ -115,7 +117,9 @@ public class ProductSelectionProcessor {
 							int tspecId = queryInfoRecipe.getTspecId();
 							int numProds = queryInfoRecipe.getNumProducts();
 							String slotId = queryInfoRecipe.getSlotId();
+                            if(trs.getExperience()!=null){
 							pr.setExperienceId(trs.getExperience().getId());
+                            }
 							if (numProds > 0) {
 								pr.setPageSize(numProds);
 								pr.setCurrPage(0);
