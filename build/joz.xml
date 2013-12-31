@@ -165,17 +165,20 @@ log4j.appender.A1.layout.ConversionPattern=[%t] %-4r %-5p (%F:%L) - %m%n</echo>
 				<exclude name="WEB-INF"/>
 			</fileset>
 	    	<lib dir="${dist.dir}" includes="joz.jar"/>
-	    	<lib dir="${ext.lib.dir}" includes="*.jar">
-	    		<exclude name="log4j*.jar"/>
-	    		<exclude name="servlet-api.jar"/>
-				<exclude name="mysql-connector-java-3.1.14-bin.jar"/>        
-      		</lib>
+            <lib dir="${ext.lib.dir}" includes="xercesImpl-2.7.1.jar"/>
+            <lib dir="${ext.lib.dir}" includes="commons-lang-2.6.jar"/>
+            <lib dir="${ext.lib.dir}" includes="junit-4.4.jar"/>
+            <lib dir="${ext.lib.dir}" includes="lucene-memory-2.1.0.jar"/>
+            <lib dir="${ext.lib.dir}" includes="lucene-core-2.1.0.jar"/>
+            <lib dir="${ext.lib.dir}" includes="xstream-1.4.3.jar"/>
+            <lib dir="${ext.lib.dir}" includes="org.json.jar"/>
+            <lib dir="${ext.lib.dir}" includes="xpp3_min-1.1.4c.jar"/>
+            <lib dir="${ext.lib.dir}/struts234/lib" includes="xmlpull-1.1.3.1.jar"/>
+
 	    	<lib dir="${utils.lib.dir}" includes="${utils.lib.file}"/>
 		    <lib dir="${cma.lib.dir}" includes="${cma.lib.file}"/>
 			<lib dir="${jcl.lib.dir}" includes="${jcl.lib.file}"/>
 			<lib dir="${jic.lib.dir}" includes="${jic.lib.file}"/>
-		      <!--<lib dir="${cma.lib.dir}" includes="jyaml-1.2.jar"/>-->
-      		<!--<lib dir="${cma.lib.dir}" includes="ibatis-2.3.0.677.jar"/>-->
       		<lib dir="${caa.lib.dir}" includes="${caa.lib.file}"/>
       		<lib dir="${llc.lib.dir}" includes="${llc.lib.file}"/>
 			<!-- JMN - Include both *_version.properties and label file. -->
