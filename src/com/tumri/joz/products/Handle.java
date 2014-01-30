@@ -1,5 +1,6 @@
 package com.tumri.joz.products;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Comparator;
  * User: snawathe
  * To change this template use File | Settings | File Templates.
  */
-public interface Handle extends Comparable, Comparator {
+public interface Handle extends Comparable, Comparator, Serializable{
   /**
    * Returns the underlying object id to this handle
    * @return
