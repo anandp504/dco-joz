@@ -65,9 +65,13 @@ public class JozRefreshDataServlet extends HttpServlet {
 		String jspMode = request.getParameter("jspMode");
 		String responseJSP = "";
 		String dataType = request.getParameter("type");
+		boolean isContentRefresh = false;
+		String adv = null;
 		if ("listing".equalsIgnoreCase(dataType)) {
+			isContentRefresh = true;
 			String clearListing = request.getParameter("clear-cache");
 			String advertiser = request.getParameter("adv");
+			adv = advertiser;
 			if (clearListing!=null) {
 				result = doClearListingCache();
 				jspMode = null;
@@ -136,7 +140,7 @@ public class JozRefreshDataServlet extends HttpServlet {
             }
             responseJSP = "/jsp/opt-content-status.jsp";
 
-        }else {
+        } else {
 			//Default send to console
 			jspMode = "true";
 			responseJSP = "/jsp/console.jsp";
@@ -149,6 +153,11 @@ public class JozRefreshDataServlet extends HttpServlet {
 			response.setContentType ("text/plain");
 			PrintWriter out = response.getWriter();
 			out.print(result);
+			out.flush();
+			out.close();
+		}
+		if(isContentRefresh){
+			log.warn("Finished all of content load for " + adv);
 		}
 	}
 
