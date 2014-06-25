@@ -5,6 +5,7 @@ import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.TSpec;
 import com.tumri.cma.persistence.lisp.CampaignLispDataProviderImpl;
 import com.tumri.cma.persistence.xml.CampaignXMLDataProviderImpl;
+import com.tumri.cma.persistence.xml.versions.CampaignXMLDataProviderSAXParserImpl_1_2;
 import com.tumri.joz.Query.CNFQuery;
 import com.tumri.joz.Query.ProductQueryProcessor;
 import com.tumri.joz.Query.QueryProcessor;
@@ -39,15 +40,13 @@ public class TestProductSelection {
     try {
       Properties props = AppProperties.getInstance().getProperties();
       ContentHelper.init(props);
-      CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.newInstance(props);
-      //CampaignXMLDataProviderImpl lispDeltaProvider = CampaignXMLDataProviderImpl.newInstance(props);
-      Iterator<OSpec> iter = lispDeltaProvider.getOspecs("US");
-      QueryProcessor qp = new ProductQueryProcessor();
-      ProductDB.getInstance();
+      //CampaignLispDataProviderImpl lispDeltaProvider = CampaignLispDataProviderImpl.newInstance(props);
+      CampaignXMLDataProviderSAXParserImpl_1_2 lispDeltaProvider = CampaignXMLDataProviderSAXParserImpl_1_2.newInstance();
+      lispDeltaProvider.setProperties(props);
+      Iterator<OSpec> iter = lispDeltaProvider.getOspecs("USA");
       buildCNFQueries(iter);
-      //setup();
       test0();
-      //test1();
+      test1();
     } catch (RepositoryException e) {
       e.printStackTrace();
     }
@@ -90,7 +89,7 @@ public class TestProductSelection {
     for (CNFQuery cnf : m_queries) {
       cnf.setScan(true);
       cnf.setBounds(0,0);
-      //long start = System.currentTimeMillis();
+      
       SortedSet<Handle> set = cnf.exec();
       cnf.setScan(false);
       SortedSet<Handle> set1 = cnf.exec();
