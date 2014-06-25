@@ -25,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Assert;
 import com.tumri.joz.campaign.CampaignDBDataLoader;
+import com.tumri.joz.campaign.wm.loader.WMDBLoader;
 import com.tumri.joz.campaign.wm.loader.WMXMLParserV1;
 import com.tumri.joz.campaign.wm.loader.WMXMLParser;
 import com.tumri.joz.server.domain.JozAdRequest;
@@ -47,21 +48,10 @@ public class TestRecipeWeightTargeting {
         loader.loadData();
 
         try {
-            WMXMLParser parser = new WMXMLParserV1();
-            parser.process("/Users/nipun/ws/work-nbp/depot/Tumri/tas/joz/test/data/csl/wm-test.xml");
+        	List<String> loadedFiles = WMDBLoader.loadData();
         } catch (WMLoaderException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();  
         }
-
-        //Load the weights
-//        List details = new ArrayList<Integer>();
-//        details.add(WMUtils.getDictId(WMAttribute.kT1, "12345"));
-//        Map<WMAttribute, List<Integer>> map = new HashMap<WMAttribute, List<Integer>>();
-//        map.put(WMAttribute.kT1, details);
-//        VectorHandle h1 = new VectorHandle(12, 10, 1, map, false );
-//        SortedBag<Pair<CreativeSet, Double>> optRules = null;
-//
-//        WMDBLoader.updateDb(optRules, map, h1);
     }
 
     @Test
@@ -90,8 +80,8 @@ public class TestRecipeWeightTargeting {
         jozRequest.setValue(JozAdRequest.KEY_REGION, "WY");
         jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
         AdDataRequest request = new AdDataRequest(jozRequest);
-        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(-1, 4445, request);
-        SortedSet<Handle> results = null; //proc.getMatchingVectors(requestMap);
+        Map<VectorAttribute, List<Integer>> requestMap = VectorUtils.getContextMap(-1, 10935, request);
+        SortedSet<Handle> results = proc.getMatchingVectors(requestMap);
         Assert.assertTrue(results!=null);
         for (Handle h : results) {
             VectorHandle vh = (VectorHandle)h;
@@ -113,13 +103,13 @@ public class TestRecipeWeightTargeting {
         for (int i=0;i<10;i++) {
             TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
             JozAdRequest jozRequest = new JozAdRequest();
-            jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "105002");
+            jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_PAGE_ID, "12345");
             jozRequest.setValue(JozAdRequest.KEY_REGION, "CA");
             jozRequest.setValue(JozAdRequest.KEY_DMACODE, "123567");
             jozRequest.setValue(JozAdRequest.KEY_AREACODE, "333");
             jozRequest.setValue(JozAdRequest.KEY_ZIP_CODE, "94065");
-            jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+            jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD2, "d,a");
             jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD4, "g");
             jozRequest.setValue(JozAdRequest.KEY_USER_BUCKET, "99");

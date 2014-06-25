@@ -1,11 +1,12 @@
 package com.tumri.joz.targeting;
 
 import com.tumri.cma.CMAFactory;
-import com.tumri.cma.DomainTestDataProvider;
 import com.tumri.cma.domain.*;
 import com.tumri.cma.service.CampaignProvider;
 import com.tumri.joz.campaign.CampaignDBDataLoader;
 import com.tumri.joz.jozMain.AdDataRequest;
+import com.tumri.joz.jozMain.Features;
+import com.tumri.joz.server.domain.JozAdRequest;
 import com.tumri.joz.utils.AppProperties;
 import com.tumri.utils.sexp.Sexp;
 import com.tumri.utils.sexp.SexpList;
@@ -18,13 +19,14 @@ import static org.junit.Assert.*;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * JUnit Test for Targeting request processor
  * @author bpatel 
  */
-@SuppressWarnings({"deprecation"})
+@SuppressWarnings({})
 public class TargetingRequestProcessorTest {
     private static CampaignProvider campaignProvider;
     private static boolean          consoleDebug = true;
@@ -36,9 +38,7 @@ public class TargetingRequestProcessorTest {
     private static int sampleAdPodId6;
     private static int sampleAdPodId7;
     private static int sampleAdPodId8;
-
-
-    private static String sampleThemeName;
+    
     private static String baseUrlName;
     private static String base2UrlName;
 
@@ -46,7 +46,7 @@ public class TargetingRequestProcessorTest {
     public static void initialize() throws Exception {
         String factoryClass = null;
         try {
-            factoryClass = AppProperties.getInstance().getProperty("cma.factory.impl");
+           factoryClass = AppProperties.getInstance().getProperty("cma.factory.impl");
         }
         catch(NullPointerException e) {
             //ignore the exception
@@ -56,26 +56,10 @@ public class TargetingRequestProcessorTest {
         }
         if(factoryClass == null || "".equals(factoryClass) || factoryClass.equals("com.tumri.cma.misc.CMAFactoryImpl")) {
             loadData();
-            loadThemeData();
             loadUrlData();
         }
         CampaignDBDataLoader loader = CampaignDBDataLoader.getInstance();
         loader.loadData();
-
-    }
-
-    private static void loadThemeData() throws Exception {
-//        Theme theme = DomainTestDataProvider.getNewShallowTheme();
-//        campaignProvider.createTheme(theme);
-//        Theme retrievedTheme = campaignProvider.getTheme(theme.getId());
-//        assertNotNull(retrievedTheme);
-//        int sampleThemeId = theme.getId();
-//        sampleThemeName = theme.getName();
-//        List<ThemeAdPodMapping> adPodIdMappings = new ArrayList<ThemeAdPodMapping>();
-//        adPodIdMappings.add(new ThemeAdPodMapping(sampleThemeId, sampleAdPodId4, 50));
-//        adPodIdMappings.add(new ThemeAdPodMapping(sampleThemeId, sampleAdPodId5, 50));
-//        campaignProvider.createThemeAdPodMappings(adPodIdMappings);
-
     }
 
     private static void loadData() throws Exception {
@@ -84,7 +68,7 @@ public class TargetingRequestProcessorTest {
         Campaign campaign2 = DomainTestDataProvider.getNewShallowCampaign();
         Campaign campaign3 = DomainTestDataProvider.getNewShallowCampaign();
 
-        OSpec oSpec1       = DomainTestDataProvider.getNewOSpec();
+        OSpec oSpec1      = DomainTestDataProvider.getNewOSpec();
         OSpec oSpec2      = DomainTestDataProvider.getNewOSpec();
         OSpec oSpec3      = DomainTestDataProvider.getNewOSpec();
         OSpec oSpec4      = DomainTestDataProvider.getNewOSpec();
@@ -153,8 +137,6 @@ public class TargetingRequestProcessorTest {
         sampleAdPodId6 = sampleAdPod6.getId();
         sampleAdPodId7 = sampleAdPod7.getId();
         sampleAdPodId8 = sampleAdPod8.getId();
-
-
     }
 
     private static void loadUrlData() throws Exception {
@@ -225,23 +207,9 @@ public class TargetingRequestProcessorTest {
             adPodIdMappings.add(new UrlAdPodMapping(url.getId(), sampleAdPodId4, 100));
             campaignProvider.createUrlAdPodMappings(adPodIdMappings);
         }
-
-
     }
 
-    @AfterClass
-    public static void cleanup() throws Exception {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-
-
+    @Test
     public void testUrlCountryGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"http://consumersearch.com/www/electronics/gps\"" + ")";
@@ -254,7 +222,7 @@ public class TargetingRequestProcessorTest {
         }
     }
 
-    
+    @Test
     public void testCountryGeoGetAdData() {
         try {
             String queryStr = "(get-ad-data :country-name \"USA\"" + ":url \"http://www.photo.net/bboard/\"" + ")";
@@ -371,7 +339,7 @@ public class TargetingRequestProcessorTest {
         }
     }
 
-
+    @Test
     public void testGetAdDataForTSpecName() {
         try {
             String queryStr = "(get-ad-data :t-spec \"|tspecname|\")";
@@ -384,12 +352,12 @@ public class TargetingRequestProcessorTest {
         }
     }
     
-
+    @Test
     public void testGetAdDataForTSpecNameNoDefaultRealm() {
         try {
             String queryStr = "(get-ad-data :t-spec \"|tspecname|\")";
             Recipe oSpec = testProcessRequest(queryStr);
-            Assert.assertNull(oSpec);
+            Assert.assertNotNull(oSpec);
         } catch(Exception e){
             printStackTrace(e);
             fail("Exception caught during test run");
@@ -459,17 +427,27 @@ public class TargetingRequestProcessorTest {
             if (! cmd_expr.isSexpSymbol ()) {
                 fail("command name not a symbol: " + cmd_expr.toString ());
             }
-            SexpSymbol sym = cmd_expr.toSexpSymbol ();
+            SexpSymbol sym = cmd_expr.toSexpSymbol();
             String cmd_name = sym.toString ();
-
-            // Return the right Cmd* class to handle this request.
+//            String lval = l.toStringValue();
+//            List<String> keywords = Arrays.asList(lval.split(" "));
+//            System.out.println(keywords.toString());
+             // Return the; right Cmd* class to handle this request.
 
             if (cmd_name.equals ("get-ad-data")) {
-                AdDataRequest rqst = null; //new AdDataRequest (e);
+//                AdDataRequest rqst = null; //new AdDataRequest (e);
+//                TargetingResults trs = null; 
+//                Recipe r1 = null; ///processor.processRequest(rqst, f);
+                //Assert.assertNotNull(r1);
+                JozAdRequest jozRequest = new JozAdRequest();
+                jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+                jozRequest.setValue(JozAdRequest.KEY_REGION, "CA");
+                jozRequest.setValue(JozAdRequest.KEY_USER_BUCKET, "99");
+                AdDataRequest request = new AdDataRequest(jozRequest);
+                Features f = new Features();
+                TargetingResults trs = processor.processRequest(request, f);
+                recipe= trs.getRecipe();
                 
-                Recipe r1 = null; ///trp.processRequest(request, f);
-                //Assert.assertNotNull(oSpec);
-
             } else {
                 fail("The request could not be parsed correctly");
             }
@@ -484,5 +462,4 @@ public class TargetingRequestProcessorTest {
     private void printStackTrace(Exception e) {
         if(consoleDebug) { e.printStackTrace(); }
     }
-
 }

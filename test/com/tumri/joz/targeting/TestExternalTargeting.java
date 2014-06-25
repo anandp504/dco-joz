@@ -43,92 +43,18 @@ public class TestExternalTargeting {
     public void testCase0() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "105004");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "skyscraper");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "Y");
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = null; ///trp.processRequest(request, f);
+        TargetingResults trs = trp.processRequest(request, f);
+        Recipe r = trs.getRecipe(); ///trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());
-        //Assert.assertTrue(f.getAdpodName().equals("admin_custom"));
+        Assert.assertTrue(f.getAdpodName().equals("ContainerPixel_TVLY_CRUISE_SearchResults"));
 
     }
-    
-    @Test
-    public void testCase1() {
-        TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
-        JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "67547200");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "custom300x600");
-        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "Y");
-
-        AdDataRequest request = new AdDataRequest(jozRequest);
-        Features f = new Features();
-        Recipe r = null; ///trp.processRequest(request, f);
-        Assert.assertTrue(r!=null);
-        System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
-        System.out.println(f.getAdpodName());
-        Assert.assertTrue(f.getAdpodName().equals("admin_custom"));
-
-    }
-
-    @Test
-    public void testCase2() {
-        TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
-        JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "67547200");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "custom300x600");
-        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "Y");
-        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD2, "M");
-
-        AdDataRequest request = new AdDataRequest(jozRequest);
-        Features f = new Features();
-        Recipe r = null; ///trp.processRequest(request, f);
-        Assert.assertTrue(r!=null);
-        System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
-        System.out.println(f.getAdpodName());
-        Assert.assertTrue(f.getAdpodName().equals("admin_custom1"));
-
-    }
-
-    @Test
-    public void testCase3() {
-        TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
-        JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "67547200");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "custom300x600");
-        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD2, "F");
-
-        AdDataRequest request = new AdDataRequest(jozRequest);
-        Features f = new Features();
-        Recipe r = null; ///trp.processRequest(request, f);
-        Assert.assertTrue(r!=null);
-        System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
-        System.out.println(f.getAdpodName());
-        Assert.assertTrue(f.getAdpodName().equals("admin_custom2"));
-
-    }
-
-    @Test
-    public void testCase4() {
-        TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
-        JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "67547200");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "custom300x600");
-        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD2, "F");
-        jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "Y");
-
-        AdDataRequest request = new AdDataRequest(jozRequest);
-        Features f = new Features();
-        Recipe r = null; ///trp.processRequest(request, f);
-        Assert.assertTrue(r!=null);
-        System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
-        System.out.println(f.getAdpodName());
-        Assert.assertTrue(f.getAdpodName().equals("admin_custom2"));
-
-    }
-
 }
