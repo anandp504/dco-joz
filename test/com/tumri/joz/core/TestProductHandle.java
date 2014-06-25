@@ -14,16 +14,12 @@ public class TestProductHandle {
     public void testPH() {
        ProductHandle ph = new ProductHandle(1,1);
         ph.setProductType(1);
-       ph.setRank(0);
+        ph.setRank(0);
         ph.setChildCount(2);
         ph.setDiscount(0);
-
         ph.setHouseHoldIncome(0);
         ph.setAge(0);
         ph.setGender(0);
-
-
-
        Assert.assertTrue(ph.getAge()==0);
        Assert.assertTrue(ph.getGender()==0);
        Assert.assertTrue(ph.getHouseHoldIncome()==0);
@@ -35,8 +31,8 @@ public class TestProductHandle {
 
 	@Test
 	public void test(){
-		int numProductTypes = 32768;
-		int numAgeBuckets = 1048576;
+		int numProductTypes = 3; //32768;
+		int numAgeBuckets = 10; //1048576;
 		int numGenderBuckets = 4;
 		int numHHIBuckets = 4;
 		int numMSBuckets = 4;

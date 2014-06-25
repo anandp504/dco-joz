@@ -207,7 +207,7 @@ public class TransientDataManagerTest {
 
         //5. Make a get-ad-data request for url without geo
         String tSpecGetNonGeoStr = "(get-ad-data :theme \"test-url.com\")";
-        TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetNonGeoStr, null);
+        TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetNonGeoStr, tSpecName);
 
         //6. Add new mapping without geo location
         String mappingWithoutGeoStr = "(incorp-mapping-deltas '((:add (:theme \"test-url.com\")  nil  nil |" + tSpecName + "| 1.0f0 30942626)))";
@@ -224,7 +224,7 @@ public class TransientDataManagerTest {
         TransientDataTestUtil.deleteIncorpDeltaMapping(themeDeleteIncorpMappingStr);
 
         //9. Make a get-ad-data request for url without geo
-        TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetNonGeoStr, null);
+        TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetNonGeoStr, tSpecName);
 
         //10. Make a get-ad-data request for url using geo
         TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr, tSpecName);
@@ -234,7 +234,7 @@ public class TransientDataManagerTest {
         TransientDataTestUtil.deleteIncorpDeltaMapping(themeDeleteIncorpMappingWithGeoStr);
 
         //12. Make a get-ad-data request for url using geo
-        TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr, null);
+        TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecGetGeoStr, tSpecName);
 
         //13. Add new mapping with geo location
         String mappingWithNewGeoStr = "(incorp-mapping-deltas '((:add (:theme \"test-url.com\")  ((:zip \"11011\"))  nil |" + tSpecName + "| 1.0f0 30942626)))";
@@ -250,13 +250,14 @@ public class TransientDataManagerTest {
         Campaign testCampaign = new Campaign();
         testCampaign.setId(101);
         testCampaign.setName("testCampaign");
-//        AdGroup testGroup = new AdGroup();
-//        testGroup.setId(102);
+
         AdPod testAdPod = new AdPod();
         Recipe testRecipe = new Recipe();
         testRecipe.setId(103);
         testRecipe.setName("testRecipe");
         TSpec testTSpec = new TSpec();
+        testTSpec.setName("testTSpec");
+        TransientDataTestUtil.addNewTSpec("testTSpec");
         testTSpec.setId(106);
         OSpec testOSpec = new OSpec();
         testOSpec.setId(105);
@@ -272,7 +273,7 @@ public class TransientDataManagerTest {
         testProperty.setId(104);
         testRecipe.addProperty(testProperty);
         testAdPod.addRecipe(testRecipe);
-//        testGroup.addAdPod(testAdPod);
+        //testGroup.addAdPod(testAdPod);
         //testCampaign.addAdGroup(testGroup);
         try {
             TransientDataManager.getInstance().addCampaign(testCampaign);
@@ -281,19 +282,15 @@ public class TransientDataManagerTest {
         }
 
         String tSpecRecipeAdDataStr = "(get-ad-data :recipe-id 103)";
-        TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecRecipeAdDataStr, "testRecipe");
-
+        TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecRecipeAdDataStr, "testTSpec");
 
         //Now delete the campaign and check if the recipe id returned or not
-
 	    try {
 		    TransientDataManager.getInstance().deleteCampaign(101);
-		    TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecRecipeAdDataStr, null);
+		    TransientDataTestUtil.validateOSpecReturnedforGetAdDataRequest(tSpecRecipeAdDataStr, "sampleTestTSpec");
 	    } catch (JoZException e) {
 		    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
 	    }
-
-
     }
     
     private Recipe testTargetingRequest(String getAdDataCommandStr) throws Exception {
@@ -311,11 +308,6 @@ public class TransientDataManagerTest {
         String cmd_name = sym.toString ();
 
         // Return the right Cmd* class to handle this request.
-
-
         return recipe;
-
-    }
-
-    
+    }    
 }

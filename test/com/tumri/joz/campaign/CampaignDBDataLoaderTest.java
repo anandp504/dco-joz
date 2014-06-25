@@ -64,7 +64,7 @@ public class
     public void testTargetingExperience() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_EXPERIENCE_ID, "4003");
+        jozRequest.setValue(JozAdRequest.KEY_EXPERIENCE_ID, "5141");
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
         TargetingResults trs = trp.processRequest(request, f);
@@ -82,7 +82,7 @@ public class
     public void testTargetingAdpod() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "108905");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "110338");
         jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
@@ -94,6 +94,7 @@ public class
         pResults.setCamDimensionTypes(trs.getCamDimensionTypes());
         pResults.setTargetedExperience(trs.getExperience());
         pResults.setFixedDimMap(trs.getFixedDimMap());
+        pResults.setTargetedRecipe(trs.getRecipe());
         System.out.println(getExpData(pResults));
         System.out.println(getFixedDimMap(pResults));
         assertNotNull(trs.getExperience());
@@ -190,10 +191,6 @@ public class
 		if (res.endsWith("&&&")) {
 			res = res.substring(0, res.length() - 3);
 		}
-
 		return res;
-
 	}
-
-
 }
