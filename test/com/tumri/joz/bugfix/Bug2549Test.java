@@ -23,6 +23,8 @@ import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.joz.server.domain.JozAdRequest;
 import com.tumri.joz.targeting.TargetingRequestProcessor;
+import com.tumri.joz.targeting.TargetingResults;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,17 +47,18 @@ public class Bug2549Test {
     public void testMultipleMappingAdpod() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "106414");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "passflipLA");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD4, "passflipDAL");
 
         AdDataRequest request = new AdDataRequest(jozRequest);
-
-        Recipe r = null; //trp.processRequest(request, new Features());
+        Features f = new Features();
+        TargetingResults trs = trp.processRequest(request, f);
+        Recipe r = trs.getRecipe(); //trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
-        Assert.assertTrue(r.getAdpodId()==4824);
+        Assert.assertTrue(r.getAdpodId()==10935);
 
     }
 
@@ -63,16 +66,17 @@ public class Bug2549Test {
     public void testFindFallBackAdpodForMissingMapping() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "106414");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "passflipLA");
 
         AdDataRequest request = new AdDataRequest(jozRequest);
-
-        Recipe r = null; //trp.processRequest(request, new Features());
+        Features f = new Features();
+        TargetingResults trs = trp.processRequest(request, f);
+        Recipe r = trs.getRecipe(); //trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
-        Assert.assertTrue(r.getAdpodId()==4856);
+        Assert.assertTrue(r.getAdpodId()==10935);
 
     }
 
@@ -80,32 +84,34 @@ public class Bug2549Test {
     public void testFindFallBackAdpodForBadMapping() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "106414");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "XXX");
 
         AdDataRequest request = new AdDataRequest(jozRequest);
-
-        Recipe r = null; //trp.processRequest(request, new Features());
+        Features f = new Features();
+        TargetingResults trs = trp.processRequest(request, f);
+        Recipe r = trs.getRecipe(); //trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
-        Assert.assertTrue(r.getAdpodId()==4856);
+        Assert.assertTrue(r.getAdpodId()==10935);
 
     }
 
     public void testSingleMappingAdpod(){
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "106414");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, "fourcorners");
 
         AdDataRequest request = new AdDataRequest(jozRequest);
-
-        Recipe r = null; //trp.processRequest(request, new Features());
+        Features f = new Features();
+        TargetingResults trs = trp.processRequest(request, f);
+        Recipe r = trs.getRecipe(); //trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
-        Assert.assertTrue(r.getAdpodId()==5041);
+        Assert.assertTrue(r.getAdpodId()==10935);
 
     }
 }

@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.junit.Assert;
 import com.tumri.joz.campaign.CampaignDBDataLoader;
 import com.tumri.joz.targeting.TargetingRequestProcessor;
+import com.tumri.joz.targeting.TargetingResults;
 import com.tumri.joz.server.domain.JozAdRequest;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
@@ -44,17 +45,19 @@ public class Bug2578Test {
     public void testSingleMatches() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "106562");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, ",100");
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = null; //trp.processRequest(request, f);
+        TargetingResults trs = trp.processRequest(request, f);
+        
+        Recipe r = trs.getRecipe(); //trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());
-        Assert.assertTrue(f.getAdpodName().equals("NS-Shalane AdPod"));
+        Assert.assertTrue(f.getAdpodName().equals("ContainerPixel_TVLY_CRUISE_SearchResults"));
 
     }
 
@@ -62,17 +65,19 @@ public class Bug2578Test {
     public void testMultiMatches() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "106562");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, ",100,200");
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = null; //trp.processRequest(request, f);
+        TargetingResults trs = trp.processRequest(request, f);
+        
+        Recipe r = trs.getRecipe(); //trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());
-        Assert.assertTrue(f.getAdpodName().equals("NS-Shalane AdPod"));
+        Assert.assertTrue(f.getAdpodName().equals("ContainerPixel_TVLY_CRUISE_SearchResults"));
 
     }
 
@@ -80,17 +85,19 @@ public class Bug2578Test {
     public void testMultiMatchesWithInvalids() {
         TargetingRequestProcessor trp = TargetingRequestProcessor.getInstance();
         JozAdRequest jozRequest = new JozAdRequest();
-        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "106562");
-        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "mediumrectangle");
+        jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "109228");
+        jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "onebyone");
         jozRequest.setValue(JozAdRequest.KEY_EXTERNAL_TARGET_FIELD1, ",100,blah");
 
         AdDataRequest request = new AdDataRequest(jozRequest);
         Features f = new Features();
-        Recipe r = null; //trp.processRequest(request, f);
+        TargetingResults trs = trp.processRequest(request, f);
+        
+        Recipe r = trs.getRecipe(); //trp.processRequest(request, f);
         Assert.assertTrue(r!=null);
         System.out.println(r.getName() + " " + r.getId() + " " + r.getAdpodId());
         System.out.println(f.getAdpodName());
-        Assert.assertTrue(f.getAdpodName().equals("NS-Shalane AdPod"));
+        Assert.assertTrue(f.getAdpodName().equals("ContainerPixel_TVLY_CRUISE_SearchResults"));
 
     }
 }

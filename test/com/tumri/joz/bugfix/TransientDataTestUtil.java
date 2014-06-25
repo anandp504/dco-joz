@@ -1,11 +1,16 @@
 package com.tumri.joz.bugfix;
 
+import com.tumri.cma.domain.Campaign;
 import com.tumri.cma.domain.OSpec;
 import com.tumri.cma.domain.Recipe;
+import com.tumri.cma.domain.TSpec;
 import com.tumri.joz.campaign.CampaignDB;
 import com.tumri.joz.campaign.OSpecHelper;
 import com.tumri.joz.campaign.TransientDataException;
+import com.tumri.joz.campaign.TransientDataManager;
+import com.tumri.joz.server.domain.JozAdRequest;
 import com.tumri.joz.targeting.TargetingRequestProcessor;
+import com.tumri.joz.targeting.TargetingResults;
 import com.tumri.joz.jozMain.AdDataRequest;
 import com.tumri.joz.jozMain.Features;
 import com.tumri.utils.sexp.Sexp;
@@ -18,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.List;
 
 /**
  * Provides utility method for Transient Data creation, validation, etc. for unit tests.
@@ -34,7 +40,6 @@ public class TransientDataTestUtil {
             e.printStackTrace();
             fail("Error occured while making get-ad-data request");
         }
-
         assertNotNull(recipe);
         assertEquals(recipe.getName(), expectedOSpecName);
     }
@@ -132,14 +137,29 @@ public class TransientDataTestUtil {
 
         if (cmd_name.equals ("get-ad-data")) {
             AdDataRequest rqst = null; //new AdDataRequest (e);
-
             recipe = null; //processor.processRequest(rqst, new Features());
 
+            JozAdRequest jozRequest = new JozAdRequest();
+            jozRequest.setValue(JozAdRequest.KEY_AD_TYPE, "skyscraper");
+            jozRequest.setValue(JozAdRequest.KEY_LOCATION_ID, "115856");
+           // String tspecName = jozRequest.getValue(JozAdRequest.KEY_T_SPEC);
+            //System.out.println("tspecName: " + tspecName);
+            if(CampaignDB.getInstance().getCampaign(101) != null){
+            	if(CampaignDB.getInstance().getCampaign(101).getName().equals("testCampaign"))
+            	jozRequest.setValue(JozAdRequest.KEY_T_SPEC, "testTSpec");
+            }	
+            else
+            jozRequest.setValue(JozAdRequest.KEY_T_SPEC, "sampleTestTSpec");
+            	
+            AdDataRequest request = new AdDataRequest(jozRequest);
+            Features f = new Features();
+            TargetingResults trs = processor.processRequest(request, f);
+            if(trs != null)
+            recipe = trs.getRecipe(); //trp.processRequest(request, f);
         } else {
             fail("The request could not be parsed correctly");
         }
 
         return recipe;
-
     }
 }
